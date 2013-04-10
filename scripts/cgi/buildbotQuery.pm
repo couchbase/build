@@ -168,7 +168,8 @@ sub get_build_date
         my $end_time = int(0+ $end );
         if ($DEBUG)  { print "DEBUG: found end_time: $end_time\n"; }
         my ($second, $minute, $hour, $dayOfMonth, $month, $year, $dayOfWeek, $dayOfYear, $daylightSavings) = localtime(int($end_time));
-        $year += 1900;
+        $year  += 1900;
+        $month += 1;
         return $year .'-'. $month .'-'. $dayOfMonth;
         }
     die "Bad Reference\n";
