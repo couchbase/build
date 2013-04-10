@@ -17,15 +17,23 @@ use buildbotQuery qw(:HTML :JSON );
 use CGI qw(:standard);
 my  $query = new CGI;
 
+sub print_HTML_Page
+    {
+    my ($fragment) = @_;
+    my ($PageStart, $PageEnd) = ('<HTML><HEAD></HEAD><BODY>', '</BODY></HTML>');
+    
+    print header;
+    $PageStart."\n".$fragment."\n".$PageEnd;
+    }
+
 if ( (! $query->param('builder')) || (! $query->param('branch')) )
     {
     my $usage = "ERROR: must specify both 'builder' and 'branch' params";
-    print buildbotQuery::html_ERROR_msg($usage);
+    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage) );
     exit;
     }
 my $builder = $query->param('builder');
 my $branch  = $query->param('branch');
-
 
 #### S T A R T  H E R E 
 
@@ -43,11 +51,11 @@ foreach my $KEY (keys %$all_builds)
 foreach my $KEY (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)
     {
     $bldnum = $KEY;
-  # print "....$bldnum   $all_build{$bldnum}\n";
+    print STDERR "....$bldnum   $all_build{$bldnum}\n";
     $result = buildbotQuery::get_json($builder, '/'.$bldnum);
-  # print "....is $bldnum running?\n";
-    if ( buildbotQuery::is_running_build( $result) ) {}  #   { print "$bldnum is still running\n"; }
-    else                                 { last;      }
+    print STDERR "....is $bldnum running?\n";
+    if ( buildbotQuery::is_running_build( $result) ) { print STDERR "$bldnum is still running\n"; }
+    else                                             { last;                                      }
     }
 
 # print "\n---------------------------\n";
@@ -61,17 +69,17 @@ foreach my $KEY (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)
 if  ( buildbotQuery::is_good_build( $result) )
     {
     my $rev_numb = $branch .'-'. buildbotQuery::get_build_revision($result);
- #  print "... rev_numb is $rev_numb...\n";
+    print STDERR "... rev_numb is $rev_numb...\n";
     my $bld_date = buildbotQuery::get_build_date($result);
- #  print "... bld_date is $bld_date...\n";
+    print STDERR "... bld_date is $bld_date...\n";
     
- #  print "GOOD: $bldnum\n"; 
-    print buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date );
+    print STDERR "GOOD: $bldnum\n"; 
+    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ) );
     }
 else
     {
- #  print "FAIL: $bldnum\n"; 
-    print buildbotQuery::html_FAIL_link( $builder, $bldnum );
+    print STDERR "FAIL: $bldnum\n"; 
+    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ) );
     }
 
 # print "\n---------------------------\n";
