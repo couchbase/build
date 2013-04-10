@@ -20,10 +20,11 @@ my  $query = new CGI;
 sub print_HTML_Page
     {
     my ($fragment) = @_;
-    my ($PageStart, $PageEnd) = ('<HTML><HEAD></HEAD><BODY>', '</BODY></HTML>');
     
-    print header;
-    $PageStart."\n".$fragment."\n".$PageEnd;
+    print $query->header;
+    print $query->start_html;
+    print "\n".$fragment."\n";
+    print $query->end_html;
     }
 
 if ( (! $query->param('builder')) || (! $query->param('branch')) )
