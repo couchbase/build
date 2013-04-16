@@ -23,6 +23,9 @@ echo ------------------------------------------------- cleaning: ${WORKSPACE}/${
 rm -rf ${REPORT_ROOT}
 mkdir  ${REPORT_ROOT}
 
+NOTIFY_GOOD=${WORKSPACE}/${REPORT_ROOT}/email_ok.txt
+NOTIFY_TODO=${WORKSPACE}/${REPORT_ROOT}/email_to_merge.txt
+
 FAILS=0
 
 
@@ -188,6 +191,8 @@ for COMP in ${PROJECTS}
                 OUT_DIR=${UP2DATE}
                 OUTFILE=${COMP}-UP-TO-DATE.txt
                 OUT_ARG='-e'
+                echo -e  ${COMP}                                                                  >>   ${NOTIFTY_GOOD}
+                git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1     >>   ${NOTIFTY_GOOD}
               else
                 OUT_DIR=${REPORTS}
                 OUTFILE=${COMP}-merge_report-${BRANCH_SRC}-${BRANCH_DST}.txt
@@ -199,6 +204,7 @@ for COMP in ${PROJECTS}
         write_log  ${OUT_DIR}  ${OUTFILE}  "[${BRANCH_DST}]  git merge --no-commit -s ours ${BRANCH_SRC}"
         write_log  ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
         write_log  ${OUT_DIR}  ${OUTFILE}  "${MSG}"                                                        ${OUT_ARG}
+        echo ${COMP} ${MSG}                                                                       >>   ${NOTIFY_TODO}
         popd           > /dev/null
         sleep 7
     fi
