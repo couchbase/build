@@ -10,7 +10,7 @@ echo ===========================================================================
 env
 echo ==========================================================================================
 
-GIT_URL=http://builds.hq.northscale.net
+GIT_URL=URL://builds.hq.northscale.net
 
 REPORT_ROOT=reports
 
