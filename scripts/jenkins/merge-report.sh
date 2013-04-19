@@ -133,21 +133,21 @@ for COMP in ${PROJECTS}
   do
     if [[ -d ${COMP} ]]  ;  then rm -rf ${COMP} ; fi
     
-    BASE=couchbase
-    if [[ ${COMP} == membase-cli ]] ; then BASE=membase ; fi
-    if [[ ${COMP} == memcached   ]] ; then BASE=membase ; fi
+ #  BASE=couchbase
+ #  if [[ ${COMP} == membase-cli ]] ; then BASE=membase ; fi
+ #  if [[ ${COMP} == memcached   ]] ; then BASE=membase ; fi
 
     echo ---------------------------------------------- ${COMP}
     OUT=${COMP}-GIT-ERROR.txt
     
-    MSG=`git clone  ${GIT_URL}/${BASE}/${COMP}.git 2>&1`  ;  STATUS=$?
+    MSG=`git clone  ${GIT_URL}/${COMP}.git 2>&1`  ;  STATUS=$?
     
     if [[ $STATUS > 0 ]]
       then
-        write_log              ${ERRRORS}  ${OUT}  "GIT ERROR: unable to clone ${GIT_URL}/${BASE}/${COMP}.git"
+        write_log              ${ERRRORS}  ${OUT}  "GIT ERROR: unable to clone ${GIT_URL}/${COMP}.git"
         THIS_FAIL=$STATUS
       else
-        echo "clone ready: ${GIT_URL}/${BASE}/${COMP}.git"
+        echo "clone ready: ${GIT_URL}/${COMP}.git"
 
         pushd ${COMP}  > /dev/null
     
