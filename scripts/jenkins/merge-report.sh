@@ -10,6 +10,8 @@ echo ===========================================================================
 env
 echo ==========================================================================================
 
+GIT_URL=http://builds.hq.northscale.net
+
 REPORT_ROOT=reports
 
 REPDIR=not_merged
@@ -138,14 +140,14 @@ for COMP in ${PROJECTS}
     echo ---------------------------------------------- ${COMP}
     OUT=${COMP}-GIT-ERROR.txt
     
-    MSG=`git clone  http://github.com/${BASE}/${COMP}.git 2>&1`  ;  STATUS=$?
+    MSG=`git clone  ${GIT_URL}/${BASE}/${COMP}.git 2>&1`  ;  STATUS=$?
     
     if [[ $STATUS > 0 ]]
       then
-        write_log              ${ERRRORS}  ${OUT}  "GIT ERROR: unable to clone http://github.com/${BASE}/${COMP}.git"
+        write_log              ${ERRRORS}  ${OUT}  "GIT ERROR: unable to clone ${GIT_URL}/${BASE}/${COMP}.git"
         THIS_FAIL=$STATUS
       else
-        echo "clone ready: http://github.com/${BASE}/${COMP}.git"
+        echo "clone ready: ${GIT_URL}/${BASE}/${COMP}.git"
 
         pushd ${COMP}  > /dev/null
     
