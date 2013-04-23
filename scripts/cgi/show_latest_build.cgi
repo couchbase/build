@@ -12,7 +12,8 @@ use warnings;
 $|++;
 
 
-use buildbotQuery qw(:HTML :JSON );
+use buildbotQuery   qw(:HTML :JSON );
+use buildbotMapping qw(:DEFAULT);
 
 use CGI qw(:standard);
 my  $query = new CGI;
@@ -26,15 +27,33 @@ sub print_HTML_Page
     print "\n".$fragment."\n";
     print $query->end_html;
     }
+my $installed_URL='http://10.3.2.199/cgi-bin/build/scripts/cgi/show_latest_build.cgi';
 
-if ( (! $query->param('builder')) || (! $query->param('branch')) )
+my $usage = "ERROR: must specify  EITHER both 'builder' and 'branch' params\n"
+           ."                         OR all of 'platform', 'bits', 'branch'\n\n"
+           ."<PRE>"
+           ."For example:\n\n"
+           ."    $installed_URL/$SCRIPT_NAME?builder=cs-win2008-x64-20-builder-202&branch=2.0.2\n\n"
+           ."    $installed_URL/$SCRIPT_NAME?platform=windows&bits=64&branch=2.0.2\n\n"
+           ."<PRE>";
+
+my ($builder, $branch);
+
+if ( $query->param('builder') && $query->param('branch') )
     {
-    my $usage = "ERROR: must specify both 'builder' and 'branch' params";
+    $builder = $query->param('builder');
+    $branch  = $query->param('branch');
+    }
+elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param('branch')) )
+    {
+    $builder = buildbotMapping::get_builder( $query->param('platform'), $query->param('bits'), $query->param('branch') );
+    $branch  = $query->param('branch');
+    }
+else
+    {
     print_HTML_Page( buildbotQuery::html_ERROR_msg($usage) );
     exit;
     }
-my $builder = $query->param('builder');
-my $branch  = $query->param('branch');
 
 #### S T A R T  H E R E 
 
