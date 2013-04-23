@@ -169,12 +169,12 @@ for COMP in ${PROJECTS}
             if      [[ ! `git branch --all | grep  ${GIT_BASE} | grep ${BRANCH_SRC}` ]]
               then
                 write_log      ${ERRRORS}  ${OUT}  "Project ${COMP} has no branch ${BRANCH_SRC} on github"
-                THIS_FAIL=0
+                THIS_FAIL=1
               else
                 if  [[ ! `git branch --all | grep  ${GIT_BASE} | grep ${BRANCH_DST}` ]]
                   then
                     write_log  ${ERRRORS}  ${OUT}  "Project ${COMP} has no branch ${BRANCH_DST} on github"
-                    THIS_FAIL=0
+                    THIS_FAIL=1
                   else
                     MSG=`show_merges`    ;  THIS_FAIL=$?
                 fi
