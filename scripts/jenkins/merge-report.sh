@@ -28,6 +28,14 @@ mkdir  ${REPORT_ROOT}
 NOTIFY_GOOD=${WORKSPACE}/${REPORT_ROOT}/email_ok.txt
 NOTIFY_TODO=${WORKSPACE}/${REPORT_ROOT}/email_to_merge.txt
 
+NOTIFY_FROM=build@couchbase.com
+NOTIFY_DIST=philip@couchbase.com
+NOTIFY_SUBJ='[QE]  merge report:  '${BRANCH_SRC}' -> '${BRANCH_DST}
+NOTIFY_NAME=Couchbase QE
+NOTIFY_FILE=${WORKSPACE}/${REPORT_ROOT}/email_full.txt
+
+NOTIFY_CMD=/usr/sbin/sendmail
+
 FAILS=0
 
 
@@ -36,6 +44,30 @@ GITLOG='--pretty=format:--------------------------------------------------\ncomm
 
 
 GIT_BASE=origin
+
+function make_notify_text
+    {
+    local GOOD_FILE = shift
+    local TODO_FILE = shift
+    local MSG
+    
+    MSG =       "TO:      ${NOTIFY_DIST}\n"
+    MSG = ${MSG}"From:    ${NOTIFY_FROM}\n"
+    MSG = ${MSG}"Subject: ${NOTIFY_SUBJ}\n\n"
+    
+    MSG = ${MSG}"UP-TO-DATE:\n"
+    MSG = ${MSG}`cat ${GOOD_FILE}`"\n\n"
+    MSG = ${MSG}"TO BE MERGED:\n"
+    MSG = ${MSG}`cat ${TODO_FILE}`"\n\n"
+    echo  ${MSG}
+    }
+
+
+function send_notify
+    {
+    local EMAIL_TEXT = 
+    cat ${} | ${NOTIFY_CMD} -F${NOTIFY_NAME}
+    }
 
 function show_merges
     {
@@ -214,6 +246,9 @@ for COMP in ${PROJECTS}
         sleep 7
     fi
 done
+
+NOTIFY_EMAIL=4
+make_notify_text ${NOTIFY_GOOD} ${NOTIFY_TODO} > ${NOTIFY_FILE}
 
 
 if [[ ${FAILS} > 0 ]] ; then echo ${FAILS} tests FAILED
