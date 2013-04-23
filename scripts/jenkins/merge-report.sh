@@ -49,15 +49,15 @@ function make_notify_text
     {
     local MSG
     
-    MSG =       "TO:      ${NOTIFY_DIST}\n"
-    MSG = ${MSG}"From:    ${NOTIFY_FROM}\n"
-    MSG = ${MSG}"Subject: ${NOTIFY_SUBJ}\n\n"
+    MSG=       "TO:      ${NOTIFY_DIST}\n"
+    MSG= ${MSG}"From:    ${NOTIFY_FROM}\n"
+    MSG= ${MSG}"Subject: ${NOTIFY_SUBJ}\n\n"
     
-    MSG = ${MSG}"UP-TO-DATE:\n"
-    MSG = ${MSG}`cat ${NOTIFY_GOOD}`"\n\n"
-    MSG = ${MSG}"TO BE MERGED:\n"
-    MSG = ${MSG}`cat ${NOTIFY_TODO}`"\n\n"
-    echo  ${MSG}
+    MSG="${MSG}UP-TO-DATE:\n"
+    MSG="${MSG}`cat ${NOTIFY_GOOD}`\n\n"
+    MSG="${MSG}TO BE MERGED:\n"
+    MSG="${MSG}`cat ${NOTIFY_TODO}`\n\n"
+    echo ${MSG}
     }
 
 
