@@ -47,8 +47,6 @@ GIT_BASE=origin
 
 function make_notify_text
     {
-    local GOOD_FILE = shift
-    local TODO_FILE = shift
     local MSG
     
     MSG =       "TO:      ${NOTIFY_DIST}\n"
@@ -56,9 +54,9 @@ function make_notify_text
     MSG = ${MSG}"Subject: ${NOTIFY_SUBJ}\n\n"
     
     MSG = ${MSG}"UP-TO-DATE:\n"
-    MSG = ${MSG}`cat ${GOOD_FILE}`"\n\n"
+    MSG = ${MSG}`cat ${NOTIFY_GOOD}`"\n\n"
     MSG = ${MSG}"TO BE MERGED:\n"
-    MSG = ${MSG}`cat ${TODO_FILE}`"\n\n"
+    MSG = ${MSG}`cat ${NOTIFY_TODO}`"\n\n"
     echo  ${MSG}
     }
 
@@ -248,7 +246,10 @@ for COMP in ${PROJECTS}
 done
 
 NOTIFY_EMAIL=4
-make_notify_text ${NOTIFY_GOOD} ${NOTIFY_TODO} > ${NOTIFY_FILE}
+make_notify_text > ${NOTIFY_FILE}
+echo wrote:
+            `make_notify_text`
+echo onto          ${NOTIFY_FILE}
 
 
 if [[ ${FAILS} > 0 ]] ; then echo ${FAILS} tests FAILED
