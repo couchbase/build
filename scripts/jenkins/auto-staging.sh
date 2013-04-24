@@ -2,10 +2,10 @@
 
 usage(){
     echo "Usage:"
-    echo "./auto_build {VERSION}"
+    echo "./auto_staging {VERSION}"
     echo "By default the script will handle packages for all names, platform and package types"
     echo "If you want to specify platform, name or types, usage is:"
-    echo "NAME={NAME} PLATFORM={PLATFORM} TYPE={TYPE} ./auto_build {VERSION}"
+    echo "NAME={NAME} PLATFORM={PLATFORM} TYPE={TYPE} ./auto_staging {VERSION}"
 }
 
 if [ $# -eq 0 ]; then
