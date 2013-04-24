@@ -2,7 +2,7 @@
 
 usage(){
     echo "Usage:"
-    echo "./auto_staging {VERSION}". {VERSION} is something like 2.0.2-769-rel
+    echo "./auto_staging {VERSION}. {VERSION} is something like 2.0.2-769-rel"
     echo "By default the script will handle packages for all names, platform and package types"
     echo "If you want to specify platform, name or types, usage is:"
     echo "NAME={NAME} PLATFORM={PLATFORM} TYPE={TYPE} ./auto_staging {VERSION}"
