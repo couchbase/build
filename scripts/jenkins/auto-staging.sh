@@ -85,6 +85,3 @@ done
 
 echo "Start uploading packages to S3 server"
 s3cmd put -P * "s3://packages.couchbase.com/releases/`echo ${1} | cut -d '-' -f1`/"
-
-cd ~
-
