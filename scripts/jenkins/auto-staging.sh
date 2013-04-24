@@ -69,6 +69,7 @@ for package_type in ${types[@]}; do
             wget "http://builds.hq.northscale.net/latestbuilds/$package"
             #wget "http://builds.hq.northscale.net/latestbuilds/$package.manifest.xml"
             cp $package $release
+            #cp "$package.manifest.xml" "$release.manifest.xml"
 
             echo "Calculate md5sum for $release"
             md5sum $release > "$release.md5"
@@ -76,11 +77,14 @@ for package_type in ${types[@]}; do
             echo "Staging for $release"
             touch "$release.staging"
             #touch "$release.manifest.xml.staging"
-            rm "$package*"
+            rm $package
+            #rm "$package.manifest.xml"
         done
     done
 done
 
 echo "Start uploading packages to S3 server"
 s3cmd put -P * "s3://packages.couchbase.com/releases/`echo ${1} | cut -d '-' -f1`/"
+
+cd ~
 
