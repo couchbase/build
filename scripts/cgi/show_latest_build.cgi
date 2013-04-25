@@ -11,6 +11,15 @@ use warnings;
 #use strict;
 $|++;
 
+use File::Basename;
+use Cwd qw(abs_path);
+BEGIN
+    {
+    $THIS_DIR = dirname( abs_path($0));
+    print "THIS_DIR is $THIS_DIR\n";
+    unshift( @INC, $THIS_DIR );
+    }
+
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
 use buildbotReports qw(:DEFAULT);

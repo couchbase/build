@@ -85,9 +85,9 @@ sub last_good_build
     foreach my $KEY (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)
         {
         $bldnum = $KEY;
-        print STDERR "....$bldnum   $all_build{$bldnum}\n";
+     #  print STDERR "....$bldnum   $all_build{$bldnum}\n";
         $result = buildbotQuery::get_json($builder, '/'.$bldnum);
-        print STDERR "....is $bldnum running?\n";
+     #  print STDERR "....is $bldnum running?\n";
         if ( buildbotQuery::is_running_build( $result) )
             {
             print STDERR "$bldnum is still running\n";
@@ -100,9 +100,9 @@ sub last_good_build
             { last; }
         }
     my $rev_numb = $branch .'-'. buildbotQuery::get_build_revision($result);
-    print STDERR "... rev_numb is $rev_numb...\n";
+  # print STDERR "... rev_numb is $rev_numb...\n";
     my $bld_date = buildbotQuery::get_build_date($result);
-    print STDERR "... bld_date is $bld_date...\n";
+  # print STDERR "... bld_date is $bld_date...\n";
     
     if  ( buildbotQuery::is_good_build( $result) )
         {
