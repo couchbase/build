@@ -29,10 +29,12 @@ my  $query = new CGI;
 
 sub print_HTML_Page
     {
-    my ($fragment, $timeout_seconds) = @_;
+    my ($fragment, $page_title, $timeout_seconds) = @_;
     
     print $query->header;
-    print $query->start_html( -head=>meta( {-http_equiv => 'refresh', -content => $timeout_seconds} ) );
+    print $query->start_html( -title => $page_title,
+                              -head  => meta({-http_equiv => 'refresh', -content => $timeout_seconds}),
+                            );
     print "\n".$fragment."\n";
     print $query->end_html;
     }
@@ -60,7 +62,7 @@ elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param(
     }
 else
     {
-    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), $hour_of_secods );
+    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), $builder, $hour_of_secods );
     exit;
     }
 
@@ -72,7 +74,7 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date) = buildbotReports::last_done_buil
 
 if ($bldstatus)
     {
-    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ), $ten_minutes );
+    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ), $builder, $ten_minutes );
     
     print STDERR "GOOD: $bldnum\n"; 
     }
@@ -80,7 +82,7 @@ else
     {
     print STDERR "FAIL: $bldnum\n"; 
     
-    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ), $hour_of_secods );
+    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ), $builder, $hour_of_secods );
     }
 
 
