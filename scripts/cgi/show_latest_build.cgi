@@ -15,10 +15,9 @@ use File::Basename;
 use Cwd qw(abs_path);
 BEGIN
     {
-    $THIS_DIR = dirname( abs_path($0));
-    print "THIS_DIR is $THIS_DIR\n";
-    unshift( @INC, $THIS_DIR );
+    $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
+my ($hour_of_secods, $quarter_hour, $ten_minutes, $five_minutes) = (3600, 900, 600, 300);
 
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
@@ -27,12 +26,13 @@ use buildbotReports qw(:DEFAULT);
 use CGI qw(:standard);
 my  $query = new CGI;
 
+
 sub print_HTML_Page
     {
-    my ($fragment) = @_;
+    my ($fragment, $timeout_seconds) = @_;
     
     print $query->header;
-    print $query->start_html;
+    print $query->start_html( -head=>meta( {-http_equiv => 'refresh', -content => $timeout_seconds} ) );
     print "\n".$fragment."\n";
     print $query->end_html;
     }
@@ -60,7 +60,7 @@ elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param(
     }
 else
     {
-    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage) );
+    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), $hour_of_secods );
     exit;
     }
 
@@ -72,7 +72,7 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date) = buildbotReports::last_done_buil
 
 if ($bldstatus)
     {
-    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ) );
+    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ), $ten_minutes );
     
     print STDERR "GOOD: $bldnum\n"; 
     }
@@ -80,7 +80,7 @@ else
     {
     print STDERR "FAIL: $bldnum\n"; 
     
-    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ) );
+    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ), $hour_of_secods );
     }
 
 
