@@ -43,16 +43,10 @@ else
 fi
 
 echo "Create tmp folder to hold all the packages"
-user=`whoami`
-if [ $user = "root" ]; then
-    rm -r ~/release_tmp
-    mkdir ~/release_tmp
-    chmod 777 ~/release_tmp
-else
-    sudo rm -r ~/release_tmp
-    sudo mkdir ~/release_tmp
-    sudo chmod 777 ~/release_tmp
-fi
+rm ~/home_phone.txt
+rm -r ~/release_tmp
+mkdir ~/release_tmp
+chmod 777 ~/release_tmp
 cd ~/release_tmp
 
 for package_type in ${types[@]}; do
@@ -67,6 +61,11 @@ for package_type in ${types[@]}; do
             fi
 
             wget "http://builds.hq.northscale.net/latestbuilds/$package"
+            if [ -z `ls $package` ]; then
+                echo "$package is not found on http://builds.hq.northscale.net/latestbuilds/"
+                echo "Terminate the staging process"
+                exit 1
+            fi
             #wget "http://builds.hq.northscale.net/latestbuilds/$package.manifest.xml"
             cp $package $release
             #cp "$package.manifest.xml" "$release.manifest.xml"
@@ -77,11 +76,14 @@ for package_type in ${types[@]}; do
             echo "Staging for $release"
             touch "$release.staging"
             #touch "$release.manifest.xml.staging"
+            echo $package >> ~/home_phone.txt
             rm $package
             #rm "$package.manifest.xml"
         done
     done
 done
 
+echo "Start uploading packages' staging to S3 server"
+s3cmd put -P *.staging "s3://packages.couchbase.com/releases/`echo ${1} | cut -d '-' -f1`/"
 echo "Start uploading packages to S3 server"
-s3cmd put -P * "s3://packages.couchbase.com/releases/`echo ${1} | cut -d '-' -f1`/"
+s3cmd put -P `ls | grep -v staging` "s3://packages.couchbase.com/releases/`echo ${1} | cut -d '-' -f1`/"
