@@ -11,19 +11,30 @@ use warnings;
 #use strict;
 $|++;
 
+use File::Basename;
+use Cwd qw(abs_path);
+BEGIN
+    {
+    $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
+    }
+my ($hour_of_secods, $quarter_hour, $ten_minutes, $five_minutes) = (3600, 900, 600, 300);
 
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
+use buildbotReports qw(:DEFAULT);
 
 use CGI qw(:standard);
 my  $query = new CGI;
 
+
 sub print_HTML_Page
     {
-    my ($fragment) = @_;
+    my ($fragment, $page_title, $timeout_seconds) = @_;
     
     print $query->header;
-    print $query->start_html;
+    print $query->start_html( -title => $page_title,
+                              -head  => meta({-http_equiv => 'refresh', -content => $timeout_seconds}),
+                            );
     print "\n".$fragment."\n";
     print $query->end_html;
     }
@@ -33,8 +44,8 @@ my $usage = "ERROR: must specify  EITHER both 'builder' and 'branch' params\n"
            ."                         OR all of 'platform', 'bits', 'branch'\n\n"
            ."<PRE>"
            ."For example:\n\n"
-           ."    $installed_URL/$SCRIPT_NAME?builder=cs-win2008-x64-20-builder-202&branch=2.0.2\n\n"
-           ."    $installed_URL/$SCRIPT_NAME?platform=windows&bits=64&branch=2.0.2\n\n"
+           ."    $installed_URL?builder=cs-win2008-x64-20-builder-202&branch=2.0.2\n\n"
+           ."    $installed_URL?platform=windows&bits=64&branch=2.0.2\n\n"
            ."<PRE>";
 
 my ($builder, $branch);
@@ -46,61 +57,34 @@ if ( $query->param('builder') && $query->param('branch') )
     }
 elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param('branch')) )
     {
-    $builder = buildbotMapping::get_builder( $query->param('platform'), $query->param('bits'), $query->param('branch') );
     $branch  = $query->param('branch');
+    $builder = buildbotMapping::get_builder( $query->param('platform'), $query->param('bits'), $branch );
     }
 else
     {
-    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage) );
+    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), $builder, $hour_of_secods );
     exit;
     }
 
+print STDERR "\nready to start with\n($builder, $branch)\n";
+
 #### S T A R T  H E R E 
 
-my $URL_ROOT=buildbotQuery::get_URL_root();
+my ($bldstatus, $bldnum, $rev_numb, $bld_date) = buildbotReports::last_done_build($builder, $branch);
 
-my $all_builds = buildbotQuery::get_json($builder);
-
-my ($bldnum, $result);
-foreach my $KEY (keys %$all_builds)
+if ($bldstatus)
     {
-    my $VAL = $$all_build{$KEY};
-    if (! defined $VAL)  { $$all_build{$KEY}="null" }
-    }
-
-foreach my $KEY (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)
-    {
-    $bldnum = $KEY;
-    print STDERR "....$bldnum   $all_build{$bldnum}\n";
-    $result = buildbotQuery::get_json($builder, '/'.$bldnum);
-    print STDERR "....is $bldnum running?\n";
-    if ( buildbotQuery::is_running_build( $result) ) { print STDERR "$bldnum is still running\n"; }
-    else                                             { last;                                      }
-    }
-
-# print "\n---------------------------\n";
-# print buildbotQuery::html_builder_link($builder);
-# print "\n---------------------------\n";
-# print buildbotQuery::html_OK();
-# print "\n---------------------------\n";
-# print buildbotQuery::html_ERROR_msg("compile failure, jackson");
-# print "\n---------------------------\n";
-
-if  ( buildbotQuery::is_good_build( $result) )
-    {
-    my $rev_numb = $branch .'-'. buildbotQuery::get_build_revision($result);
-    print STDERR "... rev_numb is $rev_numb...\n";
-    my $bld_date = buildbotQuery::get_build_date($result);
-    print STDERR "... bld_date is $bld_date...\n";
+    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ), $builder, $ten_minutes );
     
     print STDERR "GOOD: $bldnum\n"; 
-    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ) );
     }
 else
     {
     print STDERR "FAIL: $bldnum\n"; 
-    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ) );
+    
+    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ), $builder, $hour_of_secods );
     }
+
 
 # print "\n---------------------------\n";
 __END__
