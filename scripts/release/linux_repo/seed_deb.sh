@@ -16,7 +16,7 @@ function usage
     echo ""
     echo "      Edition is either 'community' or 'enterprise'"
     echo ""
-    echo EDITION is $EDITION
+ #  echo EDITION is $EDITION
     echo ""
     }
 
@@ -26,6 +26,7 @@ export    EDITION
 
 REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb                              
 export REPO
+echo "Creating local ${EDITION} repo at ${REPO}"
 
 
 KEY=CB6EBC87

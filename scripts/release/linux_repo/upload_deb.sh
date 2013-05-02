@@ -12,13 +12,16 @@ export    LOCAL_REPO_ROOT
 function usage
     {
     echo ""
-    echo "use:  `basename $0`  Release Edition"
+    echo "use:  `basename $0`  Release Edition [ --init | --update ]"
     echo ""
     echo "      Release is build number, like 2.0.2-1234"
     echo "      Edition is either 'community' or 'enterprise'"
     echo ""
-    echo VERSION is $VERSION
-    echo EDITION is $EDITION
+    echo "      use --init   to create the S3 bucket and upload from local repo"
+    echo "      use --update to add files from local repo to the S3 bucket"
+    echo ""
+  # echo VERSION is $VERSION
+  # echo EDITION is $EDITION
     echo ""
     }
 
@@ -34,8 +37,10 @@ export    EDITION
 
 REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb
 
-
 S3ROOT=s3://packages.couchbase.com/releases/couchbase-server/${EDITION}/deb
+
+echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
+
 
 if [[ $1 == "--init" ]]
     then
