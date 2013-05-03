@@ -1,10 +1,11 @@
 #!/bin/bash
 #  
-#  Create a new local debian repo.  Step 1 of three:
+#  Create a new local debian repo.  Step 1 of four:
 #  
-#   1.  seed new repo
-#   2.  import packages
-#   3.  upload to shared repository
+#   1.  prepare repo meta-files
+#   2.  seed new repo
+#   3.  import packages
+#   4.  upload to shared repository
 #  
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
 export    LOCAL_REPO_ROOT
@@ -16,7 +17,6 @@ function usage
     echo ""
     echo "      Edition is either 'community' or 'enterprise'"
     echo ""
- #  echo EDITION is $EDITION
     echo ""
     }
 
@@ -24,14 +24,13 @@ EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ;
 if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
 export    EDITION                                                   
 
+
 REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb                              
 export REPO
 echo "Creating local ${EDITION} repo at ${REPO}"
 
-
 KEY=CB6EBC87
 
-mkdir -p ${REPO}/keys
 mkdir -p ${REPO}/conf
 
 OUTFILE=${REPO}/conf/distributions
@@ -56,4 +55,3 @@ echo "Components: lucid/main"                                       >> ${OUTFILE
 echo "Architectures: amd64 i386 source"                             >> ${OUTFILE}
 echo "Description: Couchbase Community Repository "                 >> ${OUTFILE}
 
-cp ./couchbase-server-public-key  ${REPO}/keys/couchbase-server-public-key
