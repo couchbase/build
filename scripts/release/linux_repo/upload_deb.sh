@@ -1,35 +1,26 @@
 #!/bin/bash
 #  
-#  Upload local debian repo to shared repo.  Step 3 of three:
+#  Upload local debian repo to shared repo.  Step 4 of four:
 #  
-#   1.  seed new repo
-#   2.  import packages
-#   3.  upload to shared repository
+#   1.  prepare repo meta-files
+#   2.  seed new repo
+#   3.  import packages
+#   4.  upload to shared repository
 #  
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
-export    LOCAL_REPO_ROOT
 
 function usage
     {
     echo ""
-    echo "use:  `basename $0`  Release Edition [ --init | --update ]"
+    echo "use:  `basename $0`  Edition [ --init | --update ]"
     echo ""
-    echo "      Release is build number, like 2.0.2-1234"
     echo "      Edition is either 'community' or 'enterprise'"
     echo ""
     echo "      use --init   to create the S3 bucket and upload from local repo"
     echo "      use --update to add files from local repo to the S3 bucket"
     echo ""
-  # echo VERSION is $VERSION
-  # echo EDITION is $EDITION
     echo ""
     }
-
-VER_REX='[0-9]\.[0-9]\.[0-9]-[0-9]{1,}'
-
-VERSION=$1 ; shift ; if [[ ! ${VERSION} ]] ; then read -p "Release: "  VERSION ; fi
-if [[ ! ${VERSION} =~ ${VER_REX} ]]                                ; then echo "bad version" ; usage ; exit 9 ; fi
-export    VERSION
 
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
 if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
@@ -44,9 +35,9 @@ echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
 
 if [[ $1 == "--init" ]]
     then
-    pushd ${REPO} 2>&1 >> /dev/null
+    pushd ${LOCAL_REPO_ROOT}/${EDITION} 2>&1 >> /dev/null
     s3cmd put -v -P --recursive deb  ${S3ROOT}
-    popd          2>&1 >> /dev/null
+    popd                                2>&1 >> /dev/null
 
 else if [[ $1 == "--update" ]]
     then
@@ -58,7 +49,6 @@ else if [[ $1 == "--update" ]]
     fi
 fi
 
-                                      # every
 
 s3cmd setacl --acl-public --recursive ${S3ROOT} 
 s3cmd ls                              ${S3ROOT}

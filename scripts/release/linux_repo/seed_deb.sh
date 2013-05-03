@@ -1,14 +1,14 @@
 #!/bin/bash
 #  
-#  Create a new local debian repo.  Step 1 of four:
+#  Create a new local debian repo.  Step 2 of five:
 #  
 #   1.  prepare repo meta-files
 #   2.  seed new repo
 #   3.  import packages
 #   4.  upload to shared repository
+#   5.  upload keys and sources files
 #  
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
-export    LOCAL_REPO_ROOT
 
 function usage
     {
@@ -21,12 +21,14 @@ function usage
     }
 
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
-if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
-export    EDITION                                                   
+if [[ ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
+
+if [[ ${EDITION} == 'community'  ]] ; then EDITION_NAME='Community Edition'  ; fi
+if [[ ${EDITION} == 'enterprise' ]] ; then EDITION_NAME='Enterprise Edition' ; fi
 
 
 REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb                              
-export REPO
+
 echo "Creating local ${EDITION} repo at ${REPO}"
 
 KEY=CB6EBC87
@@ -37,6 +39,7 @@ OUTFILE=${REPO}/conf/distributions
 
 echo "writing ${OUTFILE}"
 
+echo '# `date`'                                                      > ${OUTFILE}
 echo "Origin: couchbase"                                            >> ${OUTFILE}
 echo "SignWith: ${KEY}"                                             >> ${OUTFILE}
 echo "Suite: precise"                                               >> ${OUTFILE}
@@ -44,7 +47,7 @@ echo "Codename: precise"                                            >> ${OUTFILE
 echo "Version: 12.04"                                               >> ${OUTFILE}
 echo "Components: precise/main"                                     >> ${OUTFILE}
 echo "Architectures: amd64 i386 source"                             >> ${OUTFILE}
-echo "Description: Couchbase Community Repository"                  >> ${OUTFILE}
+echo "Description: Couchbase ${EDITION_NAME} Repository"            >> ${OUTFILE}
 echo ""                                                             >> ${OUTFILE}
 echo "Origin: couchbase"                                            >> ${OUTFILE}
 echo "SignWith: ${KEY}"                                             >> ${OUTFILE}
@@ -53,5 +56,5 @@ echo "Codename: lucid"                                              >> ${OUTFILE
 echo "Version: 10.04"                                               >> ${OUTFILE}
 echo "Components: lucid/main"                                       >> ${OUTFILE}
 echo "Architectures: amd64 i386 source"                             >> ${OUTFILE}
-echo "Description: Couchbase Community Repository "                 >> ${OUTFILE}
+echo "Description: Couchbase ${EDITION_NAME} Repository "           >> ${OUTFILE}
 
