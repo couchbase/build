@@ -1,11 +1,13 @@
 #!/bin/bash
 #  
-#  Create a new local yum repo.  Step 1 of four:
+#  Create a new local yum repo.  Step 1 of six:
 #  
-#   1.  seed new repo
-#   2.  import packages
-#   3.  sign packges in local repo
-#   4.  upload local repo to shared repository
+#   1.  prepare repo meta-files
+#   2.  seed new repo
+#   3.  import packages
+#   4.  sign packges in local repo
+#   5.  upload local repo to shared repository
+#   6.  upload keys and yum.repos.d
 #  
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
 export    LOCAL_REPO_ROOT

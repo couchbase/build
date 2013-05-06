@@ -1,12 +1,15 @@
 #!/bin/bash
 #  
-#  Upload local debian repo to shared repo.  Step 5 of five:
+#  Upload meta files from local debian/rpm repo(s) to shared location on S3.
 #  
-#   1.  prepare repo meta-files
-#   2.  seed new repo
-#   3.  import packages
-#   4.  upload to shared repository
-#   5.  upload keys and sources files
+#  Last step in both DEB and RPM processes (see *deb.sh, *rpm.sh)
+#  
+#       prepare repo meta-files
+#       seed new repo
+#       import and sign packages
+#       upload to shared repository
+# 
+#  ==>  upload keys, sources.list.d, and yum.repos.d
 #  
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
 
