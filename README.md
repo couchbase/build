@@ -1,2 +1,10 @@
 build
 =====
+
+This repository is used to store scripts used by automation tools like Jenkins, cgi
+scripts for querying build history data, and tools used in the release process.
+
+_Credentials for build robots and for access to resources are kept in a separate, private repository._
+
+
+----
