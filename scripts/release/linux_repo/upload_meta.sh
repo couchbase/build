@@ -35,15 +35,15 @@ echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
 if [[ $1 == "--init" ]]
     then
     pushd ${LOCAL_REPO_ROOT} 2>&1 >> /dev/null
-    s3cmd put -v -P --recursive keys            ${S3ROOT}
-    s3cmd put -v -P --recursive sources.list.d  ${S3ROOT}
+    s3cmd put -v -P --recursive keys            ${S3ROOT}/keys
+    s3cmd put -v -P --recursive sources.list.d  ${S3ROOT}/sources.list.d
     popd                     2>&1 >> /dev/null
 
 else if [[ $1 == "--update" ]]
     then
-      # s3cmd sync -P --no-delete-removed --no-check-md5 --progress --verbose  ${LOCAL_REPO_ROOT}/keys            ${S3ROOT}/keys
-        s3cmd sync -P --no-delete-removed                --progress --verbose  ${LOCAL_REPO_ROOT}/keys            ${S3ROOT}/keys
-        s3cmd sync -P --no-delete-removed                --progress --verbose  ${LOCAL_REPO_ROOT}/sources.list.d  ${S3ROOT}/sources.list
+      # s3cmd sync -P --no-delete-removed --no-check-md5 --progress --verbose  ${LOCAL_REPO_ROOT}/keys            ${S3ROOT}/keys/
+        s3cmd sync -P --no-delete-removed                --progress --verbose  ${LOCAL_REPO_ROOT}/keys            ${S3ROOT}/keys/
+        s3cmd sync -P --no-delete-removed                --progress --verbose  ${LOCAL_REPO_ROOT}/sources.list.d  ${S3ROOT}/sources.list.d/
     else
         usage
         exit 9
@@ -51,5 +51,5 @@ else if [[ $1 == "--update" ]]
 fi
 
 
-s3cmd setacl --acl-public --recursive ${S3ROOT} 
-s3cmd ls                              ${S3ROOT}
+s3cmd setacl --acl-public --recursive ${S3ROOT}/
+s3cmd ls                              ${S3ROOT}/

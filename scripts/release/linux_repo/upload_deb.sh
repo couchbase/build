@@ -36,13 +36,13 @@ echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
 if [[ $1 == "--init" ]]
     then
     pushd ${LOCAL_REPO_ROOT}/${EDITION} 2>&1 >> /dev/null
-    s3cmd put -v -P --recursive deb  ${S3ROOT}
+    s3cmd put -v -P --recursive  deb ${S3ROOT}
     popd                                2>&1 >> /dev/null
 
 else if [[ $1 == "--update" ]]
     then
-      # s3cmd sync -P --no-delete-removed --no-check-md5 --progress --verbose  ${REPO}  ${S3ROOT}
-        s3cmd sync -P --no-delete-removed                --progress --verbose  ${REPO}  ${S3ROOT}
+      # s3cmd sync -P --no-delete-removed --no-check-md5 --progress --verbose  ${REPO}  ${S3ROOT}/
+        s3cmd sync -P --no-delete-removed                --progress --verbose  ${REPO}  ${S3ROOT}/
     else
         echo "use:  $0  --init | --update"
         exit 9
