@@ -24,7 +24,6 @@ function usage
 
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
 if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
-export    EDITION
 
 REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb
 
