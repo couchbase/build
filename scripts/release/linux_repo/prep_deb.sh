@@ -19,7 +19,8 @@ fi
 function quit  {  if [[ ${DO_EXIT} == 1 ]] ; then exit 0 ; fi }
 
 
-                       LOCAL_REPO_ROOT=~/linux_repos/couchbase-server 
+if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
+
 function usage
     {
     echo ""
