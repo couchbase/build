@@ -26,6 +26,16 @@ use buildbotReports qw(:DEFAULT);
 use CGI qw(:standard);
 my  $query = new CGI;
 
+my $timestamp = "";
+sub get_timestamp
+    {
+    my $timestamp;
+    my ($second, $minute, $hour, $dayOfMonth, $month, $yearOffset, $dayOfWeek, $dayOfYear, $daylightSavings) = localtime();
+    my @months = qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec);
+    $month =    1 + $month;
+    $year  = 1900 + $yearOffset;
+    $timestamp = "page generated $hour:$minute:$second  on $year-$month-$dayOfMonth";
+    }
 
 sub print_HTML_Page
     {
@@ -36,6 +46,7 @@ sub print_HTML_Page
                               -head  => meta({-http_equiv => 'refresh', -content => $timeout_seconds}),
                             );
     print "\n".$fragment."\n";
+    print "\n".'<BR><HR>'.get_timestamp().'<BR><HR>';
     print $query->end_html;
     }
 my $installed_URL='http://10.3.2.199/cgi-bin/build/scripts/cgi/show_latest_build.cgi';
