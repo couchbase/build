@@ -53,9 +53,6 @@ VERSION=$1 ; shift ; if [[ ! ${VERSION} ]] ; then read -p "Release: "  VERSION ;
 
 get_version_base BASEVER BLDNUM ${VERSION}
 
-echo BASEVER is $BASEVER
-echo BLDNUM  is $BLDNUM
-
 
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
 if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
@@ -65,6 +62,8 @@ REPO=${LOCAL_REPO_ROOT}/${EDITION}/rpm
 echo ""
 echo "Signing local ${EDITION} repo at ${REPO}"
 echo ""
+
+RPM_GPG_KEY=CB6EBC87
 
 rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY}" ${REPO}/5/i386/couchbase-server-community_${BASEVER}.x86_64.rpm 
 rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY}" ${REPO}/5/i386/couchbase-server-community_${BASEVER}.i386.rpm

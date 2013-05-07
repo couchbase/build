@@ -72,11 +72,11 @@ function write_sources
             echo '# '                                                                                                        >> ${REPOFILE}
             echo '[couchbase]'                                                                                               >> ${REPOFILE}
             echo 'name=Couchbase Server'                                                                                     >> ${REPOFILE}
-            echo 'baseurl=http://packages.couchbase.com/releases/couchbase-server/${EDITION}/rpm/\$releasever/\$$basearch/'  >> ${REPOFILE}
+            echo 'baseurl=http://packages.couchbase.com/releases/couchbase-server/'${EDITION}'/rpm/$releasever/$basearch/'   >> ${REPOFILE}
             echo 'enabled=1'                                                                                                 >> ${REPOFILE}
             echo 's3_enabled=1'                                                                                              >> ${REPOFILE}
             echo 'gpgcheck=1'                                                                                                >> ${REPOFILE}
-            echo 'gpgkey=http://packages.couchbase.com/releases/couchbase-server/keys/${KEYFILE}'                            >> ${REPOFILE}
+            echo 'gpgkey=http://packages.couchbase.com/releases/couchbase-server/keys/'${KEYFILE}                            >> ${REPOFILE}
         done
     done
     }
