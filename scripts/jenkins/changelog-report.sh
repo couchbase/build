@@ -203,7 +203,7 @@ for COMP in ${PROJECTS}
       if      [[ ! `git branch --all | grep ${BRANCH}` ]]
         then
           write_log          ${ERRRORS}  ${OUT}  "Project ${COMP} has no branch ${BRANCH} on github"
-          THIS_FAIL=1
+        # THIS_FAIL=1
         else
           if [[ ${BRANCH} == master ]] ; then CHECKOUT='checkout'
                                          else CHECKOUT='checkout -b' 
