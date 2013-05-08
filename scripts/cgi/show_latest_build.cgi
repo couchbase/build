@@ -43,7 +43,6 @@ sub print_HTML_Page
     
     print $query->header;
     print $query->start_html( -title => $page_title,
-                              -head  => meta({-http_equiv => 'refresh', -content => $timeout_seconds}),
                             );
     print "\n".$fragment."\n";
  #  print "\n".'<BR><HR>'.get_timestamp().'<BR><HR>';
