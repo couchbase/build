@@ -205,7 +205,10 @@ for COMP in ${PROJECTS}
           write_log          ${ERRRORS}  ${OUT}  "Project ${COMP} has no branch ${BRANCH} on github"
           THIS_FAIL=1
         else
-          MSG=`git checkout -b ${BRANCH} origin/${BRANCH}`  ;  STATUS=$?
+          if [[ ${BRANCH} == master ]] ; then CHECKOUT='checkout'
+                                         else CHECKOUT='checkout -b' 
+          fi
+          MSG=`git ${CHECKOUT} ${BRANCH} origin/${BRANCH}`  ;  STATUS=$?
           
           if [[ $STATUS > 0 ]]
             then
