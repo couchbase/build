@@ -28,12 +28,12 @@ mkdir  ${REPORT_ROOT}
 NOTIFYS=${WORKSPACE}/${REPORT_ROOT}
 NOTIFY_GOOD=email_ok.txt
 NOTIFY_TODO=email_to_merge.txt
+NOTIFY_FILE=email_full.txt
 
 NOTIFY_FROM=build@couchbase.com
 NOTIFY_DIST=philip@couchbase.com
 NOTIFY_SUBJ='[QE]  merge report:  '${BRANCH_SRC}' -> '${BRANCH_DST}
 NOTIFY_NAME="Couchbase QE"
-NOTIFY_FILE=${WORKSPACE}/${REPORT_ROOT}/email_full.txt
 
 NOTIFY_CMD=/usr/sbin/sendmail
 
@@ -46,26 +46,26 @@ GITLOG='--pretty=format:--------------------------------------------------\ncomm
 
 GIT_BASE=origin
 
-function make_notify_text
+function make_notify_file
     {
-    local MSG
-    
-    MSG="TO:             ${NOTIFY_DIST}\n"
-    MSG="${MSG}From:    ${NOTIFY_FROM}\n"
-    MSG="${MSG}Subject: ${NOTIFY_SUBJ}\n\n"
-    
-    MSG="${MSG}UP-TO-DATE:\n"
-    MSG="${MSG}`cat ${NOTIFYS}/${NOTIFY_GOOD}`\n\n"
-    MSG="${MSG}TO BE MERGED:\n"
-    MSG="${MSG}`cat ${NOTIFYS}/${NOTIFY_TODO}`\n\n"
-    echo ${MSG}
+    echo "TO:      ${NOTIFY_DIST}"    > ${NOTIFYS}/${NOTIFY_FILE}
+    echo "From:    ${NOTIFY_FROM}"   >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "Subject: ${NOTIFY_SUBJ}"   >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "UP-TO-DATE:"               >> ${NOTIFYS}/${NOTIFY_FILE}
+    cat ${NOTIFYS}/${NOTIFY_GOOD}    >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "TO BE MERGED:"             >> ${NOTIFYS}/${NOTIFY_FILE}
+    cat ${NOTIFYS}/${NOTIFY_TODO}    >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     }
 
 
-function send_notify
+function send_notify_file
     {
-    local EMAIL_TEXT=${1}
-    cat ${EMAIL_TEXT} | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
+    cat ${NOTIFYS}/${NOTIFY_FILE} | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
     }
 
 function show_merges
@@ -249,10 +249,10 @@ for COMP in ${PROJECTS}
     fi
 done
 
-echo -e     `make_notify_text`       > ${NOTIFY_FILE}
-echo wrote:
-echo -e     `make_notify_text` "\nonto ${NOTIFY_FILE}"
-send_notify                            ${NOTIFY_FILE}
+make_notify_file
+echo "wrote:  ${NOTIFY_FILE}:"
+cat           ${NOTIFY_FILE}
+send_notify_file
 
 if [[ ${FAILS} > 0 ]] ; then echo ${FAILS} tests FAILED
 else
