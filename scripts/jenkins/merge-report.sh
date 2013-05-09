@@ -64,7 +64,7 @@ function make_notify_text
 
 function send_notify
     {
-    local EMAIL_TEXT = $1
+    local EMAIL_TEXT=${1}
     cat ${EMAIL_TEXT} | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
     }
 
