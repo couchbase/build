@@ -25,8 +25,9 @@ echo ------------------------------------------------- cleaning: ${WORKSPACE}/${
 rm -rf ${REPORT_ROOT}
 mkdir  ${REPORT_ROOT}
 
-NOTIFY_GOOD=${WORKSPACE}/${REPORT_ROOT}/email_ok.txt
-NOTIFY_TODO=${WORKSPACE}/${REPORT_ROOT}/email_to_merge.txt
+NOTIFYS=${WORKSPACE}/${REPORT_ROOT}
+NOTIFY_GOOD=${NOTIFYS}/email_ok.txt
+NOTIFY_TODO=${NOTIFYS}/email_to_merge.txt
 
 NOTIFY_FROM=build@couchbase.com
 NOTIFY_DIST=philip@couchbase.com
@@ -64,7 +65,7 @@ function make_notify_text
 function send_notify
     {
     local EMAIL_TEXT = $1
-    cat ${EMAIL_TEXT} | ${NOTIFY_CMD} -F${NOTIFY_NAME}
+    cat ${EMAIL_TEXT} | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
     }
 
 function show_merges
@@ -223,16 +224,16 @@ for COMP in ${PROJECTS}
                 OUT_DIR=${UP2DATE}
                 OUTFILE=${COMP}-UP-TO-DATE.txt
                 OUT_ARG='-e'
-                echo ${OUT_ARG} ${COMP}                                                                  >>   ${NOTIFY_GOOD}
-                git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1  >>   ${NOTIFY_GOOD}
-                echo ${OUT_ARG} "\n"                                                                     >>   ${NOTIFY_GOOD}
+                NOTICE=${NOTIFY_GOOD}
+
+                NSG=`git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1`
+                NSG="${COMP}\n{$NSG}\n"
               else
                 OUT_DIR=${REPORTS}
                 OUTFILE=${COMP}-merge_report-${BRANCH_SRC}-${BRANCH_DST}.txt
                 OUT_ARG='-e'
-                echo ${OUT_ARG} ${COMP}                                                                  >>   ${NOTIFY_TODO}
-                echo ${OUT_ARG} ${MSG}                                                                   >>   ${NOTIFY_TODO}
-                echo ${OUT_ARG} "\n"                                                                     >>   ${NOTIFY_TODO}
+                NOTICE=${NOTIFY_TODO}
+                NSG="${COMP}\n{$MSG}\n"
             fi
         fi
         write_log  ${OUT_DIR}  ${OUTFILE}  "${COMP} merge ${BRANCH_SRC} into ${BRANCH_DST}"                ${OUT_ARG}
@@ -240,8 +241,10 @@ for COMP in ${PROJECTS}
         write_log  ${OUT_DIR}  ${OUTFILE}  "[${BRANCH_DST}]  git merge --no-commit -s ours ${BRANCH_SRC}"
         write_log  ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
         write_log  ${OUT_DIR}  ${OUTFILE}  "${MSG}"                                                        ${OUT_ARG}
+
+        write_log  ${NOTIFYS}  ${NOTICE}   "${NSG}"                                                        ${OUT_ARG}
         popd           > /dev/null
-        sleep 7
+        sleep 3
     fi
 done
 
