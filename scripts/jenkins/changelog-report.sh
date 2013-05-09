@@ -99,6 +99,7 @@ done
 if [[ ${REPORT_DIR} ]] ; then REPORTS=${REPORT_DIR}      #  and manage it yourself;
 else                                                     #  else it's made anew
     REPORTS=${WORKSPACE}/${LAST_BLD_NAME}-${FIRST_BLD} 
+    echo ---------------------------------------------- cleaning workspace: ${REPORTS}
     if [[ -d ${REPORTS} ]] ; then rm -rf ${REPORTS} ; fi
     mkdir    ${REPORTS}
 fi
@@ -110,6 +111,19 @@ ERROR_DIR=git_errors
 CHANGES=${REPORTS}/${DELTA_DIR}
 NO_DIFF=${REPORTS}/${NO_CHANGE}
 ERRRORS=${REPORTS}/${ERROR_DIR}
+
+NOTIFYS=${REPORTS}
+
+NOTIFY_GOOD=email_nochange.txt
+NOTIFY_DIFF=email_changes.txt
+NOTIFY_FILE=email.txt
+
+NOTIFY_FROM=build@couchbase.com
+NOTIFY_DIST=philip@couchbase.com
+NOTIFY_SUBJ='[QE]  merge report:  '${BRANCH_SRC}' -> '${BRANCH_DST}
+NOTIFY_NAME="Couchbase QE"
+NOTIFY_CMD=/usr/sbin/sendmail
+
 
 function fetch_manifest
     {
@@ -151,13 +165,35 @@ function get_rev
     {
     manifest=$1
     component=$2
-
     grep \"${component}\" ${REPORTS}/${manifest} | tr ' ' "\n" | grep revision | awk -F\" '{print $2}'
     }
 
 
-echo ---------------------------------------------- cleaning workspace: ${WORKSPACE}
-rm ${PKG_ROOT}*.manifest.xml
+function make_notify_file
+    {
+    echo "TO:      ${NOTIFY_DIST}"    > ${NOTIFYS}/${NOTIFY_FILE}
+    echo "From:    ${NOTIFY_FROM}"   >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "Subject: ${NOTIFY_SUBJ}"   >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "NO-CHANGES:"               >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    cat ${NOTIFYS}/${NOTIFY_GOOD}    >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "SINCE LAST GOOD BUILD:"    >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    cat ${NOTIFYS}/${NOTIFY_DIFF}    >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    }
+
+function send_notify_file
+    {
+    cat ${NOTIFYS}/${NOTIFY_FILE} | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
+    }
+
+
 
 echo ---------------------------------------- getting manifest for build ${LAST_BLD_NAME}
 MFST_1ST=`fetch_manifest ${LAST_BLD}`
@@ -232,7 +268,12 @@ for COMP in ${PROJECTS}
                 then
                   OUT=${COMP}-NO-CHANGE-${BRANCH}-${LAST_BLD_NAME}-${FIRST_BLD}.txt
                   
-                  write_log  ${NO_DIFF}  ${OUT}  "No changes: both builds use revision ${REV_1ST}"
+                  write_log  ${NO_DIFF}  ${OUT}          "No changes: both builds use revision ${REV_1ST}"
+                  write_log  ${NOTIFYS}  ${NOTIFY_GOOD}  "${COMP}"
+                  write_log  ${NOTIFYS}  ${NOTIFY_GOOD}  "-----------------------------------------------"
+                  write_log  ${NOTIFYS}  ${NOTIFY_GOOD}  "No changes: both builds use revision ${REV_1ST}"
+                  write_log  ${NOTIFYS}  ${NOTIFY_GOOD}  ""
+
                 else
                   echo    git log --max-count=128 --name-status ${RANGE}
                   echo    git log ${RANGE}
@@ -243,11 +284,15 @@ for COMP in ${PROJECTS}
                       then
                       THIS_FAIL=1
                       OUT=${COMP}-GIT-ERROR.txt
-                      write_log   ${ERRRORS}  ${OUT}  "GIT ERROR: ${MSG}"
+                      write_log   ${ERRRORS}  ${OUT}          "GIT ERROR: ${MSG}"
                   else
                       echo logged changes: ${COMP}${BRANCH}
                       echo in:             ${OUT}
-                      write_log   ${CHANGES}  ${OUT}  "${MSG}"
+                      write_log   ${CHANGES}  ${OUT}          "${MSG}"
+                      write_log   ${NOTIFYS}  ${NOTIFY_DIFF}  "${COMP}"
+                      write_log   ${NOTIFYS}  ${NOTIFY_DIFF}  "-----------------------------------------------"
+                      write_log   ${NOTIFYS}  ${NOTIFY_DIFF}  "${MSG}"
+                      write_log   ${NOTIFYS}  ${NOTIFY_DIFF}  ""
                   fi
               fi
           fi
@@ -256,9 +301,11 @@ for COMP in ${PROJECTS}
   fi
     
   if [[ ${THIS_FAIL} > 0 ]] ; then let FAILS++ ; fi
-    
-  sleep 10
+  sleep 5
 done
+
+make_notify_file
+send_notify_file
 
 if [[ ${FAILS} > 0 ]] ; then echo ${FAILS} tests FAILED
 else

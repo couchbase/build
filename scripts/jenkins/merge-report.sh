@@ -22,8 +22,8 @@ REPORTS=${WORKSPACE}/${REPORT_ROOT}/${REPDIR}
 ERRRORS=${WORKSPACE}/${REPORT_ROOT}/${ERRDIR}
 UP2DATE=${WORKSPACE}/${REPORT_ROOT}/${UPTDIR}
 echo ------------------------------------------------- cleaning: ${WORKSPACE}/${REPORT_ROOT}
-rm -rf ${REPORT_ROOT}
-mkdir  ${REPORT_ROOT}
+rm -rf  ${WORKSPACE}/${REPORT_ROOT}
+mkdir   ${WORKSPACE}/${REPORT_ROOT}
 
 NOTIFYS=${WORKSPACE}/${REPORT_ROOT}
 NOTIFY_GOOD=email_ok.txt
@@ -54,9 +54,12 @@ function make_notify_file
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     echo "UP-TO-DATE:"               >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     cat ${NOTIFYS}/${NOTIFY_GOOD}    >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     echo "TO BE MERGED:"             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     cat ${NOTIFYS}/${NOTIFY_TODO}    >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
@@ -226,32 +229,32 @@ for COMP in ${PROJECTS}
                 OUT_ARG='-e'
                 
                 NOTICE=${NOTIFY_GOOD}
-                NOT_MSG=`git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1`
-                NOT_MSG="${COMP}\n{$NOT_MSG}\n"
+                NOTICE_MSG=`git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1`
               else
                 OUT_DIR=${REPORTS}
                 OUTFILE=${COMP}-merge_report-${BRANCH_SRC}-${BRANCH_DST}.txt
                 OUT_ARG='-e'
                 
                 NOTICE=${NOTIFY_TODO}
-                NOT_MSG="${COMP}\n{$MSG}\n"
+                NOTICE_MSG="{$MSG}"
             fi
+            write_log  ${NOTIFYS}  ${NOTICE}   "${COMP}"                                                       ${OUT_ARG}
+            write_log  ${NOTIFYS}  ${NOTICE}   "${NOT_MSG}"                                                    ${OUT_ARG}
+            write_log  ${NOTIFYS}  ${NOTICE}   "------------------------------------------------------------"  ${OUT_ARG}
         fi
-        write_log  ${OUT_DIR}  ${OUTFILE}  "${COMP} merge ${BRANCH_SRC} into ${BRANCH_DST}"                ${OUT_ARG}
-        write_log  ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
-        write_log  ${OUT_DIR}  ${OUTFILE}  "[${BRANCH_DST}]  git merge --no-commit -s ours ${BRANCH_SRC}"
-        write_log  ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
-        write_log  ${OUT_DIR}  ${OUTFILE}  "${MSG}"                                                        ${OUT_ARG}
-
-        write_log  ${NOTIFYS}  ${NOTICE}   "${NOT_MSG}"                                                    ${OUT_ARG}
+        write_log      ${OUT_DIR}  ${OUTFILE}  "${COMP} merge ${BRANCH_SRC} into ${BRANCH_DST}"                ${OUT_ARG}
+        write_log      ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
+        write_log      ${OUT_DIR}  ${OUTFILE}  "[${BRANCH_DST}]  git merge --no-commit -s ours ${BRANCH_SRC}"
+        write_log      ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
+        write_log      ${OUT_DIR}  ${OUTFILE}  "${MSG}"                                                        ${OUT_ARG}
         popd           > /dev/null
         sleep 3
     fi
 done
 
 make_notify_file
-echo "wrote:  ${NOTIFY_FILE}:"
-cat           ${NOTIFY_FILE}
+echo "wrote:  ${NOTIFYS}/${NOTIFY_FILE}:"
+cat           ${NOTIFYS}/${NOTIFY_FILE}
 send_notify_file
 
 if [[ ${FAILS} > 0 ]] ; then echo ${FAILS} tests FAILED
