@@ -172,7 +172,8 @@ sub get_build_date
         my ($second, $minute, $hour, $dayOfMonth, $month, $year, $dayOfWeek, $dayOfYear, $daylightSavings) = localtime(int($end_time));
         $year  += 1900;
         $month += 1;
-        return $year .'-'. $month .'-'. $dayOfMonth;
+     #  return $year .'-'. $month .'-'. $dayOfMonth;
+        return $month .'/'. $dayOfMonth .'/'. $year;
         }
     die "Bad Reference\n";
     }

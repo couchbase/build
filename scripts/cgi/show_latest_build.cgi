@@ -25,7 +25,7 @@ use buildbotReports qw(:DEFAULT);
 use CGI qw(:standard);
 my  $query = new CGI;
 
-my ($good_color, $warn_color, $err_color) = ('#99FFCC', '#CCFFFF', '#FFAAAA');
+my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
 my $timestamp = "";
 sub get_timestamp
