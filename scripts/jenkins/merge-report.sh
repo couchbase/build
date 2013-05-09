@@ -26,13 +26,13 @@ rm -rf ${REPORT_ROOT}
 mkdir  ${REPORT_ROOT}
 
 NOTIFYS=${WORKSPACE}/${REPORT_ROOT}
-NOTIFY_GOOD=${NOTIFYS}/email_ok.txt
-NOTIFY_TODO=${NOTIFYS}/email_to_merge.txt
+NOTIFY_GOOD=email_ok.txt
+NOTIFY_TODO=email_to_merge.txt
 
 NOTIFY_FROM=build@couchbase.com
 NOTIFY_DIST=philip@couchbase.com
 NOTIFY_SUBJ='[QE]  merge report:  '${BRANCH_SRC}' -> '${BRANCH_DST}
-NOTIFY_NAME=Couchbase QE
+NOTIFY_NAME="Couchbase QE"
 NOTIFY_FILE=${WORKSPACE}/${REPORT_ROOT}/email_full.txt
 
 NOTIFY_CMD=/usr/sbin/sendmail
@@ -55,9 +55,9 @@ function make_notify_text
     MSG="${MSG}Subject: ${NOTIFY_SUBJ}\n\n"
     
     MSG="${MSG}UP-TO-DATE:\n"
-    MSG="${MSG}`cat ${NOTIFY_GOOD}`\n\n"
+    MSG="${MSG}`cat ${NOTIFYS}/${NOTIFY_GOOD}`\n\n"
     MSG="${MSG}TO BE MERGED:\n"
-    MSG="${MSG}`cat ${NOTIFY_TODO}`\n\n"
+    MSG="${MSG}`cat ${NOTIFYS}/${NOTIFY_TODO}`\n\n"
     echo -e ${MSG}
     }
 
@@ -220,20 +220,20 @@ for COMP in ${PROJECTS}
           else
             if [[ ${MSG} =~ 'up-to-date' ]]
               then
+                NOT_MSG="${COMP}\n{$MSG}\n"
                 echo "debug:::: up-to-date"
                 OUT_DIR=${UP2DATE}
                 OUTFILE=${COMP}-UP-TO-DATE.txt
                 OUT_ARG='-e'
                 NOTICE=${NOTIFY_GOOD}
 
-                NSG=`git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1`
-                NSG="${COMP}\n{$NSG}\n"
+                NOT_MSG=`git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1`
+                NOT_MSG="${COMP}\n{$NOT_MSG}\n"
               else
                 OUT_DIR=${REPORTS}
                 OUTFILE=${COMP}-merge_report-${BRANCH_SRC}-${BRANCH_DST}.txt
                 OUT_ARG='-e'
                 NOTICE=${NOTIFY_TODO}
-                NSG="${COMP}\n{$MSG}\n"
             fi
         fi
         write_log  ${OUT_DIR}  ${OUTFILE}  "${COMP} merge ${BRANCH_SRC} into ${BRANCH_DST}"                ${OUT_ARG}
@@ -242,7 +242,7 @@ for COMP in ${PROJECTS}
         write_log  ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
         write_log  ${OUT_DIR}  ${OUTFILE}  "${MSG}"                                                        ${OUT_ARG}
 
-        write_log  ${NOTIFYS}  ${NOTICE}   "${NSG}"                                                        ${OUT_ARG}
+        write_log  ${NOTIFYS}  ${NOTICE}   "${NOT_MSG}"                                                    ${OUT_ARG}
         popd           > /dev/null
         sleep 3
     fi
