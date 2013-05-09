@@ -58,7 +58,7 @@ function make_notify_text
     MSG="${MSG}`cat ${NOTIFYS}/${NOTIFY_GOOD}`\n\n"
     MSG="${MSG}TO BE MERGED:\n"
     MSG="${MSG}`cat ${NOTIFYS}/${NOTIFY_TODO}`\n\n"
-    echo -e ${MSG}
+    echo ${MSG}
     }
 
 
