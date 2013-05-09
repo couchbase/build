@@ -9,7 +9,7 @@ use Cwd qw(abs_path);
 BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));
-    print "THIS_DIR is $THIS_DIR\n";
+    print STDERR "THIS_DIR is $THIS_DIR\n";
     unshift( @INC, $THIS_DIR );
     }
 my $installed_URL='http://10.3.2.199/cgi-bin/build/scripts/cgi/show_latest_good_build.cgi';

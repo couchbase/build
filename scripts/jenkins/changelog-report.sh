@@ -9,7 +9,7 @@
 # 
 # BRANCH     - which branch these changes occur on
 
-PROJECTS="couchbase-cli couchdb couchdbx-app couchstore ep-engine geocouch membase-cli ns_server testrunner tlm"
+if [[ ! ${PROJECTS} ]] ; then PROJECTS="couchbase-cli couchdb couchdbx-app couchstore ep-engine geocouch membase-cli ns_server testrunner tlm" ; fi
 
 FAILS=0
 
@@ -84,14 +84,24 @@ function sort_bnums
 sort_bnums
 
 
-#echo 'calling sort_bnums()'
-#echo "DEBUG: LAST_BLD      = ${LAST_BLD}"
-#echo "DEBUG: LAST_BLD_NAME = ${LAST_BLD_NAME}"
-#echo "DEBUG: FIRST_BLD     = ${FIRST_BLD}"
-
-REPORTS=${WORKSPACE}/${LAST_BLD_NAME}-${FIRST_BLD} 
-if [[ -d ${REPORTS} ]] ; then rm -rf ${REPORTS} ; fi
-mkdir    ${REPORTS}
+while getopts "d:h" OPTION
+    do
+    case $OPTION in
+    d)  REPORT_DIR=$OPTARG
+        echo "DEBUG: The dir is $REPORT_DIR "
+        ;;
+    h)  echo -e $USAGE
+        exit 0
+        ;;
+    esac
+done
+                                                         #  pass in as env.var. or -d <dir>,
+if [[ ${REPORT_DIR} ]] ; then REPORTS=${REPORT_DIR}      #  and manage it yourself;
+else                                                     #  else it's made anew
+    REPORTS=${WORKSPACE}/${LAST_BLD_NAME}-${FIRST_BLD} 
+    if [[ -d ${REPORTS} ]] ; then rm -rf ${REPORTS} ; fi
+    mkdir    ${REPORTS}
+fi
 
 DELTA_DIR=changelog
 NO_CHANGE=no_change
