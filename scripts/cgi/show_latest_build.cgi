@@ -17,7 +17,6 @@ BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
-my ($hour_of_secods, $quarter_hour, $ten_minutes, $five_minutes) = (3600, 900, 600, 300);
 
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
@@ -25,6 +24,8 @@ use buildbotReports qw(:DEFAULT);
 
 use CGI qw(:standard);
 my  $query = new CGI;
+
+my ($good_color, $warn_color, $err_color) = ('#99FFCC', '#CCFFFF', '#FFAAAA');
 
 my $timestamp = "";
 sub get_timestamp
@@ -39,10 +40,11 @@ sub get_timestamp
 
 sub print_HTML_Page
     {
-    my ($fragment, $page_title, $timeout_seconds) = @_;
+    my ($fragment, $page_title, $color) = @_;
     
     print $query->header;
-    print $query->start_html( -title => $page_title,
+    print $query->start_html( -title   => $page_title,
+                              -BGCOLOR => $color,
                             );
     print "\n".$fragment."\n";
  #  print "\n".'<BR><HR>'.get_timestamp().'<BR><HR>';
@@ -72,7 +74,7 @@ elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param(
     }
 else
     {
-    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), $builder, $hour_of_secods );
+    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), $builder, $err_color );
     exit;
     }
 
@@ -84,7 +86,7 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date) = buildbotReports::last_done_buil
 
 if ($bldstatus)
     {
-    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ), $builder, $ten_minutes );
+    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ), $builder, $good_color );
     
     print STDERR "GOOD: $bldnum\n"; 
     }
@@ -92,7 +94,7 @@ else
     {
     print STDERR "FAIL: $bldnum\n"; 
     
-    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ), $builder, $hour_of_secods );
+    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ), $builder, $warn_color );
     }
 
 
