@@ -63,8 +63,8 @@ function make_notify_text
 
 function send_notify
     {
-    local EMAIL_TEXT = 
-    cat ${} | ${NOTIFY_CMD} -F${NOTIFY_NAME}
+    local EMAIL_TEXT = $1
+    cat ${EMAIL_TEXT} | ${NOTIFY_CMD} -F${NOTIFY_NAME}
     }
 
 function show_merges
@@ -248,8 +248,10 @@ done
 NOTIFY_EMAIL=4
 make_notify_text > ${NOTIFY_FILE}
 echo wrote:
-            `make_notify_text`
+echo        `make_notify_text`
 echo onto          ${NOTIFY_FILE}
+
+send_notify        ${NOTIFY_FILE}
 
 
 if [[ ${FAILS} > 0 ]] ; then echo ${FAILS} tests FAILED
