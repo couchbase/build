@@ -249,14 +249,10 @@ for COMP in ${PROJECTS}
     fi
 done
 
-NOTIFY_EMAIL=4
-make_notify_text > ${NOTIFY_FILE}
+echo -e     `make_notify_text`       > ${NOTIFY_FILE}
 echo wrote:
-echo        `make_notify_text`
-echo onto          ${NOTIFY_FILE}
-
-send_notify        ${NOTIFY_FILE}
-
+echo -e     `make_notify_text` "\nonto ${NOTIFY_FILE}"
+send_notify                            ${NOTIFY_FILE}
 
 if [[ ${FAILS} > 0 ]] ; then echo ${FAILS} tests FAILED
 else
