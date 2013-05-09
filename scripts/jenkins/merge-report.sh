@@ -220,20 +220,21 @@ for COMP in ${PROJECTS}
           else
             if [[ ${MSG} =~ 'up-to-date' ]]
               then
-                NOT_MSG="${COMP}\n{$MSG}\n"
                 echo "debug:::: up-to-date"
                 OUT_DIR=${UP2DATE}
                 OUTFILE=${COMP}-UP-TO-DATE.txt
                 OUT_ARG='-e'
+                
                 NOTICE=${NOTIFY_GOOD}
-
                 NOT_MSG=`git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1`
                 NOT_MSG="${COMP}\n{$NOT_MSG}\n"
               else
                 OUT_DIR=${REPORTS}
                 OUTFILE=${COMP}-merge_report-${BRANCH_SRC}-${BRANCH_DST}.txt
                 OUT_ARG='-e'
+                
                 NOTICE=${NOTIFY_TODO}
+                NOT_MSG="${COMP}\n{$MSG}\n"
             fi
         fi
         write_log  ${OUT_DIR}  ${OUTFILE}  "${COMP} merge ${BRANCH_SRC} into ${BRANCH_DST}"                ${OUT_ARG}
