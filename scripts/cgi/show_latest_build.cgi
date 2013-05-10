@@ -96,7 +96,9 @@ else
     {
     print STDERR "FAIL: $bldnum\n"; 
     
-    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ), $builder, $warn_color );
+    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ) .'&nbsp;'. buildbotReports::is_running($is_running),
+
+                     $builder, $warn_color );
     }
 
 
