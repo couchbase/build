@@ -26,7 +26,7 @@ use buildbotMapping qw(:DEFAULT);
 #my $URL_ROOT  = buildbotQuery::get_URL_root();
 
 my $installed_URL='http://10.3.2.199';
-my $run_icon  = '<IMG SRC="' .$installed_URL. '/running_20.gif" ALT="running..." HSPACE="50" ALIGN="RIGHT">';
+my $run_icon  = '<IMG SRC="' .$installed_URL. '/running_20.gif" ALT="running..." HSPACE="50" ALIGN="TOP">';
 my $done_icon = '&nbsp;';
 
 my ($builder, $branch);
