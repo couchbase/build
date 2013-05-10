@@ -38,8 +38,8 @@ sub is_running
     {
     my ($status) = @_;
     
-    if ($status == 1 )  { return( $run_icon);  print STDERR "...it's running...\n"; }
-    else                { return( $done_icon); print STDERR "....NOT RUNNING...\n"; }
+    if ($status == 1 )  { print STDERR "...it's running...\n";  return( $run_icon);  }
+    else                { print STDERR "....NOT RUNNING...\n";  return( $done_icon); }
     }
 
 
@@ -65,9 +65,9 @@ sub last_done_build
     foreach my $KEY (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)
         {
         $bldnum = $KEY;
- #      print STDERR "....$bldnum   $all_build{$bldnum}\n";
+        print STDERR "....$bldnum   $all_build{$bldnum}\n";
         $result = buildbotQuery::get_json($builder, '/'.$bldnum);
- #      print STDERR "....is $bldnum running?\n";
+        print STDERR "....is $bldnum running?\n";
         if ( buildbotQuery::is_running_build( $result) ) { $is_running = 1;
                                                            print STDERR "$bldnum is still running\n"; }
         else                                             { last;                                      }
@@ -92,6 +92,7 @@ sub last_good_build
     ($builder, $branch) = @_;
     
     my $all_builds = buildbotQuery::get_json($builder);
+    my $is_running = 0;
     
     my ($bldnum, $result);
     foreach my $KEY (keys %$all_builds)
@@ -109,6 +110,7 @@ sub last_good_build
         if ( buildbotQuery::is_running_build( $result) )
             {
             print STDERR "$bldnum is still running\n";
+            $is_running = 1;
             }
         elsif ( ! buildbotQuery::is_good_build( $result) )
             {
@@ -126,7 +128,7 @@ sub last_good_build
         {
         
         print STDERR "GOOD: $bldnum\n"; 
-        return($bldnum, $rev_numb, $bld_date);
+        return($bldnum, $rev_numb, $bld_date, $is_running);
         }
     else
         {

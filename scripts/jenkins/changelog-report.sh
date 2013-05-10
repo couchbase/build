@@ -95,9 +95,10 @@ while getopts "d:h" OPTION
         ;;
     esac
 done
-                                                         #  pass in as env.var. or -d <dir>,
-if [[ ${REPORT_DIR} ]] ; then REPORTS=${REPORT_DIR}      #  and manage it yourself;
-else                                                     #  else it's made anew
+if [[ ! -d ${REPORT_DIR} ]]
+  then                                                     #  pass in as env.var. or -d <dir>,
+    REPORTS=${REPORT_DIR}                                  #  and manage it yourself;
+  else                                                     #  else it's made anew
     REPORTS=${WORKSPACE}/${LAST_BLD_NAME}-${FIRST_BLD} 
     echo ---------------------------------------------- cleaning workspace: ${REPORTS}
     if [[ -d ${REPORTS} ]] ; then rm -rf ${REPORTS} ; fi

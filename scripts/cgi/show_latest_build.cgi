@@ -83,10 +83,11 @@ print STDERR "\nready to start with\n($builder, $branch)\n";
 #### S T A R T  H E R E 
 
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running) = buildbotReports::last_done_build($builder, $branch);
+print STDERR "according to last_done_build, is_running = $is_running\n";
 
 if ($bldstatus)
     {
-    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ).'&nbsp;'.buildbotReports::is_running($is_running),
+    print_HTML_Page( buildbotQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date) .'&nbsp;'. buildbotReports::is_running($is_running),
                      $builder, $good_color );
     
     print STDERR "GOOD: $bldnum\n"; 
