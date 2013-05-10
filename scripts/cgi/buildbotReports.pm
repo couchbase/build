@@ -25,7 +25,7 @@ use buildbotMapping qw(:DEFAULT);
 
 my $URL_ROOT  = buildbotQuery::get_URL_root();
 my $run_icon  = '<IMG SRC="' .$URL_ROOT. '/running_32.gif" ALT="running...">';
-my $done_icon = '&nbsp;'
+my $done_icon = '&nbsp;';
 
 my ($builder, $branch);
 
@@ -38,8 +38,8 @@ sub is_running
     {
     my ($status) = @_;
     
-    if ($status == 1 )  { return( $run_icon);  }
-    else                { return( $done_icon); }
+    if ($status == 1 )  { return( $run_icon);  print STDERR "...it's running...\n"; }
+    else                { return( $done_icon); print STDERR "....NOT RUNNING...\n"; }
     }
 
 
