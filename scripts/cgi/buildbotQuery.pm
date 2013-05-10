@@ -95,7 +95,7 @@ sub html_OK_link
 #                                   HTML of link to FAILED build results
 sub html_FAIL_link
     {
-    my ($bder, $bnum, $isrunning) = @_;
+    my ($bder, $bnum, $is_running) = @_;
     
     my $HTML = buildbotReports::is_running($is_running)
               .'<font color="red">FAIL</font><BR>'
