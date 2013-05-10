@@ -95,10 +95,12 @@ sub html_OK_link
 #                                   HTML of link to FAILED build results
 sub html_FAIL_link
     {
-    my ($bder, $bnum) = @_;
-    my $HTML='<font color="red">FAIL</font><BR>'
-            .'<PRE>...tail of log of last build step...</PRE>'
-            .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'">build logs</a>';
+    my ($bder, $bnum, $isrunning) = @_;
+    
+    my $HTML = buildbotReports::is_running($is_running)
+              .'<font color="red">FAIL</font><BR>'
+              .'<PRE>...tail of log of last build step...</PRE>'
+              .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'">build logs</a>';
     
     return($HTML);
     }
