@@ -23,8 +23,10 @@ my $DEBUG = 0;   # FALSE
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
 
-my $URL_ROOT  = buildbotQuery::get_URL_root();
-my $run_icon  = '<IMG SRC="' .$URL_ROOT. '/running_32.gif" ALT="running...">';
+#my $URL_ROOT  = buildbotQuery::get_URL_root();
+
+my $installed_URL='http://10.3.2.199';
+my $run_icon  = '<IMG SRC="' .$installed_URL. '/running_32.gif" ALT="running...">';
 my $done_icon = '&nbsp;';
 
 my ($builder, $branch);
