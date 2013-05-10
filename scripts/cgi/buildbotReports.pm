@@ -12,9 +12,9 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( last_done_build last_good_build );
+our @EXPORT_OK   = qw( last_done_build last_good_build is_running );
 
-our %EXPORT_TAGS = ( DEFAULT => [qw( &last_done_build &last_good_build  )] );
+our %EXPORT_TAGS = ( DEFAULT => [qw( &last_done_build &last_good_build &is_running )] );
 
 my $DEBUG = 0;   # FALSE
 
@@ -23,9 +23,25 @@ my $DEBUG = 0;   # FALSE
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
 
-my $URL_ROOT=buildbotQuery::get_URL_root();
+my $URL_ROOT  = buildbotQuery::get_URL_root();
+my $run_icon  = '<IMG SRC="' .$URL_ROOT. '/running_32.gif" ALT="running...">';
+my $done_icon = '&nbsp;'
 
 my ($builder, $branch);
+
+############                        is_running ( 0=no | 1=yes )
+#          
+#                                   returns icon indicating that latest build is not completed
+#                                   
+#                                   usually called with buildbotQuery::is_good_build()
+sub is_running
+    {
+    my ($status) = @_;
+    
+    if ($status == 1 )  { return( $run_icon);  }
+    else                { return( $done_icon); }
+    }
+
 
 ############                        last_done_build ( builder, branch )
 #          
@@ -35,6 +51,7 @@ my ($builder, $branch);
 sub last_done_build
     {
     ($builder, $branch) = @_;
+    my $is_running = 0;
     
     my $all_builds = buildbotQuery::get_json($builder);
     
@@ -51,7 +68,8 @@ sub last_done_build
  #      print STDERR "....$bldnum   $all_build{$bldnum}\n";
         $result = buildbotQuery::get_json($builder, '/'.$bldnum);
  #      print STDERR "....is $bldnum running?\n";
-        if ( buildbotQuery::is_running_build( $result) ) { print STDERR "$bldnum is still running\n"; }
+        if ( buildbotQuery::is_running_build( $result) ) { $is_running = 1;
+                                                           print STDERR "$bldnum is still running\n"; }
         else                                             { last;                                      }
         }
     
@@ -60,7 +78,7 @@ sub last_done_build
     my $bld_date = buildbotQuery::get_build_date($result);
  #  print STDERR "... bld_date is $bld_date...\n";
     
-    return( buildbotQuery::is_good_build($result), $bldnum, $rev_numb, $bld_date);
+    return( buildbotQuery::is_good_build($result), $bldnum, $rev_numb, $bld_date, $is_running);
     }
 
 
