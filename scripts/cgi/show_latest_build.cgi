@@ -78,7 +78,7 @@ else
     exit;
     }
 
-print STDERR "\nready to start with\n($builder, $branch)\n";
+print STDERR "\nready to start with ($builder, $branch)\n";
 
 #### S T A R T  H E R E 
 

@@ -126,6 +126,7 @@ sub get_json
         }
     else
        {
+       if ($response->status_line =~ '404')  { return(0); }
        die $response->status_line;
     }  }
 
@@ -184,7 +185,8 @@ sub get_build_date
 #                                   returns TRUE if "results" value is null
 sub is_running_build
     {
-    my ($jsonref) = @_;
+    my ($jsonref) = @_;    return ($jsonref) if ($jsonref==0);
+    
     if ( defined($$jsonref{results}) && $DEBUG )  { print "DEBUG: results is: $$jsonref{results}\n"; }
     if ($DEBUG)  { print "DEBUG: called is_running_build($jsonref)\n"; }
     return (! defined($$jsonref{results}) );
