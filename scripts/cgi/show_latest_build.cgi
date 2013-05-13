@@ -40,14 +40,13 @@ sub get_timestamp
 
 sub print_HTML_Page
     {
-    my ($fragment, $page_title, $color) = @_;
+    my ($frag_left, $frag_right, $page_title, $color) = @_;
     
     print $query->header;
     print $query->start_html( -title   => $page_title,
                               -BGCOLOR => $color,
                             );
-    print "\n".$fragment."\n";
- #  print "\n".'<BR><HR>'.get_timestamp().'<BR><HR>';
+    print "\n".'<table border="0"><tr><td align="LEFT">'.$frag_left.'</td><td align="RIGHT">'.$frag_right.'</td></tr></table>'."\n";
     print $query->end_html;
     }
 my $installed_URL='http://10.3.2.199/cgi/show_latest_build.cgi';
@@ -74,7 +73,7 @@ elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param(
     }
 else
     {
-    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), $builder, $err_color );
+    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
     exit;
     }
 
@@ -87,8 +86,10 @@ print STDERR "according to last_done_build, is_running = $is_running\n";
 
 if ($bldstatus)
     {
-    print_HTML_Page( buildbotQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date) .'&nbsp;'. buildbotReports::is_running($is_running),
-                     $builder, $good_color );
+    print_HTML_Page( buildbotQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
+                     buildbotReports::is_running($is_running),
+                     $builder,
+                     $good_color );
     
     print STDERR "GOOD: $bldnum\n"; 
     }
@@ -96,7 +97,10 @@ else
     {
     print STDERR "FAIL: $bldnum\n"; 
     
-    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum, $is_running), $builder, $warn_color );
+    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum),
+                     buildbotReports::is_running($is_running),
+                     $builder,
+                     $warn_color );
     }
 
 

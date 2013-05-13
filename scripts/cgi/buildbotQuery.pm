@@ -97,8 +97,7 @@ sub html_FAIL_link
     {
     my ($bder, $bnum, $is_running) = @_;
     
-    my $HTML = buildbotReports::is_running($is_running)
-              .'<font color="red">FAIL</font><BR>'
+    my $HTML = '<font color="red">FAIL</font><BR>'
               .'<PRE>...tail of log of last build step...</PRE>'
               .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'">build logs</a>';
     
