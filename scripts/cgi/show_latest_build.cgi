@@ -46,7 +46,7 @@ sub print_HTML_Page
     print $query->start_html( -title   => $page_title,
                               -BGCOLOR => $color,
                             );
-    print "\n".'<table border="0"><tr><td align="LEFT">'.$frag_left.'</td><td align="RIGHT">'.$frag_right.'</td></tr></table>'."\n";
+    print "\n".'<table border="0" cellpadding="0" cellspacing="0"><tr><td align="LEFT">'.$frag_left.'</td><td valign="TOP" align="RIGHT">'.$frag_right.'</td></tr></table>'."\n";
     print $query->end_html;
     }
 my $installed_URL='http://10.3.2.199/cgi/show_latest_build.cgi';
@@ -97,8 +97,8 @@ else
     {
     print STDERR "FAIL: $bldnum\n"; 
     
-    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum),
-                     buildbotReports::is_running($is_running),
+    print_HTML_Page( buildbotReports::is_running($is_running),
+                     buildbotQuery::html_FAIL_link( $builder, $bldnum),
                      $builder,
                      $warn_color );
     }
