@@ -46,7 +46,9 @@ sub print_HTML_Page
     print $query->start_html( -title   => $page_title,
                               -BGCOLOR => $color,
                             );
-    print "\n".'<table border="0" cellpadding="0" cellspacing="0"><tr><td align="LEFT">'.$frag_left.'</td><td valign="TOP" align="RIGHT">'.$frag_right.'</td></tr></table>'."\n";
+    print "\n".'<div style="overflow-x: hidden">'
+         .'<table border="0" cellpadding="0" cellspacing="0"><tr><td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr></table>'
+         .'</div>'."\n";
     print $query->end_html;
     }
 my $installed_URL='http://10.3.2.199/cgi/show_latest_build.cgi';
