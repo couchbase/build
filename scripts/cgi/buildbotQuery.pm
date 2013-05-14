@@ -55,7 +55,7 @@ sub get_URL_root
 sub html_builder_link
     {
     my ($bder) = @_;
-    my $HTML = '<a href="'. $URL_ROOT .'/builders/'. $bder .'">'. $bder .'</a>';
+    my $HTML = '<a href="'. $URL_ROOT .'/builders/'. $bder .'" target="_blank">'. $bder .'</a>';
     
     return($HTML);
     }
@@ -86,7 +86,7 @@ sub html_OK_link
     {
     my ($bder, $bnum, $rev, $date) = @_;
     
-    my $HTML='<a href="'. $URL_ROOT .'/builders/'. $bder .'/builds/'. $bnum .'">'. "$rev ($date)" .'</a>';
+    my $HTML='<a href="'. $URL_ROOT .'/builders/'. $bder .'/builds/'. $bnum .'" target="_blank">'. "$rev ($date)" .'</a>';
     return($HTML);
     }
 
@@ -99,7 +99,7 @@ sub html_FAIL_link
     
     my $HTML = '<font color="red">FAIL</font><BR>'
               .'<PRE>...tail of log of last build step...</PRE>'
-              .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'">build logs</a>';
+              .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'" target="_blank">build logs</a>';
     
     return($HTML);
     }
