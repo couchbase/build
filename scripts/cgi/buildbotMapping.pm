@@ -27,9 +27,9 @@ my $usage="\n".'use:  buildbotMapping::get_builder( platform, bits, branch)'."\n
 
 
 my %buildbots = ( "production" => { "centos"   => { 32 => { "2.0.0"  =>  "centos-x86-20-builder",
-                                                            "2.0.1"  =>  "centos-x64-201-builder",
-                                                            "2.0.2"  =>  "centos-x64-202-builder",
-                                                            "2.1.0"  =>  "centos-x64-21-builder",
+                                                            "2.0.1"  =>  "centos-x86-201-builder",
+                                                            "2.0.2"  =>  "centos-x86-202-builder",
+                                                            "2.1.0"  =>  "centos-x86-21-builder",
                                                           },
                                                     64 => { "2.0.0"  =>  "centos-x64-20-builder",
                                                             "2.0.1"  =>  "centos-x64-201-builder",
