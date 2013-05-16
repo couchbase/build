@@ -55,7 +55,7 @@ sub get_URL_root
 sub html_builder_link
     {
     my ($bder) = @_;
-    my $HTML = '<a href="'. $URL_ROOT .'/builders/'. $bder .'">'. $bder .'</a>';
+    my $HTML = '<a href="'. $URL_ROOT .'/builders/'. $bder .'" target="_blank">'. $bder .'</a>';
     
     return($HTML);
     }
@@ -86,7 +86,7 @@ sub html_OK_link
     {
     my ($bder, $bnum, $rev, $date) = @_;
     
-    my $HTML='<a href="'. $URL_ROOT .'/builders/'. $bder .'/builds/'. $bnum .'">'. "$rev ($date)" .'</a>';
+    my $HTML='<a href="'. $URL_ROOT .'/builders/'. $bder .'/builds/'. $bnum .'" target="_blank">'. "$rev ($date)" .'</a>';
     return($HTML);
     }
 
@@ -95,10 +95,11 @@ sub html_OK_link
 #                                   HTML of link to FAILED build results
 sub html_FAIL_link
     {
-    my ($bder, $bnum) = @_;
-    my $HTML='<font color="red">FAIL</font><BR>'
-            .'<PRE>...tail of log of last build step...</PRE>'
-            .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'">build logs</a>';
+    my ($bder, $bnum, $is_running) = @_;
+    
+    my $HTML = '<font color="red">FAIL</font><BR>'
+              .'<PRE>...tail of log of last build step...</PRE>'
+              .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'" target="_blank">build logs</a>';
     
     return($HTML);
     }
@@ -126,6 +127,7 @@ sub get_json
         }
     else
        {
+       if ($response->status_line =~ '404')  { return(0); }
        die $response->status_line;
     }  }
 
@@ -172,7 +174,8 @@ sub get_build_date
         my ($second, $minute, $hour, $dayOfMonth, $month, $year, $dayOfWeek, $dayOfYear, $daylightSavings) = localtime(int($end_time));
         $year  += 1900;
         $month += 1;
-        return $year .'-'. $month .'-'. $dayOfMonth;
+     #  return $year .'-'. $month .'-'. $dayOfMonth;
+        return $month .'/'. $dayOfMonth .'/'. $year;
         }
     die "Bad Reference\n";
     }
@@ -183,7 +186,8 @@ sub get_build_date
 #                                   returns TRUE if "results" value is null
 sub is_running_build
     {
-    my ($jsonref) = @_;
+    my ($jsonref) = @_;    return ($jsonref) if ($jsonref==0);
+    
     if ( defined($$jsonref{results}) && $DEBUG )  { print "DEBUG: results is: $$jsonref{results}\n"; }
     if ($DEBUG)  { print "DEBUG: called is_running_build($jsonref)\n"; }
     return (! defined($$jsonref{results}) );

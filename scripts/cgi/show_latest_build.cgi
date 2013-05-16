@@ -17,7 +17,6 @@ BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
-my ($hour_of_secods, $quarter_hour, $ten_minutes, $five_minutes) = (3600, 900, 600, 300);
 
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
@@ -25,6 +24,8 @@ use buildbotReports qw(:DEFAULT);
 
 use CGI qw(:standard);
 my  $query = new CGI;
+
+my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
 my $timestamp = "";
 sub get_timestamp
@@ -39,16 +40,18 @@ sub get_timestamp
 
 sub print_HTML_Page
     {
-    my ($fragment, $page_title, $timeout_seconds) = @_;
+    my ($frag_left, $frag_right, $page_title, $color) = @_;
     
     print $query->header;
-    print $query->start_html( -title => $page_title,
+    print $query->start_html( -title   => $page_title,
+                              -BGCOLOR => $color,
                             );
-    print "\n".$fragment."\n";
- #  print "\n".'<BR><HR>'.get_timestamp().'<BR><HR>';
+    print "\n".'<div style="overflow-x: hidden">'
+         .'<table border="0" cellpadding="0" cellspacing="0"><tr><td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr></table>'
+         .'</div>'."\n";
     print $query->end_html;
     }
-my $installed_URL='http://10.3.2.199/cgi-bin/build/scripts/cgi/show_latest_build.cgi';
+my $installed_URL='http://10.3.2.199/cgi/show_latest_build.cgi';
 
 my $usage = "ERROR: must specify  EITHER both 'builder' and 'branch' params\n"
            ."                         OR all of 'platform', 'bits', 'branch'\n\n"
@@ -72,19 +75,23 @@ elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param(
     }
 else
     {
-    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), $builder, $hour_of_secods );
+    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
     exit;
     }
 
-print STDERR "\nready to start with\n($builder, $branch)\n";
+print STDERR "\nready to start with ($builder, $branch)\n";
 
 #### S T A R T  H E R E 
 
-my ($bldstatus, $bldnum, $rev_numb, $bld_date) = buildbotReports::last_done_build($builder, $branch);
+my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running) = buildbotReports::last_done_build($builder, $branch);
+print STDERR "according to last_done_build, is_running = $is_running\n";
 
 if ($bldstatus)
     {
-    print_HTML_Page( buildbotQuery::html_OK_link(   $builder, $bldnum, $rev_numb, $bld_date ), $builder, $ten_minutes );
+    print_HTML_Page( buildbotQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
+                     buildbotReports::is_running($is_running),
+                     $builder,
+                     $good_color );
     
     print STDERR "GOOD: $bldnum\n"; 
     }
@@ -92,7 +99,10 @@ else
     {
     print STDERR "FAIL: $bldnum\n"; 
     
-    print_HTML_Page( buildbotQuery::html_FAIL_link( $builder, $bldnum ), $builder, $hour_of_secods );
+    print_HTML_Page( buildbotReports::is_running($is_running),
+                     buildbotQuery::html_FAIL_link( $builder, $bldnum),
+                     $builder,
+                     $warn_color );
     }
 
 

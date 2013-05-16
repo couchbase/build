@@ -22,17 +22,18 @@ REPORTS=${WORKSPACE}/${REPORT_ROOT}/${REPDIR}
 ERRRORS=${WORKSPACE}/${REPORT_ROOT}/${ERRDIR}
 UP2DATE=${WORKSPACE}/${REPORT_ROOT}/${UPTDIR}
 echo ------------------------------------------------- cleaning: ${WORKSPACE}/${REPORT_ROOT}
-rm -rf ${REPORT_ROOT}
-mkdir  ${REPORT_ROOT}
+rm -rf  ${WORKSPACE}/${REPORT_ROOT}
+mkdir   ${WORKSPACE}/${REPORT_ROOT}
 
-NOTIFY_GOOD=${WORKSPACE}/${REPORT_ROOT}/email_ok.txt
-NOTIFY_TODO=${WORKSPACE}/${REPORT_ROOT}/email_to_merge.txt
+NOTIFYS=${WORKSPACE}/${REPORT_ROOT}
+NOTIFY_GOOD=email_ok.txt
+NOTIFY_TODO=email_to_merge.txt
+NOTIFY_FILE=email_full.txt
 
 NOTIFY_FROM=build@couchbase.com
 NOTIFY_DIST=philip@couchbase.com
 NOTIFY_SUBJ='[QE]  merge report:  '${BRANCH_SRC}' -> '${BRANCH_DST}
-NOTIFY_NAME=Couchbase QE
-NOTIFY_FILE=${WORKSPACE}/${REPORT_ROOT}/email_full.txt
+NOTIFY_NAME="Couchbase QE"
 
 NOTIFY_CMD=/usr/sbin/sendmail
 
@@ -45,26 +46,29 @@ GITLOG='--pretty=format:--------------------------------------------------\ncomm
 
 GIT_BASE=origin
 
-function make_notify_text
+function make_notify_file
     {
-    local MSG
-    
-    MSG="TO:             ${NOTIFY_DIST}\n"
-    MSG="${MSG}From:    ${NOTIFY_FROM}\n"
-    MSG="${MSG}Subject: ${NOTIFY_SUBJ}\n\n"
-    
-    MSG="${MSG}UP-TO-DATE:\n"
-    MSG="${MSG}`cat ${NOTIFY_GOOD}`\n\n"
-    MSG="${MSG}TO BE MERGED:\n"
-    MSG="${MSG}`cat ${NOTIFY_TODO}`\n\n"
-    echo ${MSG}
+    echo "TO:      ${NOTIFY_DIST}"    > ${NOTIFYS}/${NOTIFY_FILE}
+    echo "From:    ${NOTIFY_FROM}"   >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "Subject: ${NOTIFY_SUBJ}"   >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "UP-TO-DATE:"               >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    cat ${NOTIFYS}/${NOTIFY_GOOD}    >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "TO BE MERGED:"             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    cat ${NOTIFYS}/${NOTIFY_TODO}    >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     }
 
 
-function send_notify
+function send_notify_file
     {
-    local EMAIL_TEXT = 
-    cat ${} | ${NOTIFY_CMD} -F${NOTIFY_NAME}
+    cat ${NOTIFYS}/${NOTIFY_FILE} | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
     }
 
 function show_merges
@@ -223,34 +227,35 @@ for COMP in ${PROJECTS}
                 OUT_DIR=${UP2DATE}
                 OUTFILE=${COMP}-UP-TO-DATE.txt
                 OUT_ARG='-e'
-                echo ${OUT_ARG} ${COMP}                                                                  >>   ${NOTIFY_GOOD}
-                git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1  >>   ${NOTIFY_GOOD}
-                echo ${OUT_ARG} "\n"                                                                     >>   ${NOTIFY_GOOD}
+                
+                NOTICE=${NOTIFY_GOOD}
+                NOTICE_MSG=`git log --oneline --graph --no-abbrev-commit --pretty="format:%H  %ci  %s" -1 | head -1`
               else
                 OUT_DIR=${REPORTS}
                 OUTFILE=${COMP}-merge_report-${BRANCH_SRC}-${BRANCH_DST}.txt
                 OUT_ARG='-e'
-                echo ${OUT_ARG} ${COMP}                                                                  >>   ${NOTIFY_TODO}
-                echo ${OUT_ARG} ${MSG}                                                                   >>   ${NOTIFY_TODO}
-                echo ${OUT_ARG} "\n"                                                                     >>   ${NOTIFY_TODO}
+                
+                NOTICE=${NOTIFY_TODO}
+                NOTICE_MSG="{$MSG}"
             fi
+            write_log  ${NOTIFYS}  ${NOTICE}   "${COMP}"                                                       ${OUT_ARG}
+            write_log  ${NOTIFYS}  ${NOTICE}   "${NOT_MSG}"                                                    ${OUT_ARG}
+            write_log  ${NOTIFYS}  ${NOTICE}   "------------------------------------------------------------"  ${OUT_ARG}
         fi
-        write_log  ${OUT_DIR}  ${OUTFILE}  "${COMP} merge ${BRANCH_SRC} into ${BRANCH_DST}"                ${OUT_ARG}
-        write_log  ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
-        write_log  ${OUT_DIR}  ${OUTFILE}  "[${BRANCH_DST}]  git merge --no-commit -s ours ${BRANCH_SRC}"
-        write_log  ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
-        write_log  ${OUT_DIR}  ${OUTFILE}  "${MSG}"                                                        ${OUT_ARG}
+        write_log      ${OUT_DIR}  ${OUTFILE}  "${COMP} merge ${BRANCH_SRC} into ${BRANCH_DST}"                ${OUT_ARG}
+        write_log      ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
+        write_log      ${OUT_DIR}  ${OUTFILE}  "[${BRANCH_DST}]  git merge --no-commit -s ours ${BRANCH_SRC}"
+        write_log      ${OUT_DIR}  ${OUTFILE}  "------------------------------------------------------------"
+        write_log      ${OUT_DIR}  ${OUTFILE}  "${MSG}"                                                        ${OUT_ARG}
         popd           > /dev/null
-        sleep 7
+        sleep 3
     fi
 done
 
-NOTIFY_EMAIL=4
-make_notify_text > ${NOTIFY_FILE}
-echo wrote:
-            `make_notify_text`
-echo onto          ${NOTIFY_FILE}
-
+make_notify_file
+echo "wrote:  ${NOTIFYS}/${NOTIFY_FILE}:"
+cat           ${NOTIFYS}/${NOTIFY_FILE}
+send_notify_file
 
 if [[ ${FAILS} > 0 ]] ; then echo ${FAILS} tests FAILED
 else
