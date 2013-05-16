@@ -73,12 +73,12 @@ echo "Importing into local ${EDITION} repo at ${REPO}"
 echo ""
 
 fetch_rpm  couchbase-server-${EDITION}_x86_64_${VERSION}-rel.rpm
-cp         couchbase-server-${EDITION}_x86_64_${VERSION}-rel.rpm  ${REPO}/5/i386/couchbase-server_${BASEVER}.x86_64.rpm
-cp         couchbase-server-${EDITION}_x86_64_${VERSION}-rel.rpm  ${REPO}/6/i386/couchbase-server_${BASEVER}.x86_64.rpm
+cp         couchbase-server-${EDITION}_x86_64_${VERSION}-rel.rpm  ${REPO}/5/i386/couchbase-server-${EDITION}_${BASEVER}.x86_64.rpm
+cp         couchbase-server-${EDITION}_x86_64_${VERSION}-rel.rpm  ${REPO}/6/i386/couchbase-server-${EDITION}_${BASEVER}.x86_64.rpm
     
 fetch_rpm  couchbase-server-${EDITION}_x86_${VERSION}-rel.rpm
-cp         couchbase-server-${EDITION}_x86_${VERSION}-rel.rpm     ${REPO}/5/i386/couchbase-server_${BASEVER}.i386.rpm
-cp         couchbase-server-${EDITION}_x86_${VERSION}-rel.rpm     ${REPO}/6/i386/couchbase-server_${BASEVER}.i386.rpm
+cp         couchbase-server-${EDITION}_x86_${VERSION}-rel.rpm     ${REPO}/5/i386/couchbase-server-${EDITION}_${BASEVER}.i386.rpm
+cp         couchbase-server-${EDITION}_x86_${VERSION}-rel.rpm     ${REPO}/6/i386/couchbase-server-${EDITION}_${BASEVER}.i386.rpm
 
 echo ""
 echo "updating ${REPO}"
