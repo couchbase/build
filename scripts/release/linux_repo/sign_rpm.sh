@@ -63,7 +63,7 @@ echo ""
 echo "Signing local ${EDITION} repo at ${REPO}"
 echo ""
 
-RPM_GPG_KEY_V4=CB6EBC87
+RPM_GPG_KEY_V4=D6A0C30E
 RPM_GPG_KEY_V3=EC0B64C2
 
 rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY_V3}" ${REPO}/5/i386/couchbase-server-${EDITION}_${BASEVER}.x86_64.rpm 
