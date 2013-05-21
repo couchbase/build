@@ -31,7 +31,7 @@ REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb
 
 echo "Creating local ${EDITION} repo at ${REPO}"
 
-KEY=CB6EBC87
+KEY=D6A0C30E
 
 mkdir -p ${REPO}/conf
 
@@ -58,3 +58,6 @@ echo "Components: lucid/main"                                       >> ${OUTFILE
 echo "Architectures: amd64 i386 source"                             >> ${OUTFILE}
 echo "Description: Couchbase ${EDITION_NAME} Repository "           >> ${OUTFILE}
 
+echo "" 
+echo "Ready to import into repositories under ${LOCAL_REPO_ROOT}"
+echo "" 
