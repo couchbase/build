@@ -28,11 +28,9 @@ function usage
     }
 
 
-REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb
-
 S3ROOT=s3://packages.couchbase.com/releases/couchbase-server
 
-echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
+echo "Uploading local repo metadat at ${REPO} to ${S3ROOT}"
 
 
 if [[ $1 == "--init" ]]
