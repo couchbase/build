@@ -30,15 +30,15 @@ function usage
 
 S3ROOT=s3://packages.couchbase.com/releases/couchbase-server
 
-echo "Uploading local repo metadat at ${REPO} to ${S3ROOT}"
+echo "Uploading local repo metadata at ${REPO} to ${S3ROOT}"
 
 
 if [[ $1 == "--init" ]]
     then
     pushd ${LOCAL_REPO_ROOT} 2>&1 >> /dev/null
-    s3cmd put -v -P --recursive keys            ${S3ROOT}/keys
-    s3cmd put -v -P --recursive sources.list.d  ${S3ROOT}/sources.list.d
-    s3cmd put -v -P --recursive yum.repos.d     ${S3ROOT}/yum.repos.d
+    s3cmd put -v -P --recursive keys            ${S3ROOT}/keys/
+    s3cmd put -v -P --recursive sources.list.d  ${S3ROOT}/sources.list.d/
+    s3cmd put -v -P --recursive yum.repos.d     ${S3ROOT}/yum.repos.d/
     popd                     2>&1 >> /dev/null
 
 else if [[ $1 == "--update" ]]
