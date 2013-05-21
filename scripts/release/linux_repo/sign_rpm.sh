@@ -63,17 +63,18 @@ echo ""
 echo "Signing local ${EDITION} repo at ${REPO}"
 echo ""
 
-RPM_GPG_KEY=CB6EBC87
+RPM_GPG_KEY_V4=D6A0C30E
+RPM_GPG_KEY_V3=EC0B64C2
 
-rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY}" ${REPO}/5/i386/couchbase-server-community_${BASEVER}.x86_64.rpm 
-rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY}" ${REPO}/5/i386/couchbase-server-community_${BASEVER}.i386.rpm
-rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY}" ${REPO}/6/i386/couchbase-server-community_${BASEVER}.x86_64.rpm 
-rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY}" ${REPO}/6/i386/couchbase-server-community_${BASEVER}.i386.rpm 
+rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY_V3}" ${REPO}/5/i386/couchbase-server-${EDITION}_${BASEVER}.x86_64.rpm 
+rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY_V3}" ${REPO}/5/i386/couchbase-server-${EDITION}_${BASEVER}.i386.rpm
+rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY_V4}" ${REPO}/6/i386/couchbase-server-${EDITION}_${BASEVER}.x86_64.rpm 
+rpm --resign -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY_V4}" ${REPO}/6/i386/couchbase-server-${EDITION}_${BASEVER}.i386.rpm 
 
-gpg --batch --yes -u ${RPM_GPG_KEY} --detach-sign --armor ${REPO}/5/x86_64/repodata/repomd.xml
-gpg --batch --yes -u ${RPM_GPG_KEY} --detach-sign --armor ${REPO}/5/i386/repodata/repomd.xml
-gpg --batch --yes -u ${RPM_GPG_KEY} --detach-sign --armor ${REPO}/6/x86_64/repodata/repomd.xml
-gpg --batch --yes -u ${RPM_GPG_KEY} --detach-sign --armor ${REPO}/6/i386/repodata/repomd.xml
+gpg --batch --yes -u ${RPM_GPG_KEY_v3} --detach-sign --armor ${REPO}/5/x86_64/repodata/repomd.xml
+gpg --batch --yes -u ${RPM_GPG_KEY_v3} --detach-sign --armor ${REPO}/5/i386/repodata/repomd.xml
+gpg --batch --yes -u ${RPM_GPG_KEY_V4} --detach-sign --armor ${REPO}/6/x86_64/repodata/repomd.xml
+gpg --batch --yes -u ${RPM_GPG_KEY_V4} --detach-sign --armor ${REPO}/6/i386/repodata/repomd.xml
 
 echo ""
 echo "Done signing ${EDITION} repo at ${REPO}"

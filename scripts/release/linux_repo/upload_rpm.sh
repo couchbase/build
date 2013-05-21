@@ -27,24 +27,27 @@ function usage
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
 if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
 
-REPO=${LOCAL_REPO_ROOT}/${EDITION}/rpm
-
-S3ROOT=s3://packages.couchbase.com/releases/couchbase-server/${EDITION}/rpm
-
-echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
 
 if [[ $1 == "--init" ]]
     then
-    pushd ${REPO} 2>&1 >> /dev/null
-    s3cmd put -v -P --recursive rpm  ${S3ROOT}
-    popd          2>&1 >> /dev/null
+    REPO=${LOCAL_REPO_ROOT}/${EDITION}
+    S3ROOT=s3://packages.couchbase.com/releases/couchbase-server/${EDITION}
+    echo "Uploading local ${EDITION} repo at ${REPO}/rpm to ${S3ROOT}/rpm"
+    
+    pushd ${REPO}                                  2>&1 >> /dev/null
+    s3cmd put -v -P --recursive  rpm  ${S3ROOT}/
+    popd                                           2>&1 >> /dev/null
 
 else if [[ $1 == "--update" ]]
     then
-      # s3cmd sync -P --no-delete-removed --no-check-md5 --progress --verbose  ${REPO} ${S3ROOT}/
-        s3cmd sync -P --no-delete-removed                --progress --verbose  ${REPO} ${S3ROOT}/
+        REPO=${LOCAL_REPO_ROOT}/${EDITION}/rpm
+        S3ROOT=s3://packages.couchbase.com/releases/couchbase-server/${EDITION}/rpm
+        echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
+        
+      # s3cmd sync -P --no-delete-removed --no-check-md5 --progress --verbose  ${REPO}  ${S3ROOT}/
+        s3cmd sync -P --no-delete-removed                --progress --verbose  ${REPO}  ${S3ROOT}/
     else
-        echo "use:  $0  --init | --update"
+        usage
         exit 9
     fi
 fi
