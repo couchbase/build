@@ -58,6 +58,7 @@ function write_keys
 
 function write_sources
     {
+    SSL_ROOT=http://packages.couchbase.com/releases/openssl098
     URL_ROOT=http://packages.couchbase.com/releases/couchbase-server
     for EDITION in enterprise community
       do
@@ -71,13 +72,22 @@ function write_sources
             REPOFILE=${YUM_DIR}/couchbase-server.repo
             echo "# `date`"                                                                     > ${REPOFILE}
             echo '# '                                                                          >> ${REPOFILE}
-            echo '[couchbase]'                                                                 >> ${REPOFILE}
+            echo '[couchbase-server]'                                                          >> ${REPOFILE}
             echo 'name=Couchbase Server'                                                       >> ${REPOFILE}
-            echo 'baseurl='${URL_ROOT}'/'${EDITION}'/rpm/'${CENTOS}'/$releasever/$basearch/'  >> ${REPOFILE}
+            echo 'baseurl='${URL_ROOT}'/'${EDITION}'/rpm/$releasever/$basearch/'               >> ${REPOFILE}
             echo 'enabled=1'                                                                   >> ${REPOFILE}
             echo 's3_enabled=1'                                                                >> ${REPOFILE}
             echo 'gpgcheck=1'                                                                  >> ${REPOFILE}
             echo 'gpgkey='${URL_ROOT}'/keys/'${KEYFILE}                                        >> ${REPOFILE}
+            echo '# '                                                                          >> ${REPOFILE}
+            echo '[openssl]'                                                                   >> ${REPOFILE}
+            echo 'name=OpenSSL'                                                                >> ${REPOFILE}
+            echo 'baseurl='${SSL_ROOT}'/rpm/$releasever/$basearch/'                            >> ${REPOFILE}
+            echo 'enabled=1'                                                                   >> ${REPOFILE}
+            echo 's3_enabled=1'                                                                >> ${REPOFILE}
+            echo 'gpgcheck=0'                                                                  >> ${REPOFILE}
+            echo '# '                                                                          >> ${REPOFILE}
+            echo '# '                                                                          >> ${REPOFILE}
         done
     done
     }
