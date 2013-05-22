@@ -73,7 +73,7 @@ function write_sources
             echo '# '                                                                          >> ${REPOFILE}
             echo '[couchbase]'                                                                 >> ${REPOFILE}
             echo 'name=Couchbase Server'                                                       >> ${REPOFILE}
-            echo 'baseurl='${URL_ROOT}'/'${EDITION}'/rpm/'${CENTOS}}'/$releasever/$basearch/'  >> ${REPOFILE}
+            echo 'baseurl='${URL_ROOT}'/'${EDITION}'/rpm/'${CENTOS}'/$releasever/$basearch/'  >> ${REPOFILE}
             echo 'enabled=1'                                                                   >> ${REPOFILE}
             echo 's3_enabled=1'                                                                >> ${REPOFILE}
             echo 'gpgcheck=1'                                                                  >> ${REPOFILE}
