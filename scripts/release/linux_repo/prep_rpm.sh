@@ -58,6 +58,7 @@ function write_keys
 
 function write_sources
     {
+    URL_ROOT=http://packages.couchbase.com/releases/couchbase-server
     for EDITION in enterprise community
       do
         for CENTOS in 5 6
@@ -65,18 +66,18 @@ function write_sources
             if [[ ${CENTOS} -eq 5 ]] ; then KEYFILE=couchbase-server-public-key-v3 ; fi
             if [[ ${CENTOS} -eq 6 ]] ; then KEYFILE=couchbase-server-public-key    ; fi
             
-            YUM_DIR=${LOCAL_REPO_ROOT}/yum.repos.d/${EDITION}
+            YUM_DIR=${LOCAL_REPO_ROOT}/yum.repos.d/${CENTOS}/${EDITION}
             mkdir -p ${YUM_DIR}
             REPOFILE=${YUM_DIR}/couchbase-server.repo
-            echo "# `date`"                                                                                                   > ${REPOFILE}
-            echo '# '                                                                                                        >> ${REPOFILE}
-            echo '[couchbase]'                                                                                               >> ${REPOFILE}
-            echo 'name=Couchbase Server'                                                                                     >> ${REPOFILE}
-            echo 'baseurl=http://packages.couchbase.com/releases/couchbase-server/'${EDITION}'/rpm/$releasever/$basearch/'   >> ${REPOFILE}
-            echo 'enabled=1'                                                                                                 >> ${REPOFILE}
-            echo 's3_enabled=1'                                                                                              >> ${REPOFILE}
-            echo 'gpgcheck=1'                                                                                                >> ${REPOFILE}
-            echo 'gpgkey=http://packages.couchbase.com/releases/couchbase-server/keys/'${KEYFILE}                            >> ${REPOFILE}
+            echo "# `date`"                                                                     > ${REPOFILE}
+            echo '# '                                                                          >> ${REPOFILE}
+            echo '[couchbase]'                                                                 >> ${REPOFILE}
+            echo 'name=Couchbase Server'                                                       >> ${REPOFILE}
+            echo 'baseurl='${URL_ROOT}'/'${EDITION}'/rpm/'${CENTOS}}'/$releasever/$basearch/'  >> ${REPOFILE}
+            echo 'enabled=1'                                                                   >> ${REPOFILE}
+            echo 's3_enabled=1'                                                                >> ${REPOFILE}
+            echo 'gpgcheck=1'                                                                  >> ${REPOFILE}
+            echo 'gpgkey='${URL_ROOT}'/keys/'${KEYFILE}                                        >> ${REPOFILE}
         done
     done
     }
