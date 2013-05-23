@@ -85,7 +85,8 @@ function write_sources
             echo 'baseurl='${SSL_ROOT}'/rpm/$releasever/$basearch/'                            >> ${REPOFILE}
             echo 'enabled=1'                                                                   >> ${REPOFILE}
             echo 's3_enabled=1'                                                                >> ${REPOFILE}
-            echo 'gpgcheck=0'                                                                  >> ${REPOFILE}
+            echo 'gpgcheck=1'                                                                  >> ${REPOFILE}
+            echo 'gpgkey='${URL_ROOT}'/keys/'${KEYFILE}                                        >> ${REPOFILE}
             echo '# '                                                                          >> ${REPOFILE}
             echo '# '                                                                          >> ${REPOFILE}
         done
