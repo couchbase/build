@@ -23,7 +23,7 @@ OUTFILE=${DEB_REPO}/conf/distributions
 
 echo "writing ${OUTFILE}"
 
-echo '# `date`'                                              > ${OUTFILE}
+echo "# `date`"                                              > ${OUTFILE}
 echo "Origin: couchbase"                                    >> ${OUTFILE}
 echo "SignWith: ${KEY}"                                     >> ${OUTFILE}
 echo "Suite: precise"                                       >> ${OUTFILE}
