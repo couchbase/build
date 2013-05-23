@@ -11,16 +11,42 @@
 if [[ ! ${LOCAL_SSL_ROOT} ]] ; then  LOCAL_SSL_ROOT=~/linux_repos/openssl098 ; fi
 
 
+#---------------------------------------------
                                               DEB_REPO=${LOCAL_SSL_ROOT}/deb
 echo ""
 echo "creating new DEB openssl098 repo at:  ${DEB_REPO}"
 rm    -rf                                   ${DEB_REPO}
-mkdir  -p                                   ${DEB_REPO}
+mkdir  -p                                   ${DEB_REPO}/conf
+
+KEY=D6A0C30E
+OUTFILE=${DEB_REPO}/conf/distributions
+
+echo "writing ${OUTFILE}"
+
+echo '# `date`'                                              > ${OUTFILE}
+echo "Origin: couchbase"                                    >> ${OUTFILE}
+echo "SignWith: ${KEY}"                                     >> ${OUTFILE}
+echo "Suite: precise"                                       >> ${OUTFILE}
+echo "Codename: precise"                                    >> ${OUTFILE}
+echo "Version: 12.04"                                       >> ${OUTFILE}
+echo "Components: precise/main"                             >> ${OUTFILE}
+echo "Architectures: amd64 i386 source"                     >> ${OUTFILE}
+echo "Description: Couchbase OpenSLL Repository"            >> ${OUTFILE}
+echo ""                                                     >> ${OUTFILE}
+echo "Origin: couchbase"                                    >> ${OUTFILE}
+echo "SignWith: ${KEY}"                                     >> ${OUTFILE}
+echo "Suite: lucid"                                         >> ${OUTFILE}
+echo "Codename: lucid"                                      >> ${OUTFILE}
+echo "Version: 10.04"                                       >> ${OUTFILE}
+echo "Components: lucid/main"                               >> ${OUTFILE}
+echo "Architectures: amd64 i386 source"                     >> ${OUTFILE}
+echo "Description: Couchbase OpenSLL Repository "           >> ${OUTFILE}
+
 echo ""
 echo "DEB openssl098 repo ready for import: ${DEB_REPO}"
 echo ""
 
-
+#---------------------------------------------
                                               RPM_REPO=${LOCAL_SSL_ROOT}/rpm
 echo ""
 echo "creating new RPM openssl098 repo at:  ${RPM_REPO}"
