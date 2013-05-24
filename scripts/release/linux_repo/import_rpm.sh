@@ -60,8 +60,6 @@ VERSION=$1 ; shift ; if [[ ! ${VERSION} ]] ; then read -p "Release: "  VERSION ;
 
 get_version_base BASEVER BLDNUM ${VERSION}
 
-echo BASEVER is $BASEVER
-echo BLDNUM  is $BLDNUM
 
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
 if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
