@@ -102,7 +102,7 @@ else
     my $background; 
     if ( $is_running == 1 )
         {
-        $bldnnum += 1;
+        $bldnum += 1;
         $background = $warn_color;
         }
     else
