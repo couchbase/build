@@ -98,11 +98,21 @@ if ($bldstatus)
 else
     {
     print STDERR "FAIL: $bldnum\n"; 
-    
+   
+    my $background; 
+    if ( $is_running == 1 )
+        {
+        $bldnnum += 1;
+        $background = $warn_color;
+        }
+    else
+        {
+        $background = $err_color;
+        }
     print_HTML_Page( buildbotReports::is_running($is_running),
                      buildbotQuery::html_FAIL_link( $builder, $bldnum),
                      $builder,
-                     $warn_color );
+                     $background );
     }
 
 
