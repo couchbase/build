@@ -172,10 +172,13 @@ md5sum ${dstpkg} > "${dstpkg}.md5"
 ####    upload .staging and then regular files
 
 echo "Uploading .staging files to S3..."
-s3cmd put -P             *.staging  "${s3_target}"
+s3cmd put -P             *.staging    "${s3_target}"
 
 echo "Uploading packages to S3..."
-s3cmd put -P `ls | grep -v staging` "${s3_target}"
+s3cmd put -P `ls | grep -v staging`   "${s3_target}"
+
+echo "Granting anonymous read access..."
+s3cmd setacl --acl-public --recursive "${s3_target}"
 
 s3cmd ls ${s3_target}
 popd                 2>&1 > /dev/null
