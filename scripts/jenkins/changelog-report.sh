@@ -95,7 +95,7 @@ while getopts "d:h" OPTION
         ;;
     esac
 done
-if [[ ! -d ${REPORT_DIR} ]]
+if [[ ! -z  ${REPORT_DIR} ]]
   then                                                     #  pass in as env.var. or -d <dir>,
     REPORTS=${REPORT_DIR}                                  #  and manage it yourself;
   else                                                     #  else it's made anew
