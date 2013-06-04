@@ -190,7 +190,10 @@ function make_notify_file
 
 function send_notify_file
     {
-    cat ${NOTIFYS}/${NOTIFY_FILE} | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
+    echo ----------------------------------------
+    echo "cat ${NOTIFYS}/${NOTIFY_FILE} \| ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F\"${NOTIFY_NAME}\"" 
+          cat ${NOTIFYS}/${NOTIFY_FILE}  | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
+    echo ----------------------------------------
     }
 
 
