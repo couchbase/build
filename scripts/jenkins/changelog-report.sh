@@ -227,6 +227,7 @@ for COMP in ${PROJECTS}
   echo ---------------------------------------------- ${COMP}
   COMP_DIR=${REPOS_SRC}/${COMP}
   if [[ -d ${COMP_DIR} ]]  ;  then rm -rf ${COMP_DIR} ; fi
+  mkdir -p ${COMP_DIR}
     
   #  BASE=couchbase
   #  if [[ ${COMP} == membase-cli ]] ; then BASE=membase ; fi
