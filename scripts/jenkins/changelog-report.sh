@@ -105,6 +105,8 @@ if [[ ! -z  ${REPORT_DIR} ]]
     mkdir    ${REPORTS}
 fi
 
+REPOS_SRC=${REPORTS}/repos  ;  if [[ ! -d ${REPOS_SRC} ]] ; then mkdir -p ${REPOS_SRC} ; fi
+
 DELTA_DIR=changelog
 NO_CHANGE=no_change
 ERROR_DIR=git_errors
@@ -223,7 +225,8 @@ echo --------------------------------------------
 for COMP in ${PROJECTS}
   do
   echo ---------------------------------------------- ${COMP}
-  if [[ -d ${COMP} ]]  ;  then rm -rf ${COMP} ; fi
+  COMP_DIR=${REPOS_SRC}/${COMP}
+  if [[ -d ${COMP_DIR} ]]  ;  then rm -rf ${COMP_DIR} ; fi
     
   #  BASE=couchbase
   #  if [[ ${COMP} == membase-cli ]] ; then BASE=membase ; fi
@@ -237,14 +240,14 @@ for COMP in ${PROJECTS}
       
   OUT=${COMP}-GIT-ERROR.txt
     
-  MSG=`git clone  ${GIT_URL}/${COMP}.git 2>&1`  ;  STATUS=$?
+  MSG=`git clone  ${GIT_URL}/${COMP}.git 2>&1` ${COMP_DIR} ;  STATUS=$?
   
   if [[ $STATUS > 0 ]]
     then
       write_log              ${ERRRORS}  ${OUT}  "GIT ERROR: unable to clone ${GIT_URL}/${COMP}.git"
       THIS_FAIL=$STATUS
     else
-      pushd ${COMP}      > /dev/null
+      pushd ${COMP_DIR}  > /dev/null
       echo "clone ready: ${GIT_URL}/${COMP}.git"
       sleep 1
       if      [[ ! `git branch --all | grep ${BRANCH}` ]]
@@ -274,7 +277,7 @@ for COMP in ${PROJECTS}
                   write_log  ${NOTIFYS}  ${NOTIFY_GOOD}  "-----------------------------------------------"
                   write_log  ${NOTIFYS}  ${NOTIFY_GOOD}  "No changes: both builds use revision ${REV_1ST}"
                   write_log  ${NOTIFYS}  ${NOTIFY_GOOD}  ""
-
+                
                 else
                   echo    git log --max-count=128 --name-status ${RANGE}
                   echo    git log ${RANGE}
