@@ -99,7 +99,7 @@ if [[ ! -z  ${REPORT_DIR} ]]
   then                                                     #  pass in as env.var. or -d <dir>,
     REPORTS=${REPORT_DIR}                                  #  and manage it yourself;
   else                                                     #  else it's made anew
-    REPORTS=${WORKSPACE}/${LAST_BLD_NAME}-${FIRST_BLD} 
+    REPORTS=${WORKSPACE}/${BRANCH}-${LAST_BLD_NAME}-${FIRST_BLD} 
     echo ---------------------------------------------- cleaning workspace: ${REPORTS}
     if [[ -d ${REPORTS} ]] ; then rm -rf ${REPORTS} ; fi
     mkdir    ${REPORTS}
@@ -123,7 +123,7 @@ NOTIFY_FILE=email.txt
 
 NOTIFY_FROM=build@couchbase.com
 NOTIFY_DIST=philip@couchbase.com
-NOTIFY_SUBJ='[QE]  merge report:  '${BRANCH_SRC}' -> '${BRANCH_DST}
+NOTIFY_SUBJ='[QE]  '${BRANCH}' merge report:  '${LAST_BLD}' -> '${FIRST_BLD}
 NOTIFY_NAME="Couchbase QE"
 NOTIFY_CMD=/usr/sbin/sendmail
 
@@ -135,7 +135,7 @@ function fetch_manifest
     bld_num=`echo $bld_num  | sed 's/^ *//g' | sed 's/ *$//g'`
 
     branch=${BRANCH}
-    if [[ ${BRANCH} == 'master' ]] ; then branch=2.1.0 ; fi
+    #if [[ ${BRANCH} == 'master' ]] ; then branch=2.1.0 ; fi
     
     if [[ ${bld_num} =~ $CRX_REX ]]    # instead of build number, pass in absolute path to current.xml
       then                             # This is for use by buildbot jobs.
