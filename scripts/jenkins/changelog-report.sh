@@ -176,14 +176,14 @@ function make_notify_file
     echo "Subject: ${NOTIFY_SUBJ}"   >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
-    echo "NO-CHANGES:"               >> ${NOTIFYS}/${NOTIFY_FILE}
-    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
-    cat ${NOTIFYS}/${NOTIFY_GOOD}    >> ${NOTIFYS}/${NOTIFY_FILE}
-    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
-    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     echo "SINCE LAST GOOD BUILD:"    >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     cat ${NOTIFYS}/${NOTIFY_DIFF}    >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo "NO-CHANGES:"               >> ${NOTIFYS}/${NOTIFY_FILE}
+    echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
+    cat ${NOTIFYS}/${NOTIFY_GOOD}    >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     echo                             >> ${NOTIFYS}/${NOTIFY_FILE}
     }
