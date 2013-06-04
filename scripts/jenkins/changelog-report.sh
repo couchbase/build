@@ -160,7 +160,7 @@ function fetch_manifest
           fi
         done
       fi
-    popd             > /dev/null
+    popd                 > /dev/null
     return 99
     }
 
@@ -222,13 +222,12 @@ echo ${MFST_2ND}
 echo -------------------------------------------- 
 
 
+pushd ${REPOS_SRC}       > /dev/null
 for COMP in ${PROJECTS}
   do
   echo ---------------------------------------------- ${COMP}
-  COMP_DIR=${REPOS_SRC}/${COMP}
   if [[ -d ${COMP_DIR} ]]  ;  then rm -rf ${COMP_DIR} ; fi
-  mkdir -p ${COMP_DIR}
-    
+  
   #  BASE=couchbase
   #  if [[ ${COMP} == membase-cli ]] ; then BASE=membase ; fi
   #  if [[ ${COMP} == memcached   ]] ; then BASE=membase ; fi
@@ -241,7 +240,7 @@ for COMP in ${PROJECTS}
       
   OUT=${COMP}-GIT-ERROR.txt
     
-  MSG=`git clone  ${GIT_URL}/${COMP}.git 2>&1` ${COMP_DIR} ;  STATUS=$?
+  MSG=`git clone  ${GIT_URL}/${COMP}.git 2>&1` ;  STATUS=$?
   
   if [[ $STATUS > 0 ]]
     then
@@ -302,12 +301,13 @@ for COMP in ${PROJECTS}
               fi
           fi
       fi
-      popd           > /dev/null
+      popd               > /dev/null
   fi
     
   if [[ ${THIS_FAIL} > 0 ]] ; then let FAILS++ ; fi
   sleep 5
 done
+popd                     > /dev/null
 
 make_notify_file
 send_notify_file
