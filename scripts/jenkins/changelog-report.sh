@@ -149,7 +149,7 @@ function fetch_manifest
           do
           manifest=${PKG_ROOT}_${branch}-${bld_num}-rel.${sufx}.manifest.xml
           
-          wget  ${HTTP}/${manifest} ${REPORTS}/${manifest}; STATUS=$?
+          wget ${HTTP}/${manifest} --output-document=${REPORTS}/${manifest}  ;  STATUS=$?
           
           if [[ ${STATUS} == 0 ]]
               then
