@@ -137,12 +137,10 @@ function fetch_manifest
     branch=${BRANCH}
     if [[ ${BRANCH} == 'master' ]] ; then branch=2.1.0 ; fi
     
-    pushd ${REPORTS}     > /dev/null
-    
     if [[ ${bld_num} =~ $CRX_REX ]]    # instead of build number, pass in absolute path to current.xml
       then                             # This is for use by buildbot jobs.
         filename=${BASH_REMATCH[1]}
-        cp ${bld_num} ${filename}
+        cp ${bld_num} ${REPORTS}/${filename}
         manifest=${filename}
         echo ${manifest}
         return 0
@@ -151,7 +149,7 @@ function fetch_manifest
           do
           manifest=${PKG_ROOT}_${branch}-${bld_num}-rel.${sufx}.manifest.xml
           
-          wget  ${HTTP}/${manifest} ; STATUS=$?
+          wget  ${HTTP}/${manifest} ${REPORTS}/${manifest}; STATUS=$?
           
           if [[ ${STATUS} == 0 ]]
               then
@@ -160,7 +158,6 @@ function fetch_manifest
           fi
         done
       fi
-    popd                 > /dev/null
     return 99
     }
 
@@ -226,7 +223,7 @@ pushd ${REPOS_SRC}       > /dev/null
 for COMP in ${PROJECTS}
   do
   echo ---------------------------------------------- ${COMP}
-  if [[ -d ${COMP_DIR} ]]  ;  then rm -rf ${COMP_DIR} ; fi
+  if [[ -d ${COMP} ]]  ;  then rm -rf ${COMP} ; fi
   
   #  BASE=couchbase
   #  if [[ ${COMP} == membase-cli ]] ; then BASE=membase ; fi
@@ -247,7 +244,7 @@ for COMP in ${PROJECTS}
       write_log              ${ERRRORS}  ${OUT}  "GIT ERROR: unable to clone ${GIT_URL}/${COMP}.git"
       THIS_FAIL=$STATUS
     else
-      pushd ${COMP_DIR}  > /dev/null
+      pushd ${COMP}      > /dev/null
       echo "clone ready: ${GIT_URL}/${COMP}.git"
       sleep 1
       if      [[ ! `git branch --all | grep ${BRANCH}` ]]
