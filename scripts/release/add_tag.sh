@@ -3,10 +3,10 @@
 #  used to apply a tag to git repo
 
 TAGNAME=2.0.2r
-TAG_MSG='2.0.2-821.manifest.xml'
+TAG_MSG='2.1.0-703'
 
 THISDIR=`pwd`
-MANIFEST=${THISDIR}/2.0.2-821.manifest.xml
+MANIFEST=${THISDIR}/2.1.0-703.manifest.xml
 
 echo MANIFEST is $MANIFEST
 
