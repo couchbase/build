@@ -2,10 +2,15 @@
 #  
 #  used to apply a tag to git repo
 
-TAGNAME=2.0.1-macosx
-TAG_MSG='2.0.1-185 macosx'
+TAGNAME=2.0.2r
+TAG_MSG='2.0.2-821.manifest.xml'
 
-MANIFEST=2.0.1-macosx.xml
+THISDIR=`pwd`
+MANIFEST=${THISDIR}/2.0.2-821.manifest.xml
+
+echo MANIFEST is $MANIFEST
+
+WORKSPACE=add_tag_workspace
 
 function get_version
     {
@@ -56,31 +61,42 @@ function tag_project
             echo ======================================== initializing workspace for ${BASE}/${PROJ}
             if [[ -d ${PROJ} ]] ; then rm -rf ${PROJ} ; fi
             
-            git clone http://github.com/${BASE}/${PROJ}.git
+            git clone https://github.com/${BASE}/${PROJ}.git  ;  STATUS=$?
             
-            pushd ${PROJ} > /dev/null
-            if [[ ${REVISION} ]]
-              then    
-                echo ........... git tag -a -m "${TAG_MSG}" ${TAGNAME}  ${REVISION}
-                                 git tag -a -m "${TAG_MSG}" ${TAGNAME}  ${REVISION}
-                git push origin ${TAGNAME}
-                project_tally_name[$proj_count]=${PROJ}
-                project_tally_rvsn[$proj_count]=${REVISION}
-              else
-                echo ============ CANNOT TAG ${BASE}/${PROJ} ============
+            if [[ $STATUS -gt 0 ]] ; then echo "FAILED to clone ${BASE}/${PROJ}"
+            else
+                pushd ${PROJ}     > /dev/null
+                if [[ ${REVISION} ]]
+                  then    
+                    if [[ `git tag | grep ${TAGNAME}` ]] ; then echo "${TAGNAME} already exists on ${PROJ}"
+                    else
+                        echo ........... git tag -m "${TAG_MSG}" ${TAGNAME}  ${REVISION}
+                                         git tag -m "${TAG_MSG}" ${TAGNAME}  ${REVISION}
+                        git push origin ${TAGNAME}
+                        project_tally_name[$proj_count]=${PROJ}
+                        project_tally_rvsn[$proj_count]=${REVISION}
+                    fi
+                  else
+                    echo ============ CANNOT TAG ${BASE}/${PROJ} ============
+                fi
+                popd              > /dev/null
             fi
         fi
         echo ========================================
         let proj_count++
-        popd          > /dev/null
     fi
     }
+
+rm -rf ${WORKSPACE}
+mkdir  ${WORKSPACE}
+pushd  ${WORKSPACE}   > /dev/null
 
 for PP in `grep name=\" ${MANIFEST}  | grep path | grep -v remote=\"erlang\" | awk -F\" '{print $2}' | sort`
   do
     echo tag_project ${PP}
     tag_project ${PP}
 done
+popd                  > /dev/null
 
 
 for (( ii=1 ; $ii < $proj_count ; ii++ ))
