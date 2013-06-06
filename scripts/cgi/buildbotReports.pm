@@ -89,7 +89,7 @@ sub last_done_build
 sub last_good_build
     {
     ($builder, $branch) = @_;
-    my ($bldnum, $next_bldnum, $result);
+    my ($bldnum, $last_bldnum, $next_bldnum, $result);
     
     my $all_builds = buildbotQuery::get_json($builder);
     
@@ -100,9 +100,9 @@ sub last_good_build
         }
     my $is_running  = 0;
     $last_bldnum    = (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)[0];
-    $next_bldnum    = 1+ $last_bldnum;                                        # print STDERR "....is $next_bldnum running?\n";
+    $next_bldnum    = 1+ $last_bldnum;                                     # print STDERR "......is $next_bldnum running?\n";
     my $next_build  = buildbotQuery::get_json($builder, '/'.$next_bldnum);
-    if ( buildbotQuery::is_running_build( $next_build) ) { $is_running = 1;  print STDERR "$bldnum is still running\n"; }
+    if ( buildbotQuery::is_running_build( $next_build) ) { $is_running = 1;  print STDERR "$next_bldnum is still running.\n"; }
     
     foreach my $KEY (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)
         {
