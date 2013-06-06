@@ -121,8 +121,8 @@ NOTIFY_GOOD=email_nochange.txt
 NOTIFY_DIFF=email_changes.txt
 NOTIFY_FILE=email.txt
 
+NOTIFY_DIST=build-changelogs@couchbase.com
 NOTIFY_FROM=build@couchbase.com
-NOTIFY_DIST=philip@couchbase.com
 NOTIFY_SUBJ='[QE]  '${BRANCH}' merge report:  '${LAST_BLD}' -> '${FIRST_BLD}
 NOTIFY_NAME="Couchbase QE"
 NOTIFY_CMD=/usr/sbin/sendmail
