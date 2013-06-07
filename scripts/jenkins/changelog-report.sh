@@ -123,7 +123,7 @@ NOTIFY_FILE=email.txt
 
 NOTIFY_DIST=build-changelogs@couchbase.com
 NOTIFY_FROM=build@couchbase.com
-NOTIFY_SUBJ='[QE]  '${BRANCH}' merge report:  '${LAST_BLD}' -> '${FIRST_BLD}
+NOTIFY_SUBJ='[QE]  '${BRANCH}' changes between builds:  '${LAST_BLD}' -> '${FIRST_BLD}  #  redefined below
 NOTIFY_NAME="Couchbase QE"
 NOTIFY_CMD=/usr/sbin/sendmail
 
@@ -221,6 +221,7 @@ echo ${MFST_1ST}
 echo ${MFST_2ND}
 echo -------------------------------------------- 
 
+NOTIFY_SUBJ='[QE]  '${BRANCH}' changes between builds:  '${LAST_BLD_NAME}' -> '${FIRST_BLD}
 
 pushd ${REPOS_SRC}       > /dev/null
 for COMP in ${PROJECTS}
