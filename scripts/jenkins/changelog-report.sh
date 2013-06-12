@@ -9,8 +9,9 @@
 # 
 # BRANCH     - which branch these changes occur on
 
-if [[ ! ${PROJECTS} ]] ; then PROJECTS="couchbase-cli couchdb couchdbx-app couchstore ep-engine geocouch membase-cli ns_server testrunner tlm" ; fi
-
+if [[ ! ${PROJECTS}  ]] ; then PROJECTS="couchbase-cli couchdb couchdbx-app couchstore ep-engine geocouch membase-cli ns_server testrunner tlm" ; fi
+if [[ ! ${DO_SENDIT} ]] ; then DO_SENDIT=1 ; fi
+                                                   # on by default
 FAILS=0
 
 HTTP=http://builds.hq.northscale.net/latestbuilds
@@ -84,11 +85,14 @@ function sort_bnums
 sort_bnums
 
 
-while getopts "d:h" OPTION
+while getopts "d:P:h" OPTION
     do
     case $OPTION in
     d)  REPORT_DIR=$OPTARG
         echo "DEBUG: The dir is $REPORT_DIR "
+        ;;
+    P)  PLATFORM==$OPTARG
+        echo "DEBUG: The platform is $PLATFORM"
         ;;
     h)  echo -e $USAGE
         exit 0
@@ -190,10 +194,17 @@ function make_notify_file
 
 function send_notify_file
     {
-    echo ----------------------------------------
-    echo "cat ${NOTIFYS}/${NOTIFY_FILE} \| ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F\"${NOTIFY_NAME}\"" 
-          cat ${NOTIFYS}/${NOTIFY_FILE}  | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
-    echo ----------------------------------------
+    if [[ ${DO_SENDIT} > 0 ]]
+      then
+        echo ----------------------------------------
+        echo "cat ${NOTIFYS}/${NOTIFY_FILE} \| ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F\"${NOTIFY_NAME}\"" 
+              cat ${NOTIFYS}/${NOTIFY_FILE}  | ${NOTIFY_CMD} -t -f ${NOTIFY_FROM} -F"${NOTIFY_NAME}" 
+        echo ----------------------------------------
+      else
+        echo ----------------------------------------
+        echo    NOT SENDING EMAIL NOTIFICATION
+        echo ----------------------------------------
+    fi
     }
 
 
@@ -222,6 +233,7 @@ echo ${MFST_2ND}
 echo -------------------------------------------- 
 
 NOTIFY_SUBJ='[QE]  '${BRANCH}' changes between builds:  '${LAST_BLD_NAME}' -> '${FIRST_BLD}
+if [[ ${PLATFORM} ]] ; then NOTIFY_SUBJ="${NOTIFY_SUBJ} (${PLATFORM})" ; fi
 
 pushd ${REPOS_SRC}       > /dev/null
 for COMP in ${PROJECTS}
