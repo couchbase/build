@@ -143,7 +143,7 @@ function fetch_manifest
     bld_num=`echo $bld_num  | sed 's/^ *//g' | sed 's/ *$//g'`
 
     branch=${BRANCH}
-    #if [[ ${BRANCH} == 'master' ]] ; then branch=2.1.0 ; fi
+    if [[  ${BRANCH} == 'master' ]] ; then branch=0.0.0 ; fi
     
     if [[ ${bld_num} =~ $CRX_REX ]]    # instead of build number, pass in absolute path to current.xml
       then                             # This is for use by buildbot jobs.
