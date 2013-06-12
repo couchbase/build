@@ -8,11 +8,8 @@ use File::Basename;
 use Cwd qw(abs_path);
 BEGIN
     {
-    $THIS_DIR = dirname( abs_path($0));
-    print STDERR "THIS_DIR is $THIS_DIR\n";
-    unshift( @INC, $THIS_DIR );
+    $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
-my $installed_URL='http://10.3.2.199/cgi-bin/build/scripts/cgi/show_latest_good_build.cgi';
 
 use Getopt::Std;
 
@@ -39,12 +36,12 @@ sub print_props_file
         }
     }
 
-my $usage = "use:  $0 -b builder -r branch, or\n"
+my $usage = "\nuse:  $0 -b builder -r branch, or\n"
            ."         -P platfrom -B bitwidth -R branch\n\n"
            ."<PRE>"
            ."For example:\n\n"
-           ."    $installed_URL?builder=cs-win2008-x64-20-builder-202&branch=2.0.2\n\n"
-           ."    $installed_URL?platform=windows&bits=64&branch=2.0.2\n\n"
+           ."    $0  -b centos-x64-202-builder -r 2.0.2\n\n"
+           ."    $0  -P centos -B 64 -r 2.0.2\n\n"
            ."<PRE>";
 
 my ($builder, $branch);
