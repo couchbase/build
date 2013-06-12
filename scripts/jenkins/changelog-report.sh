@@ -10,8 +10,7 @@
 # BRANCH     - which branch these changes occur on
 
 if [[ ! ${PROJECTS}  ]] ; then PROJECTS="couchbase-cli couchdb couchdbx-app couchstore ep-engine geocouch membase-cli ns_server testrunner tlm" ; fi
-if [[ ! ${DO_SENDIT} ]] ; then DO_SENDIT=1 ; fi
-                                                   # on by default
+
 FAILS=0
 
 HTTP=http://builds.hq.northscale.net/latestbuilds
@@ -85,11 +84,16 @@ function sort_bnums
 sort_bnums
 
 
-while getopts "d:P:h" OPTION
+DO_SENDIT=1    # on by default
+
+while getopts "d:e:P:h" OPTION
     do
     case $OPTION in
     d)  REPORT_DIR=$OPTARG
         echo "DEBUG: The dir is $REPORT_DIR "
+        ;;
+    e)  DO_SENDIT=$OPTARG 
+        echo "DEBUG: The email send flag is $DO_SENDIT"
         ;;
     P)  PLATFORM==$OPTARG
         echo "DEBUG: The platform is $PLATFORM"
