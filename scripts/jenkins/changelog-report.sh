@@ -275,7 +275,7 @@ for COMP in ${PROJECTS}
           if [[ ${BRANCH} == master ]] ; then CHECKOUT='checkout'
                                          else CHECKOUT='checkout -b' 
           fi
-          MSG=`git ${CHECKOUT} ${BRANCH} origin/${BRANCH}`  ;  STATUS=$?
+          MSG=`git ${CHECKOUT} ${BRANCH} ${BRANCH}`  ;  STATUS=$?
           
           if [[ $STATUS > 0 ]]
             then
