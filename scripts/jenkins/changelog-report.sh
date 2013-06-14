@@ -86,7 +86,7 @@ sort_bnums
 
 DO_SENDIT=1    # on by default
 
-while getopts "d:e:P:h" OPTION
+while getopts "d:e:b:P:h" OPTION
     do
     case $OPTION in
     d)  REPORT_DIR=$OPTARG
@@ -94,6 +94,9 @@ while getopts "d:e:P:h" OPTION
         ;;
     e)  DO_SENDIT=$OPTARG 
         echo "DEBUG: The email send flag is $DO_SENDIT"
+        ;;
+    b)  THIS_BLD=$OPTARG
+        echo "DEBUG: The current build number is $THIS_BLD"
         ;;
     P)  PLATFORM=$OPTARG
         echo "DEBUG: The platform is $PLATFORM"
@@ -236,7 +239,8 @@ echo ${MFST_1ST}
 echo ${MFST_2ND}
 echo -------------------------------------------- 
 
-NOTIFY_SUBJ='[QE]  '${BRANCH}' changes between builds:  '${LAST_BLD_NAME}' -> '${FIRST_BLD}
+                            NOTIFY_SUBJ="'[QE]  '${BRANCH}' changes between builds:  '${LAST_BLD_NAME}' -> '${FIRST_BLD}
+if [[ ${THIS_BLD} ]] ; then NOTIFY_SUBJ="'[QE]  '${BRANCH}' changes between builds:  '${THIS_BLD}' -> '${FIRST_BLD}" ; fi
 if [[ ${PLATFORM} ]] ; then NOTIFY_SUBJ="${NOTIFY_SUBJ} (${PLATFORM})" ; fi
 
 pushd ${REPOS_SRC}       > /dev/null
