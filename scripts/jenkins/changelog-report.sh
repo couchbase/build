@@ -239,8 +239,8 @@ echo ${MFST_1ST}
 echo ${MFST_2ND}
 echo -------------------------------------------- 
 
-                            NOTIFY_SUBJ="'[QE]  '${BRANCH}' changes between builds:  '${LAST_BLD_NAME}' -> '${FIRST_BLD}"
-if [[ ${THIS_BLD} ]] ; then NOTIFY_SUBJ="'[QE]  '${BRANCH}' changes between builds:  '${THIS_BLD}' -> '${FIRST_BLD}" ; fi
+                            NOTIFY_SUBJ='[QE]  '${BRANCH}' changes between builds:  '${LAST_BLD_NAME}' -> '${FIRST_BLD}
+if [[ ${THIS_BLD} ]] ; then NOTIFY_SUBJ='[QE]  '${BRANCH}' changes between builds:  '${THIS_BLD}' -> '${FIRST_BLD} ; fi
 if [[ ${PLATFORM} ]] ; then NOTIFY_SUBJ="${NOTIFY_SUBJ} (${PLATFORM})" ; fi
 
 pushd ${REPOS_SRC}       > /dev/null
