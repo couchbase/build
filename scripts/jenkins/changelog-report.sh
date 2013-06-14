@@ -95,7 +95,7 @@ while getopts "d:e:P:h" OPTION
     e)  DO_SENDIT=$OPTARG 
         echo "DEBUG: The email send flag is $DO_SENDIT"
         ;;
-    P)  PLATFORM==$OPTARG
+    P)  PLATFORM=$OPTARG
         echo "DEBUG: The platform is $PLATFORM"
         ;;
     h)  echo -e $USAGE
