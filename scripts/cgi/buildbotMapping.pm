@@ -46,7 +46,7 @@ my %buildbots = ( "production" => { "centos"   => { 32 => { "2.0.0"  =>  "centos
                                                             "2.0.2"  =>  "mac-x64-202-builder",
                                                             "2.1.1"  =>  "mac-x64-211-builder",
                                                             "2.1.0"  =>  "mac-x64-210-builder",
-                                                            "master" =>  "mac-x64-master-builder",
+                                                            "master" =>  "mac-x64-master-bldr",
                                                           },
                                                   },
                                      "ubuntu"  => { 32 => { "2.0.0"  =>  "ubuntu-x86-20-builder",
