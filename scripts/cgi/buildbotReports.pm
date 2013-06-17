@@ -53,23 +53,12 @@ sub is_running
 sub last_done_build
     {
     ($builder, $branch) = @_;
-    my ($bldnum, $next_bldnum, $result);
+    my ($bldnum, $next_bldnum, $result, $isgood, $rev_numb, $bld_date);
    
     if ($DEBUG)  { print 'DEBUG: running buildbotQuery::get_json('.$builder.")\n";    }
     my $all_builds = buildbotQuery::get_json($builder);
     my $len = scalar keys %$all_builds;
     if ($DEBUG)  { print "\nDEBUG: all we got back was $all_builds\tlength:  $len\n"; }
-    
-    if ($len < 1 )
-        {
-        if ($DEBUG)  { print "DEBUG: no builds yet!\n"; }
-        $isgood     = 0;
-        $bldnum     = -1;
-        $rev_numb   = 0;
-        $bld_date   = 'no build yet';
-        $is_running = 0;
-        return( $isgood, $bldnum, $rev_numb, $bld_date, $is_running);
-        }
     
     foreach my $KEY (keys %$all_builds)
         {
@@ -79,16 +68,29 @@ sub last_done_build
         }
         if ($DEBUG)  { print "\n"; }
     
+    if ($len < 1 )
+        {                   if ($DEBUG)  { print "DEBUG: no builds yet!\n"; }
+        $bldnum     = -1;
+        $isgood     = 0;
+        $rev_numb   = 0;
+        $bld_date   = 'no build yet';
+        }
+    else
+        {
+        $bldnum     = (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)[0];
+        $result     = buildbotQuery::get_json($builder, '/'.$bldnum);
+        $isgood     = buildbotQuery::is_good_build($result);
+        
+        $rev_numb   = $branch .'-'. buildbotQuery::get_build_revision($result);
+        $bld_date   = buildbotQuery::get_build_date($result);
+        }
+    
     my $is_running  = 0;
-    $bldnum         = (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)[0];
-    $result         = buildbotQuery::get_json($builder, '/'.$bldnum);
     
     $next_bldnum    = 1+ $bldnum;                                             # print STDERR "....is $next_bldnum running?\n";
     my $next_build  = buildbotQuery::get_json($builder, '/'.$next_bldnum);
     if ( buildbotQuery::is_running_build( $next_build) ) { $is_running = 1;  print STDERR "$bldnum is still running\n"; }
     
-    my $rev_numb = $branch .'-'. buildbotQuery::get_build_revision($result);
-    my $bld_date = buildbotQuery::get_build_date($result);
 
  #  print STDERR "... bld_date is $bld_date...\n";
  #  print STDERR "... rev_numb is $rev_numb...\n";
