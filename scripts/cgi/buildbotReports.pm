@@ -16,7 +16,7 @@ our @EXPORT_OK   = qw( last_done_build last_good_build is_running );
 
 our %EXPORT_TAGS = ( DEFAULT => [qw( &last_done_build &last_good_build &is_running )] );
 
-my $DEBUG = 1;   # FALSE
+my $DEBUG = 0;   # FALSE
 
 ############ 
 
