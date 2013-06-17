@@ -9,7 +9,7 @@
 # 
 # BRANCH     - which branch these changes occur on
 
-if [[ ! ${PROJECTS}  ]] ; then PROJECTS="couchbase-cli couchdb couchdbx-app couchstore ep-engine geocouch membase-cli ns_server testrunner tlm" ; fi
+if [[ ! ${PROJECTS}  ]] ; then PROJECTS="couchbase-cli couchdb couchdbx-app couchstore ep-engine geocouch healthchecker membase-cli ns_server testrunner tlm" ; fi
 
 FAILS=0
 
