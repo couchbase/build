@@ -86,7 +86,11 @@ print STDERR "\nready to start with ($builder, $branch)\n";
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running) = buildbotReports::last_done_build($builder, $branch);
 print STDERR "according to last_done_build, is_running = $is_running\n";
 
-if ($bldstatus)
+if ($bldnum < 0)
+    {
+    print_HTML_Page('no build yet','','no build yet',$note_color );
+    }
+elsif ($bldstatus)
     {
     print_HTML_Page( buildbotQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
                      buildbotReports::is_running($is_running),

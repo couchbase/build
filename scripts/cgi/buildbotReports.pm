@@ -16,7 +16,7 @@ our @EXPORT_OK   = qw( last_done_build last_good_build is_running );
 
 our %EXPORT_TAGS = ( DEFAULT => [qw( &last_done_build &last_good_build &is_running )] );
 
-my $DEBUG = 0;   # FALSE
+my $DEBUG = 1;   # FALSE
 
 ############ 
 
@@ -64,7 +64,7 @@ sub last_done_build
         {
         if ($DEBUG)  { print "DEBUG: no builds yet!\n"; }
         $isgood     = 0;
-        $bldnum     = 0;
+        $bldnum     = -1;
         $rev_numb   = 0;
         $bld_date   = 'no build yet';
         $is_running = 0;
