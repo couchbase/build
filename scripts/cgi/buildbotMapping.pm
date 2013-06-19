@@ -12,9 +12,9 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( get_builder );
+our @EXPORT_OK   = qw( get_builder get_toy_builder );
 
-our %EXPORT_TAGS = ( DEFAULT => [qw( &get_builder  )] );
+our %EXPORT_TAGS = ( DEFAULT => [qw( &get_builder &get_toy_builder )] );
 
 my $DEBUG = 0;   # FALSE
 
@@ -119,6 +119,35 @@ sub get_builder
         }
     return         $buildbots{"production"}{$platform}{$bits}{$branch};
     }
+
+
+############                        get_toy_builder ( <toy_name>, <platform>, <bits> )
+#          
+#                                   returns (toy) buildbot builder name
+sub get_toy_builder
+    {
+    my ($toy_name, $platform, $bits) = @_;
+    if ($DEBUG)  { print "\n".'...checking platform >>'.$platform.'<<'."\n"; }
+    if (! defined( $buildbots{"toy"}{$platform} ))
+        {
+        print 'unsupported platform >>'.$platform.'<<'."\n";
+        die $usage;
+        }
+    if ($DEBUG)  { print "\n".'...checking bit-width >>'.$bits.'<<'."\n"; }
+    if (! defined( $buildbots{"toy"}{$platform}{$bits} ))
+        {
+        print 'unsupported bit-width >>'.$bits.'<<'."\n";
+        die $usage;
+        }
+    if ($DEBUG)  { print "\n".'...checking toy-name >>'.$toy_name.'<<'."\n"; }
+    if (! defined( $buildbots{"toy"}{$platform}{$bits}{$toy_name} ))
+        {
+        print 'unsupported toy-name >>'.$toy_name.'<<'."\n";
+        die $usage;
+        }
+    return         $buildbots{"toy"}{$platform}{$bits}{$toy_name};
+    }
+
 
 1;
 __END__

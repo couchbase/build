@@ -59,9 +59,15 @@ my $usage = "ERROR: must specify  EITHER both 'builder' and 'branch' params\n"
            ."For example:\n\n"
            ."    $installed_URL?builder=cs-win2008-x64-20-builder-202&branch=2.0.2\n\n"
            ."    $installed_URL?platform=windows&bits=64&branch=2.0.2\n\n"
-           ."<PRE>";
+           ."</PRE><BR>"
+           ."\n"
+           ."For toy builders, use 'toy', 'platform', 'bits', like:\n\n"
+           ."<PRE>"
+           ."    $installed_URL?toy=plabee-211-identical&platform=centos&bits=64\n\n"
+           ."</PRE><BR>"
+           .";
 
-my ($builder, $branch);
+my ($builder, $branch, $platform);
 
 if ( $query->param('builder') && $query->param('branch') )
     {
@@ -72,6 +78,14 @@ elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param(
     {
     $branch  = $query->param('branch');
     $builder = buildbotMapping::get_builder( $query->param('platform'), $query->param('bits'), $branch );
+    }
+elsif( ($query->param('toy')) &&($query->param('platform')) &&  ($query->param('bits')) )    # TOY
+    {
+    $toy_name = $query->param('toy');
+    $platform = $query->param('platform');
+    $bits     = $query->param('bits');
+    
+    $builder = buildbotMapping::get_toy_builder($toy_name, $platform, $bits);
     }
 else
     {
