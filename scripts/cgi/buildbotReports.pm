@@ -55,21 +55,21 @@ sub last_done_build
     ($builder, $branch) = @_;
     my ($bldnum, $next_bldnum, $result, $isgood, $rev_numb, $bld_date);
    
-    if ($DEBUG)  { print 'DEBUG: running buildbotQuery::get_json('.$builder.")\n";    }
+    if ($DEBUG)  { print STDERR 'DEBUG: running buildbotQuery::get_json('.$builder.")\n";    }
     my $all_builds = buildbotQuery::get_json($builder);
     my $len = scalar keys %$all_builds;
-    if ($DEBUG)  { print "\nDEBUG: all we got back was $all_builds\tlength:  $len\n"; }
+    if ($DEBUG)  { print STDERR "\nDEBUG: all we got back was $all_builds\tlength:  $len\n"; }
     
     foreach my $KEY (keys %$all_builds)
         {
-        if ($DEBUG)  { print ".";  }
+        if ($DEBUG)  { print STDERR ".";  }
         my $VAL = $$all_build{$KEY};
         if (! defined $VAL)  { $$all_build{$KEY}="null" }
         }
-        if ($DEBUG)  { print "\n"; }
+        if ($DEBUG)  { print STDERR "\n"; }
     
     if ($len < 1 )
-        {                   if ($DEBUG)  { print "DEBUG: no builds yet!\n"; }
+        {                   if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
         $bldnum     = -1;
         $isgood     = 0;
         $rev_numb   = 0;

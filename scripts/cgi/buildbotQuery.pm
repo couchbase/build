@@ -116,9 +116,9 @@ sub get_json
     
     my $request  = $URL_ROOT .'/json/builders/'. $bldr .'/builds';
     if (defined $optpath)  { $request .= $optpath;  }
-    if ($DEBUG)  { print "\nrequest: $request\n\n"; }
+    if ($DEBUG)  { print STDERR "\nrequest: $request\n\n"; }
     my $response = $ua->get($request);
-    if ($DEBUG)  { print "respons: $response\n\n";  }
+    if ($DEBUG)  { print STDERR "respons: $response\n\n";  }
     
     if ($response->is_success)
         {
@@ -137,22 +137,22 @@ sub get_build_revision
     
     if ( defined( $$jsonref{properties} ))
         {
-        if ($DEBUG)  { print "(good ref.) $$jsonref{properties}\n"; }
+        if ($DEBUG)  { print STDERR "(good ref.) $$jsonref{properties}\n"; }
         if ( defined( $$jsonref{properties}))
             {
             my $lol = $$jsonref{properties};
-            if ($DEBUG)  { print "DEBUG: list-of-lists  is $lol\n"; }
+            if ($DEBUG)  { print STDERR "DEBUG: list-of-lists  is $lol\n"; }
             for my $lil (@$lol)
                 {
-                if ($DEBUG)  { print "DEBUG: little in list is $lil\n"; }
+                if ($DEBUG)  { print STDERR "DEBUG: little in list is $lil\n"; }
                 if ( $$lil[0] eq 'git_describe' )
                     {
-                    if ($DEBUG)  { print "DEBUG: key is $$lil[0]\n"; }
-                    if ($DEBUG)  { print "DEBUG: 1st is $$lil[1]\n"; }
-                    if ($DEBUG)  { print "DEBUG: 2nd is $$lil[2]\n"; }
+                    if ($DEBUG)     { print STDERR "DEBUG: key is $$lil[0]\n"; }
+                    if ($DEBUG)     { print STDERR "DEBUG: 1st is $$lil[1]\n"; }
+                    if ($DEBUG)     { print STDERR "DEBUG: 2nd is $$lil[2]\n"; }
                     return $$lil[1];
                     }
-                else { if ($DEBUG)  { print "DEBUG: key is $$lil[0]\n"; }}
+                else { if ($DEBUG)  { print STDERR "DEBUG: key is $$lil[0]\n"; }}
                 }
         }   }
     die "Bad Reference\n";
@@ -167,10 +167,10 @@ sub get_build_date
         my $times = $$jsonref{times};
         my ($start, $end) = ( $$times[0], $$times[1] );
         
-        if ($DEBUG)  { print "DEBUG: start is $start\n"; }
-        if ($DEBUG)  { print "DEBUG: end   is $end  \n"; }
+        if ($DEBUG)  { print STDERR "DEBUG: start is $start\n"; }
+        if ($DEBUG)  { print STDERR "DEBUG: end   is $end  \n"; }
         my $end_time = int(0+ $end );
-        if ($DEBUG)  { print "DEBUG: found end_time: $end_time\n"; }
+        if ($DEBUG)  { print STDERR "DEBUG: found end_time: $end_time\n"; }
         my ($second, $minute, $hour, $dayOfMonth, $month, $year, $dayOfWeek, $dayOfYear, $daylightSavings) = localtime(int($end_time));
         $year  += 1900;
         $month += 1;
@@ -188,8 +188,8 @@ sub is_running_build
     {
     my ($jsonref) = @_;    return ($jsonref) if ($jsonref==0);
     
-    if ( defined($$jsonref{results}) && $DEBUG )  { print "DEBUG: results is: $$jsonref{results}\n"; }
-    if ($DEBUG)  { print "DEBUG: called is_running_build($jsonref)\n"; }
+    if ( defined($$jsonref{results}) && $DEBUG )  { print STDERR "DEBUG: results is: $$jsonref{results}\n"; }
+    if ($DEBUG)  { print STDERR "DEBUG: called is_running_build($jsonref)\n"; }
     return (! defined($$jsonref{results}) );
     }
 
@@ -202,7 +202,7 @@ sub is_good_build
     my ($jsonref) = @_;
     if ( defined($$jsonref{results}) )
         {
-        if ($DEBUG)  { print "DEBUG: results is:$$jsonref{results}:\n"; 
+        if ($DEBUG)  { print STDERR "DEBUG: results is:$$jsonref{results}:\n"; 
         if     ($$jsonref{results} == 0 ) { print 'TRUE '; }  else { print 'False '; }
                      }
         return ($$jsonref{results} == 0 );

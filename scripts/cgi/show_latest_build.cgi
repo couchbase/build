@@ -46,8 +46,8 @@ sub print_HTML_Page
     print $query->start_html( -title   => $page_title,
                               -BGCOLOR => $color,
                             );
-    print "\n".'<div style="overflow-x: hidden">'
-         .'<table border="0" cellpadding="0" cellspacing="0"><tr><td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr></table>'
+    print "\n".'<div style="overflow-x: hidden">'."\n"
+         .'<table border="0" cellpadding="0" cellspacing="0"><tr>'."\n".'<td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr>'."\n".'</table>'
          .'</div>'."\n";
     print $query->end_html;
     }
@@ -67,17 +67,19 @@ my $usage = "ERROR: must specify  EITHER both 'builder' and 'branch' params\n"
            ."</PRE><BR>"
            ."\n";
 
-my ($builder, $branch, $platform);
+my ($builder, $branch, $platform, $toy_name);
 
 if ( $query->param('builder') && $query->param('branch') )
     {
     $builder = $query->param('builder');
     $branch  = $query->param('branch');
+    print STDERR "\nready to start with ($builder, $branch)\n";
     }
 elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param('branch')) )
     {
     $branch  = $query->param('branch');
     $builder = buildbotMapping::get_builder( $query->param('platform'), $query->param('bits'), $branch );
+    print STDERR "\nready to start with ($builder)\n";
     }
 elsif( ($query->param('toy')) &&($query->param('platform')) &&  ($query->param('bits')) )    # TOY
     {
@@ -86,6 +88,7 @@ elsif( ($query->param('toy')) &&($query->param('platform')) &&  ($query->param('
     $bits     = $query->param('bits');
     
     $builder = buildbotMapping::get_toy_builder($toy_name, $platform, $bits);
+    print STDERR "\nready to start with toy ($builder)\n";
     }
 else
     {
@@ -93,7 +96,6 @@ else
     exit;
     }
 
-print STDERR "\nready to start with ($builder, $branch)\n";
 
 #### S T A R T  H E R E 
 
