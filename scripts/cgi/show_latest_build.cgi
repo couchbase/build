@@ -65,7 +65,7 @@ my $usage = "ERROR: must specify  EITHER both 'builder' and 'branch' params\n"
            ."<PRE>"
            ."    $installed_URL?toy=plabee-211-identical&platform=centos&bits=64\n\n"
            ."</PRE><BR>"
-           .";
+           ."\n";
 
 my ($builder, $branch, $platform);
 
