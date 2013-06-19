@@ -243,6 +243,16 @@ echo --------------------------------------------
 if [[ ${THIS_BLD} ]] ; then NOTIFY_SUBJ='[QE]  '${BRANCH}' changes between builds:  '${THIS_BLD}' -> '${FIRST_BLD} ; fi
 if [[ ${PLATFORM} ]] ; then NOTIFY_SUBJ="${NOTIFY_SUBJ} (${PLATFORM})" ; fi
 
+if [[ -e ${NOTIFYS}/${NOTIFY_GOOD} ]] ; then rm -rf ${NOTIFYS}/${NOTIFY_GOOD} ; fi    # These 2 use write_log,
+if [[ -e ${NOTIFYS}/${NOTIFY_DIFF} ]] ; then rm -rf ${NOTIFYS}/${NOTIFY_DIFF} ; fi    # which always appends.
+                                                                                      # This one uses "cat >",
+if [[ -e ${NOTIFYS}/${NOTIFY_FILE} ]] ; then rm -rf ${NOTIFYS}/${NOTIFY_FILE} ; fi    # and is not necessary.
+
+
+#    -------------------------------------------- 
+#            S T A R T   H E R E
+#    -------------------------------------------- 
+
 pushd ${REPOS_SRC}       > /dev/null
 for COMP in ${PROJECTS}
   do
