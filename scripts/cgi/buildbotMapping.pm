@@ -80,8 +80,14 @@ my %buildbots = ( "production" => { "centos"   => { 32 => { "2.0.0"  =>  "centos
                                                           },
                                                   },
                                   },
-                   "test" => 0,
+                   "toy"       => { "centos"   => { 64 => { "plabee-211-identical"  =>  "ec2-centos-x64_toy-plabee-211-identical", }},
+                                    "windows"  => { 32 => { "plabee-211-identical"  =>  "cs-win-32-toy-builder-toy-plabee-211-identical",
+                                                          },
+                                                    64 => { "plabee-211-identical"  =>  "cs-win-64-toy-builder-toy-plabee-211-identical",
+                                                  }       }
+                                  }
                );
+
 ############   # DEBUG
 # use Data::Dumper;
 # print Dumper(\%buildbots);
