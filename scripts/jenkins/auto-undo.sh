@@ -65,11 +65,11 @@ for package_type in ${types[@]}; do
                 base_name="couchbase-server-${name}_x86_64_${VERSION}.${package_type}"
             fi
             echo "Removing all $name  $package_type files from S3"
-   echo     s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
-   echo     s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
-   echo     s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml"
-   echo     s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml.md5"
-   echo     s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
+            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
+            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
+            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml"
+            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml.md5"
+            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
             echo "==============================================="
         done
     done
