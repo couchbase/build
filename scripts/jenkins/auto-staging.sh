@@ -158,16 +158,19 @@ done
 srcpkg=couchbase-server_src-${bld_num}.tar.gz
 dstpkg=couchbase-server_src-${rel_num}.tar.gz
 
-wget    -O ${dstpkg}  ${latestbuilds}/${srcpkg}
-if [[ ! -s ${dstpkg} ]]
-    then
-    echo "${srcpkg} not found on ${latestbuilds}"
-    echo "Terminate the staging process"
-    exit 7
-fi
-touch  ${dstpkg}.staging
-md5sum ${dstpkg} > "${dstpkg}.md5"
-
+for name in ${names[@]}; do
+    if [ "community" = $name ]; then
+        wget    -O ${dstpkg}  ${latestbuilds}/${srcpkg}
+        if [[ ! -s ${dstpkg} ]]
+            then
+            echo "${srcpkg} not found on ${latestbuilds}"
+            echo "Terminate the staging process"
+            exit 7
+        fi
+        touch  ${dstpkg}.staging
+        md5sum ${dstpkg} > "${dstpkg}.md5"
+    fi
+done
 
 ####    upload .staging and then regular files
 
