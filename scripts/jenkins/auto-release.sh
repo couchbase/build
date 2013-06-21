@@ -53,6 +53,11 @@ for package_type in ${types[@]}; do
 
             echo "Remove staging file for $staging and ready for release"
             s3cmd del "s3://packages.couchbase.com/releases/${1}/${staging}"
+            if [ $name -eq community ]
+            then
+                base_name=couchbase-server_src-${VERSION}.tar.gz
+                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
+            fi
         done
     done
 done
