@@ -69,6 +69,10 @@ for package_type in ${types[@]}; do
             s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
             s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml"
             s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml.md5"
+            echo "-----------------------------------------------"
+            base_name=couchbase-server_src-${VERSION}.tar.gz
+            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
+            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
             s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
             echo "==============================================="
         done
