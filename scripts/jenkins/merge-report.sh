@@ -239,7 +239,7 @@ for COMP in ${PROJECTS}
                 NOTICE_MSG="{$MSG}"
             fi
             write_log  ${NOTIFYS}  ${NOTICE}   "${COMP}"                                                       ${OUT_ARG}
-            write_log  ${NOTIFYS}  ${NOTICE}   "${NOT_MSG}"                                                    ${OUT_ARG}
+            write_log  ${NOTIFYS}  ${NOTICE}   "${NOTICE_MSG}"                                                 ${OUT_ARG}
             write_log  ${NOTIFYS}  ${NOTICE}   "------------------------------------------------------------"  ${OUT_ARG}
         fi
         write_log      ${OUT_DIR}  ${OUTFILE}  "${COMP} merge ${BRANCH_SRC} into ${BRANCH_DST}"                ${OUT_ARG}
