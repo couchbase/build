@@ -20,7 +20,7 @@ fi
 
 if [ -z "$TYPE" ]; then
     echo "Stage packages for all types"
-    types=("rpm" "deb" "setup.exe")
+    types=("rpm" "deb" "setup.exe" "zip")
 else
     echo "Stage packages for $TYPE"
     types=$TYPE
@@ -45,18 +45,22 @@ fi
 for package_type in ${types[@]}; do
     for platform in ${platforms[@]}; do
         for name in ${names[@]}; do
-            if [ $platform -eq 32 ]; then
-                staging="couchbase-server-${name}_x86_${1}.${package_type}.staging"
+            if [ $platform -eq 32 ] && [ $package_type -eq "zip" ]; then
+                echo "MAC package doesn't support 32 bit platform"
             else
-                staging="couchbase-server-${name}_x86_${platform}_${1}.${package_type}.staging"
-            fi
+                if [ $platform -eq 32 ]; then
+                    staging="couchbase-server-${name}_x86_${1}.${package_type}.staging"
+                else
+                    staging="couchbase-server-${name}_x86_${platform}_${1}.${package_type}.staging"
+                fi
 
-            echo "Remove staging file for $staging and ready for release"
-            s3cmd del "s3://packages.couchbase.com/releases/${1}/${staging}"
-            if [ $name -eq community ]
-            then
-                base_name=couchbase-server_src-${VERSION}.tar.gz
-                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
+                echo "Remove staging file for $staging and ready for release"
+                s3cmd del "s3://packages.couchbase.com/releases/${1}/${staging}"
+                if [ $name == "community" ];
+                then
+                    base_name=couchbase-server_src-${1}.tar.gz
+                    s3cmd del "s3://packages.couchbase.com/releases/${1}/${base_name}.staging"
+                fi
             fi
         done
     done

@@ -13,7 +13,7 @@ usage()
     echo ""
     echo "         [ -e EDITION  ]   community or enterprise.  (both if not given)"
     echo "         [ -p PLATFORM ]   32 or 64.                 (both if not given)"
-    echo "         [ -t TYPE     ]   rpm, deb, setup.exe       (all if not given)"
+    echo "         [ -t TYPE     ]   rpm, deb, setup.exe, zip  (all if not given)"
     echo ""
     echo "         [ -m TMP_DIR  ]   temp dir to use, if not ${TMP_DIR}"
     echo ""
@@ -90,7 +90,7 @@ done
 
 if [ -z "$TYPE" ]; then
     echo "Stage packages for all types"
-    types=("rpm" "deb" "setup.exe")
+    types=("rpm" "deb" "setup.exe" "zip")
 else
     echo "Stage packages for $TYPE"
     types=$TYPE
@@ -124,33 +124,37 @@ pushd     ${TMP_DIR} 2>&1 > /dev/null
 for package_type in ${types[@]}; do
     for platform in ${platforms[@]}; do
         for name in ${names[@]}; do
-            if [ $platform -eq 32 ]; then
-                package="couchbase-server-${name}_x86_${version}.${package_type}"
-                release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
+            if [ $platform -eq 32 ] && [ $package_type -eq "zip" ]; then
+                echo "MAC package doesn't support 32 bit platform"
             else
-                package="couchbase-server-${name}_x86_${platform}_${version}.${package_type}"
-                release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
+                if [ $platform -eq 32 ]; then
+                    package="couchbase-server-${name}_x86_${version}.${package_type}"
+                    release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
+                else
+                    package="couchbase-server-${name}_x86_${platform}_${version}.${package_type}"
+                    release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
+                fi
+
+                wget "${latestbuilds}/${package}"
+                if [ -z `ls $package` ]; then
+                    echo "$package is not found on ${latestbuilds}"
+                    echo "Terminate the staging process"
+                    exit 1
+                fi
+                #wget "${latestbuilds}/${package}.manifest.xml"
+                cp $package $release
+                #cp "$package.manifest.xml" "$release.manifest.xml"
+
+                echo "Calculate md5sum for $release"
+                md5sum $release > "$release.md5"
+
+                echo "Staging for $release"
+                touch "$release.staging"
+                #touch "$release.manifest.xml.staging"
+                echo $package >> ~/home_phone.txt
+                rm $package
+                #rm "$package.manifest.xml"
             fi
-
-            wget "${latestbuilds}/${package}"
-            if [ -z `ls $package` ]; then
-                echo "$package is not found on ${latestbuilds}"
-                echo "Terminate the staging process"
-                exit 1
-            fi
-            #wget "${latestbuilds}/${package}.manifest.xml"
-            cp $package $release
-            #cp "$package.manifest.xml" "$release.manifest.xml"
-
-            echo "Calculate md5sum for $release"
-            md5sum $release > "$release.md5"
-
-            echo "Staging for $release"
-            touch "$release.staging"
-            #touch "$release.manifest.xml.staging"
-            echo $package >> ~/home_phone.txt
-            rm $package
-            #rm "$package.manifest.xml"
         done
     done
 done
