@@ -124,7 +124,7 @@ pushd     ${TMP_DIR} 2>&1 > /dev/null
 for package_type in ${types[@]}; do
     for platform in ${platforms[@]}; do
         for name in ${names[@]}; do
-            if [ $platform -eq 32 ] && [ $package_type -eq "zip" ]; then
+            if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
                 echo "MAC package doesn't support 32 bit platform"
             else
                 if [ $platform -eq 32 ]; then
