@@ -207,7 +207,7 @@ sub is_good_build
                      }
         return ($$jsonref{results} == 0 );
         }
-    print "ERROR: bad ref\n\n";
+    print STDERR "ERROR: bad ref\n\n";
     return(0 == 1);
     }
 
