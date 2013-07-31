@@ -11,7 +11,7 @@ usage()
     echo ""
     echo 'where   edition      is: "enterprise" or "community"'
     echo '        bit-width    is: "32" or "64"'
-    echo '        package_type is: "rpm", "deb", or "setup.exe"'
+    echo '        package_type is: "rpm", "deb", "setup.exe" or "zip"'
     echo ""
     echo '        VERSION      is: product release number, like 2.1.0'
     echo ""
@@ -33,7 +33,7 @@ VERSION=${1}
 
 if [ -z "$TYPE" ]; then
     echo "Stage packages for all types"
-    types=("rpm" "deb" "setup.exe")
+    types=("rpm" "deb" "setup.exe" "zip")
 else
     echo "Stage packages for $TYPE"
     types=$TYPE
@@ -59,22 +59,26 @@ echo "==============================================="
 for package_type in ${types[@]}; do
     for platform in ${platforms[@]}; do
         for name in ${names[@]}; do
-            if [ $platform -eq 32 ]; then
-                base_name="couchbase-server-${name}_x86_${VERSION}.${package_type}"
+            if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
+                echo "MAC package doesn't support 32 bit platform"
             else
-                base_name="couchbase-server-${name}_x86_64_${VERSION}.${package_type}"
+                if [ $platform -eq 32 ]; then
+                    base_name="couchbase-server-${name}_x86_${VERSION}.${package_type}"
+                else
+                    base_name="couchbase-server-${name}_x86_64_${VERSION}.${package_type}"
+                fi
+                echo "Removing all $name  $package_type files from S3"
+                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
+                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
+                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml"
+                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml.md5"
+                echo "-----------------------------------------------"
+                base_name=couchbase-server_src-${VERSION}.tar.gz
+                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
+                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
+                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
+                echo "==============================================="
             fi
-            echo "Removing all $name  $package_type files from S3"
-            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
-            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
-            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml"
-            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml.md5"
-            echo "-----------------------------------------------"
-            base_name=couchbase-server_src-${VERSION}.tar.gz
-            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
-            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
-            s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
-            echo "==============================================="
         done
     done
 done
