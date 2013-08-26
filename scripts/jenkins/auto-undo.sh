@@ -7,6 +7,7 @@ usage()
     echo ""
     echo '   [ NAME=<edition>       ] \'
     echo '   [ PLATFORM=<bit-width> ]  \'
+    echo '   [ OS_TYPE<os_type>     ]   \'
     echo '   [ TYPE=<package_type>  ]   ./auto_undo <VERSION>'
     echo ""
     echo 'where   edition      is: "enterprise" or "community"'
@@ -55,30 +56,47 @@ else
     names=$NAME
 fi
 
+if [ -z "$OS_TYPE" ]; then
+    echo "Stage for newer (0) and older (1) packages"
+    os_types=(0 1)
+else
+    os_types=$OS_TYPE
+fi
+
 echo "==============================================="
 for package_type in ${types[@]}; do
     for platform in ${platforms[@]}; do
         for name in ${names[@]}; do
-            if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
-                echo "MAC package doesn't support 32 bit platform"
-            else
-                if [ $platform -eq 32 ]; then
-                    base_name="couchbase-server-${name}_x86_${VERSION}.${package_type}"
+            for os_type in ${os_types[@]}; do
+                if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
+                    echo "MAC package doesn't support 32 bit platform"
                 else
-                    base_name="couchbase-server-${name}_x86_64_${VERSION}.${package_type}"
+                    if [ $platform -eq 32 ]; then
+                        if [ $os_type -eq 0 ]; then
+                            base_name="couchbase-server-${name}_x86_${VERSION}.${package_type}"
+                        else
+                            base_name="couchbase-server-${name}_x86_${VERSION}_openssl098e.${package_type}"
+                        fi
+                    else
+                        if [ $os_type -eq 0 ]; then
+                            base_name="couchbase-server-${name}_x86_64_${VERSION}.${package_type}"
+                        else
+                            base_name="couchbase-server-${name}_x86_64_${VERSION}_openssl098e.${package_type}"
+                        fi
+                    fi
+                    echo "Removing all $name  $package_type files from S3"
+                    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
+                    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
+                    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml"
+                    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml.md5"
+                    echo "-----------------------------------------------"
+                    base_name=couchbase-server_src-${VERSION}.tar.gz
+                    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
+                    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
+                    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
+                    echo "==============================================="
                 fi
-                echo "Removing all $name  $package_type files from S3"
-                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
-                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
-                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml"
-                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.manifest.xml.md5"
-                echo "-----------------------------------------------"
-                base_name=couchbase-server_src-${VERSION}.tar.gz
-                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
-                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.md5"
-                s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
-                echo "==============================================="
-            fi
+            done
         done
     done
 done
