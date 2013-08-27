@@ -75,13 +75,17 @@ for package_type in ${types[@]}; do
                         if [ $os_type -eq 0 ]; then
                             base_name="couchbase-server-${name}_x86_${VERSION}.${package_type}"
                         else
-                            base_name="couchbase-server-${name}_x86_${VERSION}_openssl098e.${package_type}"
+                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
+                                base_name="couchbase-server-${name}_x86_${VERSION}_openssl098e.${package_type}"
+                            fi
                         fi
                     else
                         if [ $os_type -eq 0 ]; then
                             base_name="couchbase-server-${name}_x86_64_${VERSION}.${package_type}"
                         else
-                            base_name="couchbase-server-${name}_x86_64_${VERSION}_openssl098e.${package_type}"
+                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
+                                base_name="couchbase-server-${name}_x86_64_${VERSION}_openssl098e.${package_type}"
+                            fi
                         fi
                     fi
                     echo "Removing all $name  $package_type files from S3"

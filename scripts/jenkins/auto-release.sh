@@ -60,13 +60,17 @@ for package_type in ${types[@]}; do
                         if [ $os_type -eq 0 ]; then
                             staging="couchbase-server-${name}_x86_${1}.${package_type}.staging"
                         else
-                            staging="couchbase-server-${name}_x86_${1}_openssl098.${package_type}.staging"
+                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
+                                staging="couchbase-server-${name}_x86_${1}_openssl098.${package_type}.staging"
+                            fi
                         fi
                     else
                         if [ $os_type -eq 0 ]; then
                             staging="couchbase-server-${name}_x86_${platform}_${1}.${package_type}.staging"
                         else
-                            staging="couchbase-server-${name}_x86_${platform}_${1}_openssl098e.${package_type}.staging"
+                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
+                                staging="couchbase-server-${name}_x86_${platform}_${1}_openssl098e.${package_type}.staging"
+                            fi
                         fi
                     fi
 

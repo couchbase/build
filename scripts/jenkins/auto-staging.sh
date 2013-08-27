@@ -140,16 +140,20 @@ for package_type in ${types[@]}; do
                             package="couchbase-server-${name}_x86_${version}.${package_type}"
                             release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
                         else
-                            package="couchbase-server-${name}_x86_${version}_openssl098e.${package_type}"
-                            release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`_openssl098e.${package_type}"
+                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
+                                package="couchbase-server-${name}_x86_${version}_openssl098e.${package_type}"
+                                release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`_openssl098e.${package_type}"
+                            fi
                         fi
                     else
                         if [ $os_type -eq 0 ]; then
                             package="couchbase-server-${name}_x86_${platform}_${version}.${package_type}"
                             release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
                         else
-                            package="couchbase-server-${name}_x86_${platform}_${version}_openssl098e.${package_type}"
-                            release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`_openssl098e.${package_type}"
+                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
+                                package="couchbase-server-${name}_x86_${platform}_${version}_openssl098e.${package_type}"
+                                release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`_openssl098e.${package_type}"
+                            fi
                         fi
                     fi
 
