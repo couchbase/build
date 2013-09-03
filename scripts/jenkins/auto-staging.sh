@@ -56,14 +56,14 @@ if [[ $version =~ $vrs_rex ]]
     usage
     exit
 fi
-    
-#                                     must end with "/"
+
+#       must end with "/"
 s3_target="${s3_relbucket}/${rel_num}/"
 
 
 ####    optional, named arguments
 
-while getopts "he:p:t:m:" OPTION; do
+while getopts "h:e:p:t:m:" OPTION; do
   case "$OPTION" in
     e)
       NAME="$OPTARG"
