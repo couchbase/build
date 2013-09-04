@@ -28,6 +28,7 @@ fi
 ####    globals
 
 builds="http://cbfs.hq.couchbase.com:8484/builds"
+buildforandroid="http://tleyden-misc.s3.amazonaws.com/"
 s3_relbucket="s3://packages.couchbase.com/releases"
 
 ####    required, positional arguments
@@ -96,7 +97,8 @@ s3_target = ""
 
 for platform_type in ${platforms[@]}; do
     if [ $platform_type == "android" ]; then
-        package="cblite_android_${version}.zip"
+        #package="cblite_android_${version}.zip"
+        package="couchbase-lite-android-rc1.zip"
         release="cblite_android_`echo ${version} | cut -d '-' -f1`.zip"
         s3_target="${s3_relbucket}/couchbase-lite/android/1.0-beta/"
     elif [ $platform_type == "ios" ]; then
@@ -109,11 +111,20 @@ for platform_type in ${platforms[@]}; do
         s3_target="${s3_relbucket}/couchbase-sync-gateway/1.0-beta/"
     fi
 
-    wget "${builds}/${package}"
-    if [ -z `ls $package` ]; then
-        echo "$package is not found on ${builds}"
-        echo "Terminating the staging process"
-        exit 1
+    if [ $platform_type == "android" ]; then
+        wget "${buildforandroid}/${package}"
+        if [ -z `ls $package` ]; then
+            echo "$package is not found on ${buildforandroid}"
+            echo "Terminating the staging process"
+            exit 1
+        fi
+    else
+        wget "${builds}/${package}"
+        if [ -z `ls $package` ]; then
+            echo "$package is not found on ${builds}"
+            echo "Terminating the staging process"
+            exit 1
+        fi
     fi
     cp $package $release
 
@@ -124,18 +135,18 @@ for platform_type in ${platforms[@]}; do
 
     echo $package >> ~/home_phone.txt
     rm $package
+
+    ####    upload .staging and then the regular files
+
+    echo "Uploading .staging files to S3..."
+    s3cmd put -P            *.staging       "${s3_target}"
+
+    echo "Uploading packages to S3..."
+    s3cmd put -P `ls | grep -v staging`     "${s3_target}"
+
+    echo "Granting anonymous read access..."
+    s3cmd setacl --acl-public --recursive "${s3_target}"
+
+    s3cmd ls ${s3_target}
+    popd                 2>&1 > /dev/null
 done
-
-####    upload .staging and then the regular files
-
-echo "Uploading .staging files to S3..."
-s3cmd put -P            *.staging       "${s3_target}"
-
-echo "Uploading packages to S3..."
-s3cmd put -P `ls | grep -v staging`     "${s3_target}"
-
-echo "Granting anonymous read access..."
-s3cmd setacl --acl-public --recursive "${s3_target}"
-
-s3cmd ls ${s3_target}
-popd                 2>&1 > /dev/null
