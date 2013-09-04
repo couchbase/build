@@ -28,7 +28,7 @@ fi
 ####    globals
 
 builds="http://cbfs.hq.couchbase.com:8484/builds"
-buildforandroid="http://tleyden-misc.s3.amazonaws.com/"
+buildforandroid="http://tleyden-misc.s3.amazonaws.com"
 s3_relbucket="s3://packages.couchbase.com/releases"
 
 ####    required, positional arguments
