@@ -34,7 +34,7 @@ s3_relbucket="s3://packages.couchbase.com/releases"
 
 if [ ! ${1} ]; then echo ; echo "VERSION required" ; usage ; exit ; fi
 
-version=$${1}
+version=${1}
 shift
 
 vrs_rex='([0-9]\.[0-9])-([0-9]{1,})'
