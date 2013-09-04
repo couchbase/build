@@ -27,7 +27,7 @@ fi
 
 ####    globals
 
-builds="https://cbfs.hq.couchbase.com:8484/builds"
+builds="http://cbfs.hq.couchbase.com:8484/builds"
 s3_relbucket="s3://packages.couchbase.com/releases"
 
 ####    required, positional arguments
