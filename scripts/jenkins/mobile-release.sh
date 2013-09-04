@@ -32,12 +32,15 @@ fi
 for platform_type in ${platforms[@]}; do
     if [ $platform_type == "android" ]; then
         staging="cblite_android_{1}.zip.staging"
+        path="couchbase-lite/android/1.0-beta"
     elif [ $platform_type == "ios" ]; then
         staging="cblite_ios_{1}.zip.staging"
+        path="couchbase-lite/ios/1.0-beta"
     elif [ $platform_type == "sync_gateway" ]; then
         staging="sync_gateway_{1}.zip.staging"
+        path="couchbase-sync-gateway/1.0-beta"
     fi
 
     echo "Removing staging file for $staging and ready fo release"
-    s3cmdl del "s3://packages.couchbase.com/releases/${platform_type}/${staging}"
+    s3cmdl del "s3://packages.couchbase.com/releases/${path}/${staging}"
 done

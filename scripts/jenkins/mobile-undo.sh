@@ -41,12 +41,15 @@ echo "==============================================="
 for platform_type in ${platforms[@]};do
     if [ $platform_type == "android" ]; then
         base_name="cblite_android_${VERSION}.zip"
+        path="couchbase-lite/android/1.0-beta"
     elif [ $platform_type == "ios" ]; then
         base_name="cblite_ios_${VERSION}.zip"
+        path="couchbase-lite/ios/1.0-beta"
     elif [ $platform_type == "couchbase-sync-gateway" ]; then
         base_name="sync_gateway_${VERSION}.zip"
+        path="couchbase-sync-gateway/1.0-beta"
     fi
     echo "Removing the specific packages from S3"
-    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}"
-    s3cmd del "s3://packages.couchbase.com/releases/${VERSION}/${base_name}.staging"
+    s3cmd del "s3://packages.couchbase.com/releases/${path}/${base_name}"
+    s3cmd del "s3://packages.couchbase.com/releases/${path}/${base_name}.staging"
 done

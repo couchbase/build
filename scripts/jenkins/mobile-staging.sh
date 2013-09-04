@@ -52,9 +52,6 @@ else
     exit
 fi
 
-#       must end with "/"
-s3_target="${s3_relbucket}/${rel_num}/"
-
 ####    optional, named arguments
 
 while getopts "h:p:m:" OPTION; do
@@ -95,16 +92,21 @@ mkdir   -p  ${TMP_DIR}
 chmod   777 ${TMP_DIR}
 pushd       ${TMP_DIR}  2>&1 > /dev/null
 
+s3_target = ""
+
 for platform_type in ${platforms[@]}; do
     if [ $platform_type == "android" ]; then
         package="cblite_android_${version}.zip"
         release="cblite_android_`echo ${version} | cut -d '-' -f1`.zip"
+        s3_target="${s3_relbucket}/couchbase-lite/android/1.0-beta/"
     elif [ $platform_type == "ios" ]; then
         package="cblite_ios_${version}.zip"
         release="cblite_ios_`echo ${version} | cut -d '-' -f1`.zip"
+        s3_target="${s3_relbucket}/couchbase-lite/ios/1.0-beta/"
     elif [ $platform_type == "couchbase-sync-gateway" ]; then
         package="sync_gateway_${version}.zip"
         release="sync_gateway_`echo ${version} | cut -d '-' -f1`.zip"
+        s3_target="${s3_relbucket}/couchbase-sync-gateway/1.0-beta/"
     fi
 
     wget "${builds}/${package}"
