@@ -43,7 +43,7 @@ else
 fi
 
 if [ -z "$OS_TYPE" ]; then
-    echo "Stage for newer (0) and older (1) packages"
+    echo "Stage for older (0) and newer (1) packages"
     os_types=(0 1)
 else
     os_types=$OS_TYPE
@@ -60,16 +60,20 @@ for package_type in ${types[@]}; do
                         if [ $os_type -eq 0 ]; then
                             staging="couchbase-server-${name}_x86_${1}.${package_type}.staging"
                         else
-                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
-                                staging="couchbase-server-${name}_x86_${1}_openssl098.${package_type}.staging"
+                            if [ $package_type == "rpm" ]; then
+                                staging="couchbase-server-${name}_centos6_x86_${1}.${package_type}.staging"
+                            elif [ $package_type == "deb" ]; then
+                                staging="couchbase-server-${name}_ubuntu_1204_x86_${1}.${package_type}.staging"
                             fi
                         fi
                     else
                         if [ $os_type -eq 0 ]; then
                             staging="couchbase-server-${name}_x86_${platform}_${1}.${package_type}.staging"
                         else
-                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
-                                staging="couchbase-server-${name}_x86_${platform}_${1}_openssl098e.${package_type}.staging"
+                            if [ $package_type == "rpm" ]; then
+                                staging="couchbase-server-${name}_centos6_x86_${platform}_${1}.${package_type}.staging"
+                            elif [ $package_type == "deb" ]; then
+                                staging="couchbase-server-${name}_ubuntu_1204_x86_${platform}_${1}.${package_type}.staging"
                             fi
                         fi
                     fi

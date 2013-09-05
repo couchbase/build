@@ -14,7 +14,7 @@ usage()
     echo "         [ -e EDITION  ]   community or enterprise.  (both if not given)"
     echo "         [ -p PLATFORM ]   32 or 64.                 (both if not given)"
     echo "         [ -t TYPE     ]   rpm, deb, setup.exe, zip  (all if not given)"
-    echo "         [ -o OS_TYPE  ]   0, 1                      (for newer and older if not given)"
+    echo "         [ -o OS_TYPE  ]   0, 1                      (for older and newer if not given)"
     echo ""
     echo "         [ -m TMP_DIR  ]   temp dir to use, if not ${TMP_DIR}"
     echo ""
@@ -114,7 +114,7 @@ else
 fi
 
 if [ -z "$OS_TYPE" ]; then
-    echo "Stage for newer and older packages"
+    echo "Stage for older and newer packages"
     os_types=(0 1)
 else
     os_types=$OS_TYPE
@@ -140,9 +140,12 @@ for package_type in ${types[@]}; do
                             package="couchbase-server-${name}_x86_${version}.${package_type}"
                             release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
                         else
-                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
-                                package="couchbase-server-${name}_x86_${version}_openssl098e.${package_type}"
-                                release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`_openssl098e.${package_type}"
+                            if [ $package_type == "rpm" ]; then
+                                package="couchbase-server-${name}_centos6_x86_${version}.${package_type}"
+                                release="couchbase-server-${name}_centos6_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
+                            elif [ $package_type == "deb" ]; then
+                                package="couchbase-server-${name}_ubuntu_1204_x86_${version}.${package_type}"
+                                release="couchbase-server-${name}_ubuntu_1204_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
                             fi
                         fi
                     else
@@ -150,9 +153,12 @@ for package_type in ${types[@]}; do
                             package="couchbase-server-${name}_x86_${platform}_${version}.${package_type}"
                             release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
                         else
-                            if [ $package_type == "rpm" -o $package_type == "deb" ]; then
-                                package="couchbase-server-${name}_x86_${platform}_${version}_openssl098e.${package_type}"
-                                release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`_openssl098e.${package_type}"
+                            if [ $package_type == "rpm" ]; then
+                                package="couchbase-server-${name}_centos6_x86_${platform}_${version}.${package_type}"
+                                release="couchbase-server-${name}_centos6_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
+                            elif [ $package_type == "deb" ]; then
+                                package="couchbase-server-${name}_ubuntu_1204_x86_${platform}_${version}.${package_type}"
+                                release="couchbase-server-${name}_ubuntu_1204_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
                             fi
                         fi
                     fi
