@@ -94,59 +94,81 @@ chmod   777 ${TMP_DIR}
 pushd       ${TMP_DIR}  2>&1 > /dev/null
 
 s3_target = ""
+sync_types=("rpm" "deb" "zip")
+sync_platforms=("x86" "x86_64")
+android_check=0
+ios_check=0
 
 for platform_type in ${platforms[@]}; do
-    if [ $platform_type == "android" ]; then
-        #package="cblite_android_${version}.zip"
-        package="couchbase-lite-android-rc1.zip"
-        release="cblite_android_`echo ${version} | cut -d '-' -f1`.zip"
-        s3_target="${s3_relbucket}/couchbase-lite/android/1.0-beta/"
-    elif [ $platform_type == "ios" ]; then
-        package="cblite_ios_${version}.zip"
-        release="cblite_ios_`echo ${version} | cut -d '-' -f1`.zip"
-        s3_target="${s3_relbucket}/couchbase-lite/ios/1.0-beta/"
-    elif [ $platform_type == "couchbase-sync-gateway" ]; then
-        package="sync_gateway_${version}.zip"
-        release="sync_gateway_`echo ${version} | cut -d '-' -f1`.zip"
-        s3_target="${s3_relbucket}/couchbase-sync-gateway/1.0-beta/"
-    fi
+    for s_type in ${sync_types[@]}; do
+        for s_pl in ${sync_platforms[@]}; do
+            if [ $platform_type == "android" ]; then
+                if [ $android_check -eq 0 ]; then
+                    package="couchbase-lite-android-rc1.zip"
+                    release="couchbase-lite-community-android_`echo ${version} | cut -d '-' -f1`-beta.zip"
+                    s3_target="${s3_relbucket}/couchbase-lite/android/1.0-beta/"
+                    android_check=1
+                else
+                    continue
+                fi
+            elif [ $platform_type == "ios" ]; then
+                if [ $ios_check -eq 0 ]; then
+                    package="cblite_ios_${version}.zip"
+                    release="couchbase-lite-community-ios_`echo ${version} | cut -d '-' -f1`-beta.zip"
+                    s3_target="${s3_relbucket}/couchbase-lite/ios/1.0-beta/"
+                    ios_check=1
+                else
+                    continue
+                fi
+            elif [ $platform_type == "couchbase-sync-gateway" ]; then
+                if [ $s_pl == "x86_64" ] && [ $s_type == "zip" ]; then
+                    echo "Do nothing for .zip with x86_64"
+                    continue
+                else
+                    package="sync_gateway_${version}.${s_type}"
+                    release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.${s_type}"
+                    s3_target="${s3_relbucket}/couchbase-sync-gateway/1.0-beta/"
+                fi
+            fi
 
-    if [ $platform_type == "android" ]; then
-        wget "${buildforandroid}/${package}"
-        if [ -z `ls $package` ]; then
-            echo "$package is not found on ${buildforandroid}"
-            echo "Terminating the staging process"
-            exit 1
-        fi
-    else
-        wget "${builds}/${package}"
-        if [ -z `ls $package` ]; then
-            echo "$package is not found on ${builds}"
-            echo "Terminating the staging process"
-            exit 1
-        fi
-    fi
-    cp $package $release
+            if [ $platform_type == "android" ]; then
+                wget "${buildforandroid}/${package}"
+                if [ -z `ls $package` ]; then
+                    echo "$package is not found on ${buildforandroid}"
+                    echo "Terminating the staging process"
+                    exit 1
+                fi
+            else
+                wget "${builds}/${package}"
+                if [ -z `ls $package` ]; then
+                    echo "$package is not found on ${builds}"
+                    echo "Terminating the staging process"
+                    exit 1
+                fi
+            fi
+            cp $package $release
 
-    #md5?
+            #md5?
 
-    echo "Staging for $release"
-    touch "$release.staging"
+            echo "Staging for $release"
+            touch "$release.staging"
 
-    echo $package >> ~/home_phone.txt
-    rm $package
+            echo $package >> ~/home_phone.txt
+            rm $package
 
-    ####    upload .staging and then the regular files
+            ####    upload .staging and then the regular files
 
-    echo "Uploading .staging files to S3..."
-    s3cmd put -P            *.staging       "${s3_target}"
+            echo "Uploading .staging files to S3..."
+            s3cmd put -P            *.staging       "${s3_target}"
 
-    echo "Uploading packages to S3..."
-    s3cmd put -P `ls | grep -v staging`     "${s3_target}"
+            echo "Uploading packages to S3..."
+            s3cmd put -P `ls | grep -v staging`     "${s3_target}"
 
-    echo "Granting anonymous read access..."
-    s3cmd setacl --acl-public --recursive "${s3_target}"
+            echo "Granting anonymous read access..."
+            s3cmd setacl --acl-public --recursive "${s3_target}"
 
-    s3cmd ls ${s3_target}
-    popd                 2>&1 > /dev/null
+            s3cmd ls ${s3_target}
+            popd                 2>&1 > /dev/null
+        done
+    done
 done
