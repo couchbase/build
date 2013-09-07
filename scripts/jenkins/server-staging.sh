@@ -149,14 +149,14 @@ for         package_type in ${types[@]}     ; do
                     release="couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}"
                 fi
                 
-                wget ${latestbuilds}/${package}
+                wget --no-verbose ${latestbuilds}/${package}
                 if [ ! -e $package ]
                     then
                     echo "$package is not found on ${latestbuilds}"
                     echo "Terminate the staging process"
                     exit 1
                 fi
-                #wget "${latestbuilds}/${package}.manifest.xml"
+                #wget  --no-verbose"${latestbuilds}/${package}.manifest.xml"
          echo   cp $package $release  >> ${phone_home}
                 cp $package $release
                 #cp "$package.manifest.xml" "$release.manifest.xml"
@@ -176,14 +176,14 @@ for         package_type in ${types[@]}     ; do
                 package="couchbase-server-${name}_${decor_in[$package_type]}_${arch[$platform]}_${version}.${package_type}"
                 release="couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}"
                 
-                wget ${latestbuilds}/${package}
+                wget --no-verbose ${latestbuilds}/${package}
                 if [ ! -e $package ]
                     then
                     echo "$package is not found on ${latestbuilds}"
                     echo "Terminate the staging process"
                     exit 1
                 fi
-                #wget "${latestbuilds}/${package}.manifest.xml"
+                #wget --no-verbose "${latestbuilds}/${package}.manifest.xml"
          echo   cp $package $release >> ${phone_home}
                 cp $package $release
                 #cp "$package.manifest.xml" "$release.manifest.xml"
