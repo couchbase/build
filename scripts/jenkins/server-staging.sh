@@ -34,6 +34,9 @@ fi
 latestbuilds="http://builds.hq.northscale.net/latestbuilds"
 s3_relbucket="s3://packages.couchbase.com/releases"
 
+phone_home=${WORKSPACE}/home_phone.txt
+
+
 ####    required, positional arguments
 
 if [ !  ${1} ] ; then echo ; echo "VERSION required" ; usage ; exit ; fi
@@ -113,45 +116,85 @@ else
 fi
 
 
-rm ~/home_phone.txt
+if [[ -e ${phone_home} ]] ; then rm  ${phone_home} ; fi
 
-echo "Create tmp folder to hold all the packages"
-rm   -rf  ${TMP_DIR}
+if [[ -e  ${TMP_DIR}   ]] ; then rm -rf ${TMP_DIR} ; fi
 mkdir -p  ${TMP_DIR}
 chmod 777 ${TMP_DIR}
 pushd     ${TMP_DIR} 2>&1 > /dev/null
 
-for package_type in ${types[@]}; do
-    for platform in ${platforms[@]}; do
-        for name in ${names[@]}; do
+                                                 #  decorated package names
+declare	-a decor_in decorout
+decor_in[deb]=ubuntu_1204
+decor_in[rpm]=centos6
+decorout[deb]=openssl098
+decorout[rpm]=openssl098
+                                                 #  map platform to arch
+declare -a arch
+arch[32]=x86
+arch[64]=x86_64
+                                                 #  package is what is produced by build
+                                                 #  release is what is uploaded to S3
+for         package_type in ${types[@]}     ; do
+    for     name         in ${names[@]}     ; do
+        for platform     in ${platforms[@]} ; do
             if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
                 echo "MAC package doesn't support 32 bit platform"
             else
-                if [ $platform -eq 32 ]; then
-                    package="couchbase-server-${name}_x86_${version}.${package_type}"
-                    release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
+                package="couchbase-server-${name}_${arch[$platform]}_${version}.${package_type}"
+                if [[ $package_type == deb || $package_type == rpm ]]
+                  then
+                    release="couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}"
                 else
-                    package="couchbase-server-${name}_x86_${platform}_${version}.${package_type}"
-                    release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
+                    release="couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}"
                 fi
-
-                wget "${latestbuilds}/${package}"
-                if [ -z `ls $package` ]; then
+                
+                wget ${latestbuilds}/${package}
+                if [ ! -e $package ]
+                    then
                     echo "$package is not found on ${latestbuilds}"
                     echo "Terminate the staging process"
                     exit 1
                 fi
                 #wget "${latestbuilds}/${package}.manifest.xml"
+         echo   cp $package $release  >> ${phone_home}
                 cp $package $release
                 #cp "$package.manifest.xml" "$release.manifest.xml"
-
+                
                 echo "Calculate md5sum for $release"
                 md5sum $release > "$release.md5"
-
+                
                 echo "Staging for $release"
                 touch "$release.staging"
                 #touch "$release.manifest.xml.staging"
-                echo $package >> ~/home_phone.txt
+                echo $release >> ${phone_home}
+                rm $package
+                #rm "$package.manifest.xml"
+            fi
+            if [[ $package_type == deb || $package_type == rpm ]]
+                then
+                package="couchbase-server-${name}_${decor_in[$package_type]}_${arch[$platform]}_${version}.${package_type}"
+                release="couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}"
+                
+                wget ${latestbuilds}/${package}
+                if [ ! -e $package ]
+                    then
+                    echo "$package is not found on ${latestbuilds}"
+                    echo "Terminate the staging process"
+                    exit 1
+                fi
+                #wget "${latestbuilds}/${package}.manifest.xml"
+         echo   cp $package $release >> ${phone_home}
+                cp $package $release
+                #cp "$package.manifest.xml" "$release.manifest.xml"
+                
+                echo "Calculate md5sum for $release"
+                md5sum $release > "$release.md5"
+                
+                echo "Staging for $release"
+                touch "$release.staging"
+                #touch "$release.manifest.xml.staging"
+                echo $release >> ${phone_home}
                 rm $package
                 #rm "$package.manifest.xml"
             fi
