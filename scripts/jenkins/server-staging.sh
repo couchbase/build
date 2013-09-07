@@ -124,13 +124,13 @@ chmod 777 ${TMP_DIR}
 pushd     ${TMP_DIR} 2>&1 > /dev/null
 
                                                  #  decorated package names
-declare	-a decor_in decorout
+declare	-A decor_in decorout
 decor_in[deb]=ubuntu_1204
 decor_in[rpm]=centos6
 decorout[deb]=openssl098
 decorout[rpm]=openssl098
                                                  #  map platform to arch
-declare -a arch
+declare -A arch
 arch[32]=x86
 arch[64]=x86_64
                                                  #  package is what is produced by build
