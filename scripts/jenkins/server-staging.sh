@@ -1,4 +1,4 @@
-#!/bin/bash -h
+#!/bin/bash
 #              use to download from latestbuilds and upload to S3,
 #              along with md5 and .staging files
 
@@ -207,7 +207,7 @@ dstpkg=couchbase-server_src-${rel_num}.tar.gz
 
 for name in ${names[@]}; do
     if [ "community" = $name ]; then
-        wget    -O ${dstpkg}  ${latestbuilds}/${srcpkg}
+        wget --no-verbose  -O ${dstpkg}  ${latestbuilds}/${srcpkg}
         if [[ ! -s ${dstpkg} ]]
             then
             echo "${srcpkg} not found on ${latestbuilds}"
