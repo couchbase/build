@@ -26,8 +26,8 @@ if [[ $1 == "--help" ]] ; then usage ; fi
 
 ####    globals
 
-latestbuilds="http://builds.hq.northscale.net/latestbuilds"
-s3_relbucket="s3://packages.couchbase.com/releases"
+latestbuilds=http://builds.hq.northscale.net/latestbuilds
+s3_relbucket=s3://packages.couchbase.com/releases
 
 phone_home=${WORKSPACE}/home_phone.txt
 
@@ -55,7 +55,7 @@ if [[ $version =~ $vrs_rex ]]
 fi
 
 #                                     must end with "/"
-s3_target="${s3_relbucket}/${rel_num}/"
+s3_target=${s3_relbucket}/${rel_num}/
 
 
 ####    optional, named arguments
@@ -119,21 +119,20 @@ decorout[rpm]=openssl098
 declare -A arch
 arch[32]=x86
 arch[64]=x86_64
-                                                 #  package is what is produced by build
-                                                 #  release is what is uploaded to S3
+                                                 #  staging is what is uploaded to S3, with .staging suffix
 for         package_type in ${types[@]}     ; do
     for     name         in ${names[@]}     ; do
         for platform     in ${platforms[@]} ; do
             if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
                 echo "MAC package doesn't support 32 bit platform"
             else
-                staging="couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}.staging"
+                staging=couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}.staging
                 echo "Remove staging file for $staging and ready for release"
                 s3cmd del ${s3_target}${staging}
                 
                 if [[ $package_type == deb || $package_type == rpm ]]
                    then
-                    staging="couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}.staging"
+                    staging=couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}.staging
                     echo "Remove staging file for $staging and ready for release"
                     s3cmd del ${s3_target}${staging}
                 fi

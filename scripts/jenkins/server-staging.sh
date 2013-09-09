@@ -28,8 +28,8 @@ if [[ $1 == "--help" ]] ; then usage ; fi
 
 ####    globals
 
-latestbuilds="http://builds.hq.northscale.net/latestbuilds"
-s3_relbucket="s3://packages.couchbase.com/releases"
+latestbuilds=http://builds.hq.northscale.net/latestbuilds
+s3_relbucket=s3://packages.couchbase.com/releases
 
 phone_home=${WORKSPACE}/home_phone.txt
 
@@ -57,7 +57,7 @@ if [[ $version =~ $vrs_rex ]]
 fi
 
 #                                     must end with "/"
-s3_target="${s3_relbucket}/${rel_num}/"
+s3_target=${s3_relbucket}/${rel_num}/
 
 
 ####    optional, named arguments
@@ -138,12 +138,12 @@ for         package_type in ${types[@]}     ; do
             if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
                 echo "MAC package doesn't support 32 bit platform"
             else
-                package="couchbase-server-${name}_${arch[$platform]}_${version}.${package_type}"
+                package=couchbase-server-${name}_${arch[$platform]}_${version}.${package_type}
                 if [[ $package_type == deb || $package_type == rpm ]]
                   then
-                    release="couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}"
+                    release=couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}
                 else
-                    release="couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}"
+                    release=couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}
                 fi
                 
                 wget --no-verbose ${latestbuilds}/${package}
@@ -153,25 +153,25 @@ for         package_type in ${types[@]}     ; do
                     echo "Terminate the staging process"
                     exit 1
                 fi
-                #wget  --no-verbose"${latestbuilds}/${package}.manifest.xml"
+                #wget  --no-verbose ${latestbuilds}/${package}.manifest.xml
          echo   cp $package $release  >> ${phone_home}
                 cp $package $release
-                #cp "$package.manifest.xml" "$release.manifest.xml"
+                #cp $package.manifest.xml $release.manifest.xml
                 
                 echo "Calculate md5sum for $release"
-                md5sum $release > "$release.md5"
+                md5sum $release > $release.md5
                 
                 echo "Staging for $release"
-                touch "$release.staging"
-                #touch "$release.manifest.xml.staging"
+                touch $release.staging
+                #touch $release.manifest.xml.staging
                 echo $release >> ${phone_home}
                 rm $package
-                #rm "$package.manifest.xml"
+                #rm $package.manifest.xml
             fi
             if [[ $package_type == deb || $package_type == rpm ]]
                 then
-                package="couchbase-server-${name}_${decor_in[$package_type]}_${arch[$platform]}_${version}.${package_type}"
-                release="couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}"
+                package=couchbase-server-${name}_${decor_in[$package_type]}_${arch[$platform]}_${version}.${package_type}
+                release=couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}
                 
                 wget --no-verbose ${latestbuilds}/${package}
                 if [ ! -e $package ]
@@ -180,20 +180,20 @@ for         package_type in ${types[@]}     ; do
                     echo "Terminate the staging process"
                     exit 1
                 fi
-                #wget --no-verbose "${latestbuilds}/${package}.manifest.xml"
+                #wget --no-verbose ${latestbuilds}/${package}.manifest.xml
          echo   cp $package $release >> ${phone_home}
                 cp $package $release
-                #cp "$package.manifest.xml" "$release.manifest.xml"
+                #cp $package.manifest.xml $release.manifest.xml
                 
                 echo "Calculate md5sum for $release"
-                md5sum $release > "$release.md5"
+                md5sum $release > $release.md5
                 
                 echo "Staging for $release"
-                touch "$release.staging"
-                #touch "$release.manifest.xml.staging"
+                touch $release.staging
+                #touch $release.manifest.xml.staging
                 echo $release >> ${phone_home}
                 rm $package
-                #rm "$package.manifest.xml"
+                #rm $package.manifest.xml
             fi
         done
     done
@@ -212,20 +212,20 @@ for name in ${names[@]}; do
             exit 7
         fi
         touch  ${dstpkg}.staging
-        md5sum ${dstpkg} > "${dstpkg}.md5"
+        md5sum ${dstpkg} > ${dstpkg}.md5
     fi
 done
 
 ####    upload .staging and then regular files
 
 echo "Uploading .staging files to S3..."
-s3cmd put -P             *.staging    "${s3_target}"
+s3cmd put -P             *.staging    ${s3_target}
 
 echo "Uploading packages to S3..."
-s3cmd put -P `ls | grep -v staging`   "${s3_target}"
+s3cmd put -P `ls | grep -v staging`   ${s3_target}
 
 echo "Granting anonymous read access..."
-s3cmd setacl --acl-public --recursive "${s3_target}"
+s3cmd setacl --acl-public --recursive ${s3_target}
 
 s3cmd ls ${s3_target}
 popd                 2>&1 > /dev/null

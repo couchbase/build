@@ -23,8 +23,8 @@ if [[ $1 == "--help" ]] ; then usage ; fi
 
 ####    globals
 
-latestbuilds="http://builds.hq.northscale.net/latestbuilds"
-s3_relbucket="s3://packages.couchbase.com/releases"
+latestbuilds=http://builds.hq.northscale.net/latestbuilds
+s3_relbucket=s3://packages.couchbase.com/releases
 
 
 ####    required, positional arguments
@@ -50,7 +50,7 @@ if [[ $version =~ $vrs_rex ]]
 fi
 
 #                                     must end with "/"
-s3_target="${s3_relbucket}/${rel_num}/"
+s3_target=${s3_relbucket}/${rel_num}/
 
 
 ####    optional, named arguments
@@ -80,11 +80,6 @@ while getopts "he:p:t:m:" OPTION; do
   esac
 done
 
-####    globals
-
-latestbuilds="http://builds.hq.northscale.net/latestbuilds"
-s3_relbucket="s3://packages.couchbase.com/releases"
-
 
 if [ -z "$TYPE" ]; then
     echo "Stage packages for all types"
@@ -110,16 +105,13 @@ else
     names=$NAME
 fi
 
-declare	-A decor_in decorout
-decor_in[deb]=ubuntu_1204
-decor_in[rpm]=centos6
+declare	-A decorout
 decorout[deb]=openssl098
 decorout[rpm]=openssl098
                                                  #  map platform to arch
 declare -A arch
 arch[32]=x86
 arch[64]=x86_64
-                                                 #  package is what is produced by build
                                                  #  release is what is uploaded to S3
 for         package_type in ${types[@]}     ; do
     for     name         in ${names[@]}     ; do
@@ -127,9 +119,9 @@ for         package_type in ${types[@]}     ; do
             if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
                 echo "MAC package doesn't support 32 bit platform"
             else
-                release="couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}"
+                release=couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}
                 echo "Removing all ${platform}-bit $name edition $package_type files from S3"
-                s3cmd del ${s3_target}${release}"
+                s3cmd del ${s3_target}${release}
                 s3cmd del ${s3_target}${release}.md5
                 s3cmd del ${s3_target}${release}.staging
                 s3cmd del ${s3_target}${release}.manifest.xml
@@ -137,9 +129,9 @@ for         package_type in ${types[@]}     ; do
                 echo "-----------------------------------------------"
                 if [[ $package_type == deb || $package_type == rpm ]]
                     then
-                    release="couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}"
+                    release=couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}
                     echo "Removing decorated ${platform}-bit $name edition $package_type files from S3"
-                    s3cmd del ${s3_target}${release}"
+                    s3cmd del ${s3_target}${release}
                     s3cmd del ${s3_target}${release}.md5
                     s3cmd del ${s3_target}${release}.staging
                     s3cmd del ${s3_target}${release}.manifest.xml
