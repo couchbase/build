@@ -20,14 +20,11 @@ usage()
     echo "         [ -h          ]   print this help message"
     echo ""
     echo "By default the script will handle packages for all editions, platforms and package types."
-    }
-
-if [[ $1 == "--help" ]]
-    then
     echo ""
-    usage
-    exit
-fi
+    exit 4
+    }
+if [[ $1 == "--help" ]] ; then usage ; fi
+
 
 ####    globals
 
@@ -39,7 +36,7 @@ phone_home=${WORKSPACE}/home_phone.txt
 
 ####    required, positional arguments
 
-if [ !  ${1} ] ; then echo ; echo "VERSION required" ; usage ; exit ; fi
+if [ !  ${1} ] ; then echo ; echo "VERSION required" ; usage ; fi
 
 version=${1}
 shift
@@ -58,7 +55,7 @@ if [[ $version =~ $vrs_rex ]]
     usage
     exit
 fi
-    
+
 #                                     must end with "/"
 s3_target="${s3_relbucket}/${rel_num}/"
 
