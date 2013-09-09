@@ -14,7 +14,6 @@ usage()
     echo "         [ -e EDITION  ]   community or enterprise.  (both if not given)"
     echo "         [ -p PLATFORM ]   32 or 64.                 (both if not given)"
     echo "         [ -t TYPE     ]   rpm, deb, setup.exe, zip  (all if not given)"
-    echo "         [ -o OS_TYPE  ]   0, 1                      (for older and newer if not given)"
     echo ""
     echo "         [ -m TMP_DIR  ]   temp dir to use, if not ${TMP_DIR}"
     echo ""
@@ -56,14 +55,14 @@ if [[ $version =~ $vrs_rex ]]
     usage
     exit
 fi
-
-#       must end with "/"
+    
+#                                     must end with "/"
 s3_target="${s3_relbucket}/${rel_num}/"
 
 
 ####    optional, named arguments
 
-while getopts "h:e:p:t:m:" OPTION; do
+while getopts "he:p:t:m:" OPTION; do
   case "$OPTION" in
     e)
       NAME="$OPTARG"
@@ -113,12 +112,6 @@ else
     names=$NAME
 fi
 
-if [ -z "$OS_TYPE" ]; then
-    echo "Stage for older and newer packages"
-    os_types=(0 1)
-else
-    os_types=$OS_TYPE
-fi
 
 rm ~/home_phone.txt
 
@@ -131,59 +124,37 @@ pushd     ${TMP_DIR} 2>&1 > /dev/null
 for package_type in ${types[@]}; do
     for platform in ${platforms[@]}; do
         for name in ${names[@]}; do
-            for os_type in ${os_types[@]}; do
-                if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
-                    echo "MAC package doesn't support 32 bit platform"
+            if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
+                echo "MAC package doesn't support 32 bit platform"
+            else
+                if [ $platform -eq 32 ]; then
+                    package="couchbase-server-${name}_x86_${version}.${package_type}"
+                    release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
                 else
-                    if [ $platform -eq 32 ]; then
-                        if [ $os_type -eq 0 ]; then
-                            package="couchbase-server-${name}_x86_${version}.${package_type}"
-                            release="couchbase-server-${name}_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
-                        else
-                            if [ $package_type == "rpm" ]; then
-                                package="couchbase-server-${name}_centos6_x86_${version}.${package_type}"
-                                release="couchbase-server-${name}_centos6_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
-                            elif [ $package_type == "deb" ]; then
-                                package="couchbase-server-${name}_ubuntu_1204_x86_${version}.${package_type}"
-                                release="couchbase-server-${name}_ubuntu_1204_x86_`echo ${version} | cut -d '-' -f1`.${package_type}"
-                            fi
-                        fi
-                    else
-                        if [ $os_type -eq 0 ]; then
-                            package="couchbase-server-${name}_x86_${platform}_${version}.${package_type}"
-                            release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
-                        else
-                            if [ $package_type == "rpm" ]; then
-                                package="couchbase-server-${name}_centos6_x86_${platform}_${version}.${package_type}"
-                                release="couchbase-server-${name}_centos6_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
-                            elif [ $package_type == "deb" ]; then
-                                package="couchbase-server-${name}_ubuntu_1204_x86_${platform}_${version}.${package_type}"
-                                release="couchbase-server-${name}_ubuntu_1204_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
-                            fi
-                        fi
-                    fi
-
-                    wget "${latestbuilds}/${package}"
-                    if [ -z `ls $package` ]; then
-                        echo "$package is not found on ${latestbuilds}"
-                        echo "Terminate the staging process"
-                        exit 1
-                    fi
-                    #wget "${latestbuilds}/${package}.manifest.xml"
-                    cp $package $release
-                    #cp "$package.manifest.xml" "$release.manifest.xml"
-
-                    echo "Calculate md5sum for $release"
-                    md5sum $release > "$release.md5"
-
-                    echo "Staging for $release"
-                    touch "$release.staging"
-                    #touch "$release.manifest.xml.staging"
-                    echo $package >> ~/home_phone.txt
-                    rm $package
-                    #rm "$package.manifest.xml"
+                    package="couchbase-server-${name}_x86_${platform}_${version}.${package_type}"
+                    release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
                 fi
-            done
+
+                wget "${latestbuilds}/${package}"
+                if [ -z `ls $package` ]; then
+                    echo "$package is not found on ${latestbuilds}"
+                    echo "Terminate the staging process"
+                    exit 1
+                fi
+                #wget "${latestbuilds}/${package}.manifest.xml"
+                cp $package $release
+                #cp "$package.manifest.xml" "$release.manifest.xml"
+
+                echo "Calculate md5sum for $release"
+                md5sum $release > "$release.md5"
+
+                echo "Staging for $release"
+                touch "$release.staging"
+                #touch "$release.manifest.xml.staging"
+                echo $package >> ~/home_phone.txt
+                rm $package
+                #rm "$package.manifest.xml"
+            fi
         done
     done
 done
