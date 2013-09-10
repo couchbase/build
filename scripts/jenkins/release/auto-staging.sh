@@ -135,13 +135,13 @@ for package_type in ${types[@]}; do
                     release="couchbase-server-${name}_x86_${platform}_`echo ${version} | cut -d '-' -f1`.${package_type}"
                 fi
 
-                wget "${latestbuilds}/${package}"
+                wget --no-verbose "${latestbuilds}/${package}"
                 if [ -z `ls $package` ]; then
                     echo "$package is not found on ${latestbuilds}"
                     echo "Terminate the staging process"
                     exit 1
                 fi
-                #wget "${latestbuilds}/${package}.manifest.xml"
+                #wget --no-verbose "${latestbuilds}/${package}.manifest.xml"
                 cp $package $release
                 #cp "$package.manifest.xml" "$release.manifest.xml"
 
@@ -164,7 +164,7 @@ dstpkg=couchbase-server_src-${rel_num}.tar.gz
 
 for name in ${names[@]}; do
     if [ "community" = $name ]; then
-        wget    -O ${dstpkg}  ${latestbuilds}/${srcpkg}
+        wget --no-verbose    -O ${dstpkg}  ${latestbuilds}/${srcpkg}
         if [[ ! -s ${dstpkg} ]]
             then
             echo "${srcpkg} not found on ${latestbuilds}"
