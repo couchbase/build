@@ -55,7 +55,7 @@ fi
 
 ####    optional, named arguments
 
-while getopts "h:p:m:" OPTION; do
+while getopts "h:M:m:" OPTION; do
   case "$OPTION" in
       M)
         MODEL="$OPTARG"
