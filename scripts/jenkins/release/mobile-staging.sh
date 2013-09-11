@@ -125,7 +125,7 @@ for platform_type in ${platforms[@]}; do
                     continue
                 else
                     package="couchbase-sync-gateway-community_${s_pl}_${version}.${s_type}"
-                    release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.${s_type}"
+                    release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.tar.gz"
                     if [ $s_type == "zip" ]
                         then
                         release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.tar.gz"
