@@ -93,7 +93,7 @@ mkdir   -p  ${TMP_DIR}
 chmod   777 ${TMP_DIR}
 pushd       ${TMP_DIR}  2>&1 > /dev/null
 
-s3_target = ""
+s3_target=""
 sync_types=("rpm" "deb" "zip")
 sync_platforms=("x86" "x86_64")
 android_check=0
