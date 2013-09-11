@@ -120,12 +120,16 @@ for platform_type in ${platforms[@]}; do
                     continue
                 fi
             elif [ $platform_type == "couchbase-sync-gateway" ]; then
-                if [ $s_pl == "x86_64" ] && [ $s_type == "zip" ]; then
-                    echo "Do nothing for .zip with x86_64"
+                if [ $s_pl == "x86" ] && [ $s_type == "zip" ]; then
+                    echo "Do nothing for .zip with x86"
                     continue
                 else
                     package="couchbase-sync-gateway-community_${s_pl}_${version}.${s_type}"
                     release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.${s_type}"
+                    if [ $s_type == "zip" ]
+                        then
+                        release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.tar.gz"
+                    fi
                     s3_target="${s3_relbucket}/couchbase-sync-gateway/1.0-beta/"
                 fi
             fi
