@@ -28,7 +28,7 @@ fi
 ####    globals
 
 #builds="http://cbfs.hq.couchbase.com:8484/builds"
-builds=http://packages.northscale.com/latestbuilds/mobile/
+builds=http://packages.northscale.com/latestbuilds/mobile
 s3_relbucket="s3://packages.couchbase.com/releases"
 
 ####    required, positional arguments
@@ -124,7 +124,7 @@ for platform_type in ${platforms[@]}; do
                     echo "Do nothing for .zip with x86_64"
                     continue
                 else
-                    package="couchbase-sync-gateway-community_${version}.${s_type}"
+                    package="couchbase-sync-gateway-community_${s_pl}_${version}.${s_type}"
                     release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.${s_type}"
                     s3_target="${s3_relbucket}/couchbase-sync-gateway/1.0-beta/"
                 fi
