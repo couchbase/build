@@ -125,7 +125,7 @@ for platform_type in ${platforms[@]}; do
                     echo "Do nothing for .zip with x86_64"
                     continue
                 else
-                    package="sync_gateway_${version}.${s_type}"
+                    package="couchbase-sync-gateway-community_${version}.${s_type}"
                     release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.${s_type}"
                     s3_target="${s3_relbucket}/couchbase-sync-gateway/1.0-beta/"
                 fi
