@@ -27,8 +27,8 @@ fi
 
 ####    globals
 
-builds="http://cbfs.hq.couchbase.com:8484/builds"
-buildforandroid=http://packages.northscale.com/latestbuilds/mobile/
+#builds="http://cbfs.hq.couchbase.com:8484/builds"
+builds=http://packages.northscale.com/latestbuilds/mobile/
 s3_relbucket="s3://packages.couchbase.com/releases"
 
 ####    required, positional arguments
@@ -131,9 +131,9 @@ for platform_type in ${platforms[@]}; do
             fi
 
             if [ $platform_type == "android" ]; then
-                wget "${buildforandroid}/${package}"
+                wget "${builds}/${package}"
                 if [ -z `ls $package` ]; then
-                    echo "$package is not found on ${buildforandroid}"
+                    echo "$package is not found on ${builds}"
                     echo "Terminating the staging process"
                     exit 1
                 fi
