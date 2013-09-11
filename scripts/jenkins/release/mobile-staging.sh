@@ -136,14 +136,14 @@ for platform_type in ${platforms[@]}; do
             fi
 
             if [ $platform_type == "android" ]; then
-                wget "${builds}/${package}"
+                wget --no-verbose "${builds}/${package}"
                 if [ -z `ls $package` ]; then
                     echo "$package is not found on ${builds}"
                     echo "Terminating the staging process"
                     exit 1
                 fi
             else
-                wget "${builds}/${package}"
+                wget --no-verbose "${builds}/${package}"
                 if [ -z `ls $package` ]; then
                     echo "$package is not found on ${builds}"
                     echo "Terminating the staging process"
