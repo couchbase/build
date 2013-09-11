@@ -151,12 +151,13 @@ for platform_type in ${platforms[@]}; do
                 fi
             fi
             cp $package $release
-
-            #md5?
-
+            
             echo "Staging for $release"
             touch "$release.staging"
-
+            
+            echo "Calculate md5sum for $release"
+            md5sum $release > $release.md5
+            
             echo $package >> ~/home_phone.txt
             rm $package
         done
