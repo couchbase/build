@@ -5,6 +5,7 @@
 #          with no paramters
 #          
 VERSION=1.0
+
 REVISION=${VERSION}-${BUILD_NUMBER}
 
 LOG_FILE=/Users/couchbase/jenkins/workspace/build_cblite_ios/build_ios_results.log
@@ -22,7 +23,7 @@ README_D=${BASE_DIR}
 README_F=${README_D}/README.md
 RME_DEST=${ZIP_SRCD}
 
-LICENSED=${BASE_DIR}
+LICENSED=${BASE_DIR}/release
 LICENSEF=${LICENSED}/LICENSE.txt
 LIC_DEST=${ZIP_SRCD}
 
@@ -61,7 +62,7 @@ cp -r    ${RIO_SRCD}/*         ${RIO_DEST}
 cp -r    ${REL_SRCD}/LiteServ* ${REL_DEST}
 cp       ${LIB_SRCF}           ${LIB_DEST}
 cp       ${README_F}           ${RME_DEST}
-#cp      ${LICENSEF}           ${LIC_DEST}
+cp       ${LICENSEF}           ${LIC_DEST}
 
 cd       ${ZIP_SRCD}/CouchbaseLite.framework
 rm -rf PrivateHeaders
