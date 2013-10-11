@@ -12,9 +12,9 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( last_done_build last_good_build is_running );
+our @EXPORT_OK   = qw( last_done_build last_good_build is_running sanity_url );
 
-our %EXPORT_TAGS = ( DEFAULT => [qw( &last_done_build &last_good_build &is_running )] );
+our %EXPORT_TAGS = ( DEFAULT => [qw( &last_done_build &last_good_build &is_running sanity_url& )] );
 
 my $DEBUG = 0;   # FALSE
 
@@ -25,7 +25,7 @@ use buildbotMapping qw(:DEFAULT);
 
 #my $URL_ROOT  = buildbotQuery::get_URL_root();
 
-my $installed_URL='http://10.3.2.199';
+my $installed_URL='http://factory';
 my $run_icon  = '<IMG SRC="' .$installed_URL. '/running_20.gif" ALT="running..." HSPACE="50" ALIGN="TOP">';
 my $done_icon = '&nbsp;';
 
@@ -92,8 +92,8 @@ sub last_done_build
     if ( buildbotQuery::is_running_build( $next_build) ) { $is_running = 1;  print STDERR "$bldnum is still running\n"; }
     
 
- #  print STDERR "... bld_date is $bld_date...\n";
- #  print STDERR "... rev_numb is $rev_numb...\n";
+    print STDERR "... bld_date is $bld_date...\n";
+    print STDERR "... rev_numb is $rev_numb...\n";
     
     return( buildbotQuery::is_good_build($result), $bldnum, $rev_numb, $bld_date, $is_running);
     }
@@ -158,6 +158,49 @@ sub last_good_build
         return(0);
         }
     }
+
+############                        sanity_url ( builder, build_number )
+#          
+#                                   returns ( url of test job run, boolean did it apss )
+#                                        or ( 0 )  if no good build
+sub sanity_url
+    {
+    my ($builder, $bld_num) = @_;
+    my ($tindex, $test_url_root);
+    my  $url_rex = '[htps]*://([a-zA-Z0-9.:_-]*)/+job/+([a-zA-Z0-9_-]*)';
+    if ($DEBUG)     { print STDERR "============================\nentering sanity_url($builder, $bld_num)\n"; }
+    
+    my ($test_url, $bld_revision) = buildbotQuery::trigger_jenkins_url($builder, $bld_num);
+    
+    if ($DEBUG)     { print STDERR "we got to here..........\n"; }
+    return(0) if (! defined ($bld_revision) );    
+    if ($DEBUG)     { print STDERR "we got to here..........\n"; }
+    
+    if ($DEBUG)     { print STDERR "returned: ($test_url, $bld_revision)\n";             }
+    
+    if ($test_url =~ $url_rex)
+        {
+        $test_url_root = $1;
+        $test_job_name = $2;
+        if ($DEBUG)  { print STDERR "extracted (url domain, test job) = ( $test_url_root , $test_job_name)\n     from $test_url\n"; }
+        return($test_url_root, $test_job_name);
+        }
+    else
+        {
+        if ($DEBUG)  { print STDERR "$test_url is NOT a jenkins URL\n\n"; }
+        return(0);
+        }
+    ($test_url, $tindex) = buildbotQuery::get_URL_root($test_url_root);
+    if ($DEBUG)     { print STDERR "returned: ($test_url, $tindex)\n";                }
+    $test_url = $test_url.'/job/'.$test_job_name;
+    
+    my ($did_pass, $test_job_url, $test_job_num) = buildbotQuery::test_job_results($test_url, $bld_revision);
+    if ($DEBUG)  { print STDERR "test_job_results are: ($did_pass, $test_job_num)\n"; }
+    if ($did_pass)  { if ($DEBUG)  { print STDERR "it passed\n";  }                   }
+    if ($DEBUG)  { print STDERR "It was $test_job_num that tested $bld_revision\n";   }
+    return($test_job_num, $did_pass, $test_job_num);
+    }
+
 1;
 __END__
 

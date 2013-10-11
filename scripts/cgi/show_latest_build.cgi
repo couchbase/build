@@ -17,10 +17,13 @@ BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
+my $installed_URL='http://factory/cgi/show_latest_build.cgi';
 
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
 use buildbotReports qw(:DEFAULT);
+
+use jenkinsQuery    qw(:DEFAULT );
 
 use CGI qw(:standard);
 my  $query = new CGI;
@@ -53,7 +56,6 @@ sub print_HTML_Page
          .'</div>'."\n";
     print $query->end_html;
     }
-my $installed_URL='http://10.3.2.199/cgi/show_latest_build.cgi';
 
 my $usage = "ERROR: must specify  EITHER both 'builder' and 'branch' params\n"
            ."                         OR all of 'platform', 'bits', 'branch'\n\n"
@@ -113,10 +115,48 @@ if ($bldnum < 0)
     }
 elsif ($bldstatus)
     {
+    my ($test_job_url, $test_build_num) = buildbotQuery::trigger_jenkins_url($builder, $bldnum);
+    print STDERR "DEBUG: got ($test_job_url, $test_build_num)\n";
+
+    my $running = buildbotReports::is_running($is_running);
+    my $made_color;
+    if ($test_job_url =~ /^0$/)
+        {
+        if (defined($test_build_num) && $test_build_num == /^0$/)    # no job tiggered
+            {
+            $made_color = $warn_color;
+            $running   .= 'NO&nbsp;TEST';
+            }
+        else                           # bad http response
+            {
+            $made_color = $note_color;
+            $running   .= $test_build_num;    # http code
+            }
+        }
+    else
+        {
+        my ($test_job_num, $test_job_status, $test_is_running) = jenkinsQuery::test_job_status($test_job_url, $test_build_num);
+        if ($test_is_running =~ /true/i)
+            {
+            $made_color = $warn_color;
+            $running .= jenkinsQuery::test_running_indicator(installed_URL, $test_job_num, $test_job_url);
+            }
+        elsif ($test_job_status && $test_job_status =~ /SUCCESS/i)
+            {
+            $made_color = $good_color;
+            $running   .= '<br><a href="'.$test_job_url.'">'.$test_job_num.'</a>';
+            }
+        else
+            {
+            $made_color = $warn_color;
+            $running   .= 'test&nbsp;<a href="'.$test_job_url.'">'.$test_job_num.'</a>&nbsp;FAILED';
+            }
+        }
+    
     print_HTML_Page( buildbotQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
-                     buildbotReports::is_running($is_running),
+                     $running,
                      $builder,
-                     $good_color );
+                     $made_color );
     
     print STDERR "GOOD: $bldnum\n"; 
     }

@@ -13,10 +13,10 @@ our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( get_URL_root html_builder_link html_OK html_ERROR_msg html_OK_link html_FAIL_link
-                       get_json get_build_revision get_build_date is_running_build is_good_build );
+                       get_json get_build_revision get_build_date is_running_build is_good_build trigger_jenkins_url );
 
-our %EXPORT_TAGS = ( HTML  => [qw( &get_URL_root &html_builder_link &html_OK &html_ERROR_msg &html_OK_link &html_FAIL_link )],
-                     JSON  => [qw( &get_json  &get_build_revision  &get_build_date  &is_running_build  &is_good_build      )] );
+our %EXPORT_TAGS = ( HTML  => [qw( &get_URL_root  &html_builder_link  &html_OK  &html_ERROR_msg  &html_OK_link  &html_FAIL_link )],
+                     JSON  => [qw( &get_json &get_build_revision &get_build_date &is_running_build &is_good_build &trigger_jenkins_url )] );
 
 ############ 
 
@@ -86,7 +86,7 @@ sub html_OK_link
     {
     my ($bder, $bnum, $rev, $date) = @_;
     
-    my $HTML='<a href="'. $URL_ROOT .'/builders/'. $bder .'/builds/'. $bnum .'" target="_blank">'. "$rev ($date)" .'</a>';
+    my $HTML='<a href="'. $URL_ROOT .'/builders/'. $bder .'/builds/'. $bnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)" .'</a>';
     return($HTML);
     }
 
@@ -210,6 +210,46 @@ sub is_good_build
     print STDERR "ERROR: bad ref\n\n";
     return(0 == 1);
     }
+
+############                        trigger_jenkins_url ( <builder>, <bld_num> )
+#          
+#                                   returns (URL of test job, build number),
+#                                        or (0, 0)           if none found,
+#                                        or (0, status_code) if not 200
+sub trigger_jenkins_url
+    {
+    my ($builder, $bld_num) = @_;
+    my $url_rex = 'curl &#39;(.*)&#39;';
+    
+    my $request = $URL_ROOT.'/builders/'.$builder.'/builds/'.$bld_num.'/steps/trigger%20jenkins/logs/stdio';
+    if ($DEBUG)  { print STDERR "request: $request\n\n";  }
+    
+    my $response = $ua->get($request);
+    if ($DEBUG)  { print STDERR "respons: $response\n\n";  }
+
+    if ($response->is_success)
+        {
+        if ($DEBUG)  { print STDERR "FOUND IT\n"; }
+        my $content = $response->decoded_content;
+        if ( $content =~ $url_rex )
+            {
+            my $curlurl = $1;
+            my ($jenkins_url, $version_num) = (0, 0);
+            
+            if ($DEBUG)  { print STDERR "IT MATCHES\n"; }
+            if ($curlurl =~ '(.*)/buildWithParameters'         )  { $jenkins_url = $1; }
+            if ($curlurl =~ 'version_number=([0-9a-zA-Z._-]*)' )  { $version_num = $1; }
+            return($jenkins_url, $version_num);
+            }
+        if ($DEBUG)  { print STDERR "cannot find curl request in:\n\n".$content."\n"; }
+        return(0);
+        }
+    else
+       {
+       if ($DEBUG)  { print STDERR "DEBUG: no response!  Got status line:\n\n".$response->status_line."\n"; }
+       if ($response->code eq 404)  { return(0,0); }
+       return(0, $response->code);
+    }  }
 
 1;
 __END__
