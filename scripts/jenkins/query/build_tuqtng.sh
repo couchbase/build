@@ -14,7 +14,7 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 
 LICENSE=license-ce-2013.txt
 PROJECT=github.com/couchbaselabs/tuqtng
-export GOPATH=${WORKSPACE}/build_tuqtng
+export GOPATH=${WORKSPACE}
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ==============================================
