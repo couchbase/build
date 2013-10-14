@@ -101,6 +101,16 @@ git  pull  origin  ${GITSPEC}
 git  show --stat
 echo ==============================================
 
+PROJDIR=src/github.com/sbinet/liner
+cd   ${WORKSPACE}
+echo ======== sync sbinet/liner ===================
+
+if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/sbinet/liner.git                ${PROJDIR} ; fi
+cd         ${PROJDIR}
+git  pull  origin  ${GITSPEC}
+git  show --stat
+echo ==============================================
+
 
 TOPD=${WORKSPACE}/src/${PROJECT}
 DIST=${TOPD}/dist
