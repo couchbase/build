@@ -26,6 +26,22 @@ export CGO_ENABLED=0
  CGO_ENABLED=0 GOOS=windows GOARCH=386     go tool dist install -v pkg/runtime
  CGO_ENABLED=0 GOOS=windows GOARCH=386     go install -v -a std
 
+echo -------- step 4
+export CGO_ENABLED=0 
+
+ echo ..............linux.............ARM
+ CGO_ENABLED=0 GOOS=linux  GOARCH=arm          go tool dist install -v pkg/runtime
+ CGO_ENABLED=0 GOOS=linux  GOARCH=arm          go install -v -a std
+
+ echo ..............linux.............ARM5
+ CGO_ENABLED=0 GOOS=linux  GOARCH=arm GOARM=5  go tool dist install -v pkg/runtime
+ CGO_ENABLED=0 GOOS=linux  GOARCH=arm GOARM=5  go install -v -a std
+
+ echo ..............amd64.............freebsd
+ CGO_ENABLED=0 GOOS=amd64  GOARCH=freebsd      go tool dist install -v pkg/runtime
+ CGO_ENABLED=0 GOOS=amd64  GOARCH=freebsd      go install -v -a std
+
+
 echo ......... now back
 popd                 2>&1 > /dev/null
 
