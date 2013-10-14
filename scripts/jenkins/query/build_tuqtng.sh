@@ -126,21 +126,21 @@ function build_engine
     goflags="-v -ldflags '-X \"main.VERSION ${REVISION}\"'"
 
     echo "------- building cbq-engine.lin32 ----------"
-    eval GOARCH=386           GOOS=linux   CGO_ENABLED=0 go build $goflags -o dist/cbq-engine.lin32     $pkg
+    eval GOARCH=386           GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.lin32     $goflags $pkg
     echo "------- building cbq-engine.arm ------------"
-    eval GOARCH=arm           GOOS=linux   CGO_ENABLED=0 go build $goflags -o dist/cbq-engine.arm       $pkg
+    eval GOARCH=arm           GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.arm       $goflags $pkg
     echo "------- building cbq-engine.arm5 -----------"
-    eval GOARCH=arm   GOARM=5 GOOS=linux   CGO_ENABLED=0 go build $goflags -o dist/cbq-engine.arm5      $pkg
+    eval GOARCH=arm   GOARM=5 GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.arm5      $goflags $pkg
     echo "------- building cbq-engine.lin64 ----------"
-    eval GOARCH=amd64         GOOS=linux   CGO_ENABLED=0 go build $goflags -o dist/cbq-engine.lin64     $pkg
+    eval GOARCH=amd64         GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.lin64     $goflags $pkg
     echo "------- building cbq-engine.fbsd -----------"
-    eval GOARCH=amd64         GOOS=freebsd CGO_ENABLED=0 go build $goflags -o dist/cbq-engine.fbsd      $pkg
+    eval GOARCH=amd64         GOOS=freebsd CGO_ENABLED=0 go build -o dist/cbq-engine.fbsd      $goflags $pkg
     echo "------- building cbq-engine.win32.exe ------"
-    eval GOARCH=386           GOOS=windows               go build $goflags -o dist/cbq-engine.win32.exe $pkg
+    eval GOARCH=386           GOOS=windows               go build -o dist/cbq-engine.win32.exe $goflags $pkg
     echo "------- building cbq-engine.win64.exe ------"
-    eval GOARCH=amd64         GOOS=windows               go build $goflags -o dist/cbq-engine.win64.exe $pkg
+    eval GOARCH=amd64         GOOS=windows               go build -o dist/cbq-engine.win64.exe $goflags $pkg
     echo "------- building cbq-engine.mac ------------"
-    eval GOARCH=amd64         GOOS=darwin                go build $goflags -o dist/cbq-engine.mac       $pkg
+    eval GOARCH=amd64         GOOS=darwin                go build -o dist/cbq-engine.mac       $goflags $pkg
     }
 
 function build_client
