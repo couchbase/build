@@ -127,10 +127,10 @@ function build_engine
 
     echo "------- building cbq-engine.lin32 ----------"
     eval GOARCH=386           GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.lin32     $goflags $pkg
-    echo "------- building cbq-engine.arm ------------"
-    eval GOARCH=arm           GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.arm       $goflags $pkg
-    echo "------- building cbq-engine.arm5 -----------"
-    eval GOARCH=arm   GOARM=5 GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.arm5      $goflags $pkg
+  # echo "------- building cbq-engine.arm ------------"
+  # eval GOARCH=arm           GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.arm       $goflags $pkg
+  # echo "------- building cbq-engine.arm5 -----------"
+  # eval GOARCH=arm   GOARM=5 GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.arm5      $goflags $pkg
     echo "------- building cbq-engine.lin64 ----------"
     eval GOARCH=amd64         GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.lin64     $goflags $pkg
     echo "------- building cbq-engine.fbsd -----------"
@@ -150,8 +150,8 @@ function build_client
     goflags="-v -ldflags '-X main.VERSION ${REVISION}'"
 
     eval GOARCH=386           GOOS=linux   CGO_ENABLED=0 go build -o $DIST/cbq.lin32     $goflags $pkg
-    eval GOARCH=arm           GOOS=linux   CGO_ENABLED=0 go build -o $DIST/cbq.arm       $goflags $pkg
-    eval GOARCH=arm   GOARM=5 GOOS=linux   CGO_ENABLED=0 go build -o $DIST/cbq.arm5      $goflags $pkg
+  # eval GOARCH=arm           GOOS=linux   CGO_ENABLED=0 go build -o $DIST/cbq.arm       $goflags $pkg
+  # eval GOARCH=arm   GOARM=5 GOOS=linux   CGO_ENABLED=0 go build -o $DIST/cbq.arm5      $goflags $pkg
     eval GOARCH=amd64         GOOS=linux   CGO_ENABLED=0 go build -o $DIST/cbq.lin64     $goflags $pkg
     eval GOARCH=amd64         GOOS=freebsd CGO_ENABLED=0 go build -o $DIST/cbq.fbsd      $goflags $pkg
     eval GOARCH=386           GOOS=windows               go build -o $DIST/cbq.win32.exe $goflags $pkg
