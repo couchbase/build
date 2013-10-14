@@ -123,7 +123,7 @@ function build_engine
     {
     echo "------- starting build_engine --------------"
     pkg=${PROJECT}
-    goflags="-v -ldflags '-X \"main.VERSION ${REVISION}\"'"
+    goflags="-v -ldflags '-X main.VERSION ${REVISION}'"
 
     echo "------- building cbq-engine.lin32 ----------"
     eval GOARCH=386           GOOS=linux   CGO_ENABLED=0 go build -o dist/cbq-engine.lin32     $goflags $pkg
