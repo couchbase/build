@@ -37,9 +37,9 @@ export CGO_ENABLED=0
  CGO_ENABLED=0 GOOS=linux  GOARCH=arm GOARM=5  go tool dist install -v pkg/runtime
  CGO_ENABLED=0 GOOS=linux  GOARCH=arm GOARM=5  go install -v -a std
 
- echo ..............amd64.............freebsd
- CGO_ENABLED=0 GOOS=amd64  GOARCH=freebsd      go tool dist install -v pkg/runtime
- CGO_ENABLED=0 GOOS=amd64  GOARCH=freebsd      go install -v -a std
+ echo ..............freebsd...........amd64
+ CGO_ENABLED=0 GOOS=freebsd    GOARCH=amd64    go tool dist install -v pkg/runtime
+ CGO_ENABLED=0 GOOS=freebsd    GOARCH=amd64    go install -v -a std
 
 
 echo ......... now back
