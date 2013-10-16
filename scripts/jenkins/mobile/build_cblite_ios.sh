@@ -8,12 +8,22 @@ VERSION=1.0
 
 REVISION=${VERSION}-${BUILD_NUMBER}
 
-LOG_FILE=/Users/couchbase/jenkins/workspace/build_cblite_ios/build_ios_results.log
+LOG_FILE=${WORKSPACE}/build_ios_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
 
 ZIP_FILE=cblite_ios_${REVISION}.zip
 
-BASE_DIR=/Users/couchbase/buildbox/couchbase-lite-ios
+cd ${WORKSPACE}
+#--------------------------------------------  sync couchbase-lite-ios
+
+if [[ ! -d couchbase-lite-android ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.bit ; fi
+cd  couchbase-lite-ios
+git pull
+git submodule init
+git submodule update
+git show --stat
+
+BASE_DIR=${WORKSPACE}/couchbase-lite-ios
 BUILDDIR=${BASE_DIR}/build
 
 ZIP_PATH=${BASE_DIR}/${ZIP_FILE}
@@ -41,6 +51,9 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 export TAP_TIMEOUT=120
 
+env | grep -iv password | sort
+echo ====================================
+
 # ============================================== build
 if [[ -e ${BUILDDIR} ]] ; then rm -rf ${BUILDDIR} ; fi
 mkdir -p ${BUILDDIR}
@@ -58,8 +71,8 @@ git show --stat
 if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
 mkdir -p ${ZIP_SRCD}
 
-cp -r    ${RIO_SRCD}/*         ${RIO_DEST}
-cp -r    ${REL_SRCD}/LiteServ* ${REL_DEST}
+cp  -r   ${RIO_SRCD}/*         ${RIO_DEST}
+#cp -r   ${REL_SRCD}/LiteServ* ${REL_DEST}
 cp       ${LIB_SRCF}           ${LIB_DEST}
 cp       ${README_F}           ${RME_DEST}
 cp       ${LICENSEF}           ${LIC_DEST}
