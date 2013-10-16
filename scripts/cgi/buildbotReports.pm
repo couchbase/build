@@ -25,7 +25,7 @@ use buildbotMapping qw(:DEFAULT);
 
 #my $URL_ROOT  = buildbotQuery::get_URL_root();
 
-my $installed_URL='http://factory';
+my $installed_URL='http://factory.hq.couchbase.com';
 my $run_icon  = '<IMG SRC="' .$installed_URL. '/running_20.gif" ALT="running..." HSPACE="50" ALIGN="TOP">';
 my $done_icon = '&nbsp;';
 
