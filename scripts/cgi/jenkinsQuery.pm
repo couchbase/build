@@ -35,7 +35,7 @@ my $USERID='buildbot';
 my $PASSWD='buildbot';
 my $URL_ROOT='http://builds.hq.northscale.net:8010';
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 
 
 

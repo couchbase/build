@@ -17,7 +17,7 @@ BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
-my $installed_URL='http://factory/cgi/show_latest_build.cgi';
+my $installed_URL='http://factory.hq.couchbase.com/cgi/show_latest_build.cgi';
 
 use buildbotQuery   qw(:HTML :JSON );
 use buildbotMapping qw(:DEFAULT);
