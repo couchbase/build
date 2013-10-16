@@ -10,13 +10,12 @@ URL_ROOT=http://builds.hq.northscale.net:8010
 USERNAME='username=couchbase.build'
 USERPASS='passwd=couchbase.build.password'
 
-
 BRANCH=master
 
 if [[ ${1} ]] ; then BRANCH=$1 ; shift ; fi
 
-MFST_PRE=${DATA_DIR}/manifest.${BRANCH}.prev
-MFST_NOW=${DATA_DIR}/manifest.${BRANCH}.now
+MFST_PRE=${WORKSPACE}/manifest.${BRANCH}.prev    #  put here by 'Copy To Slave Plugin'
+MFST_NOW=${WORKSPACE}/manifest.${BRANCH}.now
 
 BUILDER=repo-couchbase-${BRANCH}-builder
 
