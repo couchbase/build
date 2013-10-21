@@ -4,6 +4,7 @@
 #          
 #          with paramter:  GITSPEC
 #          
+set -e
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
 VERSION=1.0
@@ -65,7 +66,7 @@ git submodule init
 git submodule update
 git show --stat
 
-/usr/local/bin/node buildios.js | tee ${LOG_FILE}
+/usr/local/bin/node buildios.js --iosrepo ${WORKSPACE}/couchbase-lite-ios | tee ${LOG_FILE}
 
 # ============================================== package
 if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
