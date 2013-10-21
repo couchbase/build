@@ -14,16 +14,6 @@ if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
 
 ZIP_FILE=cblite_ios_${REVISION}.zip
 
-cd ${WORKSPACE}
-#--------------------------------------------  sync couchbase-lite-ios
-
-if [[ ! -d couchbase-lite-ios ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.bit ; fi
-cd  couchbase-lite-ios
-git pull  origin  ${GITSPEC}
-git submodule init
-git submodule update
-git show --stat
-
 BASE_DIR=${WORKSPACE}/couchbase-lite-ios
 BUILDDIR=${BASE_DIR}/build
 
@@ -52,18 +42,27 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 export TAP_TIMEOUT=120
 
-env | grep -iv password | sort
+env | grep -iv password | grep -iv passwd | sort
 echo ====================================
 
-# ============================================== build
-if [[ -e ${BUILDDIR} ]] ; then rm -rf ${BUILDDIR} ; fi
-mkdir -p ${BUILDDIR}
+cd ${WORKSPACE}
+#--------------------------------------------  sync couchbase-lite-ios
 
-cd /Users/couchbase/buildbox/couchbase-lite-ios
-git pull
+if [[ ! -d couchbase-lite-ios ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.git ; fi
+cd  couchbase-lite-ios
+git pull  origin  ${GITSPEC}
+git submodule init
 git submodule update
-cd /Users/couchbase/buildbox/cblite-build
-git pull
+git show --stat
+
+cd ${WORKSPACE}
+#--------------------------------------------  sync cblite-build
+
+if [[ ! -d cblite-build ]] ; then git clone https://github.com/couchbaselabs/cblite-build.git ; fi
+cd  cblite-build
+git pull  origin  ${GITSPEC}
+git submodule init
+git submodule update
 git show --stat
 
 /usr/local/bin/node buildios.js | tee ${LOG_FILE}
