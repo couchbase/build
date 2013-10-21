@@ -2,10 +2,11 @@
 #          
 #          run by jenkins job 'build_cblite_ios'
 #          
-#          with no paramters
+#          with paramter:  GITSPEC
 #          
-VERSION=1.0
+if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
+VERSION=1.0
 REVISION=${VERSION}-${BUILD_NUMBER}
 
 LOG_FILE=${WORKSPACE}/build_ios_results.log
@@ -16,9 +17,9 @@ ZIP_FILE=cblite_ios_${REVISION}.zip
 cd ${WORKSPACE}
 #--------------------------------------------  sync couchbase-lite-ios
 
-if [[ ! -d couchbase-lite-android ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.bit ; fi
+if [[ ! -d couchbase-lite-ios ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.bit ; fi
 cd  couchbase-lite-ios
-git pull
+git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
