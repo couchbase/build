@@ -2,9 +2,11 @@
 #          
 #          run by jenkins job 'build_sync_gateway'
 #          
-#          with no paramters
-#             
+#          with paramter:  GITSPEC
+#          
 source ~jenkins/.bash_profile
+set -e
+if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
 env | grep -iv password
 echo ==============================================
@@ -23,7 +25,7 @@ echo ======== sync sync_gateway ===================
 
 if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
 cd         sync_gateway
-git pull
+git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
