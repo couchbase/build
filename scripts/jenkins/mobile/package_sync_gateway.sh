@@ -9,20 +9,21 @@
 source ~jenkins/.bash_profile
 
 UNAME_SM=`uname -sm`
-if [[ ($UNAME_SM =~ /darwin/i)  && ($UNAME_SM =~ /64/)    ]] ; then PLAT=darwin-amd64   ; EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
-if [[ ($UNAME_SM =~ /linux/i)   && ($UNAME_SM =~ /64/)    ]] ; then PLAT=linux-amd64    ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ /linux/i)   && ($UNAME_SM =~ /i386/)  ]] ; then PLAT=linux-386      ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ /linux/i)   && ($UNAME_SM =~ /i686/)  ]] ; then PLAT=linux-386      ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ /cygwin/i)  && ($UNAME_SM =~ /WOW64/) ]] ; then PLAT=windows-amd64  ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
-if [[ ($UNAME_SM =~ /cygwin/i)  && ($UNAME_SM =~ /i686/)  ]] ; then PLAT=windows-386    ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
+if [[ ($UNAME_SM =~ Darwin)  && ($UNAME_SM =~ 64)    ]] ; then PLAT=darwin-amd64   ; EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
+if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ 64)    ]] ; then PLAT=linux-amd64    ; EXEC=sync_gateway     ; fi
+if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ i386)  ]] ; then PLAT=linux-386      ; EXEC=sync_gateway     ; fi
+if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ i686)  ]] ; then PLAT=linux-386      ; EXEC=sync_gateway     ; fi
+if [[ ($UNAME_SM =~ CYGWIN)  && ($UNAME_SM =~ WOW64) ]] ; then PLAT=windows-amd64  ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
+if [[ ($UNAME_SM =~ CYGWIN)  && ($UNAME_SM =~ i686)  ]] ; then PLAT=windows-386    ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
 if [[ ! $PLAT ]] 
     then
     echo -e "\nunsupported platform:  $UNAME_SM\n"
     exit 88
 fi
+
 UNAME_A=`uname -a`
-if [[ $UNAME_A =~ /centos/i) ; then PKGR=package-rpm.rb ; fi
-if [[ $UNAME_A =~ /ubuntu/i) ; then PKGR=package-deb.rb ; fi
+if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; fi
+if [[ $UNAME_A =~ ubuntu ]] ; then PKGR=package-deb.rb ; fi
 if [[ ! $PKGR ]] 
     then
     echo -e "\nunsupported platform:  $UNAME_A\n"
