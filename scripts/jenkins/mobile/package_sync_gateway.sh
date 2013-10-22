@@ -73,7 +73,7 @@ PRODUCT_BASE=couchbase
 PRODUCT_KIND=sync-gateway
 
 cd ${BLD_DIR}
-./${PKGR} $(PREFIX) $(PRODUCT) $(PRODUCT_BASE) $(PRODUCT_KIND)
+./${PKGR} ${PREFIX} ${PRODUCT} ${PRODUCT_BASE} ${PRODUCT_KIND}
 
 echo  ======= upload ==============================
 echo ................... uploading to ${CBFS_URL}/
