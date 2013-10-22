@@ -90,14 +90,14 @@ sub html_OK_link
     return($HTML);
     }
 
-############                        html_FAIL_link ( <builder>, <build_num> )
+############                        html_FAIL_link ( <builder>, <build_num>, <is_running>, <build_date> )
 #          
 #                                   HTML of link to FAILED build results
 sub html_FAIL_link
     {
-    my ($bder, $bnum, $is_running) = @_;
+    my ($bder, $bnum, $is_running, $date) = @_;
     
-    my $HTML = '<font color="red">FAIL</font>&nbsp;&nbsp;'
+    my $HTML = '<font color="red">FAIL</font>&nbsp;&nbsp;' ."($date)". '&nbsp;&nbsp;'
               .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'" target="_blank">build logs</a>';
     
     return($HTML);
