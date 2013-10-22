@@ -43,11 +43,11 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 export TAP_TIMEOUT=120
 
+echo ============================================
 env | grep -iv password | grep -iv passwd | sort
-echo ====================================
 
 cd ${WORKSPACE}
-#--------------------------------------------  sync couchbase-lite-ios
+echo ============================================  sync couchbase-lite-ios
 
 if [[ ! -d couchbase-lite-ios ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.git ; fi
 cd  couchbase-lite-ios
@@ -57,7 +57,7 @@ git submodule update
 git show --stat
 
 cd ${WORKSPACE}
-#--------------------------------------------  sync cblite-build
+echo ============================================  sync cblite-build
 
 if [[ ! -d cblite-build ]] ; then git clone https://github.com/couchbaselabs/cblite-build.git ; fi
 cd  cblite-build
@@ -68,7 +68,7 @@ git show --stat
 
 /usr/local/bin/node buildios.js --iosrepo ${WORKSPACE}/couchbase-lite-ios | tee ${LOG_FILE}
 
-# ============================================== package
+echo  ============================================== package ${ZIP_FILE}
 if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
 mkdir -p ${ZIP_SRCD}
 
@@ -88,8 +88,8 @@ rm -rf CouchbaseLiteListener.framework.dSYM
 cd       ${ZIP_SRCD}
 zip -r   ${ZIP_PATH} *
 
-# ============================================== upload
+echo  ============================================== upload ${CBFS_URL}/${ZIP_FILE}
 curl -XPUT --data-binary @${ZIP_PATH} ${CBFS_URL}/${ZIP_FILE}
 
-# ============================================== test
+echo  ============================================== test
 
