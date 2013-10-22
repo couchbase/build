@@ -144,7 +144,7 @@ elsif ($bldstatus)
         elsif ($test_job_status && $test_job_status =~ /SUCCESS/i)
             {
             $made_color = $good_color;
-            $running   .= '<a href="'.$test_job_url.'">'.$test_job_num.'</a>';
+            $running   .= 'test&nbsp;<a href="'.$test_job_url.'">'.$test_job_num.'</a>&nbsp;passed';
             }
         else
             {
