@@ -57,7 +57,7 @@ echo ======== build ===============================
 mkdir -p ${PREFIXD}/bin/
 mkdir -p ${DWNLOAD}
 cd       ${DWNLOAD}
-wget -o ${ZIP_FILE}  ${CBFS_URL}/${ZIP_FILE}
+wget --no-verbose --output-document=${ZIP_FILE}  ${CBFS_URL}/${ZIP_FILE}
 unzip   ${ZIP_FILE}
 
 cp ${PLAT}/${EXEC}         ${PREFIXD}/bin/
