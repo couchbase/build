@@ -40,6 +40,7 @@ SGW_DIR=${WORKSPACE}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
 DWNLOAD=${BLD_DIR}/download
 PREFIXD=${BLD_DIR}/opt-couchbase-sync-gateway
+PREFIX=/opt/couchbase-sync-gateway
 
 cd ${WORKSPACE}
 echo ======== sync sync_gateway ===================
@@ -67,13 +68,9 @@ cp ${BLD_DIR}/README.txt   ${PREFIXD}
 echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 
 echo ======== package =============================
-PREFIX=/opt/couchbase-sync-gateway
-PRODUCT=couchbase-sync-gateway
-PRODUCT_BASE=couchbase
-PRODUCT_KIND=sync-gateway
 
 cd ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PRODUCT} ${PRODUCT_BASE} ${PRODUCT_KIND}  ${REVISION}
+./${PKGR} ${PREFIX} ${PREFIXD} ${REVISION}
 
 echo  ======= upload ==============================
 echo ................... uploading to ${CBFS_URL}/
