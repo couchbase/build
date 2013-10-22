@@ -51,7 +51,8 @@ git submodule init
 git submodule update
 git show --stat
 
-if [[ -e ${BLD_DIR} ]] ; then rm -rf ${BLD_DIR} ; fi
+if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
+if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
 echo ======== build ===============================
 
 mkdir -p ${PREFIXD}/bin/
