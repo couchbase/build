@@ -1,0 +1,11 @@
+
+  From a dropbox URL that was mentioned in the error message when built without:
+
+      https://dl.dropboxusercontent.com/u/14074521/JavaScriptCore.framework.zip
+
+  These files are identical to the framework installed on the build node under:
+
+      /Users/couchbase/buildbox/couchbase-lite-ios/vendor
+
+  on the build node macsvr-108-01 ( 10.6.0.131 ).
+
