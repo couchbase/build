@@ -21,8 +21,8 @@ SGW_DIR=${WORKSPACE}/sync_gateway
 cd ${WORKSPACE}
 echo ======== sync sync_gateway ===================
 
-if [[ ! -d couchbase-lite-android ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
-cd  sync_gateway
+if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
+cd         sync_gateway
 git pull
 git submodule init
 git submodule update
