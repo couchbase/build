@@ -97,8 +97,7 @@ sub html_FAIL_link
     {
     my ($bder, $bnum, $is_running) = @_;
     
-    my $HTML = '<font color="red">FAIL</font><BR>'
-              .'<PRE>...tail of log of last build step...</PRE>'
+    my $HTML = '<font color="red">FAIL</font>&nbsp;&nbsp;'
               .'<a href="'.$URL_ROOT.'/builders/'.$bder.'/builds/'.$bnum.'" target="_blank">build logs</a>';
     
     return($HTML);
