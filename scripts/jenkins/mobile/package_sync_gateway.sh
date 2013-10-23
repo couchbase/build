@@ -22,6 +22,7 @@ if [[ ! $OS ]]
     exit 88
 fi
 PLAT=${OS}-${ARCH}
+PLATFORM=`uname -s`-`uname -m`
 
 UNAME_A=`uname -a`
 if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm ; fi
@@ -54,7 +55,7 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
-REPO_SHA=`git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
+#REPO_SHA=`git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
 
 if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
@@ -74,7 +75,7 @@ echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 echo ======== package =============================
 
 cd ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXD} ${REVISION} ${REPO_SHA}
+./${PKGR} ${PREFIX} ${PREFIXD} ${REVISION} ${PLATFORM}
 
 cp ${BLD_DIR}/build/deb/${PKG_NAME}  ${SGW_DIR}
 cd ${SGW_DIR}
