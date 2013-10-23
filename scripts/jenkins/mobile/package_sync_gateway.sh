@@ -2,11 +2,12 @@
 #          
 #          run by jenkins job 'build_sync_gateway'
 #          
-#          with paramter:
-#              
-#              REVISION
+#          with paramter:  REVISION
 #             
 source ~jenkins/.bash_profile
+set -e
+
+if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
 UNAME_SM=`uname -sm`
 if [[ ($UNAME_SM =~ Darwin)  && ($UNAME_SM =~ 64)    ]] ; then OS=darwin  ; ARCH=amd64 ; EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
@@ -49,10 +50,11 @@ echo ======== sync sync_gateway ===================
 
 if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
 cd         sync_gateway
-git pull
+git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
+REPO_SHA=`git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
 
 if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
@@ -72,7 +74,7 @@ echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 echo ======== package =============================
 
 cd ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXD} ${REVISION}
+./${PKGR} ${PREFIX} ${PREFIXD} ${REVISION} ${REPO_SHA}
 
 cp ${BLD_DIR}/build/deb/${PKG_NAME}  ${SGW_DIR}
 cd ${SGW_DIR}

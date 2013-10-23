@@ -4,8 +4,13 @@
 #          
 #          with paramter:  GITSPEC
 #          
+source ~jenkins/.bash_profile
 set -e
+
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
+
+env | grep -iv password | grep -iv passwd | sort -u
+echo ==============================================
 
 VERSION=1.0
 REVISION=${VERSION}-${BUILD_NUMBER}
