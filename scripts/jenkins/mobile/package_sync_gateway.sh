@@ -9,26 +9,28 @@
 source ~jenkins/.bash_profile
 
 UNAME_SM=`uname -sm`
-if [[ ($UNAME_SM =~ Darwin)  && ($UNAME_SM =~ 64)    ]] ; then PLAT=darwin-amd64   ; EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
-if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ 64)    ]] ; then PLAT=linux-amd64    ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ i386)  ]] ; then PLAT=linux-386      ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ i686)  ]] ; then PLAT=linux-386      ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ CYGWIN)  && ($UNAME_SM =~ WOW64) ]] ; then PLAT=windows-amd64  ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
-if [[ ($UNAME_SM =~ CYGWIN)  && ($UNAME_SM =~ i686)  ]] ; then PLAT=windows-386    ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
-if [[ ! $PLAT ]] 
+if [[ ($UNAME_SM =~ Darwin)  && ($UNAME_SM =~ 64)    ]] ; then OS=darwin  ; ARCH=amd64 ; EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
+if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ 64)    ]] ; then OS=linux   ; ARCH=amd64 ; EXEC=sync_gateway     ; fi
+if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ i386)  ]] ; then OS=linux   ; ARCH=386   ; EXEC=sync_gateway     ; fi
+if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ i686)  ]] ; then OS=linux   ; ARCH=386   ; EXEC=sync_gateway     ; fi
+if [[ ($UNAME_SM =~ CYGWIN)  && ($UNAME_SM =~ WOW64) ]] ; then OS=windows ; ARCH=amd64 ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
+if [[ ($UNAME_SM =~ CYGWIN)  && ($UNAME_SM =~ i686)  ]] ; then OS=windows ; ARCH=386   ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
+if [[ ! $OS ]] 
     then
     echo -e "\nunsupported platform:  $UNAME_SM\n"
     exit 88
 fi
+PLAT=${OS}-${ARCH}
 
 UNAME_A=`uname -a`
-if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; fi
-if [[ $UNAME_A =~ ubuntu ]] ; then PKGR=package-deb.rb ; fi
+if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm ; fi
+if [[ $UNAME_A =~ ubuntu ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb ; fi
 if [[ ! $PKGR ]] 
     then
     echo -e "\nunsupported platform:  $UNAME_A\n"
     exit 99
 fi
+PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCH}.${PKGTYPE}
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ==============================================
@@ -72,7 +74,10 @@ echo ======== package =============================
 cd ${BLD_DIR}
 ./${PKGR} ${PREFIX} ${PREFIXD} ${REVISION}
 
+cp ${BLD_DIR}/build/deb/${PKG_NAME}  ${SGW_DIR}
+cd ${SGW_DIR}
+
 echo  ======= upload ==============================
-echo ................... uploading to ${CBFS_URL}/
-#curl -XPUT --data-binary @${ZIP_FILE} ${CBFS_URL}/${ZIP_FILE}
+echo ................... uploading to ${CBFS_URL}/${PKG_NAME}
+curl -XPUT --data-binary @${PKG_NAME} ${CBFS_URL}/${PKG_NAME}
 
