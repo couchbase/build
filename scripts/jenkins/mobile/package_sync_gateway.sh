@@ -1,8 +1,14 @@
 #!/bin/bash
 #          
-#          run by jenkins job 'build_sync_gateway'
+#          run by jenkins job 'package_sync_gateway'
 #          
-#          with paramter:  REVISION
+#          with required paramters:
+#         
+#             REVISION  -- build number (e.g. 1.0-280) whose artifacts are to be packaged
+#             
+#             GITSPEC   -- sync_gateway revision that triggered that build.  can use:
+#             
+#                          `git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
 #             
 source ~jenkins/.bash_profile
 set -e
@@ -43,7 +49,7 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 SGW_DIR=${WORKSPACE}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
 DWNLOAD=${BLD_DIR}/download
-PREFIXD=${BLD_DIR}/opt-couchbase-sync-gateway
+PREFIXD=${BLD_DIR}/opt/couchbase-sync-gateway
 PREFIX=/opt/couchbase-sync-gateway
 
 cd ${WORKSPACE}
@@ -55,7 +61,6 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
-#REPO_SHA=`git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
 
 if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
