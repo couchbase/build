@@ -56,6 +56,7 @@ PREFIXP=./opt/couchbase-sync-gateway
 
 cd ${WORKSPACE}
 echo ======== sync sync_gateway ===================
+echo ======== to ${GITSPEC}
 
 if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
 cd         sync_gateway
@@ -80,8 +81,8 @@ cp ${BLD_DIR}/README.txt   ${PREFIXD}
 echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 
 echo ======== package =============================
-
-cd ${BLD_DIR}
+echo ${BLD_DIR}' => './${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM}
+cd   ${BLD_DIR}
 ./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM}
 
 cp ${BLD_DIR}/build/deb/${PKG_NAME}  ${SGW_DIR}
