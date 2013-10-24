@@ -49,7 +49,8 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 SGW_DIR=${WORKSPACE}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
 DWNLOAD=${BLD_DIR}/download
-PREFIXD=${BLD_DIR}/opt/couchbase-sync-gateway
+
+PREFIXD=./opt/couchbase-sync-gateway
 PREFIX=/opt/couchbase-sync-gateway
 
 cd ${WORKSPACE}
