@@ -50,8 +50,9 @@ SGW_DIR=${WORKSPACE}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
 DWNLOAD=${BLD_DIR}/download
 
-PREFIXD=./opt/couchbase-sync-gateway
+PREFIXD=${BLD_DIR}/opt/couchbase-sync-gateway
 PREFIX=/opt/couchbase-sync-gateway
+PREFIXP=./opt/couchbase-sync-gateway
 
 cd ${WORKSPACE}
 echo ======== sync sync_gateway ===================
@@ -67,7 +68,7 @@ if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
 echo ======== build ===============================
 
-mkdir -p ${BLD_DIR}/${PREFIXD}/bin/
+mkdir -p ${PREFIXD}/bin/
 mkdir -p ${DWNLOAD}
 cd       ${DWNLOAD}
 wget --no-verbose --output-document=${ZIP_FILE}  ${CBFS_URL}/${ZIP_FILE}
@@ -81,7 +82,7 @@ echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 echo ======== package =============================
 
 cd ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXD} ${REVISION} ${PLATFORM}
+./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM}
 
 cp ${BLD_DIR}/build/deb/${PKG_NAME}  ${SGW_DIR}
 cd ${SGW_DIR}
