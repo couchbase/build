@@ -67,8 +67,7 @@ if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
 echo ======== build ===============================
 
-mkdir -p ${BLD_DIR}
-mkdir -p ${PREFIXD}/bin/
+mkdir -p ${BLD_DIR}/${PREFIXD}/bin/
 mkdir -p ${DWNLOAD}
 cd       ${DWNLOAD}
 wget --no-verbose --output-document=${ZIP_FILE}  ${CBFS_URL}/${ZIP_FILE}
