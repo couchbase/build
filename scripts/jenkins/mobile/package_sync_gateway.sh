@@ -15,20 +15,27 @@ set -e
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
-UNAME_SM=`uname -sm`
-if [[ ($UNAME_SM =~ Darwin)  && ($UNAME_SM =~ 64)    ]] ; then OS=darwin  ; ARCH=amd64 ; EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
-if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ 64)    ]] ; then OS=linux   ; ARCH=amd64 ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ i386)  ]] ; then OS=linux   ; ARCH=386   ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ Linux)   && ($UNAME_SM =~ i686)  ]] ; then OS=linux   ; ARCH=386   ; EXEC=sync_gateway     ; fi
-if [[ ($UNAME_SM =~ CYGWIN)  && ($UNAME_SM =~ WOW64) ]] ; then OS=windows ; ARCH=amd64 ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
-if [[ ($UNAME_SM =~ CYGWIN)  && ($UNAME_SM =~ i686)  ]] ; then OS=windows ; ARCH=386   ; EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
-if [[ ! $OS ]] 
+OS=`uname -s`
+if [[ ($OS =~ Linux)  ]] ; then GOOS=linux   ; fi
+if [[ ($OS =~ Darwin) ]] ; then GOOS=darwin  ; fi
+if [[ ($OS =~ CYGWIN) ]] ; then GOOS=windows ; fi
+if [[ ! $GOOS ]] 
     then
-    echo -e "\nunsupported platform:  $UNAME_SM\n"
+    echo -e "\nunsupported operating system:  $OS\n"
+    exit 99
+fi
+ARCH=`uname -m`
+if [[ $ARCH =~ 386) ]] ; then GOARCH=386   ; fi
+if [[ $ARCH =~ 686) ]] ; then GOARCH=386   ; fi
+if [[ $ARCH =~ 64)  ]] ; then GOARCH=amd64 ; fi
+if [[ ! $GOARCH ]] 
+    then
+    echo -e "\nunsupported architecture:  $ARCH\n"
     exit 88
 fi
-PLAT=${OS}-${ARCH}
-PLATFORM=`uname -s`-`uname -m`
+if [[ $GOOS =~ linux   ]] ; then EXEC=sync_gateway     ;                       fi
+if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
+if [[ $GOOS =~ windows ]] ; then EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
 
 UNAME_A=`uname -a`
 if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm ; fi
@@ -38,6 +45,10 @@ if [[ ! $PKGR ]]
     echo -e "\nunsupported platform:  $UNAME_A\n"
     exit 99
 fi
+
+PLAT=${OS}-${GOARCH}
+PLATFORM=${OS}-${ARCH}
+
 PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCH}.${PKGTYPE}
 
 env | grep -iv password | grep -iv passwd | sort -u
