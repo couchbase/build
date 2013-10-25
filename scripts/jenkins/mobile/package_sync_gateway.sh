@@ -16,18 +16,18 @@ set -e
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
 OS=`uname -s`
-if [[ ($OS =~ Linux)  ]] ; then GOOS=linux   ; fi
-if [[ ($OS =~ Darwin) ]] ; then GOOS=darwin  ; fi
-if [[ ($OS =~ CYGWIN) ]] ; then GOOS=windows ; fi
+if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; fi
+if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; fi
+if [[ $OS =~ CYGWIN ]] ; then GOOS=windows ; fi
 if [[ ! $GOOS ]] 
     then
     echo -e "\nunsupported operating system:  $OS\n"
     exit 99
 fi
 ARCH=`uname -m`
-if [[ $ARCH =~ 386) ]] ; then GOARCH=386   ; fi
-if [[ $ARCH =~ 686) ]] ; then GOARCH=386   ; fi
-if [[ $ARCH =~ 64)  ]] ; then GOARCH=amd64 ; fi
+if [[ $ARCH =~ 386 ]] ; then GOARCH=386   ; fi
+if [[ $ARCH =~ 686 ]] ; then GOARCH=386   ; fi
+if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64 ; fi
 if [[ ! $GOARCH ]] 
     then
     echo -e "\nunsupported architecture:  $ARCH\n"
