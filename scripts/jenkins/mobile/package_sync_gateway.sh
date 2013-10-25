@@ -46,7 +46,7 @@ if [[ ! $PKGR ]]
     exit 99
 fi
 
-PLAT=${OS}-${GOARCH}
+GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
 
 PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCH}.${PKGTYPE}
@@ -86,7 +86,7 @@ cd       ${DWNLOAD}
 wget --no-verbose --output-document=${ZIP_FILE}  ${CBFS_URL}/${ZIP_FILE}
 unzip   ${ZIP_FILE}
 
-cp ${PLAT}/${EXEC}         ${PREFIXD}/bin/
+cp ${GOPLAT}/${EXEC}       ${PREFIXD}/bin/
 cp ${BLD_DIR}/LICENSE.txt  ${PREFIXD}
 cp ${BLD_DIR}/README.txt   ${PREFIXD}
 echo ${REVISION}         > ${PREFIXD}/VERSION.txt
