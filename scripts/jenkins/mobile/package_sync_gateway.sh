@@ -1,6 +1,6 @@
 #!/bin/bash
 #          
-#          run by jenkins job 'package_sync_gateway'
+#          run by jenkins jobs: package_sync_gateway_<platform>
 #          
 #          with required paramters:
 #         
@@ -83,6 +83,7 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
+REPO_SHA=`git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
 
 if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
@@ -100,9 +101,9 @@ cp ${BLD_DIR}/README.txt   ${PREFIXD}
 echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 
 echo ======== package =============================
-echo ${BLD_DIR}' => './${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM} ${ARCHP}
+echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${GITSPEC} ${PLATFORM} ${ARCHP}
+./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 
 echo  ======= upload ==============================
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}
