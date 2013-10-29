@@ -26,13 +26,9 @@ if [[ ! $GOOS ]]
 fi
 ARCH=`uname -m`
 ARCHP=${ARCH}
-if [[ $ARCH =~ 86  ]] ; then GOARCH=386   ; fi
-if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64 ; fi
-if [[ ! $GOARCH ]] 
-    then
-    echo -e "\nunsupported architecture:  $ARCH\n"
-    exit 88
-fi
+if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
+                        else GOARCH=386   ; fi
+
 if [[ $GOOS =~ linux   ]] ; then EXEC=sync_gateway     ;                       fi
 if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
 if [[ $GOOS =~ windows ]] ; then EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
@@ -42,8 +38,8 @@ if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
     if [[ $ARCH =~ i686  ]] ; then ARCH=i386  ; fi
 fi
 if [[ $UNAME_A =~ ubuntu ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
-    if [[ $ARCHP =~ 86    ]] ; then ARCHP=i386  ; fi
-    if [[ $ARCHP =~ 64    ]] ; then ARCHP=amd64 ; fi
+    if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
+                              else ARCHP=i386  ; fi
  fi
 if [[ ! $PKGR ]] 
     then
