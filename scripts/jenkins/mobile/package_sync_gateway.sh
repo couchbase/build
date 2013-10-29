@@ -50,7 +50,7 @@ fi
 GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
 
-PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCH}.${PKGTYPE}
+PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCHP}.${PKGTYPE}
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ==============================================
