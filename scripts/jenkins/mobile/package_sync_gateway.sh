@@ -25,7 +25,6 @@ if [[ ! $GOOS ]]
     exit 99
 fi
 ARCH=`uname -m`
-if [[ $ARCH =~ i686 ]] ; then   ARCH=i386  ; fi
 if [[ $ARCH =~ 386  ]] ; then GOARCH=386   ; fi
 if [[ $ARCH =~ 64   ]] ; then GOARCH=amd64 ; fi
 if [[ ! $GOARCH ]] 
@@ -38,9 +37,12 @@ if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; f
 if [[ $GOOS =~ windows ]] ; then EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
 
 UNAME_A=`uname -a`
-if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm ; fi
+if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
+    if [[ $ARCH =~ i686  ]] ; then ARCH=i386  ; fi
+fi
 if [[ $UNAME_A =~ ubuntu ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
-      if [[ $ARCH =~ 64  ]] ; then  ARCH=amd64 ; fi                  ; fi
+    if [[ $ARCH =~ 64    ]] ; then ARCH=amd64 ; fi
+ fi
 if [[ ! $PKGR ]] 
     then
     echo -e "\nunsupported platform:  $UNAME_A\n"
