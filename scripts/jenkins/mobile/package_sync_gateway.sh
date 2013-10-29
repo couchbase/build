@@ -42,7 +42,8 @@ if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
     if [[ $ARCH =~ i686  ]] ; then ARCH=i386  ; fi
 fi
 if [[ $UNAME_A =~ ubuntu ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
-    if [[ $ARCH =~ 64    ]] ; then ARCH=amd64 ; fi
+    if [[ $ARCHP =~ 86    ]] ; then ARCHP=i386  ; fi
+    if [[ $ARCHP =~ 64    ]] ; then ARCHP=amd64 ; fi
  fi
 if [[ ! $PKGR ]] 
     then
