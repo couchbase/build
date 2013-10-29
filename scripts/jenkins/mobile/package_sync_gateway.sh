@@ -103,9 +103,8 @@ echo ${BLD_DIR}' => './${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM}
 cd   ${BLD_DIR}
 ./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${GITSPEC} ${PLATFORM}
 
-cp ${BLD_DIR}/build/deb/${PKG_NAME}  ${SGW_DIR}
-cd ${SGW_DIR}
-
+cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}
+cd                        ${SGW_DIR}
 echo  ======= upload ==============================
 echo ................... uploading to ${CBFS_URL}/${PKG_NAME}
 curl -XPUT --data-binary @${PKG_NAME} ${CBFS_URL}/${PKG_NAME}
