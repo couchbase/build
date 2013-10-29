@@ -25,6 +25,7 @@ if [[ ! $GOOS ]]
     exit 99
 fi
 ARCH=`uname -m`
+ARCHP=${ARCH}
 if [[ $ARCH =~ 86  ]] ; then GOARCH=386   ; fi
 if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64 ; fi
 if [[ ! $GOARCH ]] 
@@ -101,9 +102,9 @@ cp ${BLD_DIR}/README.txt   ${PREFIXD}
 echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 
 echo ======== package =============================
-echo ${BLD_DIR}' => './${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM} ${ARCH}
+echo ${BLD_DIR}' => './${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${GITSPEC} ${PLATFORM} ${ARCH}
+./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${GITSPEC} ${PLATFORM} ${ARCHP}
 
 echo  ======= upload ==============================
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}
