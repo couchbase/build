@@ -25,7 +25,6 @@ if [[ ! $GOOS ]]
     exit 99
 fi
 ARCH=`uname -m`
-ARCHP=${ARCH}
 if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
                         else GOARCH=386   ; fi
 
@@ -37,6 +36,8 @@ UNAME_A=`uname -a`
 if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
     if [[ $ARCH =~ i686  ]] ; then ARCH=i386  ; fi
 fi
+
+ARCHP=${ARCH}
 if [[ $UNAME_A =~ ubuntu ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
                               else ARCHP=i386  ; fi
