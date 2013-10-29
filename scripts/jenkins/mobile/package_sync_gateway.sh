@@ -99,9 +99,9 @@ cp ${BLD_DIR}/README.txt   ${PREFIXD}
 echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 
 echo ======== package =============================
-echo ${BLD_DIR}' => './${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM}
+echo ${BLD_DIR}' => './${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM} ${ARCH}
 cd   ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${GITSPEC} ${PLATFORM}
+./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${GITSPEC} ${PLATFORM} ${ARCH}
 
 echo  ======= upload ==============================
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}
