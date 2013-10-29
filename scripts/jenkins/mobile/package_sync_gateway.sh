@@ -65,6 +65,12 @@ DWNLOAD=${BLD_DIR}/download
 PREFIXD=${BLD_DIR}/opt/couchbase-sync-gateway
 PREFIX=/opt/couchbase-sync-gateway
 PREFIXP=./opt/couchbase-sync-gateway
+                                                #  needed by ~/.rpmmacros 
+                                                #  called by package-rpm.rb
+                                                #
+RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-sync-gateway_${REVISION}/rpmbuild/
+export RPM_ROOT_DIR
+
 
 cd ${WORKSPACE}
 echo ======== sync sync_gateway ===================
