@@ -95,7 +95,7 @@ echo ${REVISION}         > ${PREFIXD}/VERSION.txt
 echo ======== package =============================
 echo ${BLD_DIR}' => './${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM}
 cd   ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${PLATFORM}
+./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${GITSPEC} ${PLATFORM}
 
 cp ${BLD_DIR}/build/deb/${PKG_NAME}  ${SGW_DIR}
 cd ${SGW_DIR}
