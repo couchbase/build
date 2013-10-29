@@ -25,8 +25,8 @@ if [[ ! $GOOS ]]
     exit 99
 fi
 ARCH=`uname -m`
-if [[ $ARCH =~ 386  ]] ; then GOARCH=386   ; fi
-if [[ $ARCH =~ 64   ]] ; then GOARCH=amd64 ; fi
+if [[ $ARCH =~ 86  ]] ; then GOARCH=386   ; fi
+if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64 ; fi
 if [[ ! $GOARCH ]] 
     then
     echo -e "\nunsupported architecture:  $ARCH\n"
