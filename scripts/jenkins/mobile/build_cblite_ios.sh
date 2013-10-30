@@ -1,13 +1,19 @@
 #!/bin/bash
 #          
-#          run by jenkins job 'build_cblite_ios'
+#          run by jenkins jobs 'build_cblite_ios_master', 'build_cblite_ios_stable'
 #          
-#          with paramter:  GITSPEC
+#          with paramter:  branch_name
 #          
 source ~jenkins/.bash_profile
 set -e
 
-if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
+function usage
+    {
+    echo -e "\nuse:  ${0}   branch_name\n\n"
+    }
+if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+
+GITSPEC=${1}
 
 VERSION=1.0
 REVISION=${VERSION}-${BUILD_NUMBER}
