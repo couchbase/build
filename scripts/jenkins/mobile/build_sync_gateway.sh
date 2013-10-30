@@ -2,20 +2,30 @@
 #          
 #          run by jenkins job 'build_sync_gateway'
 #          
-#          with paramter:  GITSPEC
+#          with paramters:  branch_name  release number
+#          
+#                 e.g.:     master         0.0
+#                 e.g.:     stable         1.0
+#          
 #          
 source ~jenkins/.bash_profile
 set -e
 
-if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
+function usage
+    {
+    echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
+    }
+if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+GITSPEC=${1}
+
+if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+VERSION=${2}
+REVISION=${VERSION}-${BUILD_NUMBER}
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ==============================================
 
-VERSION=1.0
-REVISION=${VERSION}-${BUILD_NUMBER}
-
-ZIP_FILE=sync_gateway_${REVISION}.zip
+ZIP_FILE=sync_gateway_${GITSPEC}_${REVISION}.zip
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 BLD_DIR=${WORKSPACE}/build

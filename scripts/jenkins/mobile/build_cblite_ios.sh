@@ -2,20 +2,23 @@
 #          
 #          run by jenkins jobs 'build_cblite_ios_master', 'build_cblite_ios_stable'
 #          
-#          with paramter:  branch_name
+#          with paramters:  branch_name  release number
+#          
+#                 e.g.:     master         0.0
+#                 e.g.:     stable         1.0
 #          
 source ~jenkins/.bash_profile
 set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name\n\n"
+    echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-
 GITSPEC=${1}
 
-VERSION=1.0
+if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
 
 LOG_FILE=${WORKSPACE}/build_ios_results.log
