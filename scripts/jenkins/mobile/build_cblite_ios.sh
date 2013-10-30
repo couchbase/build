@@ -67,15 +67,13 @@ git submodule update
 git show --stat
 
 cd ${WORKSPACE}
-GITPSEC=master
-echo setting GITSPEC to ${GITPSEC}
 echo ============================================  sync cblite-build
-echo ============================================  to ${GITSPEC}
+echo ============================================  to master
 
 if [[ ! -d cblite-build ]] ; then git clone https://github.com/couchbaselabs/cblite-build.git ; fi
 cd  cblite-build
-git checkout      ${GITSPEC}
-git pull  origin  ${GITSPEC}
+git checkout      master
+git pull  origin  master
 git submodule init
 git submodule update
 git show --stat
