@@ -67,8 +67,8 @@ git submodule update
 git show --stat
 
 cd ${WORKSPACE}
-echo setting GITSPEC to master
 GITPSEC=master
+echo setting GITSPEC to ${GITPSEC}
 echo ============================================  sync cblite-build
 echo ============================================  to ${GITSPEC}
 
