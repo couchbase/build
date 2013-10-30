@@ -6,9 +6,7 @@
 #         
 #             REVISION  -- build number (e.g. 1.0-280) whose artifacts are to be packaged
 #             
-#             GITSPEC   -- sync_gateway revision that triggered that build.  can use:
-#             
-#                          `git log --oneline --pretty="format:%H" -1`
+#             GITSPEC   -- sync_gateway branch to sync to
 #             
 source ~jenkins/.bash_profile
 set -e
