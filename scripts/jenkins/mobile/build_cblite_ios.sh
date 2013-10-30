@@ -9,16 +9,13 @@ set -e
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
-env | grep -iv password | grep -iv passwd | sort -u
-echo ==============================================
-
 VERSION=1.0
 REVISION=${VERSION}-${BUILD_NUMBER}
 
 LOG_FILE=${WORKSPACE}/build_ios_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
 
-ZIP_FILE=cblite_ios_${REVISION}.zip
+ZIP_FILE=cblite_ios_${GITSPEC}_${REVISION}.zip
 
 BASE_DIR=${WORKSPACE}/couchbase-lite-ios
 BUILDDIR=${BASE_DIR}/build
@@ -53,6 +50,7 @@ env | grep -iv password | grep -iv passwd | sort
 
 cd ${WORKSPACE}
 echo ============================================  sync couchbase-lite-ios
+echo ============================================  to ${GITSPEC}
 
 if [[ ! -d couchbase-lite-ios ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.git ; fi
 cd  couchbase-lite-ios
