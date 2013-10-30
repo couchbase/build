@@ -24,7 +24,7 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 LOG_FILE=${WORKSPACE}/build_ios_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
 
-ZIP_FILE=cblite_ios_${GITSPEC}_${REVISION}.zip
+ZIP_FILE=cblite_ios_${REVISION}.zip
 
 BASE_DIR=${WORKSPACE}/couchbase-lite-ios
 BUILDDIR=${BASE_DIR}/build

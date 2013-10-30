@@ -25,7 +25,7 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 env | grep -iv password | grep -iv passwd | sort -u
 echo ==============================================
 
-ZIP_FILE=sync_gateway_${GITSPEC}_${REVISION}.zip
+ZIP_FILE=sync_gateway_${REVISION}.zip
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 BLD_DIR=${WORKSPACE}/build
