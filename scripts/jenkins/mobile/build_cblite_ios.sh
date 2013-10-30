@@ -54,6 +54,7 @@ echo ============================================  to ${GITSPEC}
 
 if [[ ! -d couchbase-lite-ios ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.git ; fi
 cd  couchbase-lite-ios
+git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
@@ -67,6 +68,7 @@ echo ============================================  to ${GITSPEC}
 
 if [[ ! -d cblite-build ]] ; then git clone https://github.com/couchbaselabs/cblite-build.git ; fi
 cd  cblite-build
+git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
