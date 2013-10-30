@@ -13,18 +13,36 @@
 #             UPLOAD_PASSWORD
 #          
 #                UPLOAD_USERNAME, UPLOAD_PASSWORD set in build slave >> couchbaselite-mobile-testing <<
+#          
+#          called with paramter:  branch_name
+#          
+source ~jenkins/.bash_profile
+export DISPLAY=:0
+set -e
 
-source ~/.bash_profile
+function usage
+    {
+    echo -e "\nuse:  ${0}   branch_name\n\n"
+    }
+if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+GITSPEC=${1}
 
-cd ${WORKSPACE}                    ; echo ====================================
-#--------------------------------------------  sync couchbase-lite-android
+echo ============================================
+env | grep -iv password | grep -iv passwd | sort
+
+cd ${WORKSPACE}
+echo ============================================  sync couchbase-lite-android
+echo ============================================  to ${GITSPEC}
 
 if [[ ! -d couchbase-lite-android ]] ; then git clone https://github.com/couchbase/couchbase-lite-android.git ; fi
 cd couchbase-lite-android
+git checkout      ${GITSPEC}
+git pull  origin  ${GITSPEC}
 git pull
 git submodule init
 git submodule update
-git show --stat                    ; echo ====================================
+git show --stat
+echo ============================================
 
 
 if [[ ${UPLOAD_ARTIFACTS} == true ]]
@@ -36,8 +54,9 @@ if [[ ${UPLOAD_ARTIFACTS} == true ]]
     export UPLOAD_USERNAME=${UPLOAD_USERNAME}
     export UPLOAD_PASSWORD=${UPLOAD_PASSWORD}
     #source /Users/couchbase/mavencreds 
-
-    env | grep -iv password | sort ; echo ====================================
+    echo ============================================
+    env | grep -iv password | grep -iv passwd | sort
+    echo ============================================
     
     cd ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject
 
