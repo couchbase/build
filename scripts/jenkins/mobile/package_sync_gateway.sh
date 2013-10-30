@@ -8,7 +8,7 @@
 #             
 #             GITSPEC   -- sync_gateway revision that triggered that build.  can use:
 #             
-#                          `git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
+#                          `git log --oneline --pretty="format:%H"`
 #             
 source ~jenkins/.bash_profile
 set -e
@@ -83,7 +83,7 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
-REPO_SHA=`git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
+REPO_SHA=`git log --oneline --pretty="format:%H"`
 
 if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
