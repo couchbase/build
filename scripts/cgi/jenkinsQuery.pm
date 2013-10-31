@@ -12,9 +12,10 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( test_running_indicator response_code test_job_status trigger_jenkins_url );
+our @EXPORT_OK   = qw( test_running_indicator response_code test_job_status get_json );
 
-our %EXPORT_TAGS = ( DEFALUT  => [qw( &test_running_indicator &response_code &test_job_status &trigger_jenkins_url )] );
+our %EXPORT_TAGS = ( DEFAULT  => [qw( &test_running_indicator &response_code &test_job_status )],
+                     BLDBOTQ  => [qw( &get_json                                                                    )] );
 
 ############ 
 
@@ -33,9 +34,35 @@ my $json = JSON->new;
 
 my $USERID='buildbot';
 my $PASSWD='buildbot';
-my $URL_ROOT='http://builds.hq.northscale.net:8010';
+my $URL_ROOT='http://factory.hq.couchbase.com:8080';
 
-my $DEBUG = 0;
+my $DEBUG = 1;
+
+############                        get_json ( $builder  = "build_sync_gateway_$branch"; )
+#          
+#           
+#
+sub get_json
+    {
+    my ($bldr, $optpath) = @_;    
+    my $returnref;
+    
+    my $request  = $URL_ROOT .'/job/'. $bldr .'/api/json';
+    if (defined $optpath)  { $request .= $optpath;  }
+    if ($DEBUG)  { print STDERR "\nrequest: $request\n\n"; }
+    my $response = $ua->get($request);
+    if ($DEBUG)  { print STDERR "respons: $response\n\n";  }
+ 
+    if ($response->is_success)
+        {
+        $returnref = $json->decode($response->decoded_content);
+        return $returnref;
+        }
+    else
+       {
+       if ($response->status_line =~ '404')  { return(0); }
+       die $response->status_line;
+    }  }
 
 
 
@@ -146,46 +173,6 @@ sub test_job_status
     
     return ( $test_job_num, $job_status, $test_running );
     }
-
-############                        trigger_jenkins_url ( <builder>, <bld_num> )
-#          
-#                                   returns (URL of test job, build number),
-#                                        or (0, 0)           if none found,
-#                                        or (0, status_code) if not 200
-sub trigger_jenkins_url
-    {
-    my ($builder, $bld_num) = @_;
-    my $url_rex = 'curl &#39;(.*)&#39;';
-    
-    my $request = $URL_ROOT.'/builders/'.$builder.'/builds/'.$bld_num.'/steps/trigger%20jenkins/logs/stdio';
-    if ($DEBUG)  { print STDERR "request: $request\n\n";  }
-    
-    my $response = $ua->get($request);
-    if ($DEBUG)  { print STDERR "respons: $response\n\n";  }
-
-    if ($response->is_success)
-        {
-        if ($DEBUG)  { print STDERR "FOUND IT\n"; }
-        my $content = $response->decoded_content;
-        if ( $content =~ $url_rex )
-            {
-            my $curlurl = $1;
-            my ($jenkins_url, $version_num) = (0, 0);
-            
-            if ($DEBUG)  { print STDERR "IT MATCHES\n"; }
-            if ($curlurl =~ '(.*)/buildWithParameters'         )  { $jenkins_url = $1; }
-            if ($curlurl =~ 'version_number=([0-9a-zA-Z._-]*)' )  { $version_num = $1; }
-            return($jenkins_url, $version_num);
-            }
-        if ($DEBUG)  { print STDERR "cannot find curl request in:\n\n".$content."\n"; }
-        return(0);
-        }
-    else
-       {
-       if ($DEBUG)  { print STDERR "DEBUG: no response!  Got status line:\n\n".$response->status_line."\n"; }
-       if ($response->code eq 404)  { return(0,0); }
-       return(0, $response->code);
-    }  }
 
 1;
 __END__
