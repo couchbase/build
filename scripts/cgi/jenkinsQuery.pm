@@ -12,10 +12,9 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( test_running_indicator response_code test_job_status get_json );
+our @EXPORT_OK   = qw( test_running_indicator response_code test_job_status get_json get_url_root );
 
-our %EXPORT_TAGS = ( DEFAULT  => [qw( &test_running_indicator &response_code &test_job_status )],
-                     BLDBOTQ  => [qw( &get_json                                                                    )] );
+our %EXPORT_TAGS = ( DEFAULT  => [qw( &test_running_indicator &response_code &test_job_status &get_json &get_url_root )] );
 
 ############ 
 
@@ -37,6 +36,38 @@ my $PASSWD='buildbot';
 my $URL_ROOT='http://factory.hq.couchbase.com:8080';
 
 my $DEBUG = 1;
+
+############                        get_url_root ( )
+#          
+#           
+#
+sub get_url_root
+    {
+    return($URL_ROOT);
+    }
+############                        html_OK_link ( <builder>, <job_number>, <build_num>, <job_date> )
+#          
+#                                   returns HTML of link to good build results
+sub html_OK_link
+    {
+    my ($builder, $bnum, $rev, $date) = @_;
+    
+    my $HTML='<a href="'. $URL_ROOT .'/job/'. $builder .'/'. $bnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)" .'</a>';
+    return($HTML);
+    }
+
+############                        html_FAIL_link ( <builder>, <build_num>, <is_running>, <build_date> )
+#          
+#                                   HTML of link to FAILED build results
+sub html_FAIL_link
+    {
+    my ($builder, $bnum, $is_running, $date) = @_;
+    
+    my $HTML = '<font color="red">FAIL</font>&nbsp;&nbsp;' ."($date)". '&nbsp;&nbsp;'
+              .'<a href="'.$URL_ROOT.'/job/'.$builder.'/'.$bnum.'" target="_blank">build logs</a>';
+    
+    return($HTML);
+    }
 
 ############                        get_json ( $builder  = "build_sync_gateway_$branch"; )
 #          

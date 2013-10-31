@@ -12,10 +12,10 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( last_done_sgw_bld last_done_sgw_pkg last_good_sgw_bld last_good_sgw_pkg );
+our @EXPORT_OK   = qw( last_done_sgw_bld last_done_sgw_pkg last_good_sgw_bld last_good_sgw_pkg get_builder );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_bld &last_done_sgw_pkg &last_good_sgw_bld &last_good_sgw_pkg)],
-                     DEFAULT      => [qw(                                                                            )] );
+                     DEFAULT      => [qw( &get_builder                                                               )] );
 
 my $DEBUG = 1;   # FALSE
 
@@ -28,6 +28,19 @@ my $installed_URL='http://factory.hq.couchbase.com';
 my $run_icon  = '<IMG SRC="' .$installed_URL. '/running_20.gif" ALT="running..." HSPACE="50" ALIGN="LEFT">';
 my $done_icon = '&nbsp;';
 
+
+############                        get_builder ( platform, branch, "build" or "package" )
+#          
+#                                   returns ( builder )
+sub get_builder
+    {
+    my ($platform, $branch, $type) = @_;
+    my  $builder;
+    
+    if ($type eq 'build')    { $builder = $type."_sync_gateway_".$branch;   }
+    if ($type eq 'package')  { $builder = $type."_sync_gateway-".$platform; }
+    return($builder);
+    }
 
 ############                        last_done_sgw_bld ( platform, branch )
 #          
@@ -44,7 +57,7 @@ sub last_done_sgw_bld
     if ($len < 1 )
         {                   if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
         $bldnum     = -1;
-        $is_running = 'TBD';
+        $is_running = 0;    # 'TBD';
         $bld_date   = 'no build yet';
         $isgood     = 0;
         return( $bldnum, $is_running, $bld_date, $isgood );
@@ -113,7 +126,7 @@ sub last_good_sgw_bld
     $bld_date   = 'unknown';
     if (defined( $$result{'id'}       ))  { $bld_date   =  $$result{'id'};                     if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }}
 
-    return( $bldnum, $is_running, $bld_date );
+    return( $bldnum, $is_running, $bld_date, 1 );
     }
 
 

@@ -79,7 +79,7 @@ sub html_ERROR_msg
     }
 
 
-############                        html_OK_link ( <builder>, <build_num> )
+############                        html_OK_link ( <builder>, <job_number>, <build_num>, <job_date> )
 #          
 #                                   returns HTML of link to good build results
 sub html_OK_link
