@@ -2,11 +2,11 @@
 #          
 #          run by jenkins job 'build_cblite_android'
 #          
-#          with paramters used in this script:
+#          with job paramters used in this script:
 #             
 #             SYNCGATE_VERSION
 #             
-#          and with paramters passed on to downstream jobs:
+#          and with job paramters passed on to downstream jobs:
 #             
 #             UPLOAD_ARTIFACTS        (boolean)
 #             UPLOAD_VERSION_CBLITE
@@ -16,10 +16,26 @@
 #             UPLOAD_USERNAME
 #             UPLOAD_PASSWORD
 #          
-VERSION=1.0
-
-source ~/.bash_profile
+#          called with paramters:  branch_name  release_number
+#          
+#                 e.g.:     master         0.0
+#                 e.g.:     stable         1.0
+#          
+source ~jenkins/.bash_profile
 export DISPLAY=:0
+set -e
+
+function usage
+    {
+    echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
+    }
+if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+GITSPEC=${1}
+
+if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+VERSION=${2}
+#REVISION=${VERSION}-${BUILD_NUMBER}
+
 
 PLATFORM=linux-amd64
 
@@ -36,27 +52,32 @@ mkdir -p ${AUT_DIR}/sync_gateway
 export SYNCGATE_PATH=${AUT_DIR}/sync_gateway
 
 DOWNLOAD=${AUT_DIR}/download
-env | grep -iv password | sort ; echo ====================================
 
-cd ${WORKSPACE}                ; echo ====================================
-#--------------------------------------------  sync couchbase-lite-android
+echo ============================================
+env | grep -iv password | grep -iv passwd | sort
+
+cd ${WORKSPACE}
+echo ============================================  sync couchbase-lite-android
+echo ============================================  to ${GITSPEC}
 
 if [[ ! -d couchbase-lite-android ]] ; then git clone https://github.com/couchbase/couchbase-lite-android.git ; fi
 cd couchbase-lite-android
-git pull
+git checkout      ${GITSPEC}
+git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
 
-cd ${WORKSPACE}                ; echo ====================================
-#--------------------------------------------  sync cblite-tests
+cd ${WORKSPACE}
+echo ============================================  sync cblite-tests
+echo ============================================  to master
 
 if [[ ! -d cblite-tests ]] ; then git clone https://github.com/couchbaselabs/cblite-tests.git ; fi
 cd cblite-tests
 git pull
 
-cd ${WORKSPACE}                ; echo ====================================
-#--------------------------------------------  install sync_gateway
+cd ${WORKSPACE}
+echo ============================================  install sync_gateway
 rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
@@ -72,8 +93,7 @@ cp         ${PLATFORM}/sync_gateway   ${SYNCGATE_PATH}
 
 popd                 2>&1 > /dev/null
 
-#--------------------------------------------  run tests
-
+echo ============================================  run tests
 cd couchbase-lite-android/CouchbaseLiteProject
 echo "********RUNNING: ./build_android_testing.sh ***********"
 
@@ -102,8 +122,7 @@ pushd  ${SYNCGATE_PATH} 2>&1 > /dev/null
 jobs
 popd                    2>&1 > /dev/null
 
-#--------------------------------------------  run unit tests
-
+echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 ./run_android_unit_tests.sh 2>&1 | tee ${WORKSPACE}/android_unit_tests_err.log
 

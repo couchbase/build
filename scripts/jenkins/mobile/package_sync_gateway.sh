@@ -6,9 +6,7 @@
 #         
 #             REVISION  -- build number (e.g. 1.0-280) whose artifacts are to be packaged
 #             
-#             GITSPEC   -- sync_gateway revision that triggered that build.  can use:
-#             
-#                          `git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
+#             GITSPEC   -- sync_gateway branch to sync to
 #             
 source ~jenkins/.bash_profile
 set -e
@@ -83,7 +81,7 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
-REPO_SHA=`git log --oneline --no-abbrev-commit --pretty="format:%H" -1`
+REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
 if [[ -e ${DWNLOAD} ]] ; then rm -rf ${DWNLOAD} ; fi
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
