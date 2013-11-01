@@ -18,8 +18,8 @@ set -e
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
-OS              = ARGV[0] || `uname -s`.chomp
-ARCH            = ARGV[1] || `uname -m`.chomp
+if [[ $1 ]] ; then  OS=$1   ; else OS=`uname -s`   ; fi
+if [[ $2 ]] ; then  ARCH=$2 ; else ARCH=`uname -m` ; fi
 
 if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; fi
 if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; fi
