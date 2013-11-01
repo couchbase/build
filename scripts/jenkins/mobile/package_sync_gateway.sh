@@ -57,8 +57,8 @@ fi
 GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
                                   PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCHP}.${PKGTYPE}
-if [[ $DISTRO =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${REVISION}_${DISTRO}-${ARCH}.tgz
-                                                                     PLATFORM=${DISTRO}-${ARCH}     ; fi
+if [[ $DISTRO =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${REVISION}_${DISTRO}-${ARCH}.tar.gz
+                                                                     PLATFORM=${DISTRO}-${ARCH}         ; fi
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ==============================================
