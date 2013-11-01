@@ -103,7 +103,7 @@ if ($job_type eq 'build')   { ($bldnum, $is_running, $bld_date, $bldstatus) = je
                                $rev_numb = $release{$branch}.'-'.$bldnum;
                             }
 if ($job_type eq 'package') { ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_pkg($platform, $branch);
-                               $rev_numb = '<I>bld '.$bldnum.'</I>';
+                               $rev_numb = $bldnum;
                             }
 
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
@@ -111,7 +111,7 @@ if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_runn
 if ($bldnum < 0)
     {
     if ($DEBUG)  { print STDERR "blndum < 0, no build yet\n"; }
-    print_HTML_Page( 'no build yet',
+    print_HTML_Page( $bld_date,
                      buildbotReports::is_running($is_running),
                      $builder,
                      $note_color );
