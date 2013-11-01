@@ -28,7 +28,7 @@ use buildbotReports  qw(:DEFAULT );
 use CGI qw(:standard);
 my  $query = new CGI;
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 
 my $delay = 1 + int rand(3.3);    sleep $delay;
 
@@ -80,8 +80,14 @@ if ( $query->param('platform') && $query->param('branch') && $query->param('type
     $platform = $query->param('platform');
     $branch   = $query->param('branch');
     $job_type = $query->param('type');
+    if ( ($job_type ne 'build') && ($job_type ne 'package'))
+        {
+        if ($DEBUG)  { print STDERR "illegal job_type: $job_type\n"; }
+        print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
+        exit;
+        }
     $builder  = jenkinsReports::get_builder($platform, $branch, $job_type);
-    print STDERR "\nready to start with ($builder, $branch)\n";
+    if ($DEBUG)  { print STDERR "\nready to start with ($builder, $branch)\n"; }
     }
 else
     {
@@ -93,11 +99,14 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 
 #### S T A R T  H E R E 
 
-if        ($job_type eq 'build')   { ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_bld($platform, $branch); }
-else { if ($job_type eq 'package') { ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_pkg($platform, $branch); } }
-$rev_numb = $release{$branch}.'-'.$bldnum;
+if ($job_type eq 'build')   { ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_bld($platform, $branch);
+                               $rev_numb = $release{$branch}.'-'.$bldnum;
+                            }
+if ($job_type eq 'package') { ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_pkg($platform, $branch);
+                               $rev_numb = '<I>bld '.$bldnum.'</I>';
+                            }
 
-print STDERR "according to last_done_build, is_running = $is_running\n";
+if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
 
 if ($bldnum < 0)
     {
@@ -127,7 +136,7 @@ else
     print_HTML_Page( buildbotReports::is_running($is_running),
                      jenkinsQuery::html_FAIL_link( $builder, $bldnum, $is_running, $bld_date),
                      $builder,
-                     $background );
+                     $made_color );
     }
     
 
