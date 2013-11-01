@@ -19,9 +19,9 @@ set -e
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
-if [[ $1 ]] ; then  OS=$1     ; else OS=`uname -s`     ; fi
-if [[ $2 ]] ; then  ARCH=$2   ; else ARCH=`uname -m`   ; fi
-if [[ $3 ]] ; then  DISTRO=$3 ; else DISTRO=`uname -a` ; fi
+if [[ $1 ]] ; then  echo "setting OS     to $OS"        ; OS=$1     ; else OS=`uname -s`     ; fi
+if [[ $2 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$2   ; else ARCH=`uname -m`   ; fi
+if [[ $3 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$3 ; else DISTRO=`uname -a` ; fi
 
 if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; fi
 if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; fi
@@ -56,9 +56,9 @@ fi
 
 GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
-                              PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCHP}.${PKGTYPE}
-if [[ $OS =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${REVISION}_${DISTRO}-${ARCH}.tgz
-                                                                 PLATFORM=${DISTRO}-${ARCH}     ; fi
+                                  PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCHP}.${PKGTYPE}
+if [[ $DISTRO =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${REVISION}_${DISTRO}-${ARCH}.tgz
+                                                                     PLATFORM=${DISTRO}-${ARCH}     ; fi
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ==============================================
