@@ -8,12 +8,19 @@
 #             
 #             GITSPEC   -- sync_gateway branch to sync to
 #             
+#          and called with optional arguments
+#             
+#             OS        -- `uname -s`
+#             ARCH      -- `uname -m`
+#             
 source ~jenkins/.bash_profile
 set -e
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
-OS=`uname -s`
+OS              = ARGV[0] || `uname -s`.chomp
+ARCH            = ARGV[1] || `uname -m`.chomp
+
 if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; fi
 if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; fi
 if [[ $OS =~ CYGWIN ]] ; then GOOS=windows ; fi
@@ -22,7 +29,7 @@ if [[ ! $GOOS ]]
     echo -e "\nunsupported operating system:  $OS\n"
     exit 99
 fi
-ARCH=`uname -m`
+
 if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
                         else GOARCH=386   ; fi
 
