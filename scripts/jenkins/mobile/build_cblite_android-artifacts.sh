@@ -27,7 +27,7 @@ function usage
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
-if [[ !( (${GITSPEC} eq master)||(${GITSPEC} eq stable) ) ]] ; then usage ; exit 88 ; fi
+if [[ (${GITSPEC} != master) && (${GITSPEC} != stable) ]] ; then usage ; exit 88 ; fi
 
 echo ============================================
 env | grep -iv password | grep -iv passwd | sort
