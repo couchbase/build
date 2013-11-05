@@ -8,12 +8,21 @@
 #             
 #             GITSPEC   -- sync_gateway branch to sync to
 #             
+#          and called with optional arguments
+#             
+#             OS        -- `uname -s`
+#             ARCH      -- `uname -m`
+#             DISTRO    -- `uname -a`
+#             
 source ~jenkins/.bash_profile
 set -e
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
-OS=`uname -s`
+if [[ $1 ]] ; then  echo "setting OS     to $OS"        ; OS=$1     ; else OS=`uname -s`     ; fi
+if [[ $2 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$2   ; else ARCH=`uname -m`   ; fi
+if [[ $3 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$3 ; else DISTRO=`uname -a` ; fi
+
 if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; fi
 if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; fi
 if [[ $OS =~ CYGWIN ]] ; then GOOS=windows ; fi
@@ -22,7 +31,7 @@ if [[ ! $GOOS ]]
     echo -e "\nunsupported operating system:  $OS\n"
     exit 99
 fi
-ARCH=`uname -m`
+
 if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
                         else GOARCH=386   ; fi
 
@@ -30,26 +39,26 @@ if [[ $GOOS =~ linux   ]] ; then EXEC=sync_gateway     ;                       f
 if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
 if [[ $GOOS =~ windows ]] ; then EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
 
-UNAME_A=`uname -a`
-if [[ $UNAME_A =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
-    if [[ $ARCH =~ i686  ]] ; then ARCH=i386  ; fi
+if [[ $DISTRO =~ centos ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
+    if [[ $ARCH =~ i686 ]] ; then ARCH=i386  ; fi
 fi
 
 ARCHP=${ARCH}
-if [[ $UNAME_A =~ ubuntu ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
-    if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
-                              else ARCHP=i386  ; fi
- fi
+if [[ $DISTRO =~ ubuntu ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
+    if [[ $ARCHP =~ 64  ]] ; then ARCHP=amd64
+                             else ARCHP=i386  ; fi
+fi
 if [[ ! $PKGR ]] 
     then
-    echo -e "\nunsupported platform:  $UNAME_A\n"
+    echo -e "\nunsupported platform:  $DISTRO\n"
     exit 99
 fi
 
 GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
-
-PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCHP}.${PKGTYPE}
+                                  PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCHP}.${PKGTYPE}
+if [[ $DISTRO =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${REVISION}_${DISTRO}-${ARCH}.tar.gz
+                                                                     PLATFORM=${DISTRO}-${ARCH}         ; fi
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ==============================================

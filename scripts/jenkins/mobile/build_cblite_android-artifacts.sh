@@ -22,10 +22,12 @@ set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name\n\n"
+    echo -e "\nuse:  ${0}   branch_name  (master or stable only)\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
+
+if [[ (${GITSPEC} != master) && (${GITSPEC} != stable) ]] ; then usage ; exit 88 ; fi
 
 echo ============================================
 env | grep -iv password | grep -iv passwd | sort

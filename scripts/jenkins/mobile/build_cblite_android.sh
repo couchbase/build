@@ -1,6 +1,8 @@
 #!/bin/bash
 #          
-#          run by jenkins job 'build_cblite_android'
+#          run by jenkins jobs: 'build_cblite_android_master'
+#                               'build_cblite_android_stable'
+#                               'build_cblite_android'
 #          
 #          with job paramters used in this script:
 #             
@@ -16,10 +18,11 @@
 #             UPLOAD_USERNAME
 #             UPLOAD_PASSWORD
 #          
-#          called with paramters:  branch_name  release_number
+#          and called with paramters:         branch_name  release_number
 #          
-#                 e.g.:     master         0.0
-#                 e.g.:     stable         1.0
+#            by build_cblite_android_master:     master         0.0
+#            by build_cblite_android_stable:     stable         1.0
+#            by build_cblite_android:          ${GITSPEC}       9.8.7
 #          
 source ~jenkins/.bash_profile
 export DISPLAY=:0
