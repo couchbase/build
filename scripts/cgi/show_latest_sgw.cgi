@@ -21,8 +21,8 @@ BEGIN
     }
 my $installed_URL='http://factory.hq.couchbase.com/cgi/show_latest_sgw.cgi';
 
-use jenkinsQuery    qw(:DEFAULT );
-use jenkinsReports  qw(:DEFAULT );
+use jenkinsQuery     qw(:DEFAULT );
+use jenkinsReports   qw(:DEFAULT );
 use buildbotReports  qw(:DEFAULT );
 
 use CGI qw(:standard);
@@ -99,11 +99,10 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 
 #### S T A R T  H E R E 
 
-if ($job_type eq 'build')   { ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_bld($platform, $branch);
-                               $rev_numb = $release{$branch}.'-'.$bldnum;
+if ($job_type eq 'build')   { ($bldnum,            $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_bld($platform, $branch);
+                                        $rev_numb = $release{$branch}.'-'.$bldnum;
                             }
-if ($job_type eq 'package') { ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_pkg($platform, $branch);
-                               $rev_numb = $bldnum;
+if ($job_type eq 'package') { ($bldnum, $rev_numb, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_pkg($platform, $branch);
                             }
 
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }

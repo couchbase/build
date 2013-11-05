@@ -52,23 +52,24 @@ sub get_builder
 
 ############                        last_done_sgw_pkg ( platform, branch )
 #          
-#                                   returns ( build_num, is_build_running, build_date, status )
+#                                   returns ( job_num, build_num, is_build_running, build_date, status )
 sub last_done_sgw_pkg
     {
     my ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "package");
-    my ($bldnum, $is_running, $bld_date, $isgood);
+    my ($jobnum, $bldnum, $is_running, $bld_date, $isgood);
    
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
     my $sumpage = jenkinsQuery::get_json($builder);
     my $len = scalar keys %$sumpage;
     if ($len < 1 )
         {                   if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
+        $jobnum     =  0;
         $bldnum     = -1;
-        $is_running = 0;    # 'TBD';
+        $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
-        $isgood     = 0;
-        return( $bldnum, $is_running, $bld_date, $isgood );
+        $isgood     =  0;
+        return( $jobnum, $bldnum, $is_running, $bld_date, $isgood );
         }
     
     if (! defined( $$sumpage{'builds'} ))
@@ -80,24 +81,26 @@ sub last_done_sgw_pkg
     if ($len < 1)
         {
         if ($DEBUG)  { print STDERR "no build results for $builder\n"; }
+        $jobnum     =  0;
         $bldnum     = -1;
-        $is_running = 0;    # 'TBD';
+        $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
-        $isgood     = 0;
-        return( $bldnum, $is_running, $bld_date, $isgood );
+        $isgood     =  0;
+        return( $jobnum, $bldnum, $is_running, $bld_date, $isgood );
         }
     my @results_numbers;
     my ($found_bldnum, $found_branch);
     for my $item ( 0 .. $len)  { if ($DEBUG) { print STDERR "array[ $item ] is $$results_array[$item]{'number'}\n"; }
                                                push @results_numbers, $$results_array[$item]{'number'};
                                              }
-    @bld_numbers = reverse sort { $a <=> $b } @results_numbers;
-    if ($DEBUG)  { print STDERR "DEBUG: bld_numbers: $#bld_numbers\n";   print STDERR "@bld_numbers\n";                      }
-    if ($DEBUG)  { for my $NN ( @bld_numbers ) { print STDERR "$NN\n";}  print STDERR "DEBUG: bld_numbers: $#bld_numbers\n"; }
-    for my $bnum (@bld_numbers)
+    @job_numbers = reverse sort { $a <=> $b } @results_numbers;
+    if ($DEBUG)  { print STDERR "DEBUG: job_numbers: $#job_numbers\n";   print STDERR "@job_numbers\n";                      }
+    if ($DEBUG)  { for my $NN ( @job_numbers ) { print STDERR "$NN\n";}  print STDERR "DEBUG: job_numbers: $#job_numbers\n"; }
+    for my $jnum (@job_numbers)
         {
-        if ($DEBUG) { print STDERR "...checkint $bnum\n"; }
-        $bldpage  = jenkinsQuery::get_json($builder.'/'.$bnum);
+        undef($found_bldnum);    undef($found_branch);
+        if ($DEBUG) { print STDERR "...checkint $jnum\n"; }
+        $bldpage  = jenkinsQuery::get_json($builder.'/'.$jnum);
 
         if (! defined( $$bldpage{'actions'} ))
             {
@@ -117,32 +120,34 @@ sub last_done_sgw_pkg
             if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'REVISION')
                 {
                 $found_bldnum = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)  { print STDERR "detected revision: $found_bldnum\n"; }
                 }
             if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'GITSPEC')
                 {
                 $found_branch = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)  { print STDERR "detected branch:   $found_branch\n"; }
                 }
             last if ( defined($found_bldnum) && defined($found_branch) );
             }
-        if ($DEBUG)  { print STDERR "detected branch: $found_branch\n"; }
-        if ($found_branch eq $branch)  { $bldnum = $bnum; last; }
+        if ($found_branch eq $branch)  { $jobnum = $jnum; last; }
         }
-    if (! defined ($bldnum))
+    if (! defined ($jobnum))
         {
         if ($DEBUG)  { print STDERR "no $branch matching builds for $builder\n"; }
+        $jobnum     =  0;
         $bldnum     = -1;
-        $is_running = 0;    # 'TBD';
+        $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
-        $isgood     = 0;
-        return( $bldnum, $is_running, $bld_date, $isgood );
+        $isgood     =  0;
+        return( $jobnum, $bldnum, $is_running, $bld_date, $isgood );
         }
     if (! defined ($found_bldnum))
         {
         $found_bldnum = '<I>bld&nbsp;'.$bldnum.'</>';
         }
-    if ($DEBUG)  { print STDERR "bldnum is: $bldnum\n"; }
+    if ($DEBUG)  { print STDERR "jobnum is: $jobnum\n"; }
     
-    my $result  = jenkinsQuery::get_json($builder.'/'.$bldnum);
+    my $result  = jenkinsQuery::get_json($builder.'/'.$jobnum);
     $is_running = 'unknown';
     if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');   if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
  
@@ -153,7 +158,7 @@ sub last_done_sgw_pkg
     $isgood     = 'unknown';
     if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS'); if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
  
-    return( $found_bldnum, $is_running, $bld_date, $isgood );
+    return( $jobnum, $found_bldnum, $is_running, $bld_date, $isgood );
     }
 
 

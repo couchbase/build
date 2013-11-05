@@ -12,9 +12,9 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( test_running_indicator response_code test_job_status get_json get_url_root );
+our @EXPORT_OK   = qw( test_running_indicator response_code test_job_status get_json get_url_root html_OK_link );
 
-our %EXPORT_TAGS = ( DEFAULT  => [qw( &test_running_indicator &response_code &test_job_status &get_json &get_url_root )] );
+our %EXPORT_TAGS = ( DEFAULT  => [qw( &test_running_indicator &response_code &test_job_status &get_json &get_url_root &html_OK_link )] );
 
 ############ 
 
