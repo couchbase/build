@@ -259,7 +259,7 @@ sub return_build_info
     my $sumpage = jenkinsQuery::get_json($job_name);
     my $len = scalar keys %$sumpage;
     if ($len < 1 )
-        {                   if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
+        {                                           if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
         $bldnum     = -1;
         $is_running = 'TBD';
         $bld_date   = 'no build yet';
@@ -268,12 +268,20 @@ sub return_build_info
         }
     
     if (! defined( $$sumpage{$property} ))
-        {
-        die "no such build:  $property\n";
+        {                                           if ($DEBUG)  { print STDERR "DEBUG: no such build:  $property\n"; }
+        $bldnum     = -1;
+        $is_running = 'TBD';
+        $bld_date   = 'no build yet';
+        $isgood     = 0;
+        return( $bldnum, $is_running, $bld_date, $isgood );
         }
     if (! defined( $$sumpage{$property}{'number'} ))
-        {
-        die "no such build:  $property\n";
+        {                                           if ($DEBUG)  { print STDERR "DEBUG: no such build:  $property\n"; }
+        $bldnum     = -1;
+        $is_running = 'TBD';
+        $bld_date   = 'no build yet';
+        $isgood     = 0;
+        return( $bldnum, $is_running, $bld_date, $isgood );
         }
     $bldnum = $$sumpage{$property}{'number'};
     if ($DEBUG)  { print STDERR "bldnum is: $bldnum\n"; }
