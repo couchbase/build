@@ -179,7 +179,7 @@ sub last_done_sgw_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "sgw");
     my $property = 'lastCompletedBuild';
-    last_sync_gateway($platform, $branch, $builder, $property);
+    return_build_info($platform, $branch, $builder, $property);
     }
    
 ############                        last_good_sgw_bld ( platform, branch )
@@ -190,7 +190,7 @@ sub last_good_sgw_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "sgw");
     my $property = 'lastSuccessfulBuild';
-    last_sync_gateway($platform, $branch, $builder, $property);
+    return_build_info($platform, $branch, $builder, $property);
     }
    
 
@@ -203,7 +203,7 @@ sub last_done_ios_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "ios");
     my $property = 'lastCompletedBuild';
-    last_sync_gateway($platform, $branch, $builder, $property);
+    return_build_info($platform, $branch, $builder, $property);
     }
    
 ############                        last_good_ios_bld ( platform, branch )
@@ -214,7 +214,7 @@ sub last_good_ios_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "ios");
     my $property = 'lastSuccessfulBuild';
-    last_sync_gateway($platform, $branch, $builder, $property);
+    return_build_info($platform, $branch, $builder, $property);
     }
    
 
@@ -226,7 +226,7 @@ sub last_done_and_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastCompletedBuild';
-    last_sync_gateway($platform, $branch, $builder, $property);
+    return_build_info($platform, $branch, $builder, $property);
     }
    
 ############                        last_good_and_bld ( platform, branch )
@@ -237,20 +237,20 @@ sub last_good_and_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastSuccessfulBuild';
-    last_sync_gateway($platform, $branch, $builder, $property);
+    return_build_info($platform, $branch, $builder, $property);
     }
    
 
 
 
-############                        last_sync_gateway ( platform, branch, job_name, property )
+############                        return_build_info ( platform, branch, job_name, property )
 #          
 #                                       my $builder  = "build_sync_gateway_$branch";
 #          
 #                                   returns ( build_num, is_build_running, build_date, status )
 #          
 #                                       of
-sub last_sync_gateway
+sub return_build_info
     {
     my ($platform, $branch, $job_name, $property) = @_;
     my ($bldnum, $is_running, $bld_date, $isgood);
