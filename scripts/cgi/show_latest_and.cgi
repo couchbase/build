@@ -1,13 +1,11 @@
 #!/usr/bin/perl
 
-# queries Factory Jenkins JSON api to find latest good build of a
-# sync_gateway build or package job.
+# queries Factory Jenkins JSON api to find latest good 
+# android build of master or stable branch.
 #  
 #  Call with these parameters:
 #  
-#  PLATFORM        e.g. centos-x64, ..., ubuntu-x86
 #  BRANCH          e.g. master, 2.5.0
-#  TYPE            'build' or 'package'
 #  
 use warnings;
 #use strict;
@@ -19,7 +17,7 @@ BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
-my $installed_URL='http://factory.hq.couchbase.com/cgi/show_latest_sgw.cgi';
+my $installed_URL='http://factory.hq.couchbase.com/cgi/show_latest_and.cgi';
 
 use jenkinsQuery     qw(:DEFAULT );
 use jenkinsReports   qw(:DEFAULT );
@@ -64,29 +62,22 @@ sub print_HTML_Page
     print $query->end_html;
     }
 
-my $usage = "ERROR: must specify 'platform', 'branch', 'type'\n\n"
+my $usage = "ERROR: must specify 'branch' and 'outcome'\n\n"
            ."<PRE>"
            ."For example:\n\n"
-           ."    $installed_URL?platform=centos-x86&branch=master&type=build\n"
-           ."    $installed_URL?platform=ubuntu-x64&branch=2.5.0&type=package\n"
+           ."    $installed_URL?branch=master&outcome=good\n"
+           ."    $installed_URL?branch=stable&outcome=done\n"
            ."</PRE><BR>"
            ."\n"
            ."\n";
 
 my ($platform, $branch, $job_type);
 
-if ( $query->param('platform') && $query->param('branch') && $query->param('type') )
+if ( $query->param('branch') && $query->param('outcome') )
     {
-    $platform = $query->param('platform');
     $branch   = $query->param('branch');
-    $job_type = $query->param('type');
-    if ( ($job_type ne 'build') && ($job_type ne 'package'))
-        {
-        if ($DEBUG)  { print STDERR "illegal job_type: $job_type\n"; }
-        print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
-        exit;
-        }
-    $builder  = jenkinsReports::get_builder($platform, $branch, $job_type, 'sgw');
+    $outcome  = $query->param('outcome');
+    $builder  = jenkinsReports::get_builder($platform, $branch, 'build', 'and');
     if ($DEBUG)  { print STDERR "\nready to start with ($builder, $branch)\n"; }
     }
 else
@@ -99,11 +90,15 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 
 #### S T A R T  H E R E 
 
-if ($job_type eq 'build')   { ($bldnum,            $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_bld($platform, $branch);
-                                        $rev_numb = $release{$branch}.'-'.$bldnum;
-                            }
-if ($job_type eq 'package') { ($bldnum, $rev_numb, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_pkg($platform, $branch);
-                            }
+if ($outcome =~ 'good')
+    {
+    ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_good_and_bld($platform, $branch);
+    }
+if ($outcome =~ 'done')
+    {
+    ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_and_bld($platform, $branch);
+    }
+$rev_numb = $release{$branch}.'-'.$bldnum;
 
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
 

@@ -12,7 +12,10 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( last_done_sgw_bld last_done_sgw_pkg last_good_sgw_bld last_good_sgw_pkg get_builder );
+our @EXPORT_OK   = qw( last_done_sgw_bld  last_done_sgw_pkg   last_good_sgw_bld last_good_sgw_pkg \
+                       last_done_ios_bld  last_good_ios_bld   last_done_and_bld last_good_and_bld \
+                       get_builder                                                                \
+                     );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_bld &last_done_sgw_pkg &last_good_sgw_bld &last_good_sgw_pkg)],
                      DEFAULT      => [qw( &get_builder                                                               )] );
@@ -37,15 +40,20 @@ sub date_from_id
     return $jobID;
     }
 
-############                        get_builder ( platform, branch, "build" or "package" )
+############                        get_builder ( platform, branch, "build" or "package", "sgw" or "ios" or "and" )
 #          
 #                                   returns ( builder )
 sub get_builder
     {
-    my ($platform, $branch, $type) = @_;
+    my ($platform, $branch, $type, $prod) = @_;
     my  $builder;
     
-    if ($type eq 'build')    { $builder = $type."_sync_gateway_".$branch;   }
+    if ($type eq 'build')
+        {
+        if ($prod eq 'sgw')  { $builder = $type."_sync_gateway_".$branch;   }
+        if ($prod eq 'ios')  { $builder = "build_cblite_ios_".$branch;      }
+        if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch;  }
+        }
     if ($type eq 'package')  { $builder = $type."_sync_gateway-".$platform; }
     return($builder);
     }
@@ -56,7 +64,7 @@ sub get_builder
 sub last_done_sgw_pkg
     {
     my ($platform, $branch) = @_;
-    my $builder  = get_builder($platform, $branch, "package");
+    my $builder  = get_builder($platform, $branch, "package", "sgw");
     my ($jobnum, $bldnum, $is_running, $bld_date, $isgood);
    
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
@@ -169,7 +177,7 @@ sub last_done_sgw_pkg
 sub last_done_sgw_bld
     {
     ($platform, $branch) = @_;
-    my $builder  = get_builder($platform, $branch, "build");
+    my $builder  = get_builder($platform, $branch, "build", "sgw");
     my $property = 'lastCompletedBuild';
     last_sync_gateway($platform, $branch, $builder, $property);
     }
@@ -180,7 +188,54 @@ sub last_done_sgw_bld
 sub last_good_sgw_bld
     {
     ($platform, $branch) = @_;
-    my $builder  = get_builder($platform, $branch, "build");
+    my $builder  = get_builder($platform, $branch, "build", "sgw");
+    my $property = 'lastSuccessfulBuild';
+    last_sync_gateway($platform, $branch, $builder, $property);
+    }
+   
+
+
+############                        last_done_ios_bld ( platform, branch )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status )
+sub last_done_ios_bld
+    {
+    ($platform, $branch) = @_;
+    my $builder  = get_builder($platform, $branch, "build", "ios");
+    my $property = 'lastCompletedBuild';
+    last_sync_gateway($platform, $branch, $builder, $property);
+    }
+   
+############                        last_good_ios_bld ( platform, branch )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status )
+sub last_good_ios_bld
+    {
+    ($platform, $branch) = @_;
+    my $builder  = get_builder($platform, $branch, "build", "ios");
+    my $property = 'lastSuccessfulBuild';
+    last_sync_gateway($platform, $branch, $builder, $property);
+    }
+   
+
+############                        last_done_and_bld ( platform, branch )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status )
+sub last_done_and_bld
+    {
+    ($platform, $branch) = @_;
+    my $builder  = get_builder($platform, $branch, "build", "and");
+    my $property = 'lastCompletedBuild';
+    last_sync_gateway($platform, $branch, $builder, $property);
+    }
+   
+############                        last_good_and_bld ( platform, branch )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status )
+sub last_good_and_bld
+    {
+    ($platform, $branch) = @_;
+    my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastSuccessfulBuild';
     last_sync_gateway($platform, $branch, $builder, $property);
     }
