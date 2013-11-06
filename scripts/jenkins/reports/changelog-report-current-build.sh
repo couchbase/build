@@ -5,7 +5,9 @@
 #          with paramters:  
 #               
 #               BUILDER      -- e.g. ubuntu-1204-x86-master-builder
+#               
 #               BRANCH       -- 
+#               
 #               CURRENT_BLD  -- 
 #               
 set -e
@@ -19,7 +21,7 @@ if [[ ! -d ${REPORT_DIR} ]] ; then mkdir ${REPORT_DIR} ; fi
 PROPFILE=${REPORT_DIR}/last_good.properties
 echo see ${PROPFILE}
 
-${WORKSPACE}/scripts/cgi/get_latest_good_build.pl -b ${BUILDER} -r ${BRANCH} | tee ${PROPFILE}
+${WORKSPACE}/build/scripts/cgi/get_latest_good_build.pl -b ${BUILDER} -r ${BRANCH} | tee ${PROPFILE}
 sudo chmod 666 ${PROPFILE}
 
 export FIRST_BLD=`grep BUILD_NUMBER ${PROPFILE} | awk -F- '{print $2}'`
@@ -54,5 +56,5 @@ fi
 BLDNUM_ARG=""
 if [[ ${CURRENT_BLD} ]] ; then BLDNUM_ARG="-b ${CURRENT_BLD}" ; fi
 
-${WORKSPACE}/scripts/jenkins/changelog-report.sh -d ${REPORT_DIR} -e ${DO_SENDIT}  ${BLDNUM_ARG}  ${PFORM_ARG}
+${WORKSPACE}/build/scripts/jenkins/changelog-report.sh -d ${REPORT_DIR} -e ${DO_SENDIT}  ${BLDNUM_ARG}  ${PFORM_ARG}
 
