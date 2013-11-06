@@ -1,6 +1,6 @@
 #!/bin/bash
 #          
-#          run by jenkins job 'build_phonegap_plugin'
+#          run by jenkins job 'package_phonegap_plugin'
 #          
 #          with job paramters:  
 #                   
@@ -62,7 +62,7 @@ if [[ -e ${STAGE_DIR} ]] ; then rm -rf ${STAGE_DIR} ; fi
 mkdir -p ${IOS_DIR}
 cp -r ${DOWN_IDIR}/CouchbaseLite.framework             ${IOS_DIR}
 cp -r ${DOWN_IDIR}/CouchbaseLiteListener.framework     ${IOS_DIR}
-#cp -r ${DOWN_IDIR}/JavaScriptCore.framework            ${IOS_DIR}
+cp -r ${DOWN_IDIR}/JavaScriptCore.framework            ${IOS_DIR}
 cp -r ${DOWN_IDIR}/Extras/CBLRegisterJSViewCompiler.h  ${IOS_DIR}
 cp -r ${DOWN_IDIR}/Extras/libCBLJSViewCompiler.a       ${IOS_DIR}
 popd                     2>&1 >/dev/null
@@ -111,7 +111,7 @@ echo ======== build ==========================================
 cp -r src  ${STAGE_DIR}/src
 cp -r www  ${STAGE_DIR}/www
 
-#/usr/local/bin/node prepare_plugin.js
+/usr/local/bin/node prepare_plugin.js
 
 echo ======== test ===========================================
 
