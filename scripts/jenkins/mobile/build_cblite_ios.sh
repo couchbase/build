@@ -50,6 +50,9 @@ LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
 LIB_SRCF=${LIB_SRCD}/libCBLJSViewCompiler.a
 LIB_DEST=${ZIP_SRCD}/Extras
 
+JSC_SRCD=${BASE_DIR}/vendor/JavaScriptCore.framework
+JSC_DEST=${ZIP_SRCD}
+
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 export TAP_TIMEOUT=120
@@ -90,6 +93,7 @@ mkdir -p ${ZIP_SRCD}
 cp  -r   ${RIO_SRCD}/*         ${RIO_DEST}
 #cp -r   ${REL_SRCD}/LiteServ* ${REL_DEST}
 cp       ${LIB_SRCF}           ${LIB_DEST}
+cp  -r   ${JSC_SRCD}           ${JSC_DEST}
 cp       ${README_F}           ${RME_DEST}
 cp       ${LICENSEF}           ${LIC_DEST}
 
