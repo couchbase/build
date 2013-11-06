@@ -104,7 +104,7 @@ echo ======== build ==========================================
 cp -r src  ${STAGE_DIR}/src
 cp -r www  ${STAGE_DIR}/www
 
-/usr/local/bin/node prepare_plugin.js
+/usr/local/bin/node  prepare_plugin.js  ${STAGE_DIR}
 
 echo ======== test ===========================================
 
