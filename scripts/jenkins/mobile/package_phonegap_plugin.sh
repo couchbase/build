@@ -8,24 +8,17 @@
 #                   
 #                   ANDROID_REL   -- get ANDROID_REL artifacts
 #          
-#          and cmdline args:  branch_name  release number
+#                   GITSPEC       -- revision to sync: couchbase-lite-phonegap-plugin-builder
 #          
-#                   e.g.:     master         0.0
-#                   e.g.:     stable         1.0
+#                   VERSION       -- base of plugin build number (e.g., 1.0)
 #          
 #          
 source ~jenkins/.bash_profile
 set -e
 
-function usage
-    {
-    echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
-    }
-if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-GITSPEC=${1}
+if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
+if [[ ! ${VERSION} ]] ; then VERSION=1.0    ; fi
 
-if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
-VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
 
 env | grep -iv password | grep -iv passwd | sort -u
