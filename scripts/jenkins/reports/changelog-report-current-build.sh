@@ -17,6 +17,9 @@ echo ____________starting___`date`
 
 REPORT_DIR=${WORKSPACE}/${BUILDER}
 if [[ ! -d ${REPORT_DIR} ]] ; then mkdir ${REPORT_DIR} ; fi
+chmod g+w  ${REPORT_DIR}
+ls -alrt   ${REPORT_DIR}
+echo =========================================
 
 PROPFILE=${REPORT_DIR}/last_good.properties
 echo see ${PROPFILE}
