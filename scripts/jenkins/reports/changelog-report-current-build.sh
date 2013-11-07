@@ -21,6 +21,9 @@ ls -alrt   ${REPORT_DIR}
 sudo chmod g+w  ${REPORT_DIR}
 echo =========================================
 ls -alrt   ${REPORT_DIR}
+echo =========================================
+npm list 
+npm list > ${REPORT_DIR}/manifest.3rdParty.txt
 
 PROPFILE=${REPORT_DIR}/last_good.properties
 echo see ${PROPFILE}
