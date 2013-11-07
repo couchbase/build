@@ -31,6 +31,14 @@ my $done_icon = '&nbsp;';
 
 my ($builder, $branch);
 
+sub release
+    {
+    my ($branch_name) = @_;
+    my  $branch_numb  = $branch_name;
+    if ($branch_numb == 'master')    { $branch_numb = '0.0.0'; }
+    return($branch_numb);
+    }
+
 ############                        is_running ( 0=no | 1=yes )
 #          
 #                                   returns icon indicating that latest build is not completed
@@ -81,7 +89,7 @@ sub last_done_build
         $result     = buildbotQuery::get_json($builder, '/'.$bldnum);
         $isgood     = buildbotQuery::is_good_build($result);
         
-        $rev_numb   = $branch .'-'. buildbotQuery::get_build_revision($result);
+        $rev_numb   = release($branch) .'-'. buildbotQuery::get_build_revision($result);
         $bld_date   = buildbotQuery::get_build_date($result);
         }
     
