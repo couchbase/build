@@ -28,7 +28,7 @@ use jenkinsQuery    qw(:DEFAULT );
 use CGI qw(:standard);
 my  $query = new CGI;
 
-my $delay = 1 + int rand(3.3);    sleep $delay;
+my $delay = 2 + int rand(4.3);    sleep $delay;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 

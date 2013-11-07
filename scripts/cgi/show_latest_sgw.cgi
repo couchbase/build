@@ -30,7 +30,7 @@ my  $query = new CGI;
 
 my $DEBUG = 0;
 
-my $delay = 1 + int rand(3.3);    sleep $delay;
+my $delay = 1 + int rand(5.3);    sleep $delay;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
