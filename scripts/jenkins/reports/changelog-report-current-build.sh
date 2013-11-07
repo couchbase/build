@@ -21,8 +21,11 @@ if [[ ! -d ${REPORT_DIR} ]] ; then mkdir ${REPORT_DIR} ; fi
 PROPFILE=${REPORT_DIR}/last_good.properties
 echo see ${PROPFILE}
 
-${WORKSPACE}/build/scripts/cgi/get_latest_good_build.pl -b ${BUILDER} -r ${BRANCH} | tee ${PROPFILE}
+${WORKSPACE}/build/scripts/cgi/get_latest_good_build.pl -b ${BUILDER} -r ${BRANCH} > ${PROPFILE}
 sudo chmod 666 ${PROPFILE}
+ls -l ${PROPFILE}
+cat   ${PROPFILE}
+echo =========================================
 
 export FIRST_BLD=`grep BUILD_NUMBER ${PROPFILE} | awk -F- '{print $2}'`
 
@@ -39,6 +42,8 @@ if [[ ! -f ${LAST_BLD} ]]
     echo ""
     exit 99
 fi
+
+echo "----------------- showing changes from ${FIRST_BLD} to ${LAST_BLD}"
 
 DO_SENDIT=0
 PFORM_ARG=""
