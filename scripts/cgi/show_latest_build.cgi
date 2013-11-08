@@ -65,9 +65,9 @@ my $usage = "ERROR: must specify  EITHER both 'builder' and 'branch' params\n"
            ."    $installed_URL?platform=windows&bits=64&branch=2.0.2\n\n"
            ."</PRE><BR>"
            ."\n"
-           ."For toy builders, use 'toy', 'platform', 'bits', like:\n\n"
+           ."For toy builders, use 'toy', 'platform', 'branch', like:\n\n"
            ."<PRE>"
-           ."    $installed_URL?toy=plabee-211-identical&platform=centos&bits=64\n\n"
+           ."    $installed_URL?toy=plabee-211-identical&platform=centos54&branch=master\n\n"
            ."</PRE><BR>"
            ."\n";
 
@@ -85,13 +85,13 @@ elsif( ($query->param('platform')) && ($query->param('bits')) && ($query->param(
     $builder = buildbotMapping::get_builder( $query->param('platform'), $query->param('bits'), $branch );
     print STDERR "\nready to start with ($builder)\n";
     }
-elsif( ($query->param('toy')) &&($query->param('platform')) &&  ($query->param('bits')) )    # TOY
+elsif( ($query->param('platform')) &&  ($query->param('branch')) && ($query->param('toy')) )    # TOY
     {
-    $toy_name = $query->param('toy');
     $platform = $query->param('platform');
-    $bits     = $query->param('bits');
+    $branch   = $query->param('branch');
+    $owner    = $query->param('toy');
     
-    $builder = buildbotMapping::get_toy_builder($toy_name, $platform, $bits);
+    $builder = buildbotMapping::get_toy_builder($platform, $branch, $owner);
     print STDERR "\nready to start with toy ($builder)\n";
     }
 else

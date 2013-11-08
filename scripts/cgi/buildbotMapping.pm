@@ -16,7 +16,7 @@ our @EXPORT_OK   = qw( get_builder get_toy_builder );
 
 our %EXPORT_TAGS = ( DEFAULT => [qw( &get_builder &get_toy_builder )] );
 
-my $DEBUG = 0;   # FALSE
+my $DEBUG = 1;   # FALSE
 
 ############ 
 
@@ -134,12 +134,6 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "2.0.0"  =>  "cent
                                                           },
                                                   },
                                   },
-                   "toy"       => { "centos"   => { 64 => { "plabee-211-identical"  =>  "ec2-centos-x64_toy-plabee-211-identical", }},
-                                    "windows"  => { 32 => { "plabee-211-identical"  =>  "cs-win-32-toy-builder-toy-plabee-211-identical",
-                                                          },
-                                                    64 => { "plabee-211-identical"  =>  "cs-win-64-toy-builder-toy-plabee-211-identical",
-                                                  }       }
-                                  }
                );
 
 ############   # DEBUG
@@ -153,19 +147,19 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "2.0.0"  =>  "cent
 sub get_builder
     {
     my ($platform, $bits, $branch) = @_;
-    if ($DEBUG)  { print "\n".'...checking platform >>'.$platform.'<<'."\n"; }
+    if ($DEBUG)  { print STDERR "\n".'...checking platform >>'.$platform.'<<'."\n"; }
     if (! defined( $buildbots{"production"}{$platform} ))
         {
         print 'unsupported platform >>'.$platform.'<<'."\n";
         die $usage;
         }
-    if ($DEBUG)  { print "\n".'...checking bit-width >>'.$bits.'<<'."\n"; }
+    if ($DEBUG)  { print STDERR "\n".'...checking bit-width >>'.$bits.'<<'."\n"; }
     if (! defined( $buildbots{"production"}{$platform}{$bits} ))
         {
         print 'unsupported bit-width >>'.$bits.'<<'."\n";
         die $usage;
         }
-    if ($DEBUG)  { print "\n".'...checking branch >>'.$branch.'<<'."\n"; }
+    if ($DEBUG)  { print STDERR "\n".'...checking branch >>'.$branch.'<<'."\n"; }
     if (! defined( $buildbots{"production"}{$platform}{$bits}{$branch} ))
         {
         print 'unsupported branch >>'.$branch.'<<'."\n";
@@ -180,28 +174,19 @@ sub get_builder
 #                                   returns (toy) buildbot builder name
 sub get_toy_builder
     {
-    my ($toy_name, $platform, $bits) = @_;
-    if ($DEBUG)  { print "\n".'...checking platform >>'.$platform.'<<'."\n"; }
-    if (! defined( $buildbots{"toy"}{$platform} ))
+    my ($platform, $branch, $owner) = @_;
+    my  $toy_name = $platform.'-'.$branch.'-toy-'.$owner.'-builder';
+    if ($DEBUG)  { print STDERR "\n".'...checking builder >>'.$toy_name.'<<'."\n"; }
+    if (($platform == 'cent54') || ($platform == 'cent58') || ($platform == 'win32') || ($platform == 'win64') )
         {
-        print 'unsupported platform >>'.$platform.'<<'."\n";
-        die $usage;
+        if ( ($branch == 'master') || ($branch == '3.0.0') || ($branch == '2.5.0') || ($branch == '2.2.0') || ($branch == '2.1.1') )
+            {
+            return($toy_name);
+            }
         }
-    if ($DEBUG)  { print "\n".'...checking bit-width >>'.$bits.'<<'."\n"; }
-    if (! defined( $buildbots{"toy"}{$platform}{$bits} ))
-        {
-        print 'unsupported bit-width >>'.$bits.'<<'."\n";
-        die $usage;
-        }
-    if ($DEBUG)  { print "\n".'...checking toy-name >>'.$toy_name.'<<'."\n"; }
-    if (! defined( $buildbots{"toy"}{$platform}{$bits}{$toy_name} ))
-        {
-        print 'unsupported toy-name >>'.$toy_name.'<<'."\n";
-        die $usage;
-        }
-    return         $buildbots{"toy"}{$platform}{$bits}{$toy_name};
+    print 'unsupported toy-name >>'.$toy_name.'<<'."\n";
+    die $usage;
     }
-
 
 1;
 __END__
