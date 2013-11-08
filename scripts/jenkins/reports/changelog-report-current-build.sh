@@ -48,7 +48,7 @@ echo "----------------- showing changes from ${FIRST_BLD} to ${LAST_BLD}"
 DO_SENDIT=0
 PFORM_ARG=""
 PFORM_REX='([a-z]*-[a-z0-9]*)-[a-z0-9]*-builder'
-PFORM_REX='(ubuntu-x64)-[a-z0-9]*-builder'
+PFORM_REX='(centos-6-x64)-[a-z0-9]*-builder'
 
 if [[ ${BUILDER} =~ ${PFORM_REX} ]]
     then
@@ -61,5 +61,5 @@ fi
 BLDNUM_ARG=""
 if [[ ${CURRENT_BLD} ]] ; then BLDNUM_ARG="-b ${CURRENT_BLD}" ; fi
 
-${WORKSPACE}/build/scripts/jenkins/changelog-report.sh -d ${REPORT_DIR} -e ${DO_SENDIT}  ${BLDNUM_ARG}  ${PFORM_ARG}
+${WORKSPACE}/build/scripts/jenkins/reports/changelog-report.sh -d ${REPORT_DIR} -e ${DO_SENDIT}  ${BLDNUM_ARG}  ${PFORM_ARG}
 
