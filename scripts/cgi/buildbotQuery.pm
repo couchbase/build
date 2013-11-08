@@ -12,10 +12,10 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( get_URL_root html_builder_link html_OK html_ERROR_msg html_OK_link html_FAIL_link
+our @EXPORT_OK   = qw( get_URL_root html_builder_link html_OK html_RUN_link html_ERROR_msg html_OK_link html_FAIL_link
                        get_json get_build_revision get_build_date is_running_build is_good_build trigger_jenkins_url );
 
-our %EXPORT_TAGS = ( HTML  => [qw( &get_URL_root  &html_builder_link  &html_OK  &html_ERROR_msg  &html_OK_link  &html_FAIL_link )],
+our %EXPORT_TAGS = ( HTML  => [qw( &get_URL_root  &html_builder_link  &html_OK  &html_RUN_link &html_ERROR_msg  &html_OK_link  &html_FAIL_link )],
                      JSON  => [qw( &get_json &get_build_revision &get_build_date &is_running_build &is_good_build &trigger_jenkins_url )] );
 
 ############ 
@@ -87,6 +87,17 @@ sub html_OK_link
     my ($bder, $bnum, $rev, $date) = @_;
     
     my $HTML='<a href="'. $URL_ROOT .'/builders/'. $bder .'/builds/'. $bnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)" .'</a>';
+    return($HTML);
+    }
+
+############                        html_RUN_link ( <builder> <display> )
+#          
+#                                   returns HTML of link to good build results
+sub html_RUN_link
+    {
+    my ($bder, $display) = @_;
+    
+    my $HTML='<a href="'. $URL_ROOT .'/builders/'. $bder .'" target="_blank">'. "$display".'&nbsp;</a>';
     return($HTML);
     }
 

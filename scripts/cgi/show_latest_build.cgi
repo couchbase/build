@@ -108,7 +108,7 @@ print STDERR "according to last_done_build, is_running = $is_running\n";
 
 if ($bldnum < 0)
     {
-    print_HTML_Page( 'no build yet',
+    print_HTML_Page( buildbotQuery::html_RUN_link( $builder, 'no build yet'),
                      buildbotReports::is_running($is_running),
                      $builder,
                      $note_color );
