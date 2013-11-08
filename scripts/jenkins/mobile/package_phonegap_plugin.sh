@@ -53,11 +53,14 @@ unzip -q ${IOS_PKG}
 
 if [[ -e ${STAGE_DIR} ]] ; then rm -rf ${STAGE_DIR} ; fi
 mkdir -p ${IOS_DIR}
-cp -r ${DOWN_IDIR}/CouchbaseLite.framework             ${IOS_DIR}
-cp -r ${DOWN_IDIR}/CouchbaseLiteListener.framework     ${IOS_DIR}
-cp -r ${DOWN_IDIR}/JavaScriptCore.framework            ${IOS_DIR}
-cp -r ${DOWN_IDIR}/Extras/CBLRegisterJSViewCompiler.h  ${IOS_DIR}
-cp -r ${DOWN_IDIR}/Extras/libCBLJSViewCompiler.a       ${IOS_DIR}
+cp -r ${DOWN_IDIR}/CouchbaseLite.framework                               ${IOS_DIR}
+cp    ${DOWN_IDIR}/CouchbaseLite.framework/CouchbaseLite                 ${IOS_DIR}/CouchbaseLite.framework/CouchbaseLite.a
+cp -r ${DOWN_IDIR}/CouchbaseLiteListener.framework                       ${IOS_DIR}
+cp    ${DOWN_IDIR}/CouchbaseLiteListener.framework/CouchbaseLiteListener ${IOS_DIR}/CouchbaseLiteListener.framework/CouchbaseLiteListener.a
+cp -r ${DOWN_IDIR}/JavaScriptCore.framework                              ${IOS_DIR}
+cp    ${DOWN_IDIR}/JavaScriptCore.framework/JavaScriptCore               ${IOS_DIR}/JavaScriptCore.framework/JavaScriptCore.a
+cp -r ${DOWN_IDIR}/Extras/CBLRegisterJSViewCompiler.h                    ${IOS_DIR}
+cp -r ${DOWN_IDIR}/Extras/libCBLJSViewCompiler.a                         ${IOS_DIR}
 popd                     2>&1 >/dev/null
 
 cd ${WORKSPACE}
