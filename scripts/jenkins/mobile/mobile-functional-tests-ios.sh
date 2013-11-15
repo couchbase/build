@@ -1,21 +1,49 @@
 #!/bin/bash
-PLATFORM=darwin-amd64
+#          
+#          run by jenkins jobs: 'mobile_functional_tests_ios_master'
+#                               'mobile_functional_tests_ios_stable'
+#          
+#          with job paramters:
+#             
+#             LITESERV_VERSION
+#             SYNCGATE_VERSION
+#             
+#          and called with paramters:            release_number
+#          
+#             mobile_functional_tests_ios_master:     0.0
+#             mobile_functional_tests_ios_stable:     1.0
+#             
+source ~jenkins/.bash_profile
 export PATH=/usr/local/bin:$PATH
+export DISPLAY=:0
+set -e
+
+function usage
+    {
+    echo -e "\nuse:  ${0}   release_number\n\n"
+    }
+if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+VERSION=${1}
+
+PLATFORM=darwin-amd64
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
 mkdir -p ${AUT_DIR}/liteserv
 mkdir -p ${AUT_DIR}/sync_gateway
 
-LITESERV_VER=1.0-${LITESERV_VERSION}
+LITESERV_VER=${VERSION}-${LITESERV_VERSION}
 LITESERV_DIR=${AUT_DIR}/liteserv
 
-SYNCGATE_VER=1.0-${SYNCGATE_VERSION}
+SYNCGATE_VER=${VERSION}-${SYNCGATE_VERSION}
 SYNCGATE_DIR=${AUT_DIR}/sync_gateway
 
 DOWNLOAD=${AUT_DIR}/download
-env | sort
-#--------------------------------------------  install liteserv
+
+echo ============================================
+env | grep -iv password | grep -iv passwd | sort
+
+echo ============================================ install liteserv
 rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
@@ -29,7 +57,8 @@ unzip   -q ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip
 export LITESERV_PATH=${LITESERV_DIR}/LiteServ
 
 popd                 2>&1 > /dev/null
-#--------------------------------------------  install sync_gateway
+
+echo ============================================ install sync_gateway
 rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
@@ -41,7 +70,8 @@ export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
 cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
 
 popd                 2>&1 > /dev/null
-#--------------------------------------------  run tests
+
+echo ============================================ run tests
 
 if [[ ! -d cblite-tests ]] ; then git clone https://github.com/couchbaselabs/cblite-tests.git ; fi
 cd cblite-tests
