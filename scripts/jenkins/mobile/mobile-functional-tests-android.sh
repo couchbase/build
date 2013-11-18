@@ -1,81 +1,78 @@
 #!/bin/bash
+#          
+#          run by jenkins jobs: 'mobile_functional_tests_android_master'
+#                               'mobile_functional_tests_android_stable'
+#          
+#          with job paramters:
+#             
+#             LITESERV_VERSION
+#             SYNCGATE_VERSION
+#             
+#          and called with paramters:                release_number
+#          
+#             mobile_functional_tests_android_master:     0.0
+#             mobile_functional_tests_android_stable:     1.0
+#             
+source ~jenkins/.bash_profile
+set -e
+
+function usage
+    {
+    echo -e "\nuse:  ${0}   release_number\n\n"
+    }
+if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+VERSION=${1}
+
+
 PLATFORM=CentOS_release_5.8
 #export PATH=/usr/local/bin:$PATH
-export ANDROID_HOME=/home/jenkins/adt-bundle-linux-x86_64-20130917/sdk/
-export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+#export ANDROID_HOME=/home/jenkins/adt-bundle-linux-x86_64-20130917/sdk/
+#export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
-mkdir -p ${AUT_DIR}/LiteServAndroid
-#mkdir -p ${AUT_DIR}/sync_gateway
+mkdir -p ${AUT_DIR}/liteserv
+mkdir -p ${AUT_DIR}/sync_gateway
 
-//LITESERV_VER=1.0-${LITESERV_VERSION}
-//LITESERV_DIR=${AUT_DIR}/liteserv
+LITESERV_VER=${VERSION}-${LITESERV_VERSION}
+LITESERV_DIR=${AUT_DIR}/liteserv
 
-//SYNCGATE_VER=1.0-${SYNCGATE_VERSION}
-//SYNCGATE_DIR=${AUT_DIR}/sync_gateway
+SYNCGATE_VER=${VERSION}-${SYNCGATE_VERSION}
+SYNCGATE_DIR=${AUT_DIR}/sync_gateway
 
-#--------------------------------------------  build LiteServAndroid
-cd ${AUT_DIR}
-git clone https://github.com/couchbaselabs/LiteServAndroid.git
-cd ${AUT_DIR}/LiteServAndroid
-echo "sdk.dir=/home/jenkins/adt-bundle-linux-x86_64-20130917/sdk/" > local.properties
-git submodule init && git submodule update
-./gradlew clean && ./gradlew build
-./run_android_liteserv.sh 8080
+DOWNLOAD=${AUT_DIR}/download
 
-//DOWNLOAD=${AUT_DIR}/download
-env | sort
+echo ============================================
+env | grep -iv password | grep -iv passwd | sort
 
-#--------------------------------------------  build sync_gateway
-export GOROOT=$HOME/go
-export PATH=$PATH:$GOROOT/bin
-cd ${AUT_DIR}
-git clone https://github.com/couchbase/sync_gateway.git
+echo ============================================ install liteserv
+rm   -rf ${DOWNLOAD}
+mkdir -p ${DOWNLOAD}
+pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-cd ${AUT_DIR}/sync_gateway
-git submodule init
-git submodule update
-./build.sh
+wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/cblite_ios_${LITESERV_VER}.zip
 
-#git clone git@github.com:couchbase/sync_gateway.git
-#cd ${AUT_DIR}/LiteServAndroid
-#echo "sdk.dir=/home/jenkins/adt-bundle-linux-x86_64-20130917/sdk/" > local.properties
-#git submodule init && git submodule update
-#./gradlew clean && ./gradlew build
-#./run_android_liteserv.sh 8080
-
-#//DOWNLOAD=${AUT_DIR}/download
-#env | sort
-
-
-#--------------------------------------------  install liteserv
-#rm   -rf ${DOWNLOAD}
-#mkdir -p ${DOWNLOAD}
-#pushd    ${DOWNLOAD} 2>&1 > /dev/null
-
-#wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/cblite_ios_${LITESERV_VER}.zip
-
-#cd ${LITESERV_DIR}
-#if [[ ! -e ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip" ; exit 99 ; fi
-#unzip   -q ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip
+cd ${LITESERV_DIR}
+if [[ ! -e ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip" ; exit 99 ; fi
+unzip   -q ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip
                                                          # want all of the zip file contents
-#export LITESERV_PATH=${LITESERV_DIR}/LiteServ
+export LITESERV_PATH=${LITESERV_DIR}/LiteServ
 
-#popd                 2>&1 > /dev/null
-#--------------------------------------------  install sync_gateway
-#rm   -rf ${DOWNLOAD}
-#mkdir -p ${DOWNLOAD}
-#pushd    ${DOWNLOAD} 2>&1 > /dev/null
+popd                 2>&1 > /dev/null
 
-#wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/sync_gateway_${SYNCGATE_VER}.zip
-#unzip -q sync_gateway_${SYNCGATE_VER}.zip
+echo ============================================ install sync_gateway
+rm   -rf ${DOWNLOAD}
+mkdir -p ${DOWNLOAD}
+pushd    ${DOWNLOAD} 2>&1 > /dev/null
+
+wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/sync_gateway_${SYNCGATE_VER}.zip
+unzip -q sync_gateway_${SYNCGATE_VER}.zip
                                                          # want to choose from the zip file contents
-#export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
-#cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
+export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
+cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
 
-#popd                 2>&1 > /dev/null
-#--------------------------------------------  run tests
+popd                 2>&1 > /dev/null
+echo ============================================ run tests
 ${WORKSPACE}
 if [[ ! -d cblite-tests ]] ; then git clone https://github.com/couchbaselabs/cblite-tests.git ; fi
 cd cblite-tests
