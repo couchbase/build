@@ -70,7 +70,7 @@ cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
 
 popd                 2>&1 > /dev/null
 echo ============================================ run tests
-${WORKSPACE}
+cd ${WORKSPACE}
 if [[ ! -d cblite-tests ]] ; then git clone https://github.com/couchbaselabs/cblite-tests.git ; fi
 cd cblite-tests
 git pull
