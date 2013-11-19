@@ -9,7 +9,10 @@
 # 
 # BRANCH     - which branch these changes occur on
 
-if [[ ! ${PROJECTS}  ]] ; then PROJECTS="couchbase-cli couchdb couchdbx-app couchstore ep-engine geocouch healthchecker membase-cli ns_server testrunner tlm" ; fi
+if [[ ! ${PROJECTS}  ]]
+    then
+    PROJECTS="cbsasl couchbase-cli couchbase-examples couchbase-python-client couchdb couchdbx-app couchstore ep-engine geocouch healthchecker libconflate libmemcached libvbucket memcached moxi ns_server platform portsigar sigar testrunner tlm"
+fi
 
 FAILS=0
 
