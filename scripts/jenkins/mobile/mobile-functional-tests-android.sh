@@ -24,10 +24,7 @@ if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 VERSION=${1}
 
 
-PLATFORM=CentOS_release_5.8
-#export PATH=/usr/local/bin:$PATH
-#export ANDROID_HOME=/home/jenkins/adt-bundle-linux-x86_64-20130917/sdk/
-#export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+PLATFORM=linux-amd64
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
