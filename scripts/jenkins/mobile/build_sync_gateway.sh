@@ -60,3 +60,8 @@ echo ................... uploading to ${CBFS_URL}/${ZIP_FILE}
 curl -XPUT --data-binary @${ZIP_FILE} ${CBFS_URL}/${ZIP_FILE}
 
 popd                   2>&1 >/dev/null
+
+echo  ============================================== update default value of test jobs
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${GITSPEC}      -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${GITSPEC}  -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
+
