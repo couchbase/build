@@ -153,7 +153,9 @@ echo ============================================  generate javadocs
 cd ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject
 ./gradlew :CBLite:generateJavadocs
 cd CBLite/build/docs/javadoc
+
+echo ============================================ zip up ${DOCS_ZIP}
 zip -r ${WORKSPACE}/${DOCS_ZIP} *
 
-echo  ============================================== upload ${CBFS_URL}/${ZIP_FILE}
+echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
