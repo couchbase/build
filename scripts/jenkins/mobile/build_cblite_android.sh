@@ -37,8 +37,10 @@ GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
-#REVISION=${VERSION}-${BUILD_NUMBER}
+REVISION=${VERSION}-${BUILD_NUMBER}
 
+CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
+DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
 
 PLATFORM=linux-amd64
 
@@ -145,3 +147,13 @@ jobs
 kill %adb                       || true
 kill %./start_android_emulator  || true
 kill %./sync_gateway            || true
+
+echo ============================================  generate javadocs
+
+cd ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject
+./gradlew :CBLite:generateJavadocs
+cd CBLite/build/docs/javadoc
+zip -r ${WORKSPACE}/${DOCS_ZIP} *
+
+echo  ============================================== upload ${CBFS_URL}/${ZIP_FILE}
+curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
