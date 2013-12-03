@@ -88,7 +88,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                                  "3.0.0"  =>  "ubuntu-1004-x86-300-builder",
                                                                  "master" =>  "ubuntu-1004-x86-master-builder",
                                                                },
-                                                         64 => { "1.8.1"  =>  "ubuntu-x64-1004-repo-builder",
+                                                         64 => { "1.8.1"  =>  "ubuntu-x64-181-builder",
                                                                  "2.0.0"  =>  "ubuntu-x64-20-builder",
                                                                  "2.0.1"  =>  "ubuntu-x64-201-builder",
                                                                  "2.0.2"  =>  "ubuntu-x64-202-builder",
