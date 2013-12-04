@@ -84,7 +84,12 @@ git submodule init
 git submodule update
 git show --stat
 
-/usr/local/bin/node buildios.js --iosrepo ${WORKSPACE}/couchbase-lite-ios | tee ${LOG_FILE}
+cd ${WORKSPACE}/couchbase-lite-ios
+for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler"
+  do
+    echo ============================================  iOS target: ${TARGET} | tee -a ${LOG_FILE}
+    xcodebuild -target ${TARGET}                                             | tee -a ${LOG_FILE}
+done
 
 echo  ============================================== package ${ZIP_FILE}
 if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
