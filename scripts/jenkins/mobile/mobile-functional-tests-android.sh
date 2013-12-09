@@ -69,15 +69,17 @@ export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
 cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
 
 popd                 2>&1 > /dev/null
-echo ============================================ run tests
+echo ============================================ sync cblite-tests
 cd ${WORKSPACE}
 if [[ ! -d cblite-tests ]] ; then git clone https://github.com/couchbaselabs/cblite-tests.git ; fi
 cd cblite-tests
 git pull
 git show --stat
 
+echo ============================================ run tests
 mkdir -p tmp/single
-npm install  2>&1  >    ${WORKSPACE}/npm_install.log
+npm install  2>&1  >  ${WORKSPACE}/npm_install.log
+cat                   ${WORKSPACE}/npm_install.log
 echo ===================================================================================== killing any hanging com.couchbase.liteservandroid apps
 adb shell am force-stop com.couchbase.liteservandroid
 # echo ===================================================================================== starting ${LITESERV_PATH}
@@ -88,7 +90,7 @@ adb shell am force-stop com.couchbase.liteservandroid
 # ./node_modules/.bin/tap ./tests       1> ${WORKSPACE}/results.log  2> ${WORKSPACE}/gateway.log
 
 echo ===================================================================================== starting npm
-npm test > ${WORKSPACE}/results.log  2> ${WORKSPACE}/gateway.log
+npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
 
 echo ===================================================================================== killing any hanging LiteServ
 adb shell am force-stop com.couchbase.liteservandroid || true
