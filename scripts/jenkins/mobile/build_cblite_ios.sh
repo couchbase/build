@@ -86,9 +86,9 @@ git show --stat
 
 DOC_ZIP_FILE=cblite_ios_${REVISION}_Documentation.zip
 DOC_ZIP_PATH=${BASE_DIR}/${DOC_ZIP_FILE}
-                                                                      # required by "Documentation" target
-DERIVED_FILE_DIR=${REL_SRCD}/Documentation                            #  where the doc files are generated
-TARGET_BUILD_DIR=${WORKSPACE}/couchbase-lite-ios/build/Documentation  #  where the doc set ends up
+                                                                   # required by "Documentation" target
+DERIVED_FILE_DIR=${REL_SRCD}/Documentation                         #  where the doc files are generated
+TARGET_BUILD_DIR=${REL_SRCD}/com.couchbase.CouchbaseLite.docset    #  where the doc set ends up
 
 mkdir -p ${TARGET_BUILD_DIR}
 
