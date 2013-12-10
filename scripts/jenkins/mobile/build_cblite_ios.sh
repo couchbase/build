@@ -86,11 +86,10 @@ git show --stat
 
 DOC_ZIP_FILE=cblite_ios_${REVISION}_Documentation.zip
 DOC_ZIP_PATH=${BASE_DIR}/${DOC_ZIP_FILE}
-                                                                          # required by "Documentation" target
-DERIVED_FILE_DIR=${WORKSPACE}/couchbase-lite-ios/build/Documentation/gen  #  where the doc files are generated
-TARGET_BUILD_DIR=${WORKSPACE}/couchbase-lite-ios/build/Documentation/out  #  where the doc set ends up
+                                                                      # required by "Documentation" target
+DERIVED_FILE_DIR=${REL_SRCD}/Documentation                            #  where the doc files are generated
+TARGET_BUILD_DIR=${WORKSPACE}/couchbase-lite-ios/build/Documentation  #  where the doc set ends up
 
-mkdir -p ${DERIVED_FILE_DIR}
 mkdir -p ${TARGET_BUILD_DIR}
 
 cd ${WORKSPACE}/couchbase-lite-ios
@@ -101,7 +100,7 @@ for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "Docum
     xcodebuild -target "${TARGET}"                                           | tee -a ${LOG_FILE}
 done
 
-echo  ============================================== package Documentation
+echo  ============================================== package ${DOC_ZIP_FILE}
 pushd  ${TARGET_BUILD_DIR}  2>&1 > /dev/null
 zip -r ${DOC_ZIP_PATH} *
 popd                        2>&1 > /dev/null
