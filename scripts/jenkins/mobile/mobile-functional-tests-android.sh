@@ -79,6 +79,7 @@ git show --stat
 echo ============================================ run tests
 mkdir -p tmp/single
 npm install  2>&1  >  ${WORKSPACE}/npm_install.log
+echo ============================================ cat npm_install.log
 cat                   ${WORKSPACE}/npm_install.log
 echo ===================================================================================== killing any hanging com.couchbase.liteservandroid apps
 adb shell am force-stop com.couchbase.liteservandroid
