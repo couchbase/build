@@ -122,7 +122,7 @@ elsif ($bldstatus)
     my $made_color;
     if ($test_job_url =~ /^0$/)
         {
-        if (defined($test_build_num) && $test_build_num == /^0$/)    # no job tiggered
+        if (defined($test_build_num) && $test_build_num =~ /^0$/)    # no job tiggered
             {
             $made_color = $warn_color;
             $running   .= 'NO&nbsp;TEST';

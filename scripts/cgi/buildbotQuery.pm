@@ -27,7 +27,7 @@ my $json = JSON->new;
 
 use LWP::UserAgent;
 my $ua = LWP::UserAgent->new;
-$ua->timeout(10);
+$ua->timeout(90);
 $ua->env_proxy;
 
 my $USERID='buildbot';

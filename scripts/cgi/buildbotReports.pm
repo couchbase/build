@@ -35,7 +35,7 @@ sub release
     {
     my ($branch_name) = @_;
     my  $branch_numb  = $branch_name;
-    if ($branch_numb == 'master')    { $branch_numb = '0.0.0'; }
+    if ($branch_numb eq 'master')    { $branch_numb = '0.0.0'; }
     return($branch_numb);
     }
 

@@ -182,9 +182,9 @@ sub get_toy_builder
     my ($platform, $branch, $owner) = @_;
     my  $toy_name = $platform.'-'.$branch.'-toy-'.$owner.'-builder';
     if ($DEBUG)  { print STDERR "\n".'...checking builder >>'.$toy_name.'<<'."\n"; }
-    if (($platform == 'cent54') || ($platform == 'cent58') || ($platform == 'win32') || ($platform == 'win64') )
+    if (($platform eq 'cent54') || ($platform eq 'cent58') || ($platform eq 'win32') || ($platform eq 'win64') )
         {
-        if ( ($branch == 'master') || ($branch == '3.0.0') || ($branch == '2.5.0') || ($branch == '2.2.0') || ($branch == '2.1.1') )
+        if ( ($branch eq 'master') || ($branch eq '3.0.0') || ($branch eq '2.5.0') || ($branch eq '2.2.0') || ($branch eq '2.1.1') )
             {
             return($toy_name);
             }
