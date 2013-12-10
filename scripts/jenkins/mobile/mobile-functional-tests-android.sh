@@ -78,13 +78,11 @@ git show --stat
 
 echo ============================================ run tests
 mkdir -p tmp/single
-npm install  2>&1  >  ${WORKSPACE}/npm_install.log
-echo ============================================ cat npm_install.log
-cat                   ${WORKSPACE}/npm_install.log
+npm install  2>&1  | tee  ${WORKSPACE}/npm_install.log
 echo ===================================================================================== killing any hanging com.couchbase.liteservandroid apps
 adb shell am force-stop com.couchbase.liteservandroid
 # echo ===================================================================================== starting ${LITESERV_PATH}
-# ${LITESERV_PATH}  | tee ${WORKSPACE}/liteserv.log & 
+# ${LITESERV_PATH} | tee  ${WORKSPACE}/liteserv.log & 
 
 # echo ===================================================================================== starting ./node_modules/.bin/tap
 # export TAP_TIMEOUT=500
