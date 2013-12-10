@@ -84,12 +84,27 @@ git submodule init
 git submodule update
 git show --stat
 
+DOC_ZIP_FILE=cblite_ios_${REVISION}_Documentation.zip
+DOC_ZIP_PATH=${BASE_DIR}/${DOC_ZIP_FILE}
+                                                                          # required by "Documentation" target
+DERIVED_FILE_DIR=${WORKSPACE}/couchbase-lite-ios/build/Documentation/gen  #  where the doc files are generated
+TARGET_BUILD_DIR=${WORKSPACE}/couchbase-lite-ios/build/Documentation/out  #  where the doc set ends up
+
+mkdir -p ${DERIVED_FILE_DIR}
+mkdir -p ${TARGET_BUILD_DIR}
+
 cd ${WORKSPACE}/couchbase-lite-ios
-for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler"
+
+for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "Documentation"
   do
     echo ============================================  iOS target: ${TARGET} | tee -a ${LOG_FILE}
     xcodebuild -target "${TARGET}"                                           | tee -a ${LOG_FILE}
 done
+
+echo  ============================================== package Documentation
+pushd  ${TARGET_BUILD_DIR}  2>&1 > /dev/null
+zip -r ${DOC_ZIP_PATH} *
+popd                        2>&1 > /dev/null
 
 echo  ============================================== package ${ZIP_FILE}
 if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
@@ -114,6 +129,9 @@ zip -r   ${ZIP_PATH} *
 
 echo  ============================================== upload ${CBFS_URL}/${ZIP_FILE}
 curl -XPUT --data-binary @${ZIP_PATH} ${CBFS_URL}/${ZIP_FILE}
+
+echo  ============================================== upload ${CBFS_URL}/${DOC_ZIP_PATH}
+curl -XPUT --data-binary @${DOC_ZIP_PATH} ${CBFS_URL}/${DOC_ZIP_FILE}
 
 echo  ============================================== update default value of test jobs
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${GITSPEC}      -p LITESERV_VERSION  -v ${BUILD_NUMBER}
