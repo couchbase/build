@@ -93,11 +93,10 @@ TARGET_BUILD_DIR=${REL_SRCD}/com.couchbase.CouchbaseLite.docset    #  where the 
 mkdir -p ${TARGET_BUILD_DIR}
 
 cd ${WORKSPACE}/couchbase-lite-ios
-
 for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "Documentation"
   do
-    echo ============================================  iOS target: ${TARGET} | tee -a ${LOG_FILE}
-    xcodebuild -target "${TARGET}"                                           | tee -a ${LOG_FILE}
+    echo ============================================  iOS target: ${TARGET}    | tee -a ${LOG_FILE}
+    xcodebuild -target "${TARGET}"                                              | tee -a ${LOG_FILE}
 done
 
 echo  ============================================== package ${DOC_ZIP_FILE}
@@ -105,7 +104,7 @@ pushd  ${TARGET_BUILD_DIR}  2>&1 > /dev/null
 zip -r ${DOC_ZIP_PATH} *
 popd                        2>&1 > /dev/null
 
-echo  ============================================== package ${ZIP_FILE}
+echo  ============================================== prepare ${ZIP_FILE}
 if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
 mkdir -p ${ZIP_SRCD}
 
@@ -123,6 +122,18 @@ cd       ${ZIP_SRCD}
 rm -rf CouchbaseLite.framework.dSYM
 rm -rf CouchbaseLiteListener.framework.dSYM
 
+echo  ============================================== now make 64-bit components
+cd ${WORKSPACE}/couchbase-lite-ios
+for TARGET in "CBL iOS"
+  do
+    echo ============================================  64-bit target: ${TARGET} | tee -a ${LOG_FILE}
+    xcodebuild -target "${TARGET}" -configuration 'Release 64bit'               | tee -a ${LOG_FILE}
+done
+cp  -r   ${RIO_SRCD}/CouchbaseLite.framework         ${RIO_DEST}/CouchbaseLite.64bit.framework
+cp  -r   ${RIO_SRCD}/CouchbaseLiteListener.framework ${RIO_DEST}/CouchbaseLiteListener.64bit.framework
+rm -rf   ${RIO_DEST}/CouchbaseLite.64bit.framework/PrivateHeaders
+
+echo  ============================================== package ${ZIP_FILE}
 cd       ${ZIP_SRCD}
 zip -r   ${ZIP_PATH} *
 
