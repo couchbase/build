@@ -131,6 +131,15 @@ echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 ./run_android_unit_tests.sh 2>&1 | tee ${WORKSPACE}/android_unit_tests_err.log
 
+FAILS=`grep -i FAIL ${WORKSPACE}/android_unit_tests_err.log | wc -l`
+if [[ $((FAILS)) > 0 ]]
+    then
+    echo "---------------------------- ${FAILS} test FAILs -----------------------"
+       cat -n ${WORKSPACE}/android_unit_tests_err.log | grep -i FAIL
+    echo "------------------------------------------------------------------------"
+    exit ${FAILS}
+fi
+
 #
 #                     # generates tap.out result file
 #./buildandroid.sh
