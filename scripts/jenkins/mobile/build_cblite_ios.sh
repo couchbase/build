@@ -46,7 +46,7 @@ RIO_DEST=${ZIP_SRCD}
 REL_SRCD=${BUILDDIR}/Release
 REL_DEST=${ZIP_SRCD}
 
-LSA_SRCD=${BUILDDIR}/Debug
+LSA_SRCD=${BUILDDIR}/Release
 LSA_DEST=${ZIP_SRCD}
 
 LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
@@ -125,6 +125,7 @@ rm -rf PrivateHeaders
 cd       ${ZIP_SRCD}
 rm -rf CouchbaseLite.framework.dSYM
 rm -rf CouchbaseLiteListener.framework.dSYM
+rm -rf LiteServ.app.dSYM
 
 echo  ============================================== now make 64-bit components
 cd ${WORKSPACE}/couchbase-lite-ios
