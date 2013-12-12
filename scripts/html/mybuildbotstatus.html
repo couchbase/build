@@ -23,6 +23,15 @@
          document.write( "<iframe src='http://factory.hq.couchbase.com/cgi/show_latest_build.cgi?platform="
                          + platform+'&branch='+branch+'&toy='+getParam("owner")+"'"+' height="35" width="100%" frameborder="1" scrolling="auto"></iframe>');
          }
+      function called_with()
+         {
+         document.write( "&nbsp;&nbsp;<I>called with:&nbsp;&nbsp;</I>" );
+         document.write( location );
+         if (getParam("owner") == false)
+             {
+             document.write( "<br><br>use <strong>?owner=<I>toy_owner</I></strong> parameter to get I>toy_owner</I>'s results" );
+             }
+         }
     </script>
 </HEAD>
 <BODY>
@@ -49,7 +58,7 @@
         <td><script language="JavaScript">showFram("win32", "2.5.0");</script></td>
     </tr>
 </table>
-<h4><center><I>called with:&nbsp;&nbsp;</I><script language="JavaScript">document.write(location);</script>
+<h4><center><I><script language="JavaScript">called_with();</script>
 </center></h4>
 </BODY>
 </HTML>
