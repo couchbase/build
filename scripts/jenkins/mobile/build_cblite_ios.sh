@@ -46,6 +46,9 @@ RIO_DEST=${ZIP_SRCD}
 REL_SRCD=${BUILDDIR}/Release
 REL_DEST=${ZIP_SRCD}
 
+LSA_SRCD=${BUILDDIR}/Debug
+LSA_DEST=${ZIP_SRCD}
+
 LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
 LIB_SRCF=${LIB_SRCD}/libCBLJSViewCompiler.a
 LIB_DEST=${ZIP_SRCD}/Extras
@@ -93,7 +96,7 @@ TARGET_BUILD_DIR=${REL_SRCD}/com.couchbase.CouchbaseLite.docset    #  where the 
 mkdir -p ${TARGET_BUILD_DIR}
 
 cd ${WORKSPACE}/couchbase-lite-ios
-for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "Documentation"
+for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation"
   do
     echo ============================================  iOS target: ${TARGET}    | tee -a ${LOG_FILE}
     xcodebuild -target "${TARGET}"                                              | tee -a ${LOG_FILE}
@@ -110,6 +113,7 @@ mkdir -p ${ZIP_SRCD}
 
 cp  -r   ${RIO_SRCD}/*         ${RIO_DEST}
 #cp -r   ${REL_SRCD}/LiteServ* ${REL_DEST}
+cp  -r   ${LSA_SRCD}/*         ${LSA_DEST}
 cp       ${LIB_SRCF}           ${LIB_DEST}
 cp  -r   ${JSC_SRCD}           ${JSC_DEST}
 cp       ${README_F}           ${RME_DEST}
