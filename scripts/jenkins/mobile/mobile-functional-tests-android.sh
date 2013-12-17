@@ -76,22 +76,23 @@ cd cblite-tests
 git pull
 git show --stat
 
-echo ============================================ run tests
+echo ============================================ npm install
 mkdir -p tmp/single
 npm install  2>&1  | tee  ${WORKSPACE}/npm_install.log
-echo ===================================================================================== killing any hanging com.couchbase.liteservandroid apps
-adb shell am force-stop com.couchbase.liteservandroid
+echo ============================================ kill any hanging com.couchbase.liteservandroid
+adb shell am force-stop com.couchbase.liteservandroid || true
+
 # echo ===================================================================================== starting ${LITESERV_PATH}
 # ${LITESERV_PATH} | tee  ${WORKSPACE}/liteserv.log & 
-
+#
 # echo ===================================================================================== starting ./node_modules/.bin/tap
 # export TAP_TIMEOUT=500
 # ./node_modules/.bin/tap ./tests       1> ${WORKSPACE}/results.log  2> ${WORKSPACE}/gateway.log
 
-echo ===================================================================================== starting npm
+echo ============================================ npm test
 npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
 
-echo ===================================================================================== killing any hanging LiteServ
+echo ============================================ kill any hanging LiteServ
 adb shell am force-stop com.couchbase.liteservandroid || true
 
 
