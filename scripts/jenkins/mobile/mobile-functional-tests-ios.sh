@@ -98,7 +98,7 @@ echo ============================================ killing any hanging LiteServ
 killall LiteServ || true
 
 FAILS=`cat ${WORKSPACE}/npm_test_results.log | grep 'npm ERR!' | wc -l`
-if [[ ${FAILS} > 0 ]] 
+if [[ $((FAILS)) > 0 ]] 
   then
     echo ============================================ exit: ${FAILS}
     exit ${FAILS}
