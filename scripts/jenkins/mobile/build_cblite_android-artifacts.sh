@@ -29,7 +29,7 @@ GITSPEC=${1}
 
 if [[ (${GITSPEC} != master) && (${GITSPEC} != stable) ]] ; then usage ; exit 88 ; fi
 
-echo ============================================
+echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
 cd ${WORKSPACE}

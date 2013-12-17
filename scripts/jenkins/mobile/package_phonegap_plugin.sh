@@ -22,7 +22,7 @@ if [[ ! ${VERSION} ]] ; then VERSION=1.0    ; fi
 REVISION=${VERSION}-${BUILD_NUMBER}
 
 env | grep -iv password | grep -iv passwd | sort -u
-echo =========================================================
+echo ========================================================= `date`
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 ANRL_URL=http://packages.couchbase.com/releases/couchbase-lite/android/${ANDROID_REL}

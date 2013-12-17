@@ -61,7 +61,7 @@ if [[ $DISTRO =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${REVISION}_${
                                                                      PLATFORM=${DISTRO}-${ARCH}         ; fi
 
 env | grep -iv password | grep -iv passwd | sort -u
-echo ==============================================
+echo ============================================== `date`
 
 ZIP_FILE=sync_gateway_${REVISION}.zip
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds

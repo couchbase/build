@@ -57,7 +57,7 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 export TAP_TIMEOUT=120
 
-echo ============================================
+echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
 cd ${WORKSPACE}

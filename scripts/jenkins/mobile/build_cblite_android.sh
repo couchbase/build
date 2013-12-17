@@ -58,7 +58,7 @@ export SYNCGATE_PATH=${AUT_DIR}/sync_gateway
 
 DOWNLOAD=${AUT_DIR}/download
 
-echo ============================================
+echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
 cd ${WORKSPACE}
