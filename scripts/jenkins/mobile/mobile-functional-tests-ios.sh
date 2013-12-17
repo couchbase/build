@@ -77,24 +77,32 @@ cd cblite-tests
 git pull
 git show --stat
 
-echo ============================================ run tests
+echo ============================================ npm install
 mkdir -p tmp/single
 npm install  2>&1  >  ${WORKSPACE}/npm_install.log
 cat                   ${WORKSPACE}/npm_install.log
-echo ===================================================================================== killing any hanging LiteServ
+echo ============================================ killing any hanging LiteServ
 killall LiteServ || true
+
 # echo ===================================================================================== starting ${LITESERV_PATH}
 # ${LITESERV_PATH}  | tee ${WORKSPACE}/liteserv.log & 
-
+#
 # echo ===================================================================================== starting ./node_modules/.bin/tap
 # export TAP_TIMEOUT=500
 # ./node_modules/.bin/tap ./tests       1> ${WORKSPACE}/results.log  2> ${WORKSPACE}/gateway.log
 
-echo ===================================================================================== starting npm
+echo ============================================ npm test
 npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
 
-echo ===================================================================================== killing any hanging LiteServ
+echo ============================================ killing any hanging LiteServ
 killall LiteServ || true
 
-
-echo ===================================================================================== DONE
+FAILS=`cat ${WORKSPACE}/npm_test_results.log | grep 'npm ERR!' | wc -l`
+if [[ ${FAILS} > 0 ]] 
+  then
+    echo ============================================ exit: ${FAILS}
+    exit ${FAILS}
+  else
+    echo ============================================ DONE
+    exit ${FAILS}
+fi
