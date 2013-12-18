@@ -28,6 +28,7 @@ if [[ $1 == "--help" ]] ; then usage ; fi
 
 ####    globals
 
+latestbuilds=http://builds.hq.northscale.net/latestbuilds
 s3_relbucket=s3://packages.couchbase.com/releases
 
 phone_home=${WORKSPACE}/home_phone.txt
@@ -54,7 +55,6 @@ if [[ $version =~ $vrs_rex ]]
     usage
     exit
 fi
-latestbuilds=http://builds.hq.northscale.net/latestbuilds/${rel_num}
 
 #                                     must end with "/"
 s3_target=${s3_relbucket}/${rel_num}/
