@@ -71,6 +71,7 @@ cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
 
 popd                 2>&1 > /dev/null
 
+cd ${WORKSPACE}
 echo ============================================ sync cblite-tests
 if [[ ! -d cblite-tests ]] ; then git clone https://github.com/couchbaselabs/cblite-tests.git ; fi
 cd cblite-tests
@@ -85,7 +86,7 @@ echo ============================================ killing any hanging LiteServ
 killall LiteServ || true
 
 # echo ===================================================================================== starting ${LITESERV_PATH}
-# ${LITESERV_PATH}  | tee ${WORKSPACE}/liteserv.log & 
+# ${LITESERV_PATH} | tee  ${WORKSPACE}/liteserv.log & 
 #
 # echo ===================================================================================== starting ./node_modules/.bin/tap
 # export TAP_TIMEOUT=500

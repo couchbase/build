@@ -69,8 +69,9 @@ export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
 cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
 
 popd                 2>&1 > /dev/null
-echo ============================================ sync cblite-tests
+
 cd ${WORKSPACE}
+echo ============================================ sync cblite-tests
 if [[ ! -d cblite-tests ]] ; then git clone https://github.com/couchbaselabs/cblite-tests.git ; fi
 cd cblite-tests
 git pull
@@ -78,9 +79,10 @@ git show --stat
 
 echo ============================================ npm install
 mkdir -p tmp/single
-npm install  2>&1  | tee  ${WORKSPACE}/npm_install.log
-echo ============================================ kill any hanging com.couchbase.liteservandroid
-adb shell am force-stop com.couchbase.liteservandroid || true
+npm install  2>&1  >  ${WORKSPACE}/npm_install.log
+cat                   ${WORKSPACE}/npm_install.log
+echo ============================================ killing any hanging LiteServ
+killall LiteServ || true
 
 # echo ===================================================================================== starting ${LITESERV_PATH}
 # ${LITESERV_PATH} | tee  ${WORKSPACE}/liteserv.log & 
@@ -92,8 +94,15 @@ adb shell am force-stop com.couchbase.liteservandroid || true
 echo ============================================ npm test
 npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
 
-echo ============================================ kill any hanging LiteServ
-adb shell am force-stop com.couchbase.liteservandroid || true
+echo ============================================ killing any hanging LiteServ
+killall LiteServ || true
 
-
-echo ===================================================================================== DONE
+FAILS=`cat ${WORKSPACE}/npm_test_results.log | grep 'npm ERR!' | wc -l`
+if [[ $((FAILS)) > 0 ]] 
+  then
+    echo ============================================ exit: ${FAILS}
+    exit ${FAILS}
+  else
+    echo ============================================ DONE
+    exit ${FAILS}
+fi
