@@ -26,7 +26,6 @@ if [[ $1 == "--help" ]] ; then usage ; fi
 
 ####    globals
 
-latestbuilds=http://builds.hq.northscale.net/latestbuilds
 s3_relbucket=s3://packages.couchbase.com/releases
 
 phone_home=${WORKSPACE}/home_phone.txt
