@@ -17,6 +17,7 @@ echo ============================================ clean
 rm -rf testrunner/cluster_run.log
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
+repo forall -c "git clean -xfd"
 
 echo ============================================ update testrunner
 cd testrunner
