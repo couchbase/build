@@ -54,7 +54,7 @@ cd ${LITESERV_DIR}
 if [[ ! -e ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip" ; exit 99 ; fi
 unzip   -q ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip
                                                          # want all of the zip file contents
-export LITESERV_PATH=${LITESERV_DIR}/LiteServ
+export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
 
 popd                 2>&1 > /dev/null
 
@@ -93,6 +93,7 @@ killall LiteServ || true
 # ./node_modules/.bin/tap ./tests       1> ${WORKSPACE}/results.log  2> ${WORKSPACE}/gateway.log
 
 echo ============================================ npm test
+export TAP_TIMEOUT=2000
 npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
 
 echo ============================================ killing any hanging LiteServ

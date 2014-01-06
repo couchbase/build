@@ -92,6 +92,7 @@ killall LiteServ || true
 # ./node_modules/.bin/tap ./tests       1> ${WORKSPACE}/results.log  2> ${WORKSPACE}/gateway.log
 
 echo ============================================ npm test
+export TAP_TIMEOUT=2000
 npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
 
 echo ============================================ killing any hanging LiteServ
