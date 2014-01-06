@@ -53,7 +53,7 @@ cd ${LITESERV_DIR}
 if [[ ! -e ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip" ; exit 99 ; fi
 unzip   -q ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip
                                                          # want all of the zip file contents
-export LITESERV_PATH=${LITESERV_DIR}/LiteServ
+export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
 
 popd                 2>&1 > /dev/null
 
