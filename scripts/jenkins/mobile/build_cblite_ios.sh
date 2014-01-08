@@ -84,7 +84,7 @@ cd  cblite-build
 git checkout      master
 git pull  origin  master
 git submodule init
-git submodule update
+git submodule update --init --recursive
 git show --stat
 
 DOC_ZIP_FILE=cblite_ios_${REVISION}_Documentation.zip
