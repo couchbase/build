@@ -83,7 +83,6 @@ if [[ ! -d cblite-build ]] ; then git clone https://github.com/couchbaselabs/cbl
 cd  cblite-build
 git checkout      master
 git pull  origin  master
-git submodule init
 git submodule update --init --recursive
 git show --stat
 
