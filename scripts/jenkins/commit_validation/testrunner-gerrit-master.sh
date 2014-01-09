@@ -26,7 +26,7 @@ git fetch ssh://review.couchbase.org:29418/testrunner $GERRIT_REFSPEC && git che
 
 echo ============================================ make
 cd ..
-make -j8
+make
 echo ============================================ make simple-test
 cd testrunner
 make simple-test
