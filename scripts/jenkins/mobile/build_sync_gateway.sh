@@ -56,6 +56,12 @@ if [[ $GOOS =~ windows ]] ; then EXEC=sync_gateway.exe ; PKGR=package-win.rb ; f
 
 export GOOS ; export EXEC
 
+GO_RELEASE=1.2
+GOROOT=/usr/local/go/${GO_RELEASE}
+PATH=${PATH}:${GOROOT}/bin 
+
+export GO_RELEASE ; export GOROOT ; export PATH
+
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
 
