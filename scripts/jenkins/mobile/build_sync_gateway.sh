@@ -153,8 +153,10 @@ cd   ${BLD_DIR}
 echo  ======= upload ==============================
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}
 cd                        ${SGW_DIR}
-echo ................... uploading to ${CBFS_URL}/${PKG_NAME}
-curl -XPUT --data-binary @${PKG_NAME} ${CBFS_URL}/${PKG_NAME}
+md5sum ${PKG_NAME} > ${PKG_NAME}.md5
+echo ....................... uploading to ${CBFS_URL}/${PKG_NAME}
+curl -XPUT --data-binary @${PKG_NAME}     ${CBFS_URL}/${PKG_NAME}
+curl -XPUT --data-binary @${PKG_NAME}.md5 ${CBFS_URL}/${PKG_NAME}
 
 echo  ============================================== update default value of test jobs
 #${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${GITSPEC}      -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
