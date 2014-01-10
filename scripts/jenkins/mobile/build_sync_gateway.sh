@@ -21,7 +21,7 @@ set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
+    echo -e "\nuse:  ${0}   branch_name  version  platform\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -31,6 +31,8 @@ VERSION=${2}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 PLATFRM=${3}
+
+export GITSPEC ; export VERSION ; export PLATFRM
 
 if [[ $4 ]] ; then  echo "setting OS     to $OS"        ; OS=$4     ; else OS=`uname -s`     ; fi
 if [[ $5 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$5   ; else ARCH=`uname -m`   ; fi
