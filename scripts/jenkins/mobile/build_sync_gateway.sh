@@ -1,12 +1,31 @@
 #!/bin/bash
 #          
-#          run by jenkins job 'build_sync_gateway'
+#          run by jenkins jobs:
 #          
-#          with paramters:  branch_name  release number
+#               build_sync_gateway_master_<platform>
+#               build_sync_gateway_stable_<platform>
 #          
-#                 e.g.:     master         0.0
-#                 e.g.:     stable         1.0
+#          for platforms:
 #          
+#               centos-x86, centos-x64,
+#               ubuntu-x86, ubuntu-x64,
+#                           macosx-x64
+#          
+#          with required paramters:  branch_name  release number
+#                             e.g.:     master         0.0
+#                             e.g.:     stable         1.0
+#             
+#          with required paramters:
+#         
+#             GITSPEC   -- sync_gateway branch to sync (e.g., master, stable)
+#             
+#             VERSION   -- product release number      (e.g., 0.0,    1.0)
+#             
+#          and called with optional arguments
+#             
+#             OS        -- `uname -s`
+#             ARCH      -- `uname -m`
+#             DISTRO    -- `uname -a`
 #          
 source ~jenkins/.bash_profile
 set -e
@@ -22,10 +41,28 @@ if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
 
+if [[ $3 ]] ; then  echo "setting OS     to $OS"        ; OS=$1     ; else OS=`uname -s`     ; fi
+if [[ $4 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$2   ; else ARCH=`uname -m`   ; fi
+if [[ $5 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$3 ; else DISTRO=`uname -a` ; fi
+
+if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; EXEC=sync_gateway     ; fi
+if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; EXEC=sync_gateway     ; fi
+if [[ $OS =~ CYGWIN ]] ; then GOOS=windows ; EXEC=sync_gateway.exe ; fi
+if [[ ! $GOOS ]] 
+    then
+    echo -e "\nunsupported operating system:  $OS\n"
+    exit 99
+fi
+if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
+                        else GOARCH=386   ; fi
+
+if [[ $GOOS =~ linux   ]] ; then EXEC=sync_gateway     ;                       fi
+if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
+if [[ $GOOS =~ windows ]] ; then EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
+
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
 
-ZIP_FILE=sync_gateway_${REVISION}.zip
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 BLD_DIR=${WORKSPACE}/build
@@ -44,8 +81,22 @@ git show --stat
 cd ${SGW_DIR}
 echo ======== build ===============================
 rm -rf bin
-echo .................... running compile.sh
-                                ./compile.sh
+echo .................. ${PLAT_DIR}
+DEST_DIR=${SGW_DIR}/bin/${PLAT_DIR}
+mkdir -p ${DEST_DIR}
+
+GOPATH=${SGW_DIR}:${SGW_DIR}/vendor
+export GOPATH
+export CGO_ENABLED=1
+
+GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbaselabs/sync_gateway
+if [[ -e ${SGW_DIR}/${EXEC} ]]
+  then
+    mv   ${SGW_DIR}/${EXEC} ${DEST_DIR}
+    echo "..............................Success! Output is: ${DEST_DIR}/${EXEC}"
+  else
+    echo "############################# FAIL! no such file: ${DEST_DIR}/${EXEC}"
+fi
 
 echo ======== test ================================
 echo .................... running test.sh
