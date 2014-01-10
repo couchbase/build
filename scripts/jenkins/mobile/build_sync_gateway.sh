@@ -1,31 +1,20 @@
 #!/bin/bash
 #          
-#          run by jenkins jobs:
+#    run by jenkins jobs:
 #          
-#               build_sync_gateway_master_<platform>
-#               build_sync_gateway_stable_<platform>
+#        build_sync_gateway_master_<platform>
+#        build_sync_gateway_stable_<platform>
 #          
-#          for platforms:
-#          
-#               centos-x86, centos-x64,
-#               ubuntu-x86, ubuntu-x64,
-#                           macosx-x64
-#          
-#          with required paramters:  branch_name  release number
-#                             e.g.:     master         0.0
-#                             e.g.:     stable         1.0
+#    with required paramters:  branch_name  release number  platform
 #             
-#          with required paramters:
-#         
-#             GITSPEC   -- sync_gateway branch to sync (e.g., master, stable)
-#             
-#             VERSION   -- product release number      (e.g., 0.0,    1.0)
-#             
-#          and called with optional arguments
-#             
-#             OS        -- `uname -s`
-#             ARCH      -- `uname -m`
-#             DISTRO    -- `uname -a`
+#                     e.g.:     master         0.0       centos-x86, centos-x64,
+#                     e.g.:     stable         1.0       ubuntu-x86, ubutnu-x64,
+#                                                                    macosx-x64
+#    and optional parameters:
+#    
+#        OS        -- `uname -s`
+#        ARCH      -- `uname -m`
+#        DISTRO    -- `uname -a`
 #          
 source ~jenkins/.bash_profile
 set -e
@@ -41,9 +30,14 @@ if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
 
-if [[ $3 ]] ; then  echo "setting OS     to $OS"        ; OS=$1     ; else OS=`uname -s`     ; fi
-if [[ $4 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$2   ; else ARCH=`uname -m`   ; fi
-if [[ $5 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$3 ; else DISTRO=`uname -a` ; fi
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+PLATFRM=${3}
+
+if [[ $4 ]] ; then  echo "setting OS     to $OS"        ; OS=$4     ; else OS=`uname -s`     ; fi
+if [[ $5 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$5   ; else ARCH=`uname -m`   ; fi
+if [[ $6 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$6 ; else DISTRO=`uname -a` ; fi
+
+export OS ; export ARCH ; export DISTRO
 
 if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; EXEC=sync_gateway     ; fi
 if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; EXEC=sync_gateway     ; fi
@@ -51,7 +45,7 @@ if [[ $OS =~ CYGWIN ]] ; then GOOS=windows ; EXEC=sync_gateway.exe ; fi
 if [[ ! $GOOS ]] 
     then
     echo -e "\nunsupported operating system:  $OS\n"
-    exit 99
+    exit 666
 fi
 if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
                         else GOARCH=386   ; fi
@@ -59,6 +53,8 @@ if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
 if [[ $GOOS =~ linux   ]] ; then EXEC=sync_gateway     ;                       fi
 if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
 if [[ $GOOS =~ windows ]] ; then EXEC=sync_gateway.exe ; PKGR=package-win.rb ; fi
+
+export GOOS ; export EXEC
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
