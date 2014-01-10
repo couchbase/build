@@ -5,11 +5,11 @@
 #        build_sync_gateway_master_<platform>
 #        build_sync_gateway_stable_<platform>
 #          
-#    with required paramters:  branch_name  release number  platform
+#    with required paramters:  branch_name    version   platform
 #             
-#                     e.g.:     master         0.0       centos-x86, centos-x64,
-#                     e.g.:     stable         1.0       ubuntu-x86, ubutnu-x64,
-#                                                                    macosx-x64
+#                     e.g.:     master       0.0-0000  centos-x86, centos-x64,
+#                     e.g.:     stable       1.0-1234  ubuntu-x86, ubutnu-x64,
+#                                                                  macosx-x64
 #    and optional parameters:
 #    
 #        OS        -- `uname -s`
@@ -28,7 +28,6 @@ GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
-REVISION=${VERSION}-${BUILD_NUMBER}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 PLATFRM=${3}
@@ -71,8 +70,8 @@ fi
 
 GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
-                                  PKG_NAME=couchbase-sync-gateway_${REVISION}_${ARCHP}.${PKGTYPE}
-if [[ $DISTRO =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${REVISION}_${DISTRO}-${ARCH}.tar.gz
+                                  PKG_NAME=couchbase-sync-gateway_${VERSION}_${ARCHP}.${PKGTYPE}
+if [[ $DISTRO =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}.tar.gz
                                                                      PLATFORM=${DISTRO}-${ARCH}         ; fi
 
 export GOOS ; export EXEC
@@ -101,7 +100,7 @@ PREFIXP=./opt/couchbase-sync-gateway
                                                 #  needed by ~/.rpmmacros 
                                                 #  called by package-rpm.rb
                                                 #
-RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-sync-gateway_${REVISION}/rpmbuild/
+RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-sync-gateway_${VERSION}/rpmbuild/
 export RPM_ROOT_DIR
 
 cd ${WORKSPACE}
@@ -142,12 +141,12 @@ echo .................... running test.sh
 cp ${DEST_DIR}/${EXEC}     ${PREFIXD}/bin/
 cp ${BLD_DIR}/LICENSE.txt  ${PREFIXD}
 cp ${BLD_DIR}/README.txt   ${PREFIXD}
-echo ${REVISION}         > ${PREFIXD}/VERSION.txt
+echo ${VERSION}          > ${PREFIXD}/VERSION.txt
 
 echo ======== package =============================
-echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
+echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
+./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 
 echo  ======= upload ==============================
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}
