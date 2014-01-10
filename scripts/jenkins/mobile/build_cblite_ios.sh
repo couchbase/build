@@ -71,8 +71,7 @@ if [[ ! -d couchbase-lite-ios ]] ; then git clone https://github.com/couchbase/c
 cd  couchbase-lite-ios
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
-git submodule init
-git submodule update
+git submodule update --init --recursive
 git show --stat
 
 cd ${WORKSPACE}
