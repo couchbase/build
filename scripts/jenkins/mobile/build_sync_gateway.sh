@@ -94,9 +94,6 @@ SGW_DIR=${WORKSPACE}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
 
 PREFIXD=${BLD_DIR}/opt/couchbase-sync-gateway
-if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
-mkdir -p ${PREFIXD}/bin/
-
 PREFIX=/opt/couchbase-sync-gateway
 PREFIXP=./opt/couchbase-sync-gateway
                                                 #  needed by ~/.rpmmacros 
@@ -115,6 +112,9 @@ git submodule init
 git submodule update
 git show --stat
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
+
+if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
+mkdir -p ${PREFIXD}/bin/
 
 cd ${SGW_DIR}
 echo ======== build ===============================
