@@ -67,7 +67,9 @@ cd ${WORKSPACE}
 echo ============================================  sync couchbase-lite-ios
 echo ============================================  to ${GITSPEC}
 
-if [[ ! -d couchbase-lite-ios ]] ; then git clone https://github.com/couchbase/couchbase-lite-ios.git ; fi
+if [[ -d couchbase-lite-ios ]] ; then rm -rf couchbase-lite-ios ; fi
+git clone       https://github.com/couchbase/couchbase-lite-ios.git   couchbase-lite-ios
+
 cd  couchbase-lite-ios
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
