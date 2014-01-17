@@ -61,13 +61,13 @@ if [[ ${UPLOAD_ARTIFACTS} == true ]]
     echo ============================================
     
     cd ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject
-
-    echo "********RUNNING: ./upload_android_artifacts.sh  *************"
-    ./upload_android_artifacts.sh
-
+    
     echo "********RUNNING: ./build_android_artifacts.sh  *************"
     ./build_android_artifacts.sh
-
+    
+ #  echo "********RUNNING: ./upload_android_artifacts.sh  *************"
+ #  ./upload_android_artifacts.sh
+    
   else
     echo "UPLOAD_ARTIFACTS not set - not uploading artifacts"
 fi
