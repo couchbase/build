@@ -1,8 +1,6 @@
 #!/bin/bash
 #          
-#          run by jenkins job 'couchbase-cli-gerrit-master'
-#                             'couchbase-cli-gerrit-300'
-#                             'couchbase-cli-gerrit-250'
+#          run by jenkins job 'couchbase-cli-gerrit.sh'
 #          
 #          with no paramters
 #          
