@@ -14,7 +14,7 @@ PROJECTS='bucket_engine cbsasl couchbase-cli couchbase-examples couchbase-python
 
 MEMPROJS='libmemcached memcached'
 
-BRANCHES='master 2.5.0 2.2.0 2.1.1 for-rackspace
+BRANCHES='master 2.5.0 2.2.0 2.1.1 for-rackspace'
 
 echo cleaning workspace: ${WORKSPACE}
 rm ${WORKSPACE}/*.txt
