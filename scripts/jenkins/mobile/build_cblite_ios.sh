@@ -71,6 +71,11 @@ if [[ -d couchbase-lite-ios ]] ; then rm -rf couchbase-lite-ios ; fi
 git clone       https://github.com/couchbase/couchbase-lite-ios.git   couchbase-lite-ios
 
 cd  couchbase-lite-ios
+if [[ !  `git branch | grep ${GITSPEC}` ]]
+    then
+    git branch -t ${GITSPEC} origin/${GITSPEC}
+fi
+git fetch
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git submodule update --init --recursive
