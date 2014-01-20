@@ -14,7 +14,9 @@
 #          
 #                UPLOAD_USERNAME, UPLOAD_PASSWORD set in build slave >> couchbaselite-mobile-testing <<
 #          
-#          called with paramter:  branch_name
+#          called with paramters:  branch_name   (e.g. master, stable)
+#                                  version       (e.g. 1.0)
+#                                  revision      (e.g. 1.0-1234)
 #          
 source ~jenkins/.bash_profile
 export DISPLAY=:0
@@ -22,10 +24,12 @@ set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  (master or stable only)\n\n"
+    echo -e "\nuse:  ${0}   branch_name (master or stable)    release (e.g. 1.0)    revision (e.g. 1.0-1234)\n\n"
     }
-if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+if [[ ! ${3} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
+VERSION=${2}
+REVISION=${3}
 
 if [[ (${GITSPEC} != master) && (${GITSPEC} != stable) ]] ; then usage ; exit 88 ; fi
 
@@ -63,7 +67,7 @@ if [[ ${UPLOAD_ARTIFACTS} == true ]]
     cd ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject
     
     echo "********RUNNING: ./build_android_artifacts.sh  *************"
-    ./build_android_artifacts.sh
+    VERSION=${VERSION}  REVISION=${REVISION}  ./build_android_artifacts.sh
     
     echo "********RUNNING: ./upload_android_artifacts.sh  *************"
     ./upload_android_artifacts.sh
