@@ -65,8 +65,8 @@ if [[ ${UPLOAD_ARTIFACTS} == true ]]
     echo "********RUNNING: ./build_android_artifacts.sh  *************"
     ./build_android_artifacts.sh
     
- #  echo "********RUNNING: ./upload_android_artifacts.sh  *************"
- #  ./upload_android_artifacts.sh
+    echo "********RUNNING: ./upload_android_artifacts.sh  *************"
+    ./upload_android_artifacts.sh
     
   else
     echo "UPLOAD_ARTIFACTS not set - not uploading artifacts"
