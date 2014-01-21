@@ -159,6 +159,8 @@ curl -XPUT --data-binary @${PKG_NAME}     ${CBFS_URL}/${PKG_NAME}
 curl -XPUT --data-binary @${PKG_NAME}.md5 ${CBFS_URL}/${PKG_NAME}
 
 echo  ============================================== update default value of test jobs
+ ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j build_cblite_android_${GITSPEC}             -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
+
 #${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${GITSPEC}      -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
 #${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${GITSPEC}  -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
 echo DISABLED
