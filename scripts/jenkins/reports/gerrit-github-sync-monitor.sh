@@ -13,6 +13,7 @@ PROJECTS='bucket_engine cbsasl couchbase-cli couchbase-examples couchbase-python
           libvbucket moxi ns_server portsigar sigar testrunner tlm'
 
 MEMPROJS='libmemcached memcached'
+MEMPROJS=
 
 BRANCHES='master 2.5.0 2.2.0 2.1.1 for-rackspace'
 
