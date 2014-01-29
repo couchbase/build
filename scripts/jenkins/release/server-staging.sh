@@ -206,13 +206,15 @@ for name in ${names[@]}; do
     if [ "community" = $name ]; then
         wget --no-verbose  -O ${dstpkg}  ${latestbuilds}/${srcpkg}
         if [[ ! -s ${dstpkg} ]]
-            then
+          then
             echo "${srcpkg} not found on ${latestbuilds}"
-            echo "Terminate the staging process"
-            exit 7
+            echo =================================================
+          # echo "Terminate the staging process"
+          # exit 7
+          else
+            touch  ${dstpkg}.staging
+            md5sum ${dstpkg} > ${dstpkg}.md5
         fi
-        touch  ${dstpkg}.staging
-        md5sum ${dstpkg} > ${dstpkg}.md5
     fi
 done
 
