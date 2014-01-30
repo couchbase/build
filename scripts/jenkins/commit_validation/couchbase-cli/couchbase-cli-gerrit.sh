@@ -1,10 +1,12 @@
 #!/bin/bash
 #          
-#          run by jenkins job 'couchbase-cli-gerrit.sh'
+#          run by jenkins job:  couchbase-cli-gerrit-master
+#                               couchbase-cli-gerrit-300
+#                               couchbase-cli-gerrit-250
 #          
 #          with no paramters
 #          
-#          triggered on Patchset Creation of repo: testrunner branch: master
+#          triggered on Patchset Creation of repo: couchbase-cli
 
 source ~jenkins/.bash_profile
 set -e
