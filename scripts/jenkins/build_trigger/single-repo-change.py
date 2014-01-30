@@ -2,9 +2,16 @@
 
 import copy
 import os.path
+from subprocess import check_output
 import sys
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import tostring
+
+"""
+Creates last-build-attempt and candidate manifests, given an existing
+up-to-date repo (expected to be in CWD) and a pointer to a directory
+containing known-good manifest.
+"""
 
 def init_last_manifest(last_manifest_file, good_manifest):
     """
@@ -21,17 +28,29 @@ def init_last_manifest(last_manifest_file, good_manifest):
     return last_manifest
 
 def main():
-    if len(sys.argv) <= 1:
-        print 'usage: ./single-repo-change.py manifest-id'
+    if len(sys.argv) <= 2:
+        print 'usage: ./single-repo-change.py manifest-path manifest-id'
         return 1
 
-    # Open current and last-known-good manifests
-    curr_manifest = ET.ElementTree(file='.repo/manifest.xml')
-    good_manifest = ET.ElementTree(\
-        file='.repo/manifests/last-known-good-{}.xml'.format(sys.argv[1]))
-    last_manifest_file = '.repo/manifests/last-build-attempt-{}.xml'.\
-                         format(sys.argv[1])
+    mani_dir = sys.argv[1]
+    version = sys.argv[2]
+
+    # Request current fixed-revision manifest from repo
+    curr_manifest_xml = check_output(["repo", "manifest", "-r"])
+    curr_manifest = ET.fromstring(curr_manifest_xml)
+
+    # Open known-good manifest; initialize last-build and candidate
+    # manifests
+    good_manifest_file = os.path.join(mani_dir,
+                                      "{}-good.xml".format(version))
+    good_manifest = ET.ElementTree(file=good_manifest_file)
+
+    last_manifest_file = os.path.join(mani_dir,
+                                      "{}-last.xml".format(version))
     last_manifest = init_last_manifest(last_manifest_file, good_manifest)
+
+    cand_manifest_file = os.path.join(mani_dir,
+                                      "{}-cand.xml".format(version))
 
     # Search for a change between last-build-attempt and current
     changed_proj = None
@@ -60,8 +79,8 @@ def main():
     last_root.append(proj)
     last_manifest.write(last_manifest_file)
  
-    # Construct a new manifest from the known-good manifest, with the only
-    # change being the current version of changed_proj
+    # Construct a candidate manifest from the known-good manifest,
+    # with the only change being the current version of changed_proj
     good_proj = good_manifest.find('project[@name="{}"]'.format(changed_proj))
     if good_proj == None:
         # Insert new project
@@ -69,7 +88,16 @@ def main():
     else:
         good_proj.attrib["revision"] = proj_rev
 
-    print tostring(good_manifest.getroot())
+    # Write candidate to disk
+    good_manifest.write(cand_manifest_file)
+
+    # Update github
+    os.chdir(mani_dir)
+    print check_output(["git", "add", "-A"])
+    print check_output(["git", "commit", "-m",
+                        "{}".format(os.environ["BUILD_TAG"])])
+    print check_output(["git", "push", "origin"])
+
 
 if __name__ == '__main__':
     sys.exit(main())
