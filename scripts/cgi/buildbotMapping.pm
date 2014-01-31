@@ -12,11 +12,11 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( get_builder get_toy_builder );
+our @EXPORT_OK   = qw( get_builder get_repo_builder get_toy_builder );
 
-our %EXPORT_TAGS = ( DEFAULT => [qw( &get_builder &get_toy_builder )] );
+our %EXPORT_TAGS = ( DEFAULT => [qw( &get_builder &get_repo_builder &get_toy_builder )] );
 
-my $DEBUG = 1;   # FALSE
+my $DEBUG = 0;   # FALSE
 
 ############ 
 
@@ -139,12 +139,32 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                           },
                                                   },
                                   },
-               );
+                "repo" => { "2.5.0"   =>  "repo-couchbase-250-builder",
+                            "3.0.0"   =>  "repo-couchbase-300-builder",
+                            "master"  =>  "repo-couchbase-master-builder",
+                          },
+                );
 
 ############   # DEBUG
 # use Data::Dumper;
 # print Dumper(\%buildbots);
 ############ 
+
+############                        get_builder ( <platform>, <branch> )
+#          
+#                                   returns (production) buildbot builder name
+sub get_repo_builder
+    {
+    my ($branch) = @_;
+    
+    if ($DEBUG)  { print STDERR "\n".'...checking branch >>'.$branch.'<<'."\n"; }
+    if (! defined( $buildbots{"repo"}{$branch} ))
+        {
+        print 'unsupported branch >>'.$branch.'<<'."\n";
+        die $usage;
+        }
+    return         $buildbots{"repo"}{$branch};
+    }
 
 ############                        get_builder ( <platform>, <branch> )
 #          

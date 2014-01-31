@@ -5,10 +5,20 @@
     <link rel="icon" 
           type="image/png" 
           href="http://factory.hq.couchbase.com/favicon.png">
+    <script language="JavaScript">
+      function showRepo(branch)
+         {
+         document.write( "<iframe src='/cgi/show_latest_repo_build.cgi?branch='+branch
+                        +' height="35" width="100%" frameborder="1" scrolling="auto"></iframe>'   );
+         }
 </HEAD>
 <BODY>
 <table border="0">
-    <tr><td><h3>master</h3></td><td><center><h3>32</h3></center></td><td><center><h3>64</h3></center></td></tr>
+    <tr>
+      <td><script language="JavaScript">showRepo("master");</script></td>
+      <td><center><h3>32</h3></center></td>
+      <td><center><h3>64</h3></center></td>
+    </tr>
     <tr><td>centos 6.4</td>
         <td><iframe src='http://factory.hq.couchbase.com/cgi/show_latest_build.cgi?platform=centos-6&bits=32&branch=master'   height="35" width="100%" frameborder="1" scrolling="auto"></iframe></td>
         <td><iframe src='http://factory.hq.couchbase.com/cgi/show_latest_build.cgi?platform=centos-6&bits=64&branch=master'   height="35" width="100%" frameborder="1" scrolling="auto"></iframe></td>
