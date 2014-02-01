@@ -24,6 +24,7 @@ use buildbotMapping qw(:DEFAULT);
 use buildbotReports qw(:DEFAULT);
 
 use jenkinsQuery    qw(:DEFAULT );
+use jenkinsReports  qw(:DEFAULT);
 
 use CGI qw(:standard);
 my  $query = new CGI;
@@ -81,10 +82,57 @@ else
 
 
 
-#### S T A R T  H E R E 
+my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
+
+
+#### S T A R T  H E R E   --  J E N K I N S
+
+print STDERR "calling  jenkinsReports::last_done_repo(".$branch.")";
+
+($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_repo($branch);
+print STDERR "according to last_done_build, is_running = $is_running\n";
+
+if ($bldnum < 0)
+    {
+    print_HTML_Page( jenkinsQuery::html_RUN_link( $builder, 'no build yet'),
+                     buildbotReports::is_running($is_running),
+                     $builder,
+                     $note_color );
+    }
+elsif ($bldstatus)
+    {
+    print_HTML_Page( jenkinsQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
+                     buildbotReports::is_running($is_running),
+                     $builder,
+                     $good_color );
+    
+    print STDERR "GOOD: $bldnum\n"; 
+    }
+else
+    {
+    print STDERR "FAIL: $bldnum\n"; 
+   
+    my $background; 
+    if ( $is_running == 1 )
+        {
+        $bldnum += 1;
+        $background = $warn_color;
+        }
+    else
+        {
+        $background = $err_color;
+        }
+    print_HTML_Page( buildbotReports::is_running($is_running),
+                     jenkinsQuery::html_FAIL_link( $builder, $bldnum, $is_running, $bld_date),
+                     $builder,
+                     $background );
+    }
+
+
+#### S T A R T  H E R E   --  B U I L D B O T
 
 print STDERR "calling  buildbotReports::last_done_build($builder, $branch)";
-my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running) = buildbotReports::last_done_build($builder, $branch);
+($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running) = buildbotReports::last_done_build($builder, $branch);
 print STDERR "according to last_done_build, is_running = $is_running\n";
 
 if ($bldnum < 0)

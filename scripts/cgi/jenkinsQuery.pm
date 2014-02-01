@@ -12,9 +12,8 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( test_running_indicator response_code test_job_status get_json get_url_root html_OK_link );
-
-our %EXPORT_TAGS = ( DEFAULT  => [qw( &test_running_indicator &response_code &test_job_status &get_json &get_url_root &html_OK_link )] );
+our @EXPORT_OK   = qw(                get_url_root    html_RUN_link  html_OK_link  html_FAIL_link   get_json   test_running_indicator  response_code  test_job_status );
+our %EXPORT_TAGS = ( DEFAULT  => [qw( &get_url_root  &html_RUN_link &html_OK_link &html_FAIL_link  &get_json  &test_running_indicator &response_code &test_job_status )] );
 
 ############ 
 
@@ -45,6 +44,19 @@ sub get_url_root
     {
     return($URL_ROOT);
     }
+
+
+############                        html_RUN_link ( <builder> <display> )
+#          
+#                                   returns HTML of link to good build results
+sub html_RUN_link
+    {
+    my ($bder, $display ) = @_;
+    
+    my $HTML='<a href="'. $URL_ROOT.'/job/'.$bder.'/build?delay=0sec" target="_blank">'."$display".'&nbsp;</a>';
+    return($HTML);
+    }
+
 ############                        html_OK_link ( <builder>, <job_number>, <build_num>, <job_date> )
 #          
 #                                   returns HTML of link to good build results

@@ -14,11 +14,13 @@ our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( last_done_sgw_bld  last_done_sgw_pkg   last_good_sgw_bld last_good_sgw_pkg \
                        last_done_ios_bld  last_good_ios_bld   last_done_and_bld last_good_and_bld \
-                       get_builder                                                                \
+                       last_done_repo     get_builder                                             \
                      );
 
-our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_bld &last_done_sgw_pkg &last_good_sgw_bld &last_good_sgw_pkg)],
-                     DEFAULT      => [qw( &get_builder                                                               )] );
+our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_bld  &last_done_sgw_pkg   &last_good_sgw_bld  &last_good_sgw_pkg )],
+                     IOS_ANDROID  => [qw( &last_done_ios_bld  &last_good_ios_bld   &last_done_and_bld  &last_good_and_bld )],
+                     DEFAULT      => [qw( &last_done_repo     &get_builder                                                )],
+                   );
 
 my $DEBUG = 0;   # FALSE
 
@@ -55,6 +57,7 @@ sub get_builder
         if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch;  }
         }
     if ($type eq 'package')  { $builder = $type."_sync_gateway-".$platform; }
+    if ($type eq 'repo')     { $builder = 'repo-'.$branch;                  }
     return($builder);
     }
 
@@ -238,6 +241,20 @@ sub last_good_and_bld
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastSuccessfulBuild';
     return_build_info($platform, $branch, $builder, $property);
+    }
+   
+
+
+
+############                        last_done_repo ( branch )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status )
+sub last_done_repo
+    {
+    ($branch) = @_;
+    my $builder  = get_builder($platform,$branch, "repo","repo");
+    my $property = 'lastCompletedBuild';
+    return_build_info($branch, $branch, $builder, $property);
     }
    
 
