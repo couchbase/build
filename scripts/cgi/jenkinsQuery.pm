@@ -49,10 +49,10 @@ sub get_url_root
 #
 #
 #
-my %repo => { "2.5.0"   =>  "repo-250",
-              "3.0.0"   =>  "repo-300",
-              "master"  =>  "repo-master",
-            };
+my %repo = ( "2.5.0"   =>  "repo-250",
+             "3.0.0"   =>  "repo-300",
+             "master"  =>  "repo-master",
+           );
 sub get_repo_builder
     {
     my ($branch) = @_;

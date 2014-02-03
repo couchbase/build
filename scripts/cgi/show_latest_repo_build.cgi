@@ -202,7 +202,7 @@ else
 
 my $html = HTML_repo_pair( $branch, $jenkins_row, $buildbot_row);
 
-print_HTML_Page( $html, '&nbsp;', $buildbot_color );
+print_HTML_Page( $html, "$branch Repo Builder Status", $buildbot_color );
 
 # print "\n---------------------------\n";
 __END__
