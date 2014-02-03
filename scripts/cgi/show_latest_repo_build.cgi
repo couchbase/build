@@ -11,6 +11,9 @@ use warnings;
 #use strict;
 $|++;
 
+my $DEBUG = 1;
+
+
 use File::Basename;
 use Cwd qw(abs_path);
 BEGIN
@@ -96,9 +99,10 @@ my ($jenkins_builder, $buildbot_builder, $branch);
 if ( $query->param('branch') )
     {
     $branch  = $query->param('branch');
+    if ($DEBUG)  { print STDERR "called with 'branch' param: $branch\n"; }
     $jenkins_builder  =    jenkinsQuery::get_repo_builder( $branch );
     $buildbot_builder = buildbotMapping::get_repo_builder( $branch );
-    print STDERR "\nready to start with repo: ($branch, $jenkins_builder, $jenkins_builder)\n";
+    if ($DEBUG)  { print STDERR "\nready to start with repo: ($branch, $jenkins_builder, $jenkins_builder)\n"; }
     }
 else
     {

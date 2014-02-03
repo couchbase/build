@@ -34,7 +34,7 @@ my $USERID='buildbot';
 my $PASSWD='buildbot';
 my $URL_ROOT='http://factory.hq.couchbase.com:8080';
 
-my $DEBUG = 0;
+my $DEBUG = 1;
 
 ############                        get_url_root ( )
 #          
@@ -57,6 +57,7 @@ sub get_repo_builder
     {
     my ($branch) = @_;
     
+    if ( $DEBUG )  { print STDERR "jenkinsQuery::get_repo_builder( $branch )\n"; }
     if (defined( $repo{$branch} ))  { return $repo{$branch}; }
     }
 
