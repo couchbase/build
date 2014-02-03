@@ -16,7 +16,7 @@ our @EXPORT_OK   = qw( get_builder get_repo_builder get_toy_builder );
 
 our %EXPORT_TAGS = ( DEFAULT => [qw( &get_builder &get_repo_builder &get_toy_builder )] );
 
-my $DEBUG = 1;   # FALSE
+my $DEBUG = 0;   # FALSE
 
 ############ 
 

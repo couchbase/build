@@ -11,7 +11,7 @@ use warnings;
 #use strict;
 $|++;
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 
 
 use File::Basename;
@@ -200,9 +200,11 @@ else
                                     $buildbot_color                                                         );
     }
 
-my $html = HTML_repo_pair( $branch, $jenkins_row, $buildbot_row);
-
-print_HTML_Page( $html, "$branch Repo Builder Status", $buildbot_color );
+my $html = HTML_repo_pair( $branch, 
+                           "last checked: $jenkins_row",
+                           "last build:   $buildbot_row"
+                         );
+print_HTML_Page(  $html,  "$branch Repo Builder Status",  $buildbot_color );
 
 # print "\n---------------------------\n";
 __END__
