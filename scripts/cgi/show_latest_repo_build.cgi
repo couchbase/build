@@ -46,10 +46,27 @@ sub get_timestamp
 
 sub HTML_pair_cell
     {
-    my ($frag_left, $frag_right) = @_;
+    my ($frag_left, $frag_right, $optional_color) = @_;
+    my $color_prop = '';
+    if( defined( $optional_color) )  {  $color_prop = 'style="background-color:'.$optional_color.';"'; }
+
+    my $HTML = "\n".'<div style="overflow-x: hidden">'."\n"
+              .'<table border="0" '.$color_prop.' cellpadding="0" cellspacing="0"><tr>'."\n".'<td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr>'."\n".'</table>'
+              .'</div>'."\n";
+    return($HTML);
+    }
+
+sub HTML_repo_pair
+    {
+    my ($row_top, $row_bot, $optional_color) = @_;
+    my $color_prop = '';
+    if( defined( $optional_color) )  {  $color_prop = 'style="background-color:'.$optional_color.';"'; }
     
     my $HTML = "\n".'<div style="overflow-x: hidden">'."\n"
-              .'<table border="0" cellpadding="0" cellspacing="0"><tr>'."\n".'<td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr>'."\n".'</table>'
+              .'<table border="0" '.$color_prop.' cellpadding="0" cellspacing="0">'
+              .'<tr><td valign="TOP">'.$row_top.'</td></tr>'."\n"
+              .'<tr><td valign="TOP">'.$row_bot.'</td></tr>'."\n"
+              .'</table>'."\n"
               .'</div>'."\n";
     return($HTML);
     }
@@ -73,7 +90,7 @@ my $usage = "ERROR: must specify 'branch' param\n\n"
            ."</PRE><BR>"
            ."\n\n";
 
-my ($builder, $branch, $html_elem);
+my ($builder, $branch);
 
 if ( $query->param('branch') )
     {
@@ -84,16 +101,17 @@ if ( $query->param('branch') )
 else
     {
     print STDERR "\nmissing parameter: branch\n";
-    $html_elem = HTML_pair_cell( buildbotQuery::html_ERROR_msg($usage), '&nbsp;' );
+    my $sys_err = HTML_pair_cell( buildbotQuery::html_ERROR_msg($usage), '&nbsp;' );
     
-    print_HTML_Page( $html_elem, '&nbsp;', $err_color );
+    print_HTML_Page( $sys_err, '&nbsp;', $err_color );
     exit;
     }
 
 
 
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
-my ($jenkins_row, $buildbot_row);
+my ($jenkins_row,   $buildbot_row);
+my ($jenkins_color, $buildbot_color);
 
 
 #### S T A R T  H E R E   --  J E N K I N S
@@ -105,37 +123,35 @@ print STDERR "according to last_done_build, is_running = $is_running\n";
 
 if ($bldnum < 0)
     {
-    $html_elem = HTML_pair_cell( jenkinsQuery::html_RUN_link( $builder, 'no build yet'),
-                                 buildbotReports::is_running($is_running)             );
-    print_HTML_Page( $html_elem,
-                     $builder,   $note_color );
+    $jenkins_color = $note_color;
+    $jenkins_row   = HTML_pair_cell( jenkinsQuery::html_RUN_link( $builder, 'no build yet'),
+                                     buildbotReports::is_running($is_running),
+                                     $jenkins_color                                       );
     }
 elsif ($bldstatus)
     {
-    $html_elem = HTML_pair_cell( jenkinsQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
-                                 buildbotReports::is_running($is_running)                           );
-    print_HTML_Page( $html_elem,
-                     $builder,   $good_color );
+    $jenkins_color = $good_color;
+    $jenkins_row   = HTML_pair_cell( jenkinsQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
+                                     buildbotReports::is_running($is_running),
+                                     $jenkins_color                                                     );
     print STDERR "GOOD: $bldnum\n"; 
     }
 else
     {
     print STDERR "FAIL: $bldnum\n"; 
    
-    my $background; 
     if ( $is_running == 1 )
         {
         $bldnum += 1;
-        $background = $warn_color;
+        $jenkins_color = $warn_color;
         }
     else
         {
-        $background = $err_color;
+        $jenkins_color = $err_color;
         }
-    $html_elem = HTML_pair_cell( buildbotReports::is_running($is_running),
-                                 enkinsQuery::html_FAIL_link( $builder, $bldnum, $is_running, $bld_date) );
-    print_HTML_Page( $html_elem,
-                     $builder,   $background );
+    $jenkins_row = HTML_pair_cell( buildbotReports::is_running($is_running),
+                                   jenkinsQuery::html_FAIL_link( $builder, $bldnum, $is_running, $bld_date),
+                                   $jenkins_color                                                         );
     }
 
 
@@ -147,41 +163,40 @@ print STDERR "according to last_done_build, is_running = $is_running\n";
 
 if ($bldnum < 0)
     {
-    $html_elem = HTML_pair_cell( buildbotQuery::html_RUN_link( $builder, 'no build yet'),
-                                 buildbotReports::is_running($is_running)              );
-    print_HTML_Page( $html_elem,
-                     $builder,   $note_color );
+    $buildbot_color = $note_color;
+    $buildbot_row   = HTML_pair_cell( buildbotQuery::html_RUN_link( $builder, 'no build yet'),
+                                      buildbotReports::is_running($is_running),
+                                      $buildbot_color                                       );
     }
 elsif ($bldstatus)
     {
-    $html_elem = HTML_pair_cell( buildbotQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
-                                 buildbotReports::is_running($is_running)                            );
-    print_HTML_Page( $html_elem,
-                     $builder,   $good_color );
-    
+    $buildbot_color = $good_color;
+    $buildbot_row   = HTML_pair_cell( buildbotQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date),
+                                      buildbotReports::is_running($is_running),
+                                      $buildbot_color                                                     );
     print STDERR "GOOD: $bldnum\n"; 
     }
 else
     {
     print STDERR "FAIL: $bldnum\n"; 
    
-    my $background; 
     if ( $is_running == 1 )
         {
         $bldnum += 1;
-        $background = $warn_color;
+        $buildbot_color = $warn_color;
         }
     else
         {
-        $background = $err_color;
+        $buildbot_color = $err_color;
         }
-    $html_elem = HTML_pair_cell( buildbotReports::is_running($is_running),
-                                 buildbotQuery::html_FAIL_link( $builder, $bldnum, $is_running, $bld_date) );
-                                 
-    print_HTML_Page( $html_elem,
-                     $builder,   $background );
+    $buildbot_row = HTML_pair_cell( buildbotReports::is_running($is_running),
+                                    buildbotQuery::html_FAIL_link( $builder, $bldnum, $is_running, $bld_date),
+                                    $buildbot_color                                                         );
     }
 
+my $html = HTML_repo_pair( $jenkins_row, $buildbot_row);
+
+print_HTML_Page( $html, $builder,   $buildbot_color );
 
 # print "\n---------------------------\n";
 __END__
