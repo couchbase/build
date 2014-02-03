@@ -12,8 +12,8 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw(                get_url_root    html_RUN_link  html_OK_link  html_FAIL_link   get_json   test_running_indicator  response_code  test_job_status );
-our %EXPORT_TAGS = ( DEFAULT  => [qw( &get_url_root  &html_RUN_link &html_OK_link &html_FAIL_link  &get_json  &test_running_indicator &response_code &test_job_status )] );
+our @EXPORT_OK   = qw(                get_url_root    get_repo_builder   html_RUN_link  html_OK_link  html_FAIL_link   get_json   test_running_indicator  response_code  test_job_status );
+our %EXPORT_TAGS = ( DEFAULT  => [qw( &get_url_root  &get_repo_builder  &html_RUN_link &html_OK_link &html_FAIL_link  &get_json  &test_running_indicator &response_code &test_job_status )] );
 
 ############ 
 
@@ -43,6 +43,21 @@ my $DEBUG = 0;
 sub get_url_root
     {
     return($URL_ROOT);
+    }
+
+############                        get_repo_builder ( <branch> )
+#
+#
+#
+my %repo => { "2.5.0"   =>  "repo-250",
+              "3.0.0"   =>  "repo-300",
+              "master"  =>  "repo-master",
+            };
+sub get_repo_builder
+    {
+    my ($branch) = @_;
+    
+    if (defined( $repo{$branch} ))  { return $repo{$branch}; }
     }
 
 
