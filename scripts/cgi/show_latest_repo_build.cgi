@@ -99,8 +99,6 @@ if ( $query->param('branch') )
     $jenkins_builder  =    jenkinsQuery::get_repo_builder( $branch );
     $buildbot_builder = buildbotMapping::get_repo_builder( $branch );
     print STDERR "\nready to start with repo: ($branch, $jenkins_builder, $jenkins_builder)\n";
-
-get_repo_builder
     }
 else
     {
