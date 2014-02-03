@@ -53,25 +53,23 @@ sub HTML_pair_cell
     my $color_prop = '';
     if( defined( $optional_color) )  {  $color_prop = 'style="background-color:'.$optional_color.';"'; }
 
-    my $HTML = "\n".'<div style="overflow-x: hidden">'."\n"
-              .'<table border="0" '.$color_prop.' cellpadding="0" cellspacing="0"><tr>'."\n".'<td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr>'."\n".'</table>'
-              .'</div>'."\n";
+    my $HTML = '<table border="0" '.$color_prop.' cellpadding="0" cellspacing="0">'
+              .'<tr>'."\n".'<td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr>'."\n"
+              .'</table>'."\n";
     return($HTML);
     }
 
-sub HTML_repo_pair
+sub HTML_repo_cell
     {
     my ($branch, $row_top, $row_bot, $optional_color) = @_;
     my $color_prop = '';
     if( defined( $optional_color) )  {  $color_prop = 'style="background-color:'.$optional_color.';"'; }
     
-    my $HTML = "\n".'<div style="overflow-x: hidden">'."\n"
-              .'<table border="0" '.$color_prop.' cellpadding="0" cellspacing="0">'."\n"
+    my $HTML = '<table border="0" '.$color_prop.' cellpadding="0" cellspacing="0">'."\n"
               .'<tr><td valign="LEFT"><H3>'.$branch.'</H3></td></tr>'."\n"
               .'<tr><td valign="TOP">'.$row_top.'</td></tr>'."\n"
               .'<tr><td valign="TOP">'.$row_bot.'</td></tr>'."\n"
-              .'</table>'."\n"
-              .'</div>'."\n";
+              .'</table>';
     return($HTML);
     }
 
@@ -83,7 +81,9 @@ sub print_HTML_Page
     print $query->start_html( -title   => $page_title,
                               -BGCOLOR => $color,
                             );
-    print $html_elem."\n";
+    print '<div style="overflow-x: hidden">'."\n";
+    print  $html_elem                       ."\n";
+    print '</div>'                          ."\n";
     print $query->end_html;
     }
 
@@ -200,7 +200,7 @@ else
                                     $buildbot_color                                                         );
     }
 
-my $html = HTML_repo_pair( $branch, 
+my $html = HTML_repo_cell( $branch, 
                            "last checked: $jenkins_row",
                            "last build:   $buildbot_row"
                          );
