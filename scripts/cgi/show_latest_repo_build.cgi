@@ -201,8 +201,8 @@ else
     }
 
 my $html = HTML_repo_cell( $branch, 
-                           HTML_pair_cell( "last checked: ".'&nbsp;&nbsp;',              $jenkins_row,  $jenkins_color),
-                           HTML_pair_cell( "last build:   ".'&nbsp;&nbsp;&nbsp;&nbsp;', $buildbot_row, $buildbot_color),
+                           HTML_pair_cell( "last check: ",   $jenkins_row,  $jenkins_color),
+                           HTML_pair_cell( "last build: ",  $buildbot_row, $buildbot_color),
                          );
 print_HTML_Page(  $html,  "$branch Repo Builder Status",  $buildbot_color );
 
