@@ -49,8 +49,13 @@ sub get_url_root
 #
 #
 #
-my %repo = ( "2.5.0"   =>  "repo-250",
+my %repo = ( 
+             "250"     =>  "repo-250",
+             "2.5.0"   =>  "repo-250",
+             "300"     =>  "repo-300",
              "3.0.0"   =>  "repo-300",
+             "000"     =>  "repo-master",
+             "0.0.0"   =>  "repo-300",
              "master"  =>  "repo-master",
            );
 sub get_repo_builder

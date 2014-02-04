@@ -78,8 +78,11 @@ sub print_HTML_Page
     my ($html_elem, $page_title, $color) = @_;
     
     print $query->header;
-    print $query->start_html( -title   => $page_title,
-                              -BGCOLOR => $color,
+    print $query->start_html( -title           => $page_title,
+                              -BGCOLOR         => $color,
+                              '-cache-control' => 'NO-CACHE',
+                               -expires        => -1,
+                               -pragma         => 'pragma',
                             );
     print '<div style="overflow-x: hidden">'."\n";
     print  $html_elem                       ."\n";
@@ -114,8 +117,8 @@ else
     }
 
 my ($jenkins_only, $buildbot_only) = (0, 0);
-if ( $query->param('jenkins_only') )    {  $jenkins_only = 1; }
-if ( $query->param('buildbot_only'))    { $buildbot_only = 1; }
+if ( defined($query->param('jenkins_only') ))    {  $jenkins_only = 1; if ($DEBUG) { print STDERR "JENKINS  ONLY\n": } }
+if ( defined($query->param('buildbot_only')))    { $buildbot_only = 1; if ($DEBUG) { print STDERR "BUILDBOT ONLY\n": } }
 
 
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
