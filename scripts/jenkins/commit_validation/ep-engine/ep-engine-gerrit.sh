@@ -18,11 +18,11 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 echo ============================================ update ep-engine
-cd ep-engine
+cd cmake/ep-engine
 git fetch ssh://review.couchbase.org:29418/ep-engine $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
-cd ..
+cd ../..
 make -j4
 echo ============================================ make simple-test
 cd testrunner
