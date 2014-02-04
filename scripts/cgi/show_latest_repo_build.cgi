@@ -117,8 +117,8 @@ else
     }
 
 my ($jenkins_only, $buildbot_only) = (0, 0);
-if ( defined($query->param('jenkins_only') ))    {  $jenkins_only = 1; if ($DEBUG) { print STDERR "JENKINS  ONLY\n": } }
-if ( defined($query->param('buildbot_only')))    { $buildbot_only = 1; if ($DEBUG) { print STDERR "BUILDBOT ONLY\n": } }
+if ( defined($query->param('jenkins_only') ))    {  $jenkins_only = 1; if ($DEBUG) { print STDERR "JENKINS  ONLY\n"; } }
+if ( defined($query->param('buildbot_only')))    { $buildbot_only = 1; if ($DEBUG) { print STDERR "BUILDBOT ONLY\n"; } }
 
 
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
