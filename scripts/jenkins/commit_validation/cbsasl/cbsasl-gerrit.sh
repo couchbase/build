@@ -1,6 +1,8 @@
 #!/bin/bash
 #          
 #          run by jenkins job 'cbsasl-gerrit-master'
+#                              cbsasl-gerrit-300
+#                              cbsasl-gerrit-250
 #          
 #          with no paramters
 #          
@@ -18,17 +20,16 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 echo ============================================ update cbsasl
-cd cbsasl
+pushd cmake/cbsal 2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/cbsasl $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
-cd ..
-make -j4
+popd 		2>&1 > /dev/null
+make -j4 || (make -j1 && false)
+
 echo ============================================ make simple-test
 cd testrunner
 make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-sleep 30
-scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/py-viewmerge.conf 
 
 echo ============================================ `date`
