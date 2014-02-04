@@ -1,7 +1,8 @@
 #!/bin/bash
 #          
 #          run by jenkins job 'healthchecker-gerrit-master'
-#          
+#                             healthchecker-gerrit-300
+#                             healthchecker-gerrit-250
 #          with no paramters
 #          
 #          triggered on Patchset Creation of repo: healthchecker branch: master
@@ -18,17 +19,16 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 echo ============================================ update healthchecker
-cd healthchecker
+pushd cmake/healthchecker 2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
-cd ..
-make -j4
+popd 2>&1 > /dev/null
+make -j4 || (make -j1 && false)
+
 echo ============================================ make simple-test
 cd testrunner
 make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-sleep 30
-scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/py-viewmerge.conf 
 
 echo ============================================ `date`
