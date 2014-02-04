@@ -21,11 +21,11 @@ make clean-xfd-hard
 
 
 echo ============================================ update couchstore
-cd couchstore
+pushd cmake/couchstore  2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchstore $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
-cd ..
+popd                    2>&1 > /dev/null
 make -j4 || (make -j1 && false)
 
 echo ============================================ make simple-test
