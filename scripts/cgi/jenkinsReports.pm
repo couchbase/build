@@ -57,7 +57,7 @@ sub get_builder
         if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch;  }
         }
     if ($type eq 'package')  { $builder = $type."_sync_gateway-".$platform; }
-    if ($type eq 'repo')     { $builder = 'repo-'.$branch;                  }
+    if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);  }
     return($builder);
     }
 
