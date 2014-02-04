@@ -113,6 +113,9 @@ else
     exit;
     }
 
+my ($jenkins_only, $buildbot_only) = (0, 0);
+if ( $query->param('jenkins_only') )    {  $jenkins_only = 1; }
+if ( $query->param('buildbot_only'))    { $buildbot_only = 1; }
 
 
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
@@ -200,10 +203,14 @@ else
                                     $buildbot_color                                                         );
     }
 
-my $html = HTML_repo_cell( $branch, 
-                           HTML_pair_cell( "last check: ",   $jenkins_row,  $jenkins_color),
-                           HTML_pair_cell( "last build: ",  $buildbot_row, $buildbot_color),
-                         );
+
+my $html_jenkins  = HTML_pair_cell( "last check: ",   $jenkins_row,  $jenkins_color);
+my $html_buildbot = HTML_pair_cell( "last build: ",  $buildbot_row, $buildbot_color);
+my $html          = HTML_repo_cell( $branch,         $html_jenkins, $html_buildbot);
+
+if ( $jenkins_only)  { $html = $html_jenkins;  }
+if ($buildbot_only)  { $html = $html_buildbot; }
+
 print_HTML_Page(  $html,  "$branch Repo Builder Status",  $buildbot_color );
 
 # print "\n---------------------------\n";
