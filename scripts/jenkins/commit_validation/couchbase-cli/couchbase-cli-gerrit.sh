@@ -17,15 +17,15 @@ env | grep -iv password | grep -iv passwd | sort
   
 echo ============================================ clean
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-make clean-xfd-hard
 
 
 echo ============================================ update cli
-cd couchbase-cli
+cd cmake/couchbase-cli
+git clean-xfd
 git fetch ssh://review.couchbase.org:29418/couchbase-cli $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
-cd ..
+cd ../..
 make -j4
 
 echo ============================================ make simple-test
