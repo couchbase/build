@@ -1,8 +1,8 @@
 #!/bin/bash
 #          
 #          run by jenkins job:  couchstore-gerrit-master
-#                               
-#                               
+#                               couchastore-gerrit-300
+#                               couchastore-gerrit-250
 #          
 #          with no paramters
 #          
@@ -26,7 +26,7 @@ git fetch ssh://review.couchbase.org:29418/couchstore $GERRIT_REFSPEC && git che
 
 echo ============================================ make
 cd ..
-make -j4
+make -j4 || (make -j1 && false)
 
 echo ============================================ make simple-test
 cd testrunner
