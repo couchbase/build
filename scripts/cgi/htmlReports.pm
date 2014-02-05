@@ -60,12 +60,12 @@ sub HTML_repo_cell
     return($HTML);
     }
 
-############                        print_HTML_Page ( <html_element>, <page_title>, <color> )
+############                        print_HTML_Page ( <cgi_object>, <html_element>, <page_title>, <color> )
 #          
 #                                   prints html page to stdout
 sub print_HTML_Page
     {
-    my ($html_elem, $page_title, $color) = @_;
+    my ($query, $html_elem, $page_title, $color) = @_;
     
     print $query->header;
     print $query->start_html( -title           => $page_title,

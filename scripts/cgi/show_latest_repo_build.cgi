@@ -71,7 +71,7 @@ else
     print STDERR "\nmissing parameter: branch\n";
     my $sys_err = htmlReports::HTML_pair_cell( buildbotQuery::html_ERROR_msg($usage), '&nbsp;' );
     
-    htmlReports::print_HTML_Page( $sys_err, '&nbsp;', $err_color );
+    htmlReports::print_HTML_Page( $query, $sys_err, '&nbsp;', $err_color );
     exit;
     }
 
@@ -173,7 +173,7 @@ my $html          = htmlReports::HTML_repo_cell( $branch,         $html_jenkins,
 if ( $jenkins_only)  { $html = $html_jenkins;  }
 if ($buildbot_only)  { $html = $html_buildbot; }
 
-htmlReports::print_HTML_Page(  $html,  "$branch Repo Builder Status",  $buildbot_color );
+htmlReports::print_HTML_Page(  $query, $html,  "$branch Repo Builder Status",  $buildbot_color );
 
 # print "\n---------------------------\n";
 __END__
