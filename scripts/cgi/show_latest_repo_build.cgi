@@ -166,8 +166,8 @@ else
     }
 
 
-my $html_jenkins  = htmlReports::HTML_pair_cell( "last check: ",   $jenkins_row,  $jenkins_color);
-my $html_buildbot = htmlReports::HTML_pair_cell( "last build: ",  $buildbot_row, $buildbot_color);
+my $html_jenkins  = htmlReports::HTML_pair_cell( "repos checked: ",   $jenkins_row,  $jenkins_color);
+my $html_buildbot = htmlReports::HTML_pair_cell( "build started: ",  $buildbot_row, $buildbot_color);
 my $html          = htmlReports::HTML_repo_cell( $branch,         $html_jenkins, $html_buildbot);
 
 if ( $jenkins_only)  { $html = $html_jenkins;  }

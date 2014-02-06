@@ -33,12 +33,13 @@ my $installed_URL='http://factory.hq.couchbase.com';
 my $run_icon  = '<IMG SRC="' .$installed_URL. '/running_20.gif" ALT="running..." HSPACE="50" ALIGN="LEFT">';
 my $done_icon = '&nbsp;';
 
+my $TIMEZONE = `date +%Z`;    chomp($TIMEZONE);
 
 sub date_from_id
     {
     my ($jobID) = @_;
     my $date_rex = '([0-9-]+)_([0-9]+)-([0-9]+)-([0-9]+)';
-    if ($jobID =~ $date_rex)  { return $1.'&nbsp;<SMALL>'."$2:$3:$4".'</SMALL>'; }
+    if ($jobID =~ $date_rex)  { return $1.'&nbsp;<SMALL>'."$2:$3:$4".'&nbsp;'.$TIMEZONE.'</SMALL>'; }
     return $jobID;
     }
 
@@ -306,16 +307,15 @@ sub return_build_info
     my $result  = jenkinsQuery::get_json($job_name.'/'.$bldnum);
     $is_running = 'unknown';
     if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');   if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
- 
+     
     $bld_date   = 'unknown';
     if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'} );     if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }}
-
+    
     $isgood     = 'unknown';
     if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS'); if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
  
     return( $bldnum, $is_running, $bld_date, $isgood );
     }
-
 
 
 1;
