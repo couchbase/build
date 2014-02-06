@@ -18,7 +18,7 @@ env | grep -iv password | grep -iv passwd | sort
 echo ============================================ clean
 sudo killall -9 beam.smp epmd memcached python 2>&1 > /dev/null || true
 
-git clean-xfd
+git clean -xfd
 
 echo ============================================ update cli
 git fetch ssh://review.couchbase.org:29418/couchbase-cli $GERRIT_REFSPEC && git checkout FETCH_HEAD
