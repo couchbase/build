@@ -97,6 +97,7 @@ echo ======== sync couchbase-lite-phonegap-plugin-builder ====
 
 if [[ ! -d couchbase-lite-phonegap-plugin-builder ]] ; then git clone https://github.com/couchbaselabs/couchbase-lite-phonegap-plugin-builder.git ; fi
 cd         couchbase-lite-phonegap-plugin-builder
+git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update

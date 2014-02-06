@@ -107,6 +107,7 @@ echo ======== sync sync_gateway ===================
 
 if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
 cd         sync_gateway
+git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
