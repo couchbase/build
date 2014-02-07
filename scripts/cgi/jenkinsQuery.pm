@@ -137,14 +137,20 @@ sub html_RUN_link
     return($HTML);
     }
 
-############                        html_OK_link ( <builder>, <job_number>, <build_num>, <job_date> )
+############                        html_OK_link ( <builder>, <job_number>, <build_num>, <job_date> , [ <optional_link>, <optional_link_text> ] )
 #          
 #                                   returns HTML of link to good build results
 sub html_OK_link
     {
-    my ($builder, $bnum, $rev, $date) = @_;
+    my ($builder, $bnum, $rev, $date, $opt_link, $opt_link_text) = @_;
     
-    my $HTML='<a href="'. $URL_ROOT .'/job/'. $builder .'/'. $bnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)" .'</a>';
+    my $OPTURL = '';
+    if (defined( $opt_link ))
+        {
+        if (! defined( $opt_link_text ))  { $opt_link_text = $opt_link; }
+        $OPTURL = '&nbsp;&nbsp;<A href="'.$opt_link.'">'.$opt_link_text.'</A>'."\n";
+        }
+    my $HTML='<a href="'. $URL_ROOT .'/job/'. $builder .'/'. $bnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)".'</a>'.$OPTURL;
     return($HTML);
     }
 

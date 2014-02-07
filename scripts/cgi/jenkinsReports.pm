@@ -14,12 +14,12 @@ our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( last_done_sgw_bld  last_done_sgw_pkg   last_good_sgw_bld last_good_sgw_pkg \
                        last_done_ios_bld  last_good_ios_bld   last_done_and_bld last_good_and_bld \
-                       last_done_repo     get_builder                                             \
+                       last_done_repo     last_commit_valid   get_builder                         \
                      );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_bld  &last_done_sgw_pkg   &last_good_sgw_bld  &last_good_sgw_pkg )],
                      IOS_ANDROID  => [qw( &last_done_ios_bld  &last_good_ios_bld   &last_done_and_bld  &last_good_and_bld )],
-                     DEFAULT      => [qw( &last_done_repo     &get_builder                                                )],
+                     DEFAULT      => [qw( &last_done_repo     &last_commit_valid   &get_builder                           )],
                    );
 
 my $DEBUG = 0;   # FALSE
@@ -164,7 +164,6 @@ sub last_done_sgw_pkg
     if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');   if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
  
     $bld_date   = 'unknown';
-    $dat_rex    = '([0-9-]+)_([0-9-]+)';
     if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'} );      if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }}
 
     $isgood     = 'unknown';
@@ -256,6 +255,44 @@ sub last_done_repo
     my $builder  = get_builder($platform,$branch, "repo","repo");
     my $property = 'lastCompletedBuild';
     return_build_info($branch, $branch, $builder, $property);
+    }
+   
+
+
+############                        last_commit_valid ( branch )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status, change_url )
+sub last_commit_valid
+    {
+    ($branch) = @_;
+    my $builder  = get_builder($platform, $branch, "repo","repo");
+    my $property = 'lastCompletedBuild';
+    my ($gerrit_url, $gerrit_num);
+    
+    my ($build_num, $is_running, $bld_date, $bld_stat) = return_build_info($branch, $branch, $builder, $property);
+    
+    my $result  = jenkinsQuery::get_json($builder.'/'.$build_num);
+
+    if (! defined( $$result{'actions'}[0]{'parameters'} ))
+        {
+        die "no such field: actions[0]{parameters}\n";
+        }
+    for my $pp (0 .. scalar $$result{'actions'}[0]{'parameters'})
+        {
+        if ($DEBUG)  { print STDERR "pp is $pp\n"; }
+        if ($$result{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_NUMBER')
+            {
+            $gerrit_num = $$result{'actions'}[0]{'parameters'}[$pp]{'value'};
+            if ($DEBUG)  { print STDERR "detected revision: $gerrit_num\n"; }
+            }
+        if ($$result{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_URL')
+            {
+            $gerrit_url = $$result{'actions'}[0]{'parameters'}[$pp]{'value'};
+            if ($DEBUG)  { print STDERR "detected revision: $gerrit_url\n"; }
+            }
+        last if (defined( $gerrit_num) && defined( $gerrit_url) );
+        }
+    return($build_num, $is_running, $bld_date, $bld_stat, $gerrit_url, $gerrit_num);
     }
    
 

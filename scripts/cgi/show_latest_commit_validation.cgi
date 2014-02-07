@@ -114,14 +114,14 @@ $jenkins_job = jenkinsQuery::get_commit_valid( $repo, $branch );
 if ($DEBUG)  { print STDERR "\nready to start with repo: ($repo, $branch, $jenkins_job)\n"; }
 
 
-my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
+my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running, $gerrit_url, $gerrit_num);
 
 
 #### S T A R T  H E R E
 
 print STDERR "calling  jenkinsReports::last_commit_valid(".$branch.")";
 
-($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_commit_valid($branch);
+($bldnum, $is_running, $bld_date, $bldstatus, $gerrit_url, $gerrit_num) = jenkinsReports::last_commit_valid($branch);
 print STDERR "according to last_done_build, is_running = $is_running\n";
 
 my ($jenkins_color, $jenkins_row);
@@ -136,7 +136,7 @@ if ($bldnum < 0)
 elsif ($bldstatus)
     {
     $jenkins_color = $good_color;
-    $jenkins_row   = HTML_pair_cell( jenkinsQuery::html_OK_link( $jenkins_builder, $bldnum, $rev_numb, $bld_date),
+    $jenkins_row   = HTML_pair_cell( jenkinsQuery::html_OK_link( $jenkins_builder, $bldnum, $rev_numb, $bld_date, $gerrit_url, $gerrit_num),
                                      buildbotReports::is_running($is_running),
                                      $jenkins_color                                                     );
     print STDERR "GOOD: $bldnum\n"; 
