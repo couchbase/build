@@ -21,16 +21,28 @@ make clean-xfd-hard
 
 
 echo ============================================ update couchdb
-cd couchdb
+pushd couchdb     2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
+popd              2>&1 > /dev/null
 
 echo ============================================ make
-cd ..
 make -j4 || (make -j1 && false)
 
-echo ============================================ make simple-test
-cd testrunner
-make simple-test
+echo ============================================ make check
+pushd couchdb     2>&1 > /dev/null
+
+cpulimit -e 'beam.smp' -l 50 &
+CPULIMIT_PID=$!
+PATH=$PATH:${WORKSPACE}/cmake/couchstore   make check
+kill $CPULIMIT_PID || true
+
+popd              2>&1 > /dev/null
+
+# echo ============================================ make simple-test
+# pushd testrunner  2>&1 > /dev/null
+# make simple-test
+# popd              2>&1 > /dev/null
+
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
 echo ============================================ `date`
