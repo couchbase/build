@@ -22,8 +22,9 @@ BEGIN
     }
 my $installed_URL='http://factory.hq.couchbase.com/cgi/show_latest_commit_validation.cgi';
 
-use jenkinsQuery    qw(:DEFAULT );
-use jenkinsReports  qw(:DEFAULT);
+use jenkinsQuery     qw(:DEFAULT );
+use jenkinsReports   qw(:DEFAULT);
+use buildbotReports  qw(:DEFAULT );
 
 use CGI qw(:standard);
 my  $query = new CGI;
@@ -119,9 +120,9 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running, $gerrit_url, $gerrit
 
 #### S T A R T  H E R E
 
-print STDERR "calling  jenkinsReports::last_commit_valid(".$branch.")";
+print STDERR "calling  jenkinsReports::last_commit_valid($jenkins_job, $branch)";
 
-($bldnum, $is_running, $bld_date, $bldstatus, $gerrit_url, $gerrit_num) = jenkinsReports::last_commit_valid($branch);
+($bldnum, $is_running, $bld_date, $bldstatus, $gerrit_url, $gerrit_num) = jenkinsReports::last_commit_valid($jenkins_job, $branch);
 print STDERR "according to last_done_build, is_running = $is_running\n";
 
 my ($jenkins_color, $jenkins_row);
@@ -129,14 +130,14 @@ my ($jenkins_color, $jenkins_row);
 if ($bldnum < 0)
     {
     $jenkins_color = $note_color;
-    $jenkins_row   = HTML_pair_cell( jenkinsQuery::html_RUN_link( $jenkins_builder, 'no build yet'),
+    $jenkins_row   = HTML_pair_cell( jenkinsQuery::html_RUN_link( $jenkins_job, 'no build yet'),
                                      buildbotReports::is_running($is_running),
                                      $jenkins_color                                       );
     }
 elsif ($bldstatus)
     {
     $jenkins_color = $good_color;
-    $jenkins_row   = HTML_pair_cell( jenkinsQuery::html_OK_link( $jenkins_builder, $bldnum, $rev_numb, $bld_date, $gerrit_url, $gerrit_num),
+    $jenkins_row   = HTML_pair_cell( jenkinsQuery::html_OK_link( $jenkins_job, $bldnum, $rev_numb, $bld_date, $gerrit_url, $gerrit_num),
                                      buildbotReports::is_running($is_running),
                                      $jenkins_color                                                     );
     print STDERR "GOOD: $bldnum\n"; 
@@ -155,11 +156,11 @@ else
         $jenkins_color = $err_color;
         }
     $jenkins_row = HTML_pair_cell( buildbotReports::is_running($is_running),
-                                   jenkinsQuery::html_FAIL_link( $jenkins_builder, $bldnum, $is_running, $bld_date),
+                                   jenkinsQuery::html_FAIL_link( $jenkins_job, $bldnum, $is_running, $bld_date),
                                    $jenkins_color                                                         );
     }
 
-print_HTML_Page( $jenkins_row, "$jenkins_builder ( commit_validation )", $jenkins_color );
+print_HTML_Page( $jenkins_row, "$jenkins_job ( commit_validation )", $jenkins_color );
 
 # print "\n---------------------------\n";
 __END__

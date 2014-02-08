@@ -259,39 +259,43 @@ sub last_done_repo
    
 
 
-############                        last_commit_valid ( branch )
+############                        last_commit_valid ( job_name, branch )
 #          
 #                                   returns ( build_num, is_build_running, build_date, status, change_url )
 sub last_commit_valid
     {
-    ($branch) = @_;
-    my $builder  = get_builder($platform, $branch, "repo","repo");
+    my ($builder, $branch) = @_;
     my $property = 'lastCompletedBuild';
     my ($gerrit_url, $gerrit_num);
     
     my ($build_num, $is_running, $bld_date, $bld_stat) = return_build_info($branch, $branch, $builder, $property);
     
+    if ($DEBUG)  { print STDERR "last_commit_valid got build info ($build_num, $is_running, $bld_date, $bld_stat)\n"; }
+    
     my $result  = jenkinsQuery::get_json($builder.'/'.$build_num);
-
-    if (! defined( $$result{'actions'}[0]{'parameters'} ))
+    if ($DEBUG)  { print STDERR "result from $builder/$build_num\n"; }
+    
+    for my $aa (0 .. scalar $$results{'actions'})
         {
-        die "no such field: actions[0]{parameters}\n";
-        }
-    for my $pp (0 .. scalar $$result{'actions'}[0]{'parameters'})
-        {
-        if ($DEBUG)  { print STDERR "pp is $pp\n"; }
-        if ($$result{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_NUMBER')
+        if ($DEBUG)  { print STDERR "-----------------------------aa is $aa\n"; }
+        if ( defined( $$results{'actions'}[$aa]{'parameters'} ))
             {
-            $gerrit_num = $$result{'actions'}[0]{'parameters'}[$pp]{'value'};
-            if ($DEBUG)  { print STDERR "detected revision: $gerrit_num\n"; }
-            }
-        if ($$result{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_URL')
-            {
-            $gerrit_url = $$result{'actions'}[0]{'parameters'}[$pp]{'value'};
-            if ($DEBUG)  { print STDERR "detected revision: $gerrit_url\n"; }
-            }
-        last if (defined( $gerrit_num) && defined( $gerrit_url) );
-        }
+            for my $pp (0 .. scalar $$result{'actions'}[$aa]{'parameters'})
+                {
+                if ($DEBUG)  { print STDERR "pp is $pp-----------------------------\n"; }
+                if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_NUMBER')
+                    {
+                    $gerrit_num = $$result{'actions'}[$aa]{'parameters'}[$pp]{'value'};
+                    if ($DEBUG)  { print STDERR "detected revision: $gerrit_num\n"; }
+                    }
+                if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_URL')
+                    {
+                        $gerrit_url = $$result{'actions'}[$aa]{'parameters'}[$pp]{'value'};
+                    if ($DEBUG)  { print STDERR "detected revision: $gerrit_url\n"; }
+                    }
+                last if (defined( $gerrit_num) && defined( $gerrit_url) );
+                }
+        }   }
     return($build_num, $is_running, $bld_date, $bld_stat, $gerrit_url, $gerrit_num);
     }
    

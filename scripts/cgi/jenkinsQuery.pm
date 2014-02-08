@@ -119,8 +119,8 @@ sub get_commit_valid
     if (! defined( $test ))  { $test = 'gerrit'; }
     
     if (! defined( $valid{$proj}               ))   { print STDERR "project $proj not supported by get_commit_valid()\n";   return(0); }
-    if (! defined( $valid{$proj}{$test}        ))   { print STDERR "test type $test not supported by get_commit_valid()\n"; return(0); }
-    if (! defined( $valid{$proj}{$test}{$bran} ))   { print STDERR "branch $bran not supported by get_commit_valid()\n";    return(0); }
+    if (! defined( $valid{$proj}{$test}        ))   { print STDERR "test type $test not supported by get_commit_valid(), for project $proj\n"; return(0); }
+    if (! defined( $valid{$proj}{$test}{$bran} ))   { print STDERR "branch $bran not supported by get_commit_valid(), for project $proj, for test type $test\n";    return(0); }
     
     return(  $valid{$proj}{$test}{$bran} );
     }
