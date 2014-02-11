@@ -7,7 +7,8 @@ usage()
     echo ""
     echo "           VERSION         product version string, of the form 2.0.2-769-rel"
     echo ""
-    echo "         [ -e EDITION  ]   community or enterprise.  (both if not given)"
+    echo "         [ -e EDITION  ]   community or enterprise or moxi.             "
+    echo "                           (both community and enterprise  if not given)"
     echo "         [ -p PLATFORM ]   32 or 64.                 (both if not given)"
     echo "         [ -t TYPE     ]   rpm, deb, setup.exe, zip  (all if not given)"
     echo ""
@@ -104,41 +105,55 @@ else
     names=$NAME
 fi
 
-declare	-A decorout
+declare -A decorout
 decorout[deb]=openssl098
 decorout[rpm]=openssl098
+                                                 #  map edition to package name
+declare -A pkgname
+pkgname[enterprise]=couchbase-server-enterprise
+pkgname[community]=couchbase-server-community
+pkgname[moxi]=moxi-server
                                                  #  map platform to arch
 declare -A arch
 arch[32]=x86
 arch[64]=x86_64
+
                                                  #  release is what is uploaded to S3
-for         package_type in ${types[@]}     ; do
-    for     name         in ${names[@]}     ; do
-        for platform     in ${platforms[@]} ; do
-            if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
-                echo "MAC package doesn't support 32 bit platform"
-            else
-                release=couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}
-                echo "Removing all ${platform}-bit $name edition $package_type files from S3"
-                s3cmd del ${s3_target}${release}
-                s3cmd del ${s3_target}${release}.md5
-                s3cmd del ${s3_target}${release}.staging
-                s3cmd del ${s3_target}${release}.manifest.xml
-                s3cmd del ${s3_target}${release}.manifest.xml.md5
-                echo "-----------------------------------------------"
-                if [[ $package_type == deb || $package_type == rpm ]]
-                    then
-                    release=couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}
-                    echo "Removing decorated ${platform}-bit $name edition $package_type files from S3"
+for             package_type in ${types[@]}
+    do
+    for         name         in ${names[@]}
+        do
+        if ( [ $name == 'moxi' ] &&  ( [ $package_type == "setup.exe" ] || [ $package_type == "zip" ] ))
+          then
+            echo "MOXI packages not available for Windows or MacOSX"
+          else
+            for platform     in ${platforms[@]}
+                do
+                if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
+                    echo "MAC package doesn't support 32 bit platform"
+                else
+                    release=${pkgname[$name]}_${rel_num}_${arch[$platform]}.${package_type}
+                    echo "Removing all ${platform}-bit $name edition $package_type files from S3"
                     s3cmd del ${s3_target}${release}
                     s3cmd del ${s3_target}${release}.md5
                     s3cmd del ${s3_target}${release}.staging
                     s3cmd del ${s3_target}${release}.manifest.xml
                     s3cmd del ${s3_target}${release}.manifest.xml.md5
                     echo "-----------------------------------------------"
-               fi
-            fi
-        done
+                    if [[ $package_type == deb || $package_type == rpm ]]
+                        then
+                        release=${pkgname[$name]}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}
+                        echo "Removing decorated ${platform}-bit $name edition $package_type files from S3"
+                        s3cmd del ${s3_target}${release}
+                        s3cmd del ${s3_target}${release}.md5
+                        s3cmd del ${s3_target}${release}.staging
+                        s3cmd del ${s3_target}${release}.manifest.xml
+                        s3cmd del ${s3_target}${release}.manifest.xml.md5
+                        echo "-----------------------------------------------"
+                   fi
+                fi
+            done
+        fi
     done
 done
 

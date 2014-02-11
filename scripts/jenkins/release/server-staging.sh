@@ -1,6 +1,9 @@
 #!/bin/bash
 #              use to download from latestbuilds and upload to S3,
 #              along with md5 and .staging files
+#              
+#              The EE release includes the moxi packages.
+#              The CE release includes the src tarbal.
 
 TMP_DIR=~/release_tmp
 
@@ -11,9 +14,10 @@ usage()
     echo ""
     echo "           VERSION         product version string, of the form 2.0.2-769-rel"
     echo ""
-    echo "         [ -e EDITION  ]   community or enterprise.  (both if not given)"
+    echo "         [ -e EDITION  ]   community or enterprise or moxi.             "
+    echo "                           (both community and enterprise  if not given)"
     echo "         [ -p PLATFORM ]   32 or 64.                 (both if not given)"
-    echo "         [ -t TYPE     ]   rpm, deb, setup.exe, zip  (all if not given)"
+    echo "         [ -t TYPE     ]   rpm, deb, setup.exe, zip  (all  if not given)"
     echo ""
     echo "         [ -m TMP_DIR  ]   temp dir to use, if not ${TMP_DIR}"
     echo ""
@@ -121,81 +125,94 @@ chmod 777 ${TMP_DIR}
 pushd     ${TMP_DIR} 2>&1 > /dev/null
 
                                                  #  decorated package names
-declare	-A decor_in decorout
+declare -A decor_in decorout
 decor_in[deb]=ubuntu_1204
 decor_in[rpm]=centos6
 decorout[deb]=openssl098
 decorout[rpm]=openssl098
+                                                 #  map edition to package name
+declare -A pkgname
+pkgname[enterprise]=couchbase-server-enterprise
+pkgname[community]=couchbase-server-community
+pkgname[moxi]=moxi-server
                                                  #  map platform to arch
 declare -A arch
 arch[32]=x86
 arch[64]=x86_64
                                                  #  package is what is produced by build
                                                  #  release is what is uploaded to S3
-for         package_type in ${types[@]}     ; do
-    for     name         in ${names[@]}     ; do
-        for platform     in ${platforms[@]} ; do
-            if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
-                echo "MAC package doesn't support 32 bit platform"
-            else
-                package=couchbase-server-${name}_${arch[$platform]}_${version}.${package_type}
-                if [[ $package_type == deb || $package_type == rpm ]]
-                  then
-                    release=couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}
+for             package_type in ${types[@]}
+    do
+    for         name         in ${names[@]}
+        do
+        if  [[ $name == 'moxi' ]] &&  ( [[ $package_type == "setup.exe" ]] || [[ $package_type == "zip" ]] )
+          then
+            echo "MOXI packages not available for Windows or MacOSX"
+          else
+            for platform     in ${platforms[@]}
+                do
+                if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
+                    echo "MAC package doesn't support 32 bit platform"
                 else
-                    release=couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}
+                    package=${pkgname[$name]}_${arch[$platform]}_${version}.${package_type}
+                    if [[ $package_type == deb || $package_type == rpm ]]
+                      then
+                        release=${pkgname[$name]}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}
+                    else
+                        release=${pkgname[$name]}_${rel_num}_${arch[$platform]}.${package_type}
+                    fi
+                    
+                    wget --no-verbose ${latestbuilds}/${package}
+                    if [ ! -e $package ]
+                        then
+                        echo "$package is not found on ${latestbuilds}"
+                        echo "Terminate the staging process"
+                        exit 1
+                    fi
+                    #wget  --no-verbose ${latestbuilds}/${package}.manifest.xml
+             echo   cp $package $release  >> ${phone_home}
+                    cp $package $release
+                    #cp $package.manifest.xml $release.manifest.xml
+                    
+                    echo "Calculate md5sum for $release"
+                    md5sum $release > $release.md5
+                    
+                    echo "Staging for $release"
+                    touch $release.staging
+                    #touch $release.manifest.xml.staging
+                    echo $release >> ${phone_home}
+                    rm $package
+                    #rm $package.manifest.xml
                 fi
-                
-                wget --no-verbose ${latestbuilds}/${package}
-                if [ ! -e $package ]
+                if [[ $package_type == deb || $package_type == rpm ]]
                     then
-                    echo "$package is not found on ${latestbuilds}"
-                    echo "Terminate the staging process"
-                    exit 1
+                    package=${pkgname[$name]}_${decor_in[$package_type]}_${arch[$platform]}_${version}.${package_type}
+                    release=${pkgname[$name]}_${rel_num}_${arch[$platform]}.${package_type}
+                    
+                    wget --no-verbose ${latestbuilds}/${package}
+                    if [ ! -e $package ]
+                        then
+                        echo "$package is not found on ${latestbuilds}"
+                        echo "Terminate the staging process"
+                        exit 1
+                    fi
+                    #wget --no-verbose ${latestbuilds}/${package}.manifest.xml
+             echo   cp $package $release >> ${phone_home}
+                    cp $package $release
+                    #cp $package.manifest.xml $release.manifest.xml
+                    
+                    echo "Calculate md5sum for $release"
+                    md5sum $release > $release.md5
+                    
+                    echo "Staging for $release"
+                    touch $release.staging
+                    #touch $release.manifest.xml.staging
+                    echo $release >> ${phone_home}
+                    rm $package
+                    #rm $package.manifest.xml
                 fi
-                #wget  --no-verbose ${latestbuilds}/${package}.manifest.xml
-         echo   cp $package $release  >> ${phone_home}
-                cp $package $release
-                #cp $package.manifest.xml $release.manifest.xml
-                
-                echo "Calculate md5sum for $release"
-                md5sum $release > $release.md5
-                
-                echo "Staging for $release"
-                touch $release.staging
-                #touch $release.manifest.xml.staging
-                echo $release >> ${phone_home}
-                rm $package
-                #rm $package.manifest.xml
-            fi
-            if [[ $package_type == deb || $package_type == rpm ]]
-                then
-                package=couchbase-server-${name}_${decor_in[$package_type]}_${arch[$platform]}_${version}.${package_type}
-                release=couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}
-                
-                wget --no-verbose ${latestbuilds}/${package}
-                if [ ! -e $package ]
-                    then
-                    echo "$package is not found on ${latestbuilds}"
-                    echo "Terminate the staging process"
-                    exit 1
-                fi
-                #wget --no-verbose ${latestbuilds}/${package}.manifest.xml
-         echo   cp $package $release >> ${phone_home}
-                cp $package $release
-                #cp $package.manifest.xml $release.manifest.xml
-                
-                echo "Calculate md5sum for $release"
-                md5sum $release > $release.md5
-                
-                echo "Staging for $release"
-                touch $release.staging
-                #touch $release.manifest.xml.staging
-                echo $release >> ${phone_home}
-                rm $package
-                #rm $package.manifest.xml
-            fi
-        done
+            done
+        fi
     done
 done
 

@@ -9,7 +9,8 @@ usage()
     echo ""
     echo "           VERSION         product version string, of the form 2.0.2-769-rel"
     echo ""
-    echo "         [ -e EDITION  ]   community or enterprise.  (both if not given)"
+    echo "         [ -e EDITION  ]   community or enterprise or moxi.             "
+    echo "                           (both community and enterprise  if not given)"
     echo "         [ -p PLATFORM ]   32 or 64.                 (both if not given)"
     echo "         [ -t TYPE     ]   rpm, deb, setup.exe, zip  (all if not given)"
     echo ""
@@ -111,32 +112,45 @@ fi
 
 if [[ -e ${phone_home} ]] ; then rm  ${phone_home} ; fi
 
-declare	-A decorout
+declare -A decorout
 decorout[deb]=openssl098
 decorout[rpm]=openssl098
+                                                 #  map edition to package name
+declare -A pkgname
+pkgname[enterprise]=couchbase-server-enterprise
+pkgname[community]=couchbase-server-community
+pkgname[moxi]=moxi-server
                                                  #  map platform to arch
 declare -A arch
 arch[32]=x86
 arch[64]=x86_64
                                                  #  staging is what is uploaded to S3, with .staging suffix
-for         package_type in ${types[@]}     ; do
-    for     name         in ${names[@]}     ; do
-        for platform     in ${platforms[@]} ; do
-            if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
-                echo "MAC package doesn't support 32 bit platform"
-            else
-                staging=couchbase-server-${name}_${rel_num}_${arch[$platform]}.${package_type}.staging
-                echo "Remove staging file for $staging and ready for release"
-                s3cmd del ${s3_target}${staging}
-                
-                if [[ $package_type == deb || $package_type == rpm ]]
-                   then
-                    staging=couchbase-server-${name}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}.staging
+for             package_type in ${types[@]}
+    do
+    for         name         in ${names[@]}
+        do
+        if ( [ $name == 'moxi' ] &&  ( [ $package_type == "setup.exe" ] || [ $package_type == "zip" ] ))
+          then
+            echo "MOXI packages not available for Windows or MacOSX"
+          else
+            for platform     in ${platforms[@]}
+                do
+                if [ $platform -eq 32 ] && [ $package_type == "zip" ]; then
+                    echo "MAC package doesn't support 32 bit platform"
+                else
+                    staging=${pkgname[$name]}_${rel_num}_${arch[$platform]}.${package_type}.staging
                     echo "Remove staging file for $staging and ready for release"
                     s3cmd del ${s3_target}${staging}
+                    
+                    if [[ $package_type == deb || $package_type == rpm ]]
+                       then
+                        staging=${pkgname[$name]}_${rel_num}_${arch[$platform]}_${decorout[$package_type]}.${package_type}.staging
+                        echo "Remove staging file for $staging and ready for release"
+                        s3cmd del ${s3_target}${staging}
+                    fi
                 fi
-            fi
-        done
+            done
+        fi
     done
 done
 
