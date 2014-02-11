@@ -17,7 +17,7 @@ echo ============================================ clean
 make clean-xfd-hard
 
 echo ============================================ update ep-engine
-pushd libmemcached     > /dev/null
+pushd cmake/libmemcached     > /dev/null
 config/autorun.sh
 ./configure
 make
