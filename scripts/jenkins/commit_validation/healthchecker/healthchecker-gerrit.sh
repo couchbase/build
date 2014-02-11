@@ -16,19 +16,28 @@ env | grep -iv password | grep -iv passwd | sort
 
 echo ============================================ clean
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-make clean-xfd-hard
 
-echo ============================================ update healthchecker
-pushd cmake/healthchecker 2>&1 > /dev/null
+git clean -xfd
+
+echo ============================================ update healthchecker and cli
+git fetch ssh://review.couchbase.org:29418/couchbase-cli $GERRIT_REFSPEC && git checkout FETCH_HEAD
 git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git checkout FETCH_HEAD
-
-echo ============================================ make
-popd 2>&1 > /dev/null
-make -j4 || (make -j1 && false)
 
 echo ============================================ make simple-test
 cd testrunner
-make simple-test
-sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+Line1="clitest.healthcheckertest.HealthcheckerTests:"
+Line2="     healthchecker_test,sasl_buckets=1,doc_ops=update,GROUP=P0"
+Line3="     healthchecker_test,standard_buckets=1,doc_ops=delete,GROUP=P0"
+
+cat > ./cbhealthchecker.conf << EOL
+${Line1}
+${Line2}
+${Line3}
+EOL
+
+python ./testrunner -i ini_file.ini -c cbhealthchecker.conf -p get_collectinfo=true
+
+sudo killall -9 beam.smp epmd memcached python  2>&1 > /dev/null || true
 
 echo ============================================ `date`
+
