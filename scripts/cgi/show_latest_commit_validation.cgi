@@ -6,6 +6,7 @@
 #  
 #    repo          e.g. ep-engine
 #    branch        e.g. 300
+#  [ test ]        OPTIONAL.  gerrit views-pre-merge, ...
 #  
 use warnings;
 #use strict;
@@ -81,7 +82,7 @@ my $usage = "ERROR: must specify 'repo' and 'branch' params\n\n"
            ."</PRE><BR>"
            ."\n\n";
 
-my ($repo, $branch, $jenkins_job);
+my ($repo, $branch, $test_type, $jenkins_job);
 
 if ( $query->param('repo') )
     {
@@ -110,6 +111,13 @@ else
     print_HTML_Page( $sys_err, '&nbsp;', $err_color );
     exit;
     }
+
+if ( $query->param('test') )
+    {
+    $test_type  = $query->param('test');
+    if ($DEBUG)  { print STDERR "called with 'test' param: $test_type\n"; }
+    }                                              
+
 
 $jenkins_job = jenkinsQuery::get_commit_valid( $repo, $branch );
 if ($DEBUG)  { print STDERR "\nready to start with repo: ($repo, $branch, $jenkins_job)\n"; }
