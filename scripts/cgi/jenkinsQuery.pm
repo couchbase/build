@@ -49,7 +49,9 @@ sub get_url_root
 #
 #
 #
-my %repo = ( "2.5.0"   =>  "repo-250",
+my %repo = ( 
+             "2.5.0"   =>  "repo-250",
+             "2.5.1"   =>  "repo-251",
              "3.0.0"   =>  "repo-300",
              "master"  =>  "repo-master",
            );
