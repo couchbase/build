@@ -14,12 +14,12 @@ our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( last_done_sgw_bld  last_done_sgw_pkg   last_good_sgw_bld last_good_sgw_pkg \
                        last_done_ios_bld  last_good_ios_bld   last_done_and_bld last_good_and_bld \
-                       last_done_repo     get_builder                                             \
+                       last_done_repo     last_commit_valid   get_builder                         \
                      );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_bld  &last_done_sgw_pkg   &last_good_sgw_bld  &last_good_sgw_pkg )],
                      IOS_ANDROID  => [qw( &last_done_ios_bld  &last_good_ios_bld   &last_done_and_bld  &last_good_and_bld )],
-                     DEFAULT      => [qw( &last_done_repo     &get_builder                                                )],
+                     DEFAULT      => [qw( &last_done_repo     &last_commit_valid   &get_builder                           )],
                    );
 
 my $DEBUG = 0;   # FALSE
@@ -33,12 +33,13 @@ my $installed_URL='http://factory.hq.couchbase.com';
 my $run_icon  = '<IMG SRC="' .$installed_URL. '/running_20.gif" ALT="running..." HSPACE="50" ALIGN="LEFT">';
 my $done_icon = '&nbsp;';
 
+my $TIMEZONE = `date +%Z`;    chomp($TIMEZONE);
 
 sub date_from_id
     {
     my ($jobID) = @_;
     my $date_rex = '([0-9-]+)_([0-9]+)-([0-9]+)-([0-9]+)';
-    if ($jobID =~ $date_rex)  { return $1.'&nbsp;<SMALL>'."$2:$3:$4".'</SMALL>'; }
+    if ($jobID =~ $date_rex)  { return $1.'&nbsp;<SMALL>'."$2:$3:$4".'&nbsp;'.$TIMEZONE.'</SMALL>'; }
     return $jobID;
     }
 
@@ -57,7 +58,7 @@ sub get_builder
         if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch;  }
         }
     if ($type eq 'package')  { $builder = $type."_sync_gateway-".$platform; }
-    if ($type eq 'repo')     { $builder = 'repo-'.$branch;                  }
+    if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);  }
     return($builder);
     }
 
@@ -163,7 +164,6 @@ sub last_done_sgw_pkg
     if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');   if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
  
     $bld_date   = 'unknown';
-    $dat_rex    = '([0-9-]+)_([0-9-]+)';
     if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'} );      if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }}
 
     $isgood     = 'unknown';
@@ -259,6 +259,48 @@ sub last_done_repo
    
 
 
+############                        last_commit_valid ( job_name, branch )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status, change_url )
+sub last_commit_valid
+    {
+    my ($builder, $branch) = @_;
+    my $property = 'lastCompletedBuild';
+    my ($gerrit_url, $gerrit_num);
+    
+    my ($build_num, $is_running, $bld_date, $bld_stat) = return_build_info($branch, $branch, $builder, $property);
+    
+    if ($DEBUG)  { print STDERR "last_commit_valid got build info ($build_num, $is_running, $bld_date, $bld_stat)\n"; }
+    
+    my $result  = jenkinsQuery::get_json($builder.'/'.$build_num);
+    if ($DEBUG)  { print STDERR "result from $builder/$build_num\n"; }
+    
+    for my $aa (0 .. scalar $$results{'actions'})
+        {
+        if ($DEBUG)  { print STDERR "-----------------------------aa is $aa\n"; }
+        if ( defined( $$results{'actions'}[$aa]{'parameters'} ))
+            {
+            for my $pp (0 .. scalar $$result{'actions'}[$aa]{'parameters'})
+                {
+                if ($DEBUG)  { print STDERR "pp is $pp-----------------------------\n"; }
+                if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_NUMBER')
+                    {
+                    $gerrit_num = $$result{'actions'}[$aa]{'parameters'}[$pp]{'value'};
+                    if ($DEBUG)  { print STDERR "detected revision: $gerrit_num\n"; }
+                    }
+                if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_URL')
+                    {
+                        $gerrit_url = $$result{'actions'}[$aa]{'parameters'}[$pp]{'value'};
+                    if ($DEBUG)  { print STDERR "detected revision: $gerrit_url\n"; }
+                    }
+                last if (defined( $gerrit_num) && defined( $gerrit_url) );
+                }
+        }   }
+    return($build_num, $is_running, $bld_date, $bld_stat, $gerrit_url, $gerrit_num);
+    }
+   
+
+
 
 ############                        return_build_info ( platform, branch, job_name, property )
 #          
@@ -306,16 +348,15 @@ sub return_build_info
     my $result  = jenkinsQuery::get_json($job_name.'/'.$bldnum);
     $is_running = 'unknown';
     if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');   if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
- 
+     
     $bld_date   = 'unknown';
     if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'} );     if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }}
-
+    
     $isgood     = 'unknown';
     if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS'); if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
  
     return( $bldnum, $is_running, $bld_date, $isgood );
     }
-
 
 
 1;

@@ -151,9 +151,16 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                   },
                                   },
                 "repo" => { 
+                            "220"     =>  "repo-couchbase-220-builder",
+                            "2.2.0"   =>  "repo-couchbase-220-builder",
+                            "250"     =>  "repo-couchbase-250-builder",
                             "2.5.0"   =>  "repo-couchbase-250-builder",
+                            "251"     =>  "repo-couchbase-251-builder",
                             "2.5.1"   =>  "repo-couchbase-251-builder",
+                            "300"     =>  "repo-couchbase-300-builder",
                             "3.0.0"   =>  "repo-couchbase-300-builder",
+                            "000"     =>  "repo-couchbase-master-builder",
+                            "0.0.0"   =>  "repo-couchbase-master-builder",
                             "master"  =>  "repo-couchbase-master-builder",
                           },
                 );

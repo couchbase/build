@@ -12,8 +12,8 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw(                get_url_root    get_repo_builder   html_RUN_link  html_OK_link  html_FAIL_link   get_json   test_running_indicator  response_code  test_job_status );
-our %EXPORT_TAGS = ( DEFAULT  => [qw( &get_url_root  &get_repo_builder  &html_RUN_link &html_OK_link &html_FAIL_link  &get_json  &test_running_indicator &response_code &test_job_status )] );
+our @EXPORT_OK   = qw(                get_url_root    get_repo_builder   get_commit_valid  html_RUN_link  html_OK_link  html_FAIL_link   get_json   test_running_indicator  response_code  test_job_status    );
+our %EXPORT_TAGS = ( DEFAULT  => [qw( &get_url_root  &get_repo_builder  &get_commit_valid &html_RUN_link &html_OK_link &html_FAIL_link  &get_json  &test_running_indicator &response_code &test_job_status )] );
 
 ############ 
 
@@ -50,9 +50,16 @@ sub get_url_root
 #
 #
 my %repo = ( 
+             "220"     =>  "repo-220",
+             "2.2.0"   =>  "repo-220",
+             "250"     =>  "repo-250",
              "2.5.0"   =>  "repo-250",
+             "251"     =>  "repo-251",
              "2.5.1"   =>  "repo-251",
+             "300"     =>  "repo-300",
              "3.0.0"   =>  "repo-300",
+             "000"     =>  "repo-master",
+             "0.0.0"   =>  "repo-300",
              "master"  =>  "repo-master",
            );
 sub get_repo_builder
@@ -61,6 +68,65 @@ sub get_repo_builder
     
     if ( $DEBUG )  { print STDERR "jenkinsQuery::get_repo_builder( $branch )\n"; }
     if (defined( $repo{$branch} ))  { return $repo{$branch}; }
+    }
+
+my %valid = ( 'couchbase-cli' => { 'gerrit'   => { "250"    => "couchbase-cli-gerrit-250",
+                                                   "2.5.0"  => "couchbase-cli-gerrit-250",
+                                                   "300"    => "couchbase-cli-gerrit-300",
+                                                   "3.0.0"  => "couchbase-cli-gerrit-300",
+                                                   "0.0.0"  => "couchbase-cli-gerrit-master",
+                                                   "master" => "couchbase-cli-gerrit-master",
+                                 }               },
+               'couchdb'      => { 'gerrit'   => { "250"    => "couchdb-gerrit-250",
+                                                   "2.5.0"  => "couchdb-gerrit-250",
+                                                   "300"    => "couchdb-gerrit-300",
+                                                   "3.0.0"  => "couchdb-gerrit-300",
+                                                   "upr",   => "couchdb-gerrit-upr",
+                                                   "0.0.0"  => "couchdb-gerrit-master",
+                                                   "master" => "couchdb-gerrit-master",
+                                                 },
+                                   'views'    => { "250"    => "couchdb-gerrit-views-250",
+                                                   "2.5.0"  => "couchdb-gerrit-views-250",
+                                                   "300"    => "couchdb-gerrit-views-300",
+                                                   "3.0.0"  => "couchdb-gerrit-views-300",
+                                                   "upr",   => "couchdb-gerrit-views-upr",
+                                                   "0.0.0"  => "couchdb-gerritviews--master",
+                                                   "master" => "couchdb-gerritviews--master",
+                                                 },
+                                   'premerge' => { "250"    => "couchdb-gerrit-views-pre-merge-250",
+                                                   "2.5.0"  => "couchdb-gerrit-views-pre-merge-250",
+                                                   "300"    => "couchdb-gerrit-views-pre-merge-300",
+                                                   "3.0.0"  => "couchdb-gerrit-views-pre-merge-300",
+                                                   "upr",   => "couchdb-gerrit-views-pre-merge-upr",
+                                                   "0.0.0"  => "couchdb-gerritviews--pre-merge-master",
+                                                   "master" => "couchdb-gerritviews--pre-merge-master",
+                                 }               },
+               'couchstore'   => { 'gerrit'   => { "250"    => "couchstore-gerrit-250",
+                                                   "2.5.0"  => "couchstore-gerrit-250",
+                                                   "300"    => "couchstore-gerrit-300",
+                                                   "3.0.0"  => "couchstore-gerrit-300",
+                                                   "0.0.0"  => "couchstore-gerrit-master",
+                                                   "master" => "couchstore-gerrit-master",
+                                 }               },
+               'testrunner'   => { 'gerrit'   => { "0.0.0"  => "testrunner-gerrit-master",
+                                                   "master" => "testrunner-gerrit-master" },
+                                 },
+            );
+
+############                        get_commit_valid ( <repo>, <branch>, [ <test_type> ] )
+#    
+#                                   returns name of jenkins job
+sub get_commit_valid
+    {
+    my ( $proj, $bran, $test) = @_;
+    
+    if (! defined( $test ))  { $test = 'gerrit'; }
+    
+    if (! defined( $valid{$proj}               ))   { print STDERR "project $proj not supported by get_commit_valid()\n";   return(0); }
+    if (! defined( $valid{$proj}{$test}        ))   { print STDERR "test type $test not supported by get_commit_valid(), for project $proj\n"; return(0); }
+    if (! defined( $valid{$proj}{$test}{$bran} ))   { print STDERR "branch $bran not supported by get_commit_valid(), for project $proj, for test type $test\n";    return(0); }
+    
+    return(  $valid{$proj}{$test}{$bran} );
     }
 
 
@@ -75,14 +141,20 @@ sub html_RUN_link
     return($HTML);
     }
 
-############                        html_OK_link ( <builder>, <job_number>, <build_num>, <job_date> )
+############                        html_OK_link ( <builder>, <job_number>, <build_num>, <job_date> , [ <optional_link>, <optional_link_text> ] )
 #          
 #                                   returns HTML of link to good build results
 sub html_OK_link
     {
-    my ($builder, $bnum, $rev, $date) = @_;
+    my ($builder, $bnum, $rev, $date, $opt_link, $opt_link_text) = @_;
     
-    my $HTML='<a href="'. $URL_ROOT .'/job/'. $builder .'/'. $bnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)" .'</a>';
+    my $OPTURL = '';
+    if (defined( $opt_link ))
+        {
+        if (! defined( $opt_link_text ))  { $opt_link_text = $opt_link; }
+        $OPTURL = '&nbsp;&nbsp;<A href="'.$opt_link.'">'.$opt_link_text.'</A>'."\n";
+        }
+    my $HTML='<a href="'. $URL_ROOT .'/job/'. $builder .'/'. $bnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)".'</a>'.$OPTURL;
     return($HTML);
     }
 
