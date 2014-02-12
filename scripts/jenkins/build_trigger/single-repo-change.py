@@ -2,6 +2,7 @@
 
 import copy
 import os.path
+import urllib
 from subprocess import check_output
 import sys
 import xml.etree.ElementTree as ET
@@ -39,8 +40,7 @@ def main():
     curr_manifest_xml = check_output(["repo", "manifest", "-r"])
     curr_manifest = ET.fromstring(curr_manifest_xml)
 
-    # Open known-good manifest; initialize last-build and candidate
-    # manifests
+    # Open known-good manifest; initialize last-build manifest.
     good_manifest_file = os.path.join(mani_dir,
                                       "{}-good.xml".format(version))
     good_manifest = ET.ElementTree(file=good_manifest_file)
@@ -49,8 +49,14 @@ def main():
                                       "{}-last.xml".format(version))
     last_manifest = init_last_manifest(last_manifest_file, good_manifest)
 
+    # Check for candidate manifest - if it already exists, that means
+    # there's a buildbot build "in flight" and we should abort
     cand_manifest_file = os.path.join(mani_dir,
                                       "{}-cand.xml".format(version))
+    if os.path.isfile(cand_manifest_file):
+        print "Candidate manifest file already exists - aborting!"
+        # Possibly should just return 0 here as this isn't "really" an error
+        return 2
 
     # Search for a change between last-build-attempt and current
     changed_proj = None
@@ -65,8 +71,8 @@ def main():
             break
     else:
         # Didn't find a change - all done for this pass
-        print "Did not find a changed project in manifest!"
-        return 2
+        print "Did not find a changed project in manifest - nothing to do!"
+        return 0
 
     # QQQ handle project deletion as well
  
@@ -98,6 +104,10 @@ def main():
                         "{}".format(os.environ["BUILD_TAG"])])
     print check_output(["git", "push", "origin"])
 
+    # Fire off buildbot!
+    print "Invoking buildbot..."
+    buildbot = urllib.urlopen("http://builds.hq.northscale.net:8010/builders/repo-couchbase-master-builder/force?forcescheduler=all_repo_builders&username=couchbase.build&passwd=couchbase.build.password")
+    print buildbot.read()
 
 if __name__ == '__main__':
     sys.exit(main())
