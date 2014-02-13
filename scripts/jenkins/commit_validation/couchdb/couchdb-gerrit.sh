@@ -38,10 +38,10 @@ kill $CPULIMIT_PID || true
 
 popd              2>&1 > /dev/null
 
-# echo ============================================ make simple-test
-# pushd testrunner  2>&1 > /dev/null
-# make simple-test
-# popd              2>&1 > /dev/null
+echo ============================================ make simple-test
+pushd testrunner  2>&1 > /dev/null
+make simple-test
+popd              2>&1 > /dev/null
 
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
