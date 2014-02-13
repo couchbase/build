@@ -15,26 +15,14 @@ env | grep -iv password | grep -iv passwd | sort
 
 echo ============================================ clean
 make clean-xfd-hard
+make
+
 
 echo ============================================ update ep-engine
-pushd cmake/libmemcached     > /dev/null
-config/autorun.sh
-./configure
-make
-popd                   > /dev/null
-echo ===============================================================
-
-pushd cmake/couchstore > /dev/null
-config/autorun.sh
-./configure
-make
-popd                   > /dev/null
-echo ===============================================================
-
-pushd cmake/ep-engine  > /dev/null
-config/autorun.sh
-./configure --with-memcached=../memcached LDFLAGS=-L$WORKSPACE/couchstore/.libs CPPFLAGS=-I$WORKSPACE/couchstore/include
-LD_LIBRARY_PATH=/home/jenkins/jenkins/workspace/ep-unit-tests-master/install/lib make test
-popd                   > /dev/null
+pushd cmake/ep-engine    2>&1  >    /dev/null
+make test
+make engine-tests
+popd                     2>&1  >    /dev/null
 
 echo ============================================ `date`
+
