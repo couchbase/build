@@ -19,9 +19,12 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
 git clean -xfd
 
-echo ============================================ update healthchecker and cli
-git fetch ssh://review.couchbase.org:29418/couchbase-cli $GERRIT_REFSPEC && git checkout FETCH_HEAD
-git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git checkout FETCH_HEAD
+echo ============================================ update healthchecker, cli, testrunner
+if [[ ! -d couchbase-cli ]] ; then git fetch ssh://review.couchbase.org:29418/couchbase-cli $GERRIT_REFSPEC && git checkout FETCH_HEAD ; fi
+
+if [[ ! -d healthchecker ]] ; then git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git checkout FETCH_HEAD ; fi
+
+if [[ ! -d testrunner ]] ; then git fetch ssh://review.couchbase.org:29418/testrunner $GERRIT_REFSPEC && git checkout FETCH_HEAD ; fi
 
 echo ============================================ make simple-test
 cd testrunner
