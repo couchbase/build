@@ -19,8 +19,8 @@ else
     for repo in *
     do
         (
-	    echo "Updating local $repo repo..."
-	    cd $repo
+            echo "Updating local $repo repo..."
+            cd $repo
             git pull
         )
     done
@@ -31,33 +31,33 @@ while IFS='|' read -a vals
 do
     if [ ! -z "${vals[1]}" ]
     then
-	change=${vals[0]}
-	sha=${vals[1]}
-	project=${vals[2]}
-	branch=${vals[3]}
-	owner=${vals[4]}
+        change=${vals[0]}
+        sha=${vals[1]}
+        project=${vals[2]}
+        branch=${vals[3]}
+        owner=${vals[4]}
 
-	echo "Checking change $change in project $project ..."
+        echo "Checking change $change in project $project ..."
 
-	# Clone or update Gerrit repo for project
-	if [ ! -e "$project" ]
-	then
-	    git clone ssh://review.couchbase.org:29418/$project
-	fi
+        # Clone or update Gerrit repo for project
+        if [ ! -e "$project" ]
+        then
+            git clone ssh://review.couchbase.org:29418/$project
+        fi
 
-	# See if commit's SHA1 is in log
-	git --git-dir="$project/.git" log -1 $sha > /dev/null
-	if [ $? != 0 ]
-	then
-	    # See if we already know about this problem
-	    grep -q "$change" ../known_problems.txt
-	    if [ $? != 0 ]
-	    then
-		echo "<b>$owner</b>: <a href=\"http://review.couchbase.org/#/c/$change/\">change $change</a> -- <i>$project</i> is missing $sha !<br>" | tee --append ../missing_merges.html | tee --append ../new_missing_merges.html
-		echo "$change" >> ../known_problems.txt
-		failed=1
-	    fi
-	fi
+        # See if commit's SHA1 is in log
+        git --git-dir="$project/.git" log -1 $sha > /dev/null
+        if [ $? != 0 ]
+        then
+            # See if we already know about this problem
+            grep -q "$change" ../known_problems.txt
+            if [ $? != 0 ]
+            then
+                echo "<b>$owner</b>: <a href=\"http://review.couchbase.org/#/c/$change/\">change $change</a> -- <i>$project</i> is missing $sha !<br>" | tee --append ../missing_merges.html | tee --append ../new_missing_merges.html
+                echo "$change" >> ../known_problems.txt
+                failed=1
+            fi
+        fi
 
     fi
 done < ../output.txt
