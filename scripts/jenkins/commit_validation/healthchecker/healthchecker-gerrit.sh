@@ -18,17 +18,17 @@ echo ============================================ clean
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
 make clean-xfd-hard
-repo forall -c "git clean -xfd"
 
-echo ============================================ update healthchecker, cli, testrunner
+cd cmake/healthchecker
+git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
-if [[ ! -d healthchecker ]] ; then git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git checkout FETCH_HEAD ; fi
-
+echo ============================================ make
+cd ../..
+make -j4
 echo ============================================ make simple-test
-cd ..
-make 
 cd testrunner
 make simple-test
+
 cd ..
 
 Line1="clitest.healthcheckertest.HealthcheckerTests:"
