@@ -40,8 +40,8 @@ cd ${WORKSPACE}
 echo ============================================  sync couchbase-lite-android
 echo ============================================  to ${GITSPEC}
 
-if [[ ! -d couchbase-lite-android ]] ; then git clone https://github.com/couchbase/couchbase-lite-android.git ; fi
-cd couchbase-lite-android
+if [[ ! -d couchbase-lite-android-liteserv ]] ; then git clone https://github.com/couchbase/couchbase-lite-android-liteserv.git ; fi
+cd couchbase-lite-android-liteserv
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git pull
@@ -63,9 +63,10 @@ if [[ ${UPLOAD_ARTIFACTS} == true ]]
     echo ============================================
     env | grep -iv password | grep -iv passwd | sort
     echo ============================================
-    
-    cd ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject
-    
+
+    cd ${WORKSPACE}/couchbase-lite-android-liteserv
+    cp extra/jenkins_build/* .
+
     echo "********RUNNING: ./build_android_artifacts.sh  *************"
     VERSION=${VERSION}  REVISION=${REVISION}  ./build_android_artifacts.sh
     

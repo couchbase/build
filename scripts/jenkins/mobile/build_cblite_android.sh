@@ -62,11 +62,11 @@ echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
 cd ${WORKSPACE}
-echo ============================================  sync couchbase-lite-android
+echo ============================================  sync couchbase-lite-android-liteserv
 echo ============================================  to ${GITSPEC}
 
-if [[ ! -d couchbase-lite-android ]] ; then git clone https://github.com/couchbase/couchbase-lite-android.git ; fi
-cd couchbase-lite-android
+if [[ ! -d couchbase-lite-android-liteserv ]] ; then git clone https://github.com/couchbase/couchbase-lite-android-liteserv.git ; fi
+cd couchbase-lite-android-liteserv
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git submodule init
@@ -99,7 +99,8 @@ cp         ${PLATFORM}/sync_gateway   ${SYNCGATE_PATH}
 popd                 2>&1 > /dev/null
 
 echo ============================================  run tests
-cd couchbase-lite-android/CouchbaseLiteProject
+cd ${WORKSPACE}/couchbase-lite-android-liteserv
+cp extra/jenkins_build/* .
 echo "********RUNNING: ./build_android_testing.sh ***********"
 
 ./build_android_testing.sh 2>&1 | tee ${WORKSPACE}/android_testing_err.log
@@ -159,9 +160,9 @@ kill %./sync_gateway            || true
 
 echo ============================================  generate javadocs
 
-cd ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject
-./gradlew :CBLite:generateJavadocs
-cd CBLite/build/docs/javadoc
+cd ${WORKSPACE}/couchbase-lite-android-liteserv
+./gradlew :libraries:couchbase-lite-java-core:javadoc
+cd libraries/couchbase-lite-java-core/build/docs/javadoc
 
 echo ============================================ zip up ${DOCS_ZIP}
 zip -r ${WORKSPACE}/${DOCS_ZIP} *
