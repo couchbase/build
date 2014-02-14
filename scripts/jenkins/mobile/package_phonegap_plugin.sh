@@ -7,7 +7,9 @@
 #                   IOS_BLDNUM    -- get IOS_BLDNUM artifacts
 #                   
 #                   ANDROID_REL   -- get ANDROID_REL artifacts
-#          
+#
+#                   ANDROID_DIR   -- directory that contains ANDROID_REL artifacts
+#
 #                   GITSPEC       -- revision to sync: couchbase-lite-phonegap-plugin-builder
 #          
 #                   VERSION       -- base of plugin build number (e.g., 1.0)
@@ -25,7 +27,7 @@ env | grep -iv password | grep -iv passwd | sort -u
 echo ========================================================= `date`
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
-ANRL_URL=http://packages.couchbase.com/releases/couchbase-lite/android/${ANDROID_REL}
+ANRL_URL=http://packages.couchbase.com/releases/couchbase-lite/android/${ANDROID_DIR}
 TDSO_JAR=s3://packages.couchbase.com/releases/couchbase-lite/android/external/${VERSION}/td_collator_so.jar
 
 
