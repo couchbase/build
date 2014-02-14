@@ -137,11 +137,13 @@ cd ${WORKSPACE}/couchbase-lite-ios
 for TARGET in "CBL iOS"
   do
     echo ============================================  64-bit target: ${TARGET} | tee -a ${LOG_FILE}
-    xcodebuild -target "${TARGET}" -configuration 'Release 64bit'               | tee -a ${LOG_FILE}
+    xcodebuild -target "${TARGET}" -configuration 'Release-64bit'               | tee -a ${LOG_FILE}
 done
 cp  -r   ${RIO_SRCD}/CouchbaseLite.framework         ${RIO_DEST}/CouchbaseLite.64bit.framework
 cp  -r   ${RIO_SRCD}/CouchbaseLiteListener.framework ${RIO_DEST}/CouchbaseLiteListener.64bit.framework
 rm -rf   ${RIO_DEST}/CouchbaseLite.64bit.framework/PrivateHeaders
+
+cd       ${RIO_DEST}/CouchbaseLite.64bit.framework  && file CouchbaseLite
 
 echo  ============================================== package ${ZIP_FILE}
 cd       ${ZIP_SRCD}
