@@ -80,16 +80,8 @@ if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${AND_PKG}" ; exit ${STAT
 echo ======== expand android =================================
 unzip -q ${AND_PKG}
 mkdir -p ${AND_DIR}
-cp -r ${DOWN_ADIR}/CBLite-1.0.0-beta.jar               ${AND_DIR}
-cp -r ${DOWN_ADIR}/CBLiteJavascript-1.0.0-beta.jar     ${AND_DIR}
-cp -r ${DOWN_ADIR}/CBLiteListener-1.0.0-beta.jar       ${AND_DIR}
-cp -r ${DOWN_ADIR}/commons-io-2.0.1.jar                ${AND_DIR}
-cp -r ${DOWN_ADIR}/jackson-core-asl-1.9.2.jar          ${AND_DIR}
-cp -r ${DOWN_ADIR}/jackson-mapper-asl-1.9.2.jar        ${AND_DIR}
-cp -r ${DOWN_ADIR}/rhino-1.7R3.jar                     ${AND_DIR}
-cp -r ${DOWN_ADIR}/servlet-api-2.4.jar                 ${AND_DIR}
-cp -r ${DOWN_ADIR}/td_collator_so.jar                  ${AND_DIR}
-cp -r ${DOWN_ADIR}/webserver.jar                       ${AND_DIR}
+# copy all jar files into the target directory
+cp -r ${DOWN_ADIR}/*.jar ${AND_DIR}
 #cd ${AND_DIR}
 #echo now is `pwd`
 #s3cmd get ${TDSO_JAR}
