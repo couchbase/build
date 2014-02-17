@@ -28,7 +28,7 @@ echo ========================================================= `date`
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 ANRL_URL=http://packages.couchbase.com/releases/couchbase-lite/android/${ANDROID_DIR}
-TDSO_JAR=s3://packages.couchbase.com/releases/couchbase-lite/android/external/${VERSION}/td_collator_so.jar
+TDSO_JAR=http://cl.ly/Pr1r/td_collator_so.jar
 
 
 BUILD_DIR=${WORKSPACE}/build
@@ -84,11 +84,12 @@ mkdir -p ${AND_DIR}
 # copy all jar files into the target directory
 cp -r ${DOWN_ADIR}/*.jar ${AND_DIR}
 
-# get the collator from s3
+# get the collator from Traun's URL
 # (this can be removed when CBLT-235 is closed)
 cd ${AND_DIR}
 #echo now is `pwd`
-s3cmd get ${TDSO_JAR}
+wget --no-verbose ${TDSO_JAR}
+
 
 popd                     2>&1 >/dev/null
 
