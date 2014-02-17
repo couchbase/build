@@ -47,7 +47,7 @@ echo "IP is  $IP";
 
 iniLine1=“[global]"
 iniLine2=“username:root"
-iniLine3=password:couchbase"
+iniLine3="password:couchbase"
 iniLine4=“port:8091"
 iniLine5=“”
 iniLine6=“[servers]"
