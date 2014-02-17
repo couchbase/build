@@ -80,11 +80,16 @@ if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${AND_PKG}" ; exit ${STAT
 echo ======== expand android =================================
 unzip -q ${AND_PKG}
 mkdir -p ${AND_DIR}
+
 # copy all jar files into the target directory
 cp -r ${DOWN_ADIR}/*.jar ${AND_DIR}
-#cd ${AND_DIR}
+
+# get the collator from s3
+# (this can be removed when CBLT-235 is closed)
+cd ${AND_DIR}
 #echo now is `pwd`
-#s3cmd get ${TDSO_JAR}
+s3cmd get ${TDSO_JAR}
+
 popd                     2>&1 >/dev/null
 
 echo ======== sync couchbase-lite-phonegap-plugin-builder ====
