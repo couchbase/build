@@ -29,8 +29,6 @@ echo ============================================ make simple-test
 cd testrunner
 make simple-test
 
-cd ..
-
 Line1="clitest.healthcheckertest.HealthcheckerTests:"
 Line2="     healthchecker_test,sasl_buckets=1,doc_ops=update,GROUP=P0"
 Line3="     healthchecker_test,standard_buckets=1,doc_ops=delete,GROUP=P0"
