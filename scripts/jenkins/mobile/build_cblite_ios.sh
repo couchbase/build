@@ -155,9 +155,9 @@ curl -XPUT --data-binary @${ZIP_PATH} ${CBFS_URL}/${ZIP_FILE}
 echo  ============================================== upload ${CBFS_URL}/${DOC_ZIP_PATH}
 curl -XPUT --data-binary @${DOC_ZIP_PATH} ${CBFS_URL}/${DOC_ZIP_FILE}
 
-echo  ============================================== update default value of test jobs
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${GITSPEC}      -p LITESERV_VERSION  -v ${BUILD_NUMBER}
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${GITSPEC}  -p LITESERV_VERSION  -v ${BUILD_NUMBER}
+# echo  ============================================== update default value of test jobs
+# ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${GITSPEC}      -p LITESERV_VERSION  -v ${BUILD_NUMBER}
+# ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${GITSPEC}  -p LITESERV_VERSION  -v ${BUILD_NUMBER}
 
 echo  ============================================== test
 
