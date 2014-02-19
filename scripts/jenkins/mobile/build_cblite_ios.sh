@@ -141,11 +141,9 @@ for TARGET in "CBL iOS"
     echo ============================================  64-bit target: ${TARGET} | tee -a ${LOG_FILE}
     xcodebuild -target "${TARGET}" -configuration 'Release 64bit'               | tee -a ${LOG_FILE}
 done
-cp  -r   "${R64_SRCD}/CouchbaseLite.framework"         "${R64_DEST}/CouchbaseLite.64bit.framework"
-cp  -r   "${R64_SRCD}/CouchbaseLiteListener.framework" "${R64_DEST}/CouchbaseLiteListener.64bit.framework"
-rm -rf   "${R64_DEST}/CouchbaseLite.64bit.framework/PrivateHeaders"
-
-cd       "${R64_DEST}/CouchbaseLite.64bit.framework"  && file CouchbaseLite
+cp  -r  "${R64_SRCD}/CouchbaseLite.framework"  "${R64_DEST}/CouchbaseLite.64bit.framework"
+rm -rf                                         "${R64_DEST}/CouchbaseLite.64bit.framework/PrivateHeaders"
+cd                                             "${R64_DEST}/CouchbaseLite.64bit.framework"  && file CouchbaseLite
 
 echo  ============================================== package ${ZIP_FILE}
 cd       ${ZIP_SRCD}
