@@ -118,13 +118,13 @@ echo  ============================================== prepare ${ZIP_FILE}
 if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
 mkdir -p ${ZIP_SRCD}
 
-cp  -r   "${RIO_SRCD}/*"             "${RIO_DEST}"
-#cp -r   "${REL_SRCD}/LiteServ*"     "${REL_DEST}"
-cp  -r   "${LSA_SRCD}/LiteServ.app"  "${LSA_DEST}"
-cp       "${LIB_SRCF}"               "${LIB_DEST}"
-cp  -r   "${JSC_SRCD}"               "${JSC_DEST}"
-cp       "${README_F}"               "${RME_DEST}"
-cp       "${LICENSEF}"               "${LIC_DEST}"
+cp  -r   ${RIO_SRCD}/*             ${RIO_DEST}
+#cp -r   ${REL_SRCD}/LiteServ*     ${REL_DEST}
+cp  -r   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
+cp       ${LIB_SRCF}               ${LIB_DEST}
+cp  -r   ${JSC_SRCD}               ${JSC_DEST}
+cp       ${README_F}               ${RME_DEST}
+cp       ${LICENSEF}               ${LIC_DEST}
 
 cd       ${ZIP_SRCD}/CouchbaseLite.framework
 rm -rf PrivateHeaders
