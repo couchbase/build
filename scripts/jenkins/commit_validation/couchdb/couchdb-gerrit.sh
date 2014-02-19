@@ -1,10 +1,10 @@
 #!/bin/bash
 #          
 #          run by jenkins job:  couchdb-gerrit-master
-#                               
-#                               
+#                               couchdb-gerrit-251
+#
+#          use "--legacy" parameter for couchdb-gerrit-251                               
 #          
-#          with no paramters
 #          
 #          triggered on Patchset Creation of repo: couchdb
 
@@ -33,7 +33,14 @@ pushd couchdb     2>&1 > /dev/null
 
 cpulimit -e 'beam.smp' -l 50 &
 CPULIMIT_PID=$!
-PATH=$PATH:${WORKSPACE}/cmake/couchstore   make check
+
+REPODIR="cmake/couchstore"
+if [ "$1" = "--legacy" ]
+then
+   REPODIR="couchstore"
+fi
+
+PATH=$PATH:${WORKSPACE}/${REPODIR}   make check
 kill $CPULIMIT_PID || true
 
 popd              2>&1 > /dev/null

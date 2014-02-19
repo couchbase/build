@@ -1,10 +1,10 @@
 #!/bin/bash
 #          
 #          run by jenkins job:  couchstore-gerrit-master
-#                               couchastore-gerrit-300
-#                               couchastore-gerrit-250
+#                               couchstore-gerrit-300
+#                               couchstore-gerrit-251
 #          
-#          with no paramters
+#          use "--legacy" parameter for couchstore-gerrit-251
 #          
 #          triggered on Patchset Creation of repo: couchstore
 
@@ -21,7 +21,13 @@ make clean-xfd-hard
 
 
 echo ============================================ update couchstore
-pushd cmake/couchstore  2>&1 > /dev/null
+REPODIR="cmake/couchstore"
+if [ "$1" = "--legacy" ]
+then
+   REPODIR="couchstore"
+fi
+
+pushd $REPODIR  2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchstore $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
