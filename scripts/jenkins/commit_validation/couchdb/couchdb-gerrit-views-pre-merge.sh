@@ -29,10 +29,10 @@ cd ..
 make -j4 
 
 cd testrunner
-scripts/start_cluster_and_run_tests.sh b/resources/dev-single-node.ini conf/py-view-pre-merge.conf
+scripts/start_cluster_and_run_tests.sh b/resources/dev-single-node.ini conf/view-conf/py-view-pre-merge.conf
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 sleep 30
-scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/py-view-pre-merge.conf
+scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/view-conf/py-view-pre-merge.conf
 #make test-viewmerge SLEEP_TIME=30
 
 
