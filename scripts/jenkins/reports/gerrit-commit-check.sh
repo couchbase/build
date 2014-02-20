@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Grab details about changes from database
+# QQQ Should remove this id_Ceej stuff somehow
 ssh -p 29418 -i id_Ceej Ceej@review.couchbase.org gerrit gsql --format pretty -c \""select c.change_id, p.revision, c.dest_project_name, c.dest_branch_name, a.full_name from changes c, patch_sets p, accounts a where c.last_updated_on > '2013-04-01' and c.status='M' and c.change_id=p.change_id and p.patch_set_id=c.current_patch_set_id and c.owner_account_id=a.account_id"\" | tail -n +3 | sed -e 's/ *| */|/g' | sed -e 's/^ *//' > output.txt
 
 echo '<h1>Merges newly missing today:</h1>' > new_missing_merges.html
