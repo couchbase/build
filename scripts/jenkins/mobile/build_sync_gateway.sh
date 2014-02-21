@@ -16,7 +16,7 @@
 #        ARCH      -- `uname -m`
 #        DISTRO    -- `uname -a`
 #          
-source ~jenkins/.bash_profile
+source ~/.bash_profile
 set -e
 
 function usage
@@ -37,6 +37,8 @@ export GITSPEC ; export VERSION ; export PLATFRM
 if [[ $4 ]] ; then  echo "setting OS     to $OS"        ; OS=$4     ; else OS=`uname -s`     ; fi
 if [[ $5 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$5   ; else ARCH=`uname -m`   ; fi
 if [[ $6 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$6 ; else DISTRO=`uname -a` ; fi
+
+if [[ $DISTRO =~ Darwin ]] ; then DISTRO="macosx" ; fi
 
 export OS ; export ARCH ; export DISTRO
 
@@ -157,7 +159,7 @@ cd                        ${SGW_DIR}
 md5sum ${PKG_NAME} > ${PKG_NAME}.md5
 echo ....................... uploading to ${CBFS_URL}/${PKG_NAME}
 curl -XPUT --data-binary @${PKG_NAME}     ${CBFS_URL}/${PKG_NAME}
-curl -XPUT --data-binary @${PKG_NAME}.md5 ${CBFS_URL}/${PKG_NAME}
+curl -XPUT --data-binary @${PKG_NAME}.md5 ${CBFS_URL}/${PKG_NAME}.md5
 
 echo  ============================================== update default value of test jobs
 #${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j build_cblite_android_${GITSPEC}             -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
