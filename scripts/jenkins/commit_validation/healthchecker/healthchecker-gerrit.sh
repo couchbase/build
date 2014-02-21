@@ -26,7 +26,7 @@ then
    REPODIR="healthchecker"
 fi
 
-pushd {REPODIR} 2>&1 > /dev/null
+pushd ${REPODIR} 2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
