@@ -60,7 +60,9 @@ def main():
     # Search for a change between last-build-attempt and current
     changed_proj = None
     last_proj = None
-    for proj in curr_manifest.findall("project"):
+    for proj in sorted(curr_manifest.findall("project"),
+                       key=lambda p:
+                       100 if p.attrib["name"] == "testrunner" else 1) :
         proj_name = proj.attrib["name"]
         proj_rev = proj.attrib["revision"]
         last_proj = last_manifest.find('project[@name="{}"]'.format(proj_name))
