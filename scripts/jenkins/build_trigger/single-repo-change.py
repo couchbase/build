@@ -54,9 +54,8 @@ def main():
     cand_manifest_file = os.path.join(mani_dir,
                                       "{}-cand.xml".format(release))
     if os.path.isfile(cand_manifest_file):
-        print "Candidate manifest file already exists - aborting!"
-        # Possibly should just return 0 here as this isn't "really" an error
-        return 2
+        print "Candidate manifest file already exists - halting this run!"
+        return 0
 
     # Search for a change between last-build-attempt and current
     changed_proj = None
