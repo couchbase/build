@@ -34,7 +34,7 @@ def main():
         return 1
 
     mani_dir = sys.argv[1]
-    version = sys.argv[2]
+    release = sys.argv[2]
 
     # Request current fixed-revision manifest from repo
     curr_manifest_xml = check_output(["repo", "manifest", "-r"])
@@ -42,17 +42,17 @@ def main():
 
     # Open known-good manifest; initialize last-build manifest.
     good_manifest_file = os.path.join(mani_dir,
-                                      "{}-good.xml".format(version))
+                                      "{}-good.xml".format(release))
     good_manifest = ET.ElementTree(file=good_manifest_file)
 
     last_manifest_file = os.path.join(mani_dir,
-                                      "{}-last.xml".format(version))
+                                      "{}-last.xml".format(release))
     last_manifest = init_last_manifest(last_manifest_file, good_manifest)
 
     # Check for candidate manifest - if it already exists, that means
     # there's a buildbot build "in flight" and we should abort
     cand_manifest_file = os.path.join(mani_dir,
-                                      "{}-cand.xml".format(version))
+                                      "{}-cand.xml".format(release))
     if os.path.isfile(cand_manifest_file):
         print "Candidate manifest file already exists - aborting!"
         # Possibly should just return 0 here as this isn't "really" an error
@@ -86,7 +86,7 @@ def main():
     last_manifest.write(last_manifest_file)
  
     # Construct a candidate manifest from the known-good manifest,
-    # with the only change being the current version of changed_proj
+    # with the only change being the current revision of changed_proj
     good_proj = good_manifest.find('project[@name="{}"]'.format(changed_proj))
     if good_proj == None:
         # Insert new project
@@ -106,7 +106,7 @@ def main():
 
     # Fire off buildbot!
     print "Invoking buildbot..."
-    buildbot = urllib.urlopen("http://builds.hq.northscale.net:8010/builders/repo-couchbase-master-builder/force?forcescheduler=all_repo_builders&username=couchbase.build&passwd=couchbase.build.password")
+    buildbot = urllib.urlopen("http://builds.hq.northscale.net:8010/builders/repo-couchbase-{}-builder/force?forcescheduler=all_repo_builders&username=couchbase.build&passwd=couchbase.build.password".format(release))
     print buildbot.read()
 
 if __name__ == '__main__':
