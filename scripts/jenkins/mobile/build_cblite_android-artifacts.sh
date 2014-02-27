@@ -51,28 +51,28 @@ git show --stat
 echo ============================================
 
 
-if [[ ${UPLOAD_ARTIFACTS} == true ]]
-  then
-    export UPLOAD_VERSION_CBLITE=${UPLOAD_VERSION_CBLITE}
-    export UPLOAD_VERSION_CBLITE_EKTORP=${UPLOAD_VERSION_CBLITE_EKTORP}
-    export UPLOAD_VERSION_CBLITE_JAVASCRIPT=${UPLOAD_VERSION_CBLITE_JAVASCRIPT}
-    export UPLOAD_MAVEN_REPO_URL=${UPLOAD_MAVEN_REPO_URL}
-    export UPLOAD_USERNAME=${UPLOAD_USERNAME}
-    export UPLOAD_PASSWORD=${UPLOAD_PASSWORD}
-    #source /Users/couchbase/mavencreds 
-    echo ============================================
-    env | grep -iv password | grep -iv passwd | sort
-    echo ============================================
+export UPLOAD_VERSION_CBLITE=${UPLOAD_VERSION_CBLITE}
+export UPLOAD_VERSION_CBLITE_EKTORP=${UPLOAD_VERSION_CBLITE_EKTORP}
+export UPLOAD_VERSION_CBLITE_JAVASCRIPT=${UPLOAD_VERSION_CBLITE_JAVASCRIPT}
+export UPLOAD_MAVEN_REPO_URL=${UPLOAD_MAVEN_REPO_URL}
+export UPLOAD_USERNAME=${UPLOAD_USERNAME}
+export UPLOAD_PASSWORD=${UPLOAD_PASSWORD}
+#source /Users/couchbase/mavencreds 
+echo ============================================
+env | grep -iv password | grep -iv passwd | sort
+echo ============================================
 
-    cd ${WORKSPACE}/couchbase-lite-android-liteserv
-    cp extra/jenkins_build/* .
+cd ${WORKSPACE}/couchbase-lite-android-liteserv
+cp extra/jenkins_build/* .
 
-    echo "********RUNNING: ./build_android_artifacts.sh  *************"
-    VERSION=${VERSION}  REVISION=${REVISION}  ./build_android_artifacts.sh
+echo "********RUNNING: ./build_android_artifacts.sh  *************"
+VERSION=${VERSION}  REVISION=${REVISION}  ./build_android_artifacts.sh
     
+if [[ ${UPLOAD_ARTIFACTS} == true ]]
+then
     echo "********RUNNING: ./upload_android_artifacts.sh  *************"
     ./upload_android_artifacts.sh
     
-  else
+else
     echo "UPLOAD_ARTIFACTS not set - not uploading artifacts"
 fi
