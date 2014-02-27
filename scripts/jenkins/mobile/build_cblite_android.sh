@@ -118,7 +118,7 @@ sleep 10
 adb wait-for-device
 sleep 90
 echo "ADB log for build ${BUILD_NUMBER}"  > ${WORKSPACE}/adb.log
-adb logcat                               >> ${WORKSPACE}/adb.log &
+adb logcat -v time                        >> ${WORKSPACE}/adb.log &
 
 echo ".......................................starting sync_gateway"
 killall sync_gateway || true
