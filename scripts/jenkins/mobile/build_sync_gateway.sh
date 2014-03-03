@@ -34,6 +34,8 @@ PLATFRM=${3}
 
 export GITSPEC ; export VERSION ; export PLATFRM
 
+LAST_GOOD_PARAM=SYNCGATE_VERSION_`cat ${PLATFRM} | tr '-' '_' | tr [a-z] [A-Z]`
+
 if [[ $4 ]] ; then  echo "setting OS     to $OS"        ; OS=$4     ; else OS=`uname -s`     ; fi
 if [[ $5 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$5   ; else ARCH=`uname -m`   ; fi
 if [[ $6 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$6 ; else DISTRO=`uname -a` ; fi
@@ -165,7 +167,7 @@ curl -XPUT --data-binary @${PKG_NAME}     ${CBFS_URL}/${PKG_NAME}
 curl -XPUT --data-binary @${PKG_NAME}.md5 ${CBFS_URL}/${PKG_NAME}.md5
 
 echo  ============================================== update default value of test jobs
-#${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j build_cblite_android_${GITSPEC}             -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j build_cblite_android_${GITSPEC}             -p ${LAST_GOOD_PARAM} -v ${BUILD_NUMBER}
 
 #${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${GITSPEC}      -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
 #${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${GITSPEC}  -p SYNCGATE_VERSION  -v ${BUILD_NUMBER}
