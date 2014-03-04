@@ -87,14 +87,18 @@ rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-ZIPFILE=sync_gateway_${SYNCGATE_VRSN}.zip
-wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/${ZIPFILE}
-STATUS=$?
-if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${ZIPFILE}" ; exit ${STATUS} ; fi
+SGW_PKG=couchbase-sync-gateway_0.0-109_amd64.deb
 
-unzip -q ${ZIPFILE}
-if [[ ! -e ${PLATFORM}/sync_gateway ]] ; then echo "FAILED to find ${PLATFORM}/sync_gateway" ; exit 127 ; fi
-cp         ${PLATFORM}/sync_gateway   ${SYNCGATE_PATH}
+wget --no-verbose ${CBFS_URL}/${SGW_PKG}
+STATUS=$?
+if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
+
+sudo dpkg --remove   couchbase-sync-gateway || true
+sudo dpkg --install  ${SGW_PKG} --recursive ${SYNCGATE_PATH}
+
+# unzip -q ${ZIPFILE}
+# if [[ ! -e ${PLATFORM}/sync_gateway ]] ; then echo "FAILED to find ${PLATFORM}/sync_gateway" ; exit 127 ; fi
+# cp         ${PLATFORM}/sync_gateway   ${SYNCGATE_PATH}
 
 popd                 2>&1 > /dev/null
 
@@ -122,11 +126,14 @@ adb logcat -v time                        >> ${WORKSPACE}/adb.log &
 
 echo ".......................................starting sync_gateway"
 killall sync_gateway || true
-pushd  ${SYNCGATE_PATH} 2>&1 > /dev/null
 
-./sync_gateway  ${WORKSPACE}/cblite-tests/config/admin_party.json &
+# pushd  ${SYNCGATE_PATH} 2>&1 > /dev/null
+# ./sync_gateway  ${WORKSPACE}/cblite-tests/config/admin_party.json &
+
+sync_gateway  ${WORKSPACE}/cblite-tests/config/admin_party.json &
 jobs
-popd                    2>&1 > /dev/null
+
+# popd                    2>&1 > /dev/null
 
 echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
@@ -169,3 +176,9 @@ zip -r ${WORKSPACE}/${DOCS_ZIP} *
 
 echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
+
+
+echo ============================================ removing couchbase-sync-gateway
+sudo dpkg --remove   couchbase-sync-gateway || true
+echo ============================================ `date`
+
