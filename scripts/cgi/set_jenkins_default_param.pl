@@ -75,7 +75,7 @@ sub put_config
     if ($DEBUG)  { print STDERR "\nrequest: $request_url\n\n"; }
     $request = HTTP::Request->new(POST => $request_url);
     $request->authorization_basic($jenkins_user, $jenkins_api_token);
-    $request->content_type('tet/plain');
+    $request->content_type('text/plain');
     $request->content($config);
     my $response = $ua->request($request);
     
