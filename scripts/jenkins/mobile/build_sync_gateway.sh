@@ -34,7 +34,7 @@ PLATFRM=${3}
 
 export GITSPEC ; export VERSION ; export PLATFRM
 
-LAST_GOOD_PARAM=SYNCGATE_VERSION_`cat ${PLATFRM} | tr '-' '_' | tr [a-z] [A-Z]`
+LAST_GOOD_PARAM=SYNCGATE_VERSION_`echo ${PLATFRM} | tr '-' '_' | tr [a-z] [A-Z]`
 
 if [[ $4 ]] ; then  echo "setting OS     to $OS"        ; OS=$4     ; else OS=`uname -s`     ; fi
 if [[ $5 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$5   ; else ARCH=`uname -m`   ; fi
