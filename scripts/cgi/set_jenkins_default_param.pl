@@ -27,7 +27,7 @@ my $xml = XML::Simple->new();
 
 my ($job_name, $param, $new_val);
 
-my $DEBUG = 0;
+my $DEBUG = 1;
 use Data::Dumper;
 
 
