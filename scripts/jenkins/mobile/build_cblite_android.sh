@@ -93,8 +93,10 @@ wget --no-verbose ${CBFS_URL}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 
+rm   -rf ${SYNCGATE_PATH}
+mkdir -p ${SYNCGATE_PATH}
 sudo dpkg --remove   couchbase-sync-gateway || true
-sudo dpkg --install  ${SGW_PKG} --recursive ${SYNCGATE_PATH}
+sudo dpkg --install  ${SGW_PKG} ${SYNCGATE_PATH}
 
 # unzip -q ${ZIPFILE}
 # if [[ ! -e ${PLATFORM}/sync_gateway ]] ; then echo "FAILED to find ${PLATFORM}/sync_gateway" ; exit 127 ; fi
