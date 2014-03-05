@@ -43,6 +43,7 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
 
 PLATFORM=linux-amd64
+SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64.deb
 
 AND_TARG=24
                 #  "android-17"
@@ -86,8 +87,6 @@ echo ============================================  install sync_gateway
 rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
-
-SGW_PKG=couchbase-sync-gateway_0.0-109_amd64.deb
 
 wget --no-verbose ${CBFS_URL}/${SGW_PKG}
 STATUS=$?
