@@ -6,7 +6,8 @@
 #          
 #          with job paramters used in this script:
 #             
-#             SYNCGATE_VERSION
+#             SYNCGATE_VERSION  ( hard-coded to run on ubuntu-x64 )
+#                                 now of the form n.n-mmmm
 #             
 #          and with job paramters passed on to downstream jobs:
 #             
@@ -52,9 +53,7 @@ EMULATOR=cblite
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
-mkdir -p ${AUT_DIR}/sync_gateway
 
-       SYNCGATE_VRSN=${VERSION}-${SYNCGATE_VERSION}
 export SYNCGATE_PATH=${AUT_DIR}/sync_gateway
 
 DOWNLOAD=${AUT_DIR}/download
@@ -97,10 +96,6 @@ mkdir -p ${SYNCGATE_PATH}
 sudo dpkg --remove   couchbase-sync-gateway || true
 sudo dpkg --install  ${SGW_PKG}
 
-# unzip -q ${ZIPFILE}
-# if [[ ! -e ${PLATFORM}/sync_gateway ]] ; then echo "FAILED to find ${PLATFORM}/sync_gateway" ; exit 127 ; fi
-# cp         ${PLATFORM}/sync_gateway   ${SYNCGATE_PATH}
-
 popd                 2>&1 > /dev/null
 
 echo ============================================  run tests
@@ -128,13 +123,9 @@ adb logcat -v time                        >> ${WORKSPACE}/adb.log &
 echo ".......................................starting sync_gateway"
 killall sync_gateway || true
 
-# pushd  ${SYNCGATE_PATH} 2>&1 > /dev/null
-# ./sync_gateway  ${WORKSPACE}/cblite-tests/config/admin_party.json &
-
 sync_gateway  ${WORKSPACE}/cblite-tests/config/admin_party.json &
 jobs
 
-# popd                    2>&1 > /dev/null
 
 echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"

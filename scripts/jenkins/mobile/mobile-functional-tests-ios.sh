@@ -6,7 +6,8 @@
 #          with job paramters:
 #             
 #             LITESERV_VERSION
-#             SYNCGATE_VERSION
+#             SYNCGATE_VERSION  ( hard-coded to run on macosx-x64 )
+#                                 now of the form n.n-mmmm
 #             
 #          and called with paramters:            release_number
 #          
@@ -26,6 +27,7 @@ if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 VERSION=${1}
 
 PLATFORM=darwin-amd64
+SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}.zip
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
@@ -34,9 +36,9 @@ mkdir -p ${AUT_DIR}/sync_gateway
 
 LITESERV_VER=${VERSION}-${LITESERV_VERSION}
 LITESERV_DIR=${AUT_DIR}/liteserv
-
-SYNCGATE_VER=${VERSION}-${SYNCGATE_VERSION}
 SYNCGATE_DIR=${AUT_DIR}/sync_gateway
+
+#export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
 
 DOWNLOAD=${AUT_DIR}/download
 
@@ -59,15 +61,20 @@ export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
 popd                 2>&1 > /dev/null
 
 echo ============================================ install sync_gateway
-rm   -rf ${DOWNLOAD}
-mkdir -p ${DOWNLOAD}
-pushd    ${DOWNLOAD} 2>&1 > /dev/null
+rm   -rf ${SYNCGATE_DIR}
+mkdir -p ${SYNCGATE_DIR}
+pushd    ${SYNCGATE_DIR} 2>&1 > /dev/null
 
-wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/sync_gateway_${SYNCGATE_VER}.zip
-unzip -q sync_gateway_${SYNCGATE_VER}.zip
+wget --no-verbose ${CBFS_URL}/${SGW_PKG}
+STATUS=$?
+if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
+
+unzip -q s${SGW_PKG}
                                                          # want to choose from the zip file contents
 export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
 cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
+
+
 
 popd                 2>&1 > /dev/null
 
