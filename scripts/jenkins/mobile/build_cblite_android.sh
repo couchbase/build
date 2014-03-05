@@ -96,7 +96,7 @@ if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STAT
 rm   -rf ${SYNCGATE_PATH}
 mkdir -p ${SYNCGATE_PATH}
 sudo dpkg --remove   couchbase-sync-gateway || true
-sudo dpkg --install  ${SGW_PKG} --root=${SYNCGATE_PATH}
+sudo dpkg --install  ${SGW_PKG}
 
 # unzip -q ${ZIPFILE}
 # if [[ ! -e ${PLATFORM}/sync_gateway ]] ; then echo "FAILED to find ${PLATFORM}/sync_gateway" ; exit 127 ; fi
