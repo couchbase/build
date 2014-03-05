@@ -27,7 +27,7 @@ my $xml = XML::Simple->new();
 
 my ($job_name, $param, $new_val);
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 use Data::Dumper;
 
 
@@ -108,6 +108,8 @@ else
     print STDERR "$usage\n";
     exit  99;
     }
+my $delay = 2 + int rand(5.3);
+sleep $delay;
 
 my $config = get_config($job_name);
 my $xmlref = $xml->XMLin($config, KeyAttr => {}, ForceArray => [] );
@@ -131,6 +133,8 @@ $xmlref{'properties'}{'hudson.model.ParametersDefinitionProperty'}{'parameterDef
 if ($DEBUG)  { print STDERR "\n----------------------------------------------------------------------\n\n"; }
 if ($DEBUG)  { print STDERR Dumper($xmlref); }
 if ($DEBUG)  { print STDERR "\n======================================================================\n\n$job_name"; }
+
+sleep $delay;
 
 put_config($job_name, $xml->XMLout($xmlref, RootName => 'project', NoSort => 1, NoAttr => 1, KeyAttr => {} ) );
 
