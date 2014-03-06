@@ -1,0 +1,67 @@
+#!/bin/bash
+#          
+#   run by these jenkins jobs when successful:
+#   
+#   build_sync_gateway_master_centos-x86      |   build_sync_gateway_stable_centos-x86
+#   build_sync_gateway_master_centos-x64      |   build_sync_gateway_stable_centos-x64
+#   build_sync_gateway_master_macosx-x64      |   build_sync_gateway_stable_macosx-x64
+#   build_sync_gateway_master_ubuntu-x86      |   build_sync_gateway_stable_ubuntu-x86
+#   build_sync_gateway_master_ubuntu-x64      |   build_sync_gateway_stable_ubuntu-x64
+#   build_sync_gateway_master_win-2008-x86    |   build_sync_gateway_stable_win-2008-x86
+#   build_sync_gateway_master_win-2008-x64    |   build_sync_gateway_stable_win-2008-x64
+#   build_sync_gateway_master_win-2012-x64    |   build_sync_gateway_stable_win-2012-x64
+#   
+#   with parameters
+#  
+#     SYNCGATE_VERSION_PARAM equal to one of:
+#   
+#           SYNCGATE_VERSION_CENTOS_X86
+#           SYNCGATE_VERSION_CENTOS_X64
+#           SYNCGATE_VERSION_MACOSX_X64
+#           SYNCGATE_VERSION_UBUNTU_X86
+#           SYNCGATE_VERSION_UBUNTU_X64
+#           SYNCGATE_VERSION_WIN2008_X86
+#           SYNCGATE_VERSION_WIN2008_X64
+#           SYNCGATE_VERSION_WIN2012_X64
+#   
+#     REVISION equal to a build number of the form n.n-mmmm
+#   
+#     GITSPEC = master, or stable (as appropriate)
+# 
+#   and will set the default value of the SYNCGATE_VERSION parameter in jobs
+#   
+#      build_cblite_android_master            |  build_cblite_android_stable
+#      mobile_functional_tests_android_master |  mobile_functional_tests_android_stable
+#          
+source ~/.bash_profile
+set -e
+
+function usage
+    {
+    echo -e "\nuse:  ${0}   SYNCGATE-version-param  revision  branch\n\n"
+    }
+if [[ ! ${1} ]] ; then usage ; exit 77 ; fi
+PARNAME=${1}
+
+if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+VERSION=${2}
+
+if [[ ! ${3} ]] ; then usage ; exit 99 ; fi
+GITSPEC=${3}
+
+export GITSPEC ; export VERSION ; export PARNAME
+
+env | grep -iv password | grep -iv passwd | sort -u
+echo ============================================== `date`
+
+if [[ ${PARNAME} == SYNCGATE_VERSION_UBUNTU_X64 ]]
+    then
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${GITSPEC}            -p SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${GITSPEC}            -p SYNCGATE_VERSION -v ${REVISION}
+fi
+if [[ ${PARNAME} == SYNCGATE_VERSION_CENTOS_X64 ]]
+    then
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${GITSPEC} -p SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${GITSPEC} -p SYNCGATE_VERSION -v ${REVISION}
+fi
+
