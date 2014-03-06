@@ -1,0 +1,94 @@
+#!/bin/sh -e
+
+# this sucked:
+unset GIT_DIR
+
+fail_email=build@couchbase.com
+
+repo=$1
+branch=$2
+project=$3
+
+scratchdir=$HOME/automerge/
+
+mergedir="$scratchdir/$project"
+
+mergeFail() {
+    echo "Merge failed.  You suck."
+    tmpfile=$HOME/tmp/msg.$$.txt
+    echo "From: gerrit@couchbase.com" >> $tmpfile
+    echo "To: $fail_email" >> $tmpfile
+    echo "Subject: Merge failure on $project / $branch" >> $tmpfile
+    echo "" >> $tmpfile
+    echo "Hey, how's it going?  I tried hard, but couldn't merge" >> $tmpfile
+    echo "" >> $tmpfile
+    echo "    $project '$branch' to '$destbranch'" >> $tmpfile
+    echo "" >> $tmpfile
+    echo "I'm really sorry about that.  Here's what's missing:" >> $tmpfile
+    echo "" >> $tmpfile
+    git shortlog -ne "$destbranch..$branch" >> $tmpfile
+    echo "" >> $tmpfile
+    echo "-- " >> $tmpfile
+    echo "gerrit" >> $tmpfile
+
+    /usr/sbin/sendmail -oi -t < $tmpfile
+    rm -f $tmpfile
+    exit 0
+}
+
+case $branch in
+    master)
+        destbranch=""
+        ;;
+    *)
+        destbranch="master"
+        ;;
+esac
+
+if [ -f "$repo/automerge-override/$branch" ]
+then
+    destbranch=`cat "$repo/automerge-override/$branch"`
+fi
+
+
+if [ "$destbranch" = "" ]
+then
+    echo "No automatic merging from $branch"
+    exit 0
+fi
+
+echo "Auto merging $branch -> $destbranch in $repo"
+
+if [ ! -d "$mergedir" ]
+then
+    cd "$scratchdir"
+    git clone "$repo" $project
+    cd "$project"
+    cp $HOME/bin/commit-msg .git/hooks/
+else
+    cd "$mergedir"
+fi
+
+echo "Now in `pwd`, checking out the code."
+
+# Detach (this thing doesn't support --detach)
+git reset --hard
+git checkout -q origin/HEAD
+git fetch origin '+refs/heads/*:refs/heads/*'
+
+git checkout $destbranch
+git clean -dfx
+
+git merge -q --no-ff --log \
+    $branch || mergeFail
+# Get the stupid Change-ID in
+git commit --amend -CHEAD
+
+echo "Success!"
+
+git show --stat
+
+# disabling auto merging for now
+# we need to merge 2.0.0->2.0.1 and then 2.0.1->master
+# for couchstore,ep-engine,ns_seerver,couchdb and couchbase-cli
+# git push ssh://localhost:29418/$project.git HEAD:refs/for/$destbranch

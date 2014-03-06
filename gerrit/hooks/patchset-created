@@ -1,0 +1,82 @@
+#!/bin/sh
+
+RS=/home/gerrit/review_site
+
+# patchset-created --change <change id> --change-url <change url>
+#                  --project <project name> --branch <branch>
+#                  --uploader <uploader> --commit <sha1>
+#                  --patchset <patchset id>
+
+while [ $# -gt 0 ]
+do
+    arg=$1
+    shift
+
+    case "$arg" in
+	--change)
+	    change=$1
+	    ;;
+	--change-url)
+	    change_url=$1
+	    ;;
+	--project)
+	    project=$1
+	    ;;
+	--branch)
+	    branch=$1
+	    ;;
+	--submitter)
+	    submitter=$1
+	    ;;
+	--uploader)
+	    uploader=$1
+	    ;;
+	--commit)
+	    commit=$1
+	    ;;
+	--patchset)
+	    patchset=$1
+	    ;;
+	--is-draft)
+	    is_draft=$1
+	    ;;
+	*)
+	    echo "Unexpected arg:  $arg"
+	    exit 1
+	    ;;
+    esac
+    shift
+done
+
+exec >>$HOME/review_site/logs/hook.log 2>&1
+
+echo "Patchset Created Hook"
+echo "date: `date`"
+echo "change: $change"
+echo "change_url: $change_url"
+echo "project: $project"
+echo "branch: $branch"
+echo "uploader: $uploader"
+echo "submitter: $submitter"
+echo "commit: $commit"
+echo "patchset: $patchset"
+
+#$RS/hooks/trivial-rebase.py --change=$change \
+#	--project=$project \
+#	--commit=$commit \
+#	--patchset=$patchset \
+#	--server-port=29418 \
+#	--private-key-path $RS/etc/ssh_host_dsa_key
+
+# This has always been a dumb idea.  We had decided early that things that
+# aren't directly referencing bugs in jira don't need to pretend that they are
+# by making up bug numbers that state that they aren't referencing bugs.  If
+# we're not referencing bugs, let's just not do so.
+
+# $RS/hooks/check-jira.py --change=$change \
+#         --project=$project \
+#         --commit=$commit \
+#         --patchset=$patchset \
+#         --server-port=29418 \
+#         --private-key-path $RS/etc/ssh_host_dsa_key
+

@@ -1,0 +1,74 @@
+#!/bin/sh
+
+# Called whenever a ref has been updated.
+# 
+# ref-updated --oldrev <old rev> --newrev <new rev> --refname <ref
+# name> --project <project name> --submitter <submitter>
+
+touch $HOME/review_site/logs/hook.log
+exec >>$HOME/review_site/logs/hook.log 2>&1
+
+echo "Ref Updated Hook"
+
+while [ $# -gt 0 ]
+do
+    arg=$1
+    shift
+
+    case "$arg" in
+	--oldrev)
+	    oldrev=$1
+	    ;;
+	--newrev)
+	    newrev=$1
+	    ;;
+	--project)
+	    project=$1
+	    ;;
+	--refname)
+	    refname=$1
+	    ;;
+	--submitter)
+	    submitter=$1
+	    ;;
+	*)
+	    echo "Unexpected arg:  $arg"
+	    exit 1
+	    ;;
+    esac
+    shift
+done
+
+case $project in
+    *)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+esac
+
+echo "date: `date`"
+echo "PWD:  `pwd`"
+echo "refname: $refname"
+echo "oldrev: $oldrev"
+echo "newrev: $newrev"
+echo "project: $project"
+echo "submitter: $submitter"
+echo "repo: $repo"
+
+null=0000000000000000000000000000000000000000
+
+case "$refname" in
+    */tags/*)
+	echo "Pushing tag."
+
+	git push --tags $repo
+	git gc --auto
+	;;
+    *)
+	echo "Hey, this is a head.  Maybe we outta merge it."
+	shortbranch=${refname##*/}
+	if [ -f automerge-enabled ] && [ $oldrev != $null ] && [ $newrev != $null ]
+	then
+	    $HOME/review_site/hooks/automerge "$PWD" "$shortbranch" "$project"
+	fi
+	;;
+esac

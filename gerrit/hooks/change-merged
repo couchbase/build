@@ -1,0 +1,173 @@
+#!/bin/sh
+
+# change-merged --change <change id> --change-url <change url>
+#               --project <project name> --branch <branch>
+#               --submitter <submitter> --commit <sha1>
+
+
+touch $HOME/review_site/logs/hook.log
+exec >>$HOME/review_site/logs/hook.log 2>&1
+
+echo "Change Merged Hook"
+
+while [ $# -gt 0 ]
+do
+    arg=$1
+    shift
+
+    case "$arg" in
+	--change)
+	    change=$1
+	    ;;
+	--change-url)
+	    change_url=$1
+	    ;;
+	--project)
+	    project=$1
+	    ;;
+	--branch)
+	    branch=$1
+	    ;;
+	--submitter)
+	    submitter=$1
+	    ;;
+	--commit)
+	    commit=$1
+	    ;;
+	*)
+	    echo "Unexpected arg:  $arg"
+	    exit 1
+	    ;;
+    esac
+    shift
+done
+
+case $project in
+    membase)
+	repo="git@github.com:couchbase/ep-engine.git"
+	;;
+    ep-engine)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    bucket_engine)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    ns_server)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    testrunner)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    tlm)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    moxi)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    manifest)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    port_adaptor)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    jtap)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    spidermonkey)
+	repo="git@github.com:couchbase/spidermonkey.git"
+	;;
+    icu4c)
+	repo="git@github.com:couchbase/icu4c.git"
+	;;
+    spymemcached)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    membasex)
+	repo="git@github.com:couchbase/membasex.git"
+	;;
+    voltron)
+	repo="git@github.com:couchbase/voltron.git"
+	;;
+    build)
+	repo="git@github.com:couchbase/build.git"
+	;;
+    couchbase-cli)
+	repo="git@github.com:couchbase/couchbase-cli.git"
+	;;
+    iErl)
+	repo="git@github.com:couchbase/iErl.git"
+	;;
+    workload-generator)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *iOS*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *couch*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *iOS*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *Couch*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *Android*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *sigar)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    libvbucket)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    libconflate)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *cbio*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *cbsdkd*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *cbmonitor)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    cbsasl)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    docs)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    docs-ng)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    health*)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    platform)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    forestdb)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    indexing)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    *)
+	repo="git@github.com:membase/$project.git"
+	;;
+esac
+
+echo "date: `date`"
+echo "change: $change"
+echo "change_url: $change_url"
+echo "project: $project"
+echo "branch: $branch"
+echo "submitter: $submitter"
+echo "commit: $commit"
+echo "repo: $repo"
+
+git push $repo $branch:refs/heads/$branch
+git fetch --tags $repo
+git gc --auto
