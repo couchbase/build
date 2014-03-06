@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
 import copy
+import os
 import os.path
 import urllib
 from subprocess import check_output
 import sys
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import tostring
+import datetime
 
 """
 Creates last-build-attempt and candidate manifests, given an existing
@@ -92,7 +94,9 @@ def main():
     if good_proj == None:
         # Insert new project
         good_manifest.getroot().append(proj)
+        orig_rev = "None (new project)"
     else:
+        orig_rev = good.proj.attrib["revision"]
         good_proj.attrib["revision"] = proj_rev
 
     # Write candidate to disk
@@ -105,10 +109,16 @@ def main():
                         "{}".format(os.environ["BUILD_TAG"])])
     print check_output(["git", "push", "origin"])
 
-    # Fire off buildbot!
-    print "Invoking buildbot..."
-    buildbot = urllib.urlopen("http://builds.hq.northscale.net:8010/builders/repo-couchbase-{}-builder/force?forcescheduler=all_repo_builders&username=couchbase.build&passwd=couchbase.build.password".format(release))
-    print buildbot.read()
+    # Update status HTML
+    with open("status.html", "w") as f:
+        f.write("<h1>Build launched</h1>\n<ul>\n")
+        line = "<li>{0}: {1}</li>\n"
+        f.write(line.format("Time", datetime.now().strftime("%c")))
+        f.write('<li>Polling job build URL: <a href="{0}">{0}</a></li>\n'.format(os.environ['BUILD_URL']))
+        f.write(line.format("Changed project", changed_proj))
+        f.write(line.format("Original SHA1", orig_rev))
+        f.write(line.format("Candidate SHA1", proj_rev))
+        f.write("</ul>\n")
 
 if __name__ == '__main__':
     sys.exit(main())
