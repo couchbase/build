@@ -96,7 +96,7 @@ def main():
         good_manifest.getroot().append(proj)
         orig_rev = "None (new project)"
     else:
-        orig_rev = good.proj.attrib["revision"]
+        orig_rev = good_proj.attrib["revision"]
         good_proj.attrib["revision"] = proj_rev
 
     # Write candidate to disk
