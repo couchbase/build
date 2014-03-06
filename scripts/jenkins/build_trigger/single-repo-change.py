@@ -8,7 +8,7 @@ from subprocess import check_output
 import sys
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import tostring
-import datetime
+from datetime import datetime
 
 """
 Creates last-build-attempt and candidate manifests, given an existing
