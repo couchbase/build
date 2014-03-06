@@ -54,9 +54,8 @@ EMULATOR=cblite
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
 
-export SYNCGATE_PATH=${AUT_DIR}/sync_gateway
-
 DOWNLOAD=${AUT_DIR}/download
+SYNC_DIR=${AUT_DIR}/sync_gateway
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
@@ -91,10 +90,13 @@ wget --no-verbose ${CBFS_URL}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 
-rm   -rf ${SYNCGATE_PATH}
-mkdir -p ${SYNCGATE_PATH}
+# rm   -rf ${SYNC_DIR}
+# mkdir -p ${SYNC_DIR}
+
+export SYNCGATE_PATH=/opt/couchbase-sync-gateway/bin/sync_gateway
 sudo dpkg --remove   couchbase-sync-gateway || true
 sudo dpkg --install  ${SGW_PKG}
+
 
 popd                 2>&1 > /dev/null
 
@@ -123,7 +125,7 @@ adb logcat -v time                        >> ${WORKSPACE}/adb.log &
 echo ".......................................starting sync_gateway"
 killall sync_gateway || true
 
-sync_gateway  ${WORKSPACE}/cblite-tests/config/admin_party.json &
+${SYNCGATE_PATH} ${WORKSPACE}/cblite-tests/config/admin_party.json &
 jobs
 
 
