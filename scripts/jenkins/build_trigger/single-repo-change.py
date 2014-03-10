@@ -4,6 +4,7 @@ import copy
 import os
 import os.path
 import urllib
+import string
 from subprocess import check_output
 import sys
 import xml.etree.ElementTree as ET
@@ -111,7 +112,7 @@ def main():
 
     # Fire off buildbot!
     print "Invoking buildbot..."
-    buildbot = urllib.urlopen("http://builds.hq.northscale.net:8010/builders/repo-couchbase-{}-builder/force?forcescheduler=all_repo_builders&username=couchbase.build&passwd=couchbase.build.password".format(release))
+    buildbot = urllib.urlopen("http://builds.hq.northscale.net:8010/builders/repo-couchbase-{}-builder/force?forcescheduler=all_repo_builders&username=couchbase.build&passwd=couchbase.build.password".format(string.replace(release, '.', '')))
     with open("buildbot.html", "w") as f:
         f.write(buildbot.read())
 
