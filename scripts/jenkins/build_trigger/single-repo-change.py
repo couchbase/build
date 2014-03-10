@@ -104,6 +104,7 @@ def main():
     good_manifest.write(cand_manifest_file)
 
     # Update github
+    orig_dir = os.getcwd()
     os.chdir(mani_dir)
     print check_output(["git", "add", "-A"])
     print check_output(["git", "commit", "-m",
@@ -112,11 +113,20 @@ def main():
 
     # Fire off buildbot!
     print "Invoking buildbot..."
-    buildbot = urllib.urlopen("http://builds.hq.northscale.net:8010/builders/repo-couchbase-{}-builder/force?forcescheduler=all_repo_builders&username=couchbase.build&passwd=couchbase.build.password".format(string.replace(release, '.', '')))
+    try:
+        buildbot = urllib.urlopen("http://builds.hq.northscale.net:8010/builders/repo-couchbase-{}-builder/force?forcescheduler=all_repo_builders&username=couchbase.build&passwd=couchbase.build.password".format(string.replace(release, '.', '')))
+    except:
+        print "Buildbot invocation failed! Unwinding candidate..."
+        print check_output(["git", "rm", cand_manifest_file])
+        print check_output(["git", "commit", "-m",
+                            "{}: deleting candidate manifest due to buildbot failure".format(os.environ["BUILD_TAG"])])
+        return 2
+
     with open("buildbot.html", "w") as f:
         f.write(buildbot.read())
 
     # Update status HTML
+    os.chdir(orig_dir)
     with open("status.html", "w") as f:
         f.write("<h1>Build launched</h1>\n<ul>\n")
         line = "<li>{0}: {1}</li>\n"
