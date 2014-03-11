@@ -39,6 +39,13 @@ def main():
     mani_dir = sys.argv[1]
     release = sys.argv[2]
 
+    # Check for lockfile - if it already exists, that means
+    # there's a buildbot build "in flight" and we should abort
+    lock_file = os.path.join(mani_dir, "{}-lock.txt".format(release))
+    if os.path.isfile(lock_file):
+        print "Lock file {} exists - halting this run!".format(release)
+        return 0
+
     # Request current fixed-revision manifest from repo
     curr_manifest_xml = check_output(["repo", "manifest", "-r"])
     curr_manifest = ET.fromstring(curr_manifest_xml)
@@ -52,13 +59,8 @@ def main():
                                       "{}-last.xml".format(release))
     last_manifest = init_last_manifest(last_manifest_file, good_manifest)
 
-    # Check for candidate manifest - if it already exists, that means
-    # there's a buildbot build "in flight" and we should abort
     cand_manifest_file = os.path.join(mani_dir,
                                       "{}-cand.xml".format(release))
-    if os.path.isfile(cand_manifest_file):
-        print "Candidate manifest file already exists - halting this run!"
-        return 0
 
     # Search for a change between last-build-attempt and current
     changed_proj = None
@@ -102,6 +104,14 @@ def main():
 
     # Write candidate to disk
     good_manifest.write(cand_manifest_file)
+
+    # Write lockfile to disk
+    try:
+        f = open(lock_file, "w")
+        f.write(os.environ["BUILD_URL"])
+    except:
+        print "Failed to write lock file {}!".format(lock_file)
+        return 2
 
     # Update github
     orig_dir = os.getcwd()
