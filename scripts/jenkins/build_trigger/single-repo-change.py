@@ -43,7 +43,7 @@ def main():
     # there's a buildbot build "in flight" and we should abort
     lock_file = os.path.join(mani_dir, "{}-lock.txt".format(release))
     if os.path.isfile(lock_file):
-        print "Lock file {} exists - halting this run!".format(release)
+        print "Lock file {} exists - halting this run! BUILD UNSTABLE".format(release)
         return 0
 
     # Request current fixed-revision manifest from repo
@@ -77,7 +77,7 @@ def main():
             break
     else:
         # Didn't find a change - all done for this pass
-        print "Did not find a changed project in manifest - nothing to do!"
+        print "Did not find a changed project in manifest - nothing to do! BUILD UNSTABLE"
         return 0
 
     # QQQ handle project deletion as well
