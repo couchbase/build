@@ -32,7 +32,7 @@ cp ./build/scripts/jenkins/system_test/postbuild-validation/${configini} ./testr
 pushd testrunner  2>&1 > /dev/null
 
 
-python ./scripts/install.py -i ./b/resources/${configini} -p version=${buildnumber},product=cb,parallel=True,vbuckets=16
+python ./scripts/install.py -i ./b/resources/${configini} -p version=${LATEST_BUILD},product=cb,parallel=True,vbuckets=16
 
 echo "The current working directory $(pwd) "
 python testrunner -i b/resources/${configini} -c conf/simple.conf
