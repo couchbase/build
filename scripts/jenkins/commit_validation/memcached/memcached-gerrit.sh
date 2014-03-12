@@ -22,17 +22,17 @@ git fetch ssh://review.couchbase.org:29418/memcached $GERRIT_REFSPEC && git chec
 
 echo ============================================ make
 popd 2>&1 > /dev/null
-make -j4
+make
+
+echo ============================================ run unit tests
+pushd  cmake/memcached 2>&1 > /dev/null
+make test
+popd 2>&1 > /dev/null
+
 echo ============================================ make simple-test
 cd testrunner
 make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
 echo ============================================ `date`
-
-
-
-
-
-
 
