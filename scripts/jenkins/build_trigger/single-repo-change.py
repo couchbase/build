@@ -120,6 +120,8 @@ def main():
     print check_output(["git", "commit", "-m",
                         "{}".format(os.environ["BUILD_TAG"])])
     print check_output(["git", "push", "origin"])
+    mani_sha = check_output(["git", "rev-parse", "HEAD"])
+    print "Commited candidate manifest at revision {}".format(mani_sha)
 
     # Update status HTML
     os.chdir(orig_dir)
@@ -138,6 +140,7 @@ def main():
         f.write("orig_sha = {0}\n".format(orig_rev))
         f.write("cand_sha = {0}\n".format(proj_rev))
         f.write("cand_project = {0}\n".format(changed_proj))
+        f.write("mani_sha = {0}\n".format(mani_sha))
 
 if __name__ == '__main__':
     sys.exit(main())
