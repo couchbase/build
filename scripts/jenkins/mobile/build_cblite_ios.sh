@@ -112,8 +112,8 @@ done
 
 echo  ============================================== package ${DOC_ZIP_FILE}
 mv     ${TARGET_BUILD_DIR} ${DOC_ZIP_ROOT_DIR}
-pushd  ${DOC_ZIP_ROOT_DIR}  2>&1 > /dev/null
-zip -r ${DOC_ZIP_PATH} *
+pushd  ${REL_SRCD}         2>&1 > /dev/null
+zip -r ${DOC_ZIP_PATH} ${REVISION}
 popd                        2>&1 > /dev/null
 
 echo  ============================================== prepare ${ZIP_FILE}
