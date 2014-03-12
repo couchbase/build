@@ -133,5 +133,11 @@ def main():
         f.write(line.format("Candidate SHA1", proj_rev))
         f.write("</ul>\n")
 
+    # Write properties for downstream builds
+    with open("build.properties", "w") as f:
+        f.write("orig_sha = {0}\n".format(orig_rev))
+        f.write("cand_sha = {0}\n".format(proj_rev))
+        f.write("cand_project = {0}\n".format(changed_proj))
+
 if __name__ == '__main__':
     sys.exit(main())
