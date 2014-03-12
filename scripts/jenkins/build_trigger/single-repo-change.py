@@ -39,6 +39,10 @@ def main():
     mani_dir = sys.argv[1]
     release = sys.argv[2]
 
+    # (Over)write build.properties with an empty file.
+    with open("build.properties", "w") as f:
+        f.write("")
+
     # Check for lockfile - if it already exists, that means
     # there's a buildbot build "in flight" and we should abort
     lock_file = os.path.join(mani_dir, "{}-lock.txt".format(release))
