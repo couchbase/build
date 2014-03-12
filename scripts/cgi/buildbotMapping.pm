@@ -224,7 +224,7 @@ sub get_toy_builder
     if ($DEBUG)  { print STDERR "\n".'...checking builder >>'.$toy_name.'<<'."\n"; }
     if (($platform eq 'cent54') || ($platform eq 'cent58') || ($platform eq 'win32') || ($platform eq 'win64') )
         {
-        if ( ($branch eq 'master') || ($branch eq '3.0.0') || ($branch eq '2.5.0') || ($branch eq '2.2.0') || ($branch eq '2.1.1') )
+        if ( ($branch eq 'master') || ($branch eq '3.0.0') || ($branch eq '2.5.1') || ($branch eq '2.5.0') ||  ($branch eq '2.2.0') || ($branch eq '2.1.1') )
             {
             return($toy_name);
             }
