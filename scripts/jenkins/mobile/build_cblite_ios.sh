@@ -99,6 +99,7 @@ DOC_ZIP_PATH=${BASE_DIR}/${DOC_ZIP_FILE}
                                                                    # required by "Documentation" target
 DERIVED_FILE_DIR=${REL_SRCD}/Documentation                         #  where the doc files are generated
 TARGET_BUILD_DIR=${REL_SRCD}/com.couchbase.CouchbaseLite.docset    #  where the doc set ends up
+DOC_ZIP_ROOT_DIR=${REL_SRCD}/${REVISION}
 
 mkdir -p ${TARGET_BUILD_DIR}
 
@@ -110,7 +111,8 @@ for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteS
 done
 
 echo  ============================================== package ${DOC_ZIP_FILE}
-pushd  ${TARGET_BUILD_DIR}  2>&1 > /dev/null
+mv     ${TARGET_BUILD_DIR} ${DOC_ZIP_ROOT_DIR}
+pushd  ${DOC_ZIP_ROOT_DIR}  2>&1 > /dev/null
 zip -r ${DOC_ZIP_PATH} *
 popd                        2>&1 > /dev/null
 
