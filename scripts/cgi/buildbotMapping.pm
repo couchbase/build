@@ -146,7 +146,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                             "2.5.0"  =>  "cs-win2008-x64-20-builder-250",
                                                             "2.5.1"  =>  "cs-win2008-x64-20-builder-251",
                                                             "3.0.0"  =>  "cs-win2008-x64-20-builder-300",
-                                                            "master" =>  "cs-win2008-x64-20-builder-master",
+                                                            "master" =>  "cs-win2012-x64-30-builder-01-master",
                                                           },
                                                   },
                                   },
