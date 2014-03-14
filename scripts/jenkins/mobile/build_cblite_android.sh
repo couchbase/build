@@ -57,22 +57,24 @@ if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
 DOWNLOAD=${AUT_DIR}/download
 SYNC_DIR=${AUT_DIR}/sync_gateway
 
+ANDR_DIR=${AUT_DIR}/android
+
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
-cd ${WORKSPACE}
+cd ${ANDR_DIR}
 echo ============================================  sync couchbase-lite-android-liteserv
 echo ============================================  to ${GITSPEC}
 
 if [[ ! -d couchbase-lite-android-liteserv ]] ; then git clone https://github.com/couchbase/couchbase-lite-android-liteserv.git ; fi
-cd couchbase-lite-android-liteserv
+cd         couchbase-lite-android-liteserv
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
 
-cd ${WORKSPACE}
+cd ${ANDR_DIR}
 echo ============================================  sync cblite-tests
 echo ============================================  to master
 
@@ -101,7 +103,7 @@ sudo dpkg --install  ${SGW_PKG}
 popd                 2>&1 > /dev/null
 
 echo ============================================  build android
-cd ${WORKSPACE}/couchbase-lite-android-liteserv
+cd ${ANDR_DIR}/couchbase-lite-android-liteserv
 cp extra/jenkins_build/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
@@ -129,13 +131,13 @@ echo ""
 sleep 10
 adb wait-for-device
 sleep 90
-echo "ADB log for build ${BUILD_NUMBER}"  > ${WORKSPACE}/adb.log
+echo "ADB log for build ${BUILD_NUMBER}"   > ${WORKSPACE}/adb.log
 adb logcat -v time                        >> ${WORKSPACE}/adb.log &
 
 echo ".......................................starting sync_gateway"
 killall sync_gateway || true
 
-${SYNCGATE_PATH} ${WORKSPACE}/cblite-tests/config/admin_party.json &
+${SYNCGATE_PATH} ${ANDR_DIR}/cblite-tests/config/admin_party.json &
 jobs
 
 
@@ -174,7 +176,7 @@ curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
 
 echo ============================================  generate javadocs
 
-cd ${WORKSPACE}/couchbase-lite-android-liteserv
+cd ${ANDR_DIR}/couchbase-lite-android-liteserv
 ./gradlew :libraries:couchbase-lite-java-core:javadoc
 cd libraries/couchbase-lite-java-core/build/docs/javadoc
 
@@ -186,6 +188,6 @@ curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
 
 
 echo ============================================ removing couchbase-sync-gateway
-sudo dpkg --remove   couchbase-sync-gateway || true
+sudo dpkg --remove   couchbase-sync-gateway     || true
 echo ============================================ `date`
 
