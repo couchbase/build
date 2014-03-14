@@ -100,13 +100,23 @@ sudo dpkg --install  ${SGW_PKG}
 
 popd                 2>&1 > /dev/null
 
-echo ============================================  run tests
+echo ============================================  build android
 cd ${WORKSPACE}/couchbase-lite-android-liteserv
 cp extra/jenkins_build/* .
-echo "********RUNNING: ./build_android_testing.sh ***********"
 
-./build_android_testing.sh 2>&1 | tee ${WORKSPACE}/android_testing_err.log
+echo "********RUNNING: ./build_android.sh *******************"
+./build_android.sh         2>&1 | tee           ${WORKSPACE}/android_build.log
+echo "=====================================" >> ${WORKSPACE}/android_build.log
 
+echo ============================================  build android zipfile
+echo "********RUNNING: ./build_android_zipfile.sh ***********"
+./build_android_zipfile.sh 2>&1 | tee --append  ${WORKSPACE}/android_build.log
+
+AND_ZIP=cblite_android_${REVISION}
+cp ${AND_ZIP} ${WORKSPACE}
+
+
+echo ============================================  run tests
 echo ".......................................creating avd"
 echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --force
 
@@ -158,6 +168,9 @@ jobs
 kill %adb                       || true
 kill %./start_android_emulator  || true
 kill %./sync_gateway            || true
+
+echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
+curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
 
 echo ============================================  generate javadocs
 

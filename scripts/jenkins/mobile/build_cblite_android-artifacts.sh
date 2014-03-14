@@ -37,7 +37,7 @@ echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
 cd ${WORKSPACE}
-echo ============================================  sync couchbase-lite-android
+echo ============================================  sync couchbase-lite-android-liteserv
 echo ============================================  to ${GITSPEC}
 
 if [[ ! -d couchbase-lite-android-liteserv ]] ; then git clone https://github.com/couchbase/couchbase-lite-android-liteserv.git ; fi
