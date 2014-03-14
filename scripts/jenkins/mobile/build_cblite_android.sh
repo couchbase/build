@@ -52,12 +52,14 @@ AND_TARG=1
 EMULATOR=cblite
 
 AUT_DIR=${WORKSPACE}/app-under-test
-if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
+if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
 
 DOWNLOAD=${AUT_DIR}/download
 SYNC_DIR=${AUT_DIR}/sync_gateway
 
 ANDR_DIR=${AUT_DIR}/android
+if [[ -e ${ANDR_DIR} ]] ; then rm -rf ${ANDR_DIR} ; fi
+mkdir -p ${ANDR_DIR}
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
