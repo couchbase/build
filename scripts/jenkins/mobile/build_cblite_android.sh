@@ -61,6 +61,9 @@ ANDR_DIR=${AUT_DIR}/android
 if [[ -e ${ANDR_DIR} ]] ; then rm -rf ${ANDR_DIR} ; fi
 mkdir -p ${ANDR_DIR}
 
+export VERSION
+export REVISION
+
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
