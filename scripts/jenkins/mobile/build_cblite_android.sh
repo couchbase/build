@@ -2,28 +2,16 @@
 #          
 #          run by jenkins jobs: 'build_cblite_android_master'
 #                               'build_cblite_android_stable'
-#                               'build_cblite_android'
 #          
 #          with job paramters used in this script:
 #             
 #             SYNCGATE_VERSION  ( hard-coded to run on ubuntu-x64 )
 #                                 now of the form n.n-mmmm
 #             
-#          and with job paramters passed on to downstream jobs:
-#             
-#             UPLOAD_ARTIFACTS        (boolean)
-#             UPLOAD_VERSION_CBLITE
-#             UPLOAD_VERSION_CBLITE_EKTORP
-#             UPLOAD_VERSION_CBLITE_JAVASCRIPT
-#             UPLOAD_MAVEN_REPO_URL
-#             UPLOAD_USERNAME
-#             UPLOAD_PASSWORD
-#          
 #          and called with paramters:         branch_name  release_number
 #          
-#            by build_cblite_android_master:     master         0.0
-#            by build_cblite_android_stable:     stable         1.0
-#            by build_cblite_android:          ${GITSPEC}       9.8.7
+#            by build_cblite_android_master:     master         0.0.0
+#            by build_cblite_android_stable:     stable         1.0.0
 #          
 source ~jenkins/.bash_profile
 export DISPLAY=:0
@@ -61,8 +49,6 @@ ANDR_DIR=${AUT_DIR}/android
 if [[ -e ${ANDR_DIR} ]] ; then rm -rf ${ANDR_DIR} ; fi
 mkdir -p ${ANDR_DIR}
 
-export VERSION
-export REVISION
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
@@ -116,12 +102,13 @@ echo "********RUNNING: ./build_android.sh *******************"
 echo "=====================================" >> ${WORKSPACE}/android_build.log
 
 echo ============================================  build android zipfile
-echo "********RUNNING: ./build_android_zipfile.sh ***********"
-./build_android_zipfile.sh 2>&1 | tee --append  ${WORKSPACE}/android_build.log
 
+MVN_ZIP=com.couchbase.cblite-${REVISION}-android.zip
 AND_ZIP=cblite_android_${REVISION}
-cp ${AND_ZIP} ${WORKSPACE}
 
+cd    release && ./zip_jars.sh  ${REVISION}
+file  release/target/${MVN_ZIP} || exit 99
+cp    release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
 echo ============================================  run tests
 echo ".......................................creating avd"
