@@ -1,0 +1,19 @@
+    COMMENT:       $messageClass == "comment"
+    MERGED:        $messageClass == "merged"
+    REQUEST:       $messageClass == "newchange"
+    PATCHSET:      $messageClass == "newpatchset"
+    ABANDONED:     $messageClass == "abandon"
+    RESTORED:      $messageClass == "restore"
+    REVERTED:      $messageClass == "revert"
+    MERGE FAILED:  $messageClass == "merge-failed"
+
+
+Abandoned
+ChangeFooter
+ChangeSubject
+Comment
+MergeFail
+Merged
+NewChange
+RegisterNewEmail
+ReplacePatchSet

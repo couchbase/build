@@ -1,0 +1,44 @@
+## Copied from: ...
+## 
+## changes subject line to include initial [TAG] for easy sorting and writing email client rules
+## 
+## so instead of a subject like:
+## 
+##         Change in ns_server[master]: WIP: XDCR-MEMCACHED protocal change
+## 
+## we get a subject like:
+## 
+##         ABANDONED:   ns_server[master]: WIP: XDCR-MEMCACHED protocal change
+##         COMMENT: 
+##         MERGED:     
+##         MERGE FAILED:     
+##         PATCHSET:     
+##         REQUEST:     
+##         RESTORED:     
+##         REVERTED:     
+## 
+##         unknown:
+## 
+#macro(elipses $length $str)
+#if($str.length() > $length)${str.substring(0,$length)}...#else$str#end
+#end
+#if( $messageClass     == "comment"        )
+#set( $subject_prefix   = "COMMENT: "      )
+#elseif( $messageClass == "merged"         )
+#set( $subject_prefix   = "MERGED: "       )
+#elseif( $messageClass == "newchange"      )
+#set( $subject_prefix   = "REQUEST: "      )
+#elseif( $messageClass == "newpatchset"    )
+#set( $subject_prefix   = "PATCHSET: "     )
+#elseif( $messageClass == "abandon"        )
+#set( $subject_prefix   = "ABANDONED: "    )
+#elseif( $messageClass == "restore"        )
+#set( $subject_prefix   = "RESTORED: "     )
+#elseif( $messageClass == "revert"         )
+#set( $subject_prefix   = "REVERTED: "     )
+#elseif( $messageClass == "merge-failed"   )
+#set( $subject_prefix   = "MERGE FAILED: " )
+#else
+#set( $subject_prefix   = "unknown: "      )
+#end
+$subject_prefix $projectName.replaceAll('/.*/', '...')[$branch.shortName]: #elipses(60, $change.subject)
