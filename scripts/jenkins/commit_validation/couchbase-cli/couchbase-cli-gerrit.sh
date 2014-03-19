@@ -24,7 +24,7 @@ echo ============================================ update cli
 git fetch ssh://review.couchbase.org:29418/couchbase-cli $GERRIT_REFSPEC && git checkout FETCH_HEAD
  
 sudo easy_install --upgrade nose
-nosetests -v
+nosetests -v t/pump_upr_test.py
 
 sudo killall -9 beam.smp epmd memcached python  2>&1 > /dev/null || true
 
