@@ -94,7 +94,6 @@ export SYNCGATE_PATH=/opt/couchbase-sync-gateway/bin/sync_gateway
 sudo dpkg --remove   couchbase-sync-gateway || true
 sudo dpkg --install  ${SGW_PKG}
 
-
 popd                 2>&1 > /dev/null
 
 echo ============================================  build android
@@ -128,6 +127,7 @@ fi
 file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
 cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
+cd ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
 echo ".......................................creating avd"
 echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --force
@@ -150,7 +150,7 @@ killall sync_gateway || true
 ${SYNCGATE_PATH} ${ANDR_DIR}/cblite-tests/config/admin_party.json &
 jobs
 
-
+cd ${ANDR_LITESRV_DIR}
 echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 
@@ -192,9 +192,9 @@ kill %./sync_gateway            || true
 echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
 
-echo ============================================  generate javadocs
 
-cd ${ANDR_DIR}/couchbase-lite-android-liteserv
+cd ${ANDR_LITESRV_DIR}
+echo ============================================  generate javadocs
 ./gradlew :libraries:couchbase-lite-java-core:javadoc
 cd libraries/couchbase-lite-java-core/build/docs/javadoc
 
