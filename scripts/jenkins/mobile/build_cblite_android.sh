@@ -27,6 +27,7 @@ GITSPEC=${1}
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
+AND_VRSN=${VERSION}.${BUILD_NUMBER}
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
@@ -107,9 +108,9 @@ echo "=====================================" >> ${WORKSPACE}/android_build.log
 echo ============================================  build android zipfile
 
 MVN_ZIP=com.couchbase.cblite-${VERSION}-android.zip
-AND_ZIP=cblite_android_${REVISION}.zip
+AND_ZIP=cblite_android_${AND_VRSN}.zip
 
-cd    ${ANDR_LITESRV_DIR}/release                   && ./zip_jars.sh  ${REVISION}
+cd    ${ANDR_LITESRV_DIR}/release                   && ./zip_jars.sh  ${AND_VRSN}
 file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
 cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
