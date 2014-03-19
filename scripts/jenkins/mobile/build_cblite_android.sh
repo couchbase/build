@@ -103,8 +103,8 @@ echo "=====================================" >> ${WORKSPACE}/android_build.log
 
 echo ============================================  build android zipfile
 
-MVN_ZIP=com.couchbase.cblite-${REVISION}-android.zip
-AND_ZIP=cblite_android_${REVISION}
+MVN_ZIP=com.couchbase.cblite-${VERSION}-android.zip
+AND_ZIP=cblite_android_${REVISION}.zip
 
 cd    release && ./zip_jars.sh  ${REVISION}
 file  release/target/${MVN_ZIP} || exit 99
