@@ -186,7 +186,9 @@ curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
 echo ============================================ removing couchbase-sync-gateway
 sudo dpkg --remove   couchbase-sync-gateway     || true
 
-echo ============================================ setting default value of BLD_TO_RELEASE in upload_cblite_android_artifacts_${GITSPEC}
+echo ============================================ set default value of BLD_TO_RELEASE
+echo ============================================ in upload_cblite_android_artifacts_${GITSPEC}
+echo ============================================ to ${REVISION}
 
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j upload_cblite_android_artifacts_${GITSPEC} -p BLD_TO_RELEASE -v ${REVISION}
 
