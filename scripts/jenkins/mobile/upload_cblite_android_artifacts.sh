@@ -27,7 +27,7 @@ GITSPEC=${1}
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 BLD_TO_RELEASE=${2}
 
-if [[ ${BLD_TO_RELEASE} =~ '([0-9.]*)' ]] ; then RELEASE=${BASH_REMATCH[1]} ; else RELEASE=${BLD_TO_RELEASE} ; fi
+if [[ ${BLD_TO_RELEASE} =~ ([0-9.]+) ]] ; then RELEASE=${BASH_REMATCH[1]} ; else RELEASE=${BLD_TO_RELEASE} ; fi
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 RELEASE_NUMBER=${3}
