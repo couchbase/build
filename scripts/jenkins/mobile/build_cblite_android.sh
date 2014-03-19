@@ -2,28 +2,16 @@
 #          
 #          run by jenkins jobs: 'build_cblite_android_master'
 #                               'build_cblite_android_stable'
-#                               'build_cblite_android'
 #          
 #          with job paramters used in this script:
 #             
 #             SYNCGATE_VERSION  ( hard-coded to run on ubuntu-x64 )
 #                                 now of the form n.n-mmmm
 #             
-#          and with job paramters passed on to downstream jobs:
-#             
-#             UPLOAD_ARTIFACTS        (boolean)
-#             UPLOAD_VERSION_CBLITE
-#             UPLOAD_VERSION_CBLITE_EKTORP
-#             UPLOAD_VERSION_CBLITE_JAVASCRIPT
-#             UPLOAD_MAVEN_REPO_URL
-#             UPLOAD_USERNAME
-#             UPLOAD_PASSWORD
-#          
 #          and called with paramters:         branch_name  release_number
 #          
-#            by build_cblite_android_master:     master         0.0
-#            by build_cblite_android_stable:     stable         1.0
-#            by build_cblite_android:          ${GITSPEC}       9.8.7
+#            by build_cblite_android_master:     master         0.0.0
+#            by build_cblite_android_stable:     stable         1.0.0
 #          
 source ~jenkins/.bash_profile
 export DISPLAY=:0
@@ -39,6 +27,7 @@ GITSPEC=${1}
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
+AND_VRSN=${VERSION}.${BUILD_NUMBER}
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
@@ -61,8 +50,9 @@ ANDR_DIR=${AUT_DIR}/android
 if [[ -e ${ANDR_DIR} ]] ; then rm -rf ${ANDR_DIR} ; fi
 mkdir -p ${ANDR_DIR}
 
-export VERSION
-export REVISION
+ANDR_LITESRV_DIR=${ANDR_DIR}/couchbase-lite-android-liteserv
+ANDR_LITESTS_DIR=${ANDR_DIR}/cblite-tests
+
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
@@ -108,7 +98,7 @@ sudo dpkg --install  ${SGW_PKG}
 popd                 2>&1 > /dev/null
 
 echo ============================================  build android
-cd ${ANDR_DIR}/couchbase-lite-android-liteserv
+cd ${ANDR_LITESRV_DIR}
 cp extra/jenkins_build/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
@@ -116,12 +106,13 @@ echo "********RUNNING: ./build_android.sh *******************"
 echo "=====================================" >> ${WORKSPACE}/android_build.log
 
 echo ============================================  build android zipfile
-echo "********RUNNING: ./build_android_zipfile.sh ***********"
-./build_android_zipfile.sh 2>&1 | tee --append  ${WORKSPACE}/android_build.log
 
-AND_ZIP=cblite_android_${REVISION}
-cp ${AND_ZIP} ${WORKSPACE}
+MVN_ZIP=com.couchbase.cblite-${VERSION}-android.zip
+AND_ZIP=cblite_android_${AND_VRSN}.zip
 
+cd    ${ANDR_LITESRV_DIR}/release                   && ./zip_jars.sh  ${AND_VRSN}
+file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
+cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
 echo ============================================  run tests
 echo ".......................................creating avd"
@@ -194,5 +185,12 @@ curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
 
 echo ============================================ removing couchbase-sync-gateway
 sudo dpkg --remove   couchbase-sync-gateway     || true
+
+echo ============================================ set default value of BLD_TO_RELEASE
+echo ============================================ in upload_cblite_android_artifacts_${GITSPEC}
+echo ============================================ to ${REVISION}
+
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j upload_cblite_android_artifacts_${GITSPEC} -p BLD_TO_RELEASE -v ${REVISION}
+
 echo ============================================ `date`
 
