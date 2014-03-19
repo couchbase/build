@@ -49,6 +49,9 @@ ANDR_DIR=${AUT_DIR}/android
 if [[ -e ${ANDR_DIR} ]] ; then rm -rf ${ANDR_DIR} ; fi
 mkdir -p ${ANDR_DIR}
 
+ANDR_LITESRV_DIR=${ANDR_DIR}/couchbase-lite-android-liteserv
+ANDR_LITESTS_DIR=${ANDR_DIR}/cblite-tests
+
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
@@ -94,7 +97,7 @@ sudo dpkg --install  ${SGW_PKG}
 popd                 2>&1 > /dev/null
 
 echo ============================================  build android
-cd ${ANDR_DIR}/couchbase-lite-android-liteserv
+cd ${ANDR_LITESRV_DIR}
 cp extra/jenkins_build/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
@@ -106,9 +109,9 @@ echo ============================================  build android zipfile
 MVN_ZIP=com.couchbase.cblite-${VERSION}-android.zip
 AND_ZIP=cblite_android_${REVISION}.zip
 
-cd    release && ./zip_jars.sh  ${REVISION}
-file  release/target/${MVN_ZIP} || exit 99
-cp    release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
+cd    ${ANDR_LITESRV_DIR}/release                   && ./zip_jars.sh  ${REVISION}
+file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
+cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
 echo ============================================  run tests
 echo ".......................................creating avd"
