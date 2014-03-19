@@ -102,16 +102,29 @@ cd ${ANDR_LITESRV_DIR}
 cp extra/jenkins_build/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
-./build_android.sh         2>&1 | tee           ${WORKSPACE}/android_build.log
-echo "=====================================" >> ${WORKSPACE}/android_build.log
+./build_android.sh         2>&1              >> ${WORKSPACE}/android_build.log
+
+if  [[ -e ${WORKSPACE}/android_build.log ]]
+    then
+    echo "===================================== ${WORKSPACE}/android_build.log"
+    echo ". . ."
+    tail -24                                    ${WORKSPACE}/android_build.log
+fi
 
 echo ============================================  build android zipfile
 
 MVN_ZIP=com.couchbase.cblite-${VERSION}-android.zip
 AND_ZIP=cblite_android_${REVISION}.zip
 
-cd    ${ANDR_LITESRV_DIR}/release         &&  ./zip_jars.sh  ${AND_VRSN}  ${WORKSPACE}/android_package.log
-                                                               tail -24   ${WORKSPACE}/android_package.log
+cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log
+
+if  [[ -e ${WORKSPACE}/android_package.log ]]
+    then
+    echo "===================================== ${WORKSPACE}/android_package.log"
+    echo ". . ."
+    tail -24                                    ${WORKSPACE}/android_package.log
+fi
+
 file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
 cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
@@ -140,7 +153,15 @@ jobs
 
 echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
-./run_android_unit_tests.sh 2>&1 | tee ${WORKSPACE}/android_unit_tests_err.log
+
+./run_android_unit_tests.sh  2>&1            >> ${WORKSPACE}/android_unit_tests_err.log
+
+if  [[ -e ${WORKSPACE}/android_unit_tests_err.log ]]
+    then
+    echo "===================================== ${WORKSPACE}/android_unit_tests_err.log"
+    echo ". . ."
+    tail -24                                    ${WORKSPACE}/android_unit_tests_err.log
+fi
 
 FAILS=`grep -i FAIL ${WORKSPACE}/android_unit_tests_err.log | wc -l`
 if [[ $((FAILS)) > 0 ]]
