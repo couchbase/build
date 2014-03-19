@@ -47,7 +47,7 @@ ZIP_DST_DIR=com.couchbase.cblite-${RELEASE_NUMBER}
 
 echo ============================================  download ${CBFS_URL}/${AND_ZIP_SRC}
 
-wget --non-verbose ${CBFS_URL}/${AND_ZIP_SRC}
+wget  --no-verbose  ${CBFS_URL}/${AND_ZIP_SRC}
 unzip ${AND_ZIP_SRC}
 
 echo ============================================  renumber to ${AND_ZIP_DST}
