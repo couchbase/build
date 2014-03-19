@@ -110,7 +110,8 @@ echo ============================================  build android zipfile
 MVN_ZIP=com.couchbase.cblite-${VERSION}-android.zip
 AND_ZIP=cblite_android_${REVISION}.zip
 
-cd    ${ANDR_LITESRV_DIR}/release                   && ./zip_jars.sh  ${AND_VRSN}
+cd    ${ANDR_LITESRV_DIR}/release         &&  ./zip_jars.sh  ${AND_VRSN}  ${WORKSPACE}/android_package.log
+                                                               tail -24   ${WORKSPACE}/android_package.log
 file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
 cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
