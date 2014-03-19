@@ -66,7 +66,11 @@ def CheckCall(command, cwd=None):
 def GsqlQuery(sql_query, server, port='29418'):
   """Runs a gerrit gsql query and returns the result"""
 
-  gsql_cmd = ['ssh', '-l', 'Gerrit Code Review', '-p', port, server,
+  # Gsql *cannot* use the magic "Gerrit Code Review" user:
+  # https://code.google.com/p/gerrit/issues/detail?id=2491
+  # Fortunately we have another user with appropriate perms
+  # and the same key
+  gsql_cmd = ['ssh', '-l', 'gerrit', '-p', port, server,
               'gerrit', 'gsql', '--format',
               'JSON', '-c', sql_query]
   try:
@@ -124,6 +128,7 @@ def GetPatchId(revision):
   return patch_id_process.communicate(git_show_process.communicate()[0])[0]
 
 def SuExec(server, port, private_key, as_user, cmd):
+  # Suexec *must* use the magic "Gerrit Code Review" user.
   suexec_cmd = ['ssh', '-l', "Gerrit Code Review", '-p', port, server, '-i',
                 private_key, 'suexec', '--as', as_user, '--', cmd]
   CheckCall(suexec_cmd)
@@ -183,7 +188,7 @@ def Main():
     # commit message changed
     comment_msg = ("\'--message=New patchset patch-id matches previous patchset"
                    ", but commit message has changed.'")
-    comment_cmd = ['ssh', '-p', options.port, server, 'gerrit', 'approve',
+    comment_cmd = ['ssh', '-p', options.port, server, 'gerrit', 'review',
                    '--project', options.project, comment_msg, options.commit]
     CheckCall(comment_cmd)
     exit(0)
@@ -197,9 +202,9 @@ def Main():
     # Note: Sites with different 'copy_min_score' values in the
     # approval_categories DB table might want different behavior here.
     # Additional categories should also be added if desired.
-    if approval["category_id"] == "CRVW":
+    if approval["category_id"] == "Code-Review":
       approve_category = '--code-review'
-    elif approval["category_id"] == "VRIF":
+    elif approval["category_id"] == "Verified":
       # Don't re-add verifies
       #approve_category = '--verified'
       continue
@@ -211,12 +216,14 @@ def Main():
       exit(0)
 
     score = approval["value"]
-    gerrit_approve_cmd = ['gerrit', 'approve', '--project', options.project,
+    gerrit_approve_cmd = ['gerrit', 'review', '--project', options.project,
                           '--message', gerrit_approve_msg, approve_category,
                           score, options.commit]
     email_addr = GetEmailFromAcctId(approval["account_id"], server)
     SuExec(server, options.port, options.private_key_path, email_addr,
            ' '.join(gerrit_approve_cmd))
+    print "Executed trivial rebase auto-review"
+    print gerrit_approve_cmd
   exit(0)
 
 if __name__ == "__main__":

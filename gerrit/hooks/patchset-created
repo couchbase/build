@@ -61,12 +61,12 @@ echo "submitter: $submitter"
 echo "commit: $commit"
 echo "patchset: $patchset"
 
-#$RS/hooks/trivial-rebase.py --change=$change \
-#	--project=$project \
-#	--commit=$commit \
-#	--patchset=$patchset \
-#	--server-port=29418 \
-#	--private-key-path $RS/etc/ssh_host_dsa_key
+$RS/hooks/trivial-rebase.py --change=$change \
+	--project=$project \
+	--commit=$commit \
+	--patchset=$patchset \
+	--server-port=29418 \
+	--private-key-path $RS/etc/ssh_host_dsa_key
 
 # This has always been a dumb idea.  We had decided early that things that
 # aren't directly referencing bugs in jira don't need to pretend that they are
