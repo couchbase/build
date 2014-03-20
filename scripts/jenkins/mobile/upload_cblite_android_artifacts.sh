@@ -29,6 +29,8 @@ BLD_TO_RELEASE=${2}
 
 if [[ ${BLD_TO_RELEASE} =~ ([0-9.]+) ]] ; then RELEASE=${BASH_REMATCH[1]} ; else RELEASE=${BLD_TO_RELEASE} ; fi
 
+OLD_JAR_NUM=`echo ${BLD_TO_RELEASE} | tr "-" "."`
+
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 RELEASE_NUMBER=${3}
 
@@ -53,10 +55,10 @@ unzip ${AND_ZIP_SRC}
 echo ============================================  renumber to ${AND_ZIP_DST}
 mv ${ZIP_SRC_DIR}  ${ZIP_DST_DIR}
 cd                 ${ZIP_DST_DIR}
-mv  couchbase-lite-java-android-${BLD_TO_RELEASE}.jar     couchbase-lite-java-android-${RELEASE_NUMBER}.jar
-mv  couchbase-lite-java-core-${BLD_TO_RELEASE}.jar        couchbase-lite-java-core-${RELEASE_NUMBER}.jar
-mv  couchbase-lite-java-javascript-${BLD_TO_RELEASE}.jar  couchbase-lite-java-javascript-${RELEASE_NUMBER}.jar
-mv  couchbase-lite-java-listener-${BLD_TO_RELEASE}.jar    couchbase-lite-java-listener-${RELEASE_NUMBER}.jar
+mv  couchbase-lite-java-android-${OLD_JAR_NUM}.jar     couchbase-lite-java-android-${RELEASE_NUMBER}.jar
+mv  couchbase-lite-java-core-${OLD_JAR_NUM}.jar        couchbase-lite-java-core-${RELEASE_NUMBER}.jar
+mv  couchbase-lite-java-javascript-${OLD_JAR_NUM}.jar  couchbase-lite-java-javascript-${RELEASE_NUMBER}.jar
+mv  couchbase-lite-java-listener-${OLD_JAR_NUM}.jar    couchbase-lite-java-listener-${RELEASE_NUMBER}.jar
 
 cd                 ${WORKSPACE}
 zip  -r            ${AND_ZIP_DST}  ${ZIP_DST_DIR}
