@@ -101,7 +101,6 @@ for J in                        \
         -DartifactId=${J}                \
         -Dversion=${RELEASE_NUMBER}      \
         -Dpackaging=jar                   
-    fi
   done
 
 echo ============================================ `date`
