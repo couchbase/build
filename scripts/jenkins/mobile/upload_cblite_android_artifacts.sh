@@ -42,7 +42,7 @@ env | grep -iv password | grep -iv passwd | sort
 cd ${WORKSPACE}
 
 AND_ZIP_SRC=cblite_android_${BLD_TO_RELEASE}.zip
-AND_ZIP_DST=cblite_android_${BLD_TO_RELEASE}.zip
+AND_ZIP_DST=cblite_android_${RELEASE_NUMBER}.zip
 
 ZIP_SRC_DIR=com.couchbase.cblite-${RELEASE}
 ZIP_DST_DIR=com.couchbase.cblite-${RELEASE_NUMBER}
@@ -55,7 +55,7 @@ unzip ${AND_ZIP_SRC}
 echo ============================================  renumber to ${AND_ZIP_DST}
 mv ${ZIP_SRC_DIR}  ${ZIP_DST_DIR}
 cd                 ${ZIP_DST_DIR}
-mv  couchbase-lite-java-android-${OLD_JAR_NUM}.jar     couchbase-lite-java-android-${RELEASE_NUMBER}.jar
+mv  couchbase-lite-android-${OLD_JAR_NUM}.jar          couchbase-lite-android-${RELEASE_NUMBER}.jar
 mv  couchbase-lite-java-core-${OLD_JAR_NUM}.jar        couchbase-lite-java-core-${RELEASE_NUMBER}.jar
 mv  couchbase-lite-java-javascript-${OLD_JAR_NUM}.jar  couchbase-lite-java-javascript-${RELEASE_NUMBER}.jar
 mv  couchbase-lite-java-listener-${OLD_JAR_NUM}.jar    couchbase-lite-java-listener-${RELEASE_NUMBER}.jar
@@ -82,7 +82,7 @@ POM_FILE=${WORKSPACE}/couchbase-lite-android-liteserv/release/pom.xml
 cd ${ZIP_DST_DIR}
 echo ============================================  upload to maven repository
 for J in                        \
-    couchbase-lite-java-android  \
+    couchbase-lite-android       \
     couchbase-lite-java-core      \
     couchbase-lite-java-javascript \
     couchbase-lite-java-listener
