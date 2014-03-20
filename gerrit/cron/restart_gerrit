@@ -1,0 +1,5 @@
+#!/bin/bash
+
+GERRIT_PID=`ps -aef | grep GerritCodeReview | grep -v grep | awk '{print $2}'`
+
+kill -9 $GERRIT_PID
