@@ -21,11 +21,11 @@ rm -f ./testrunner/cluster_run.log
 df -h
 
 echo ============================================ update couchdb
-cd couchdb
+pushd cmake/couchdb
 git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
-cd ..
+popd
 make -j4 
 
 cd testrunner

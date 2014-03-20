@@ -21,7 +21,14 @@ make clean-xfd-hard
 
 
 echo ============================================ update couchdb
-pushd couchdb     2>&1 > /dev/null
+COUCHDBDIR="cmake/couchdb"
+TESTTARGET="test"
+if [ "$1" = "--legacy" ]
+then
+   COUCHDBDIR="couchdb"
+   TESTTARGET="check"
+fi
+pushd ${COUCHDBDIR}     2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
 popd              2>&1 > /dev/null
 
@@ -29,7 +36,7 @@ echo ============================================ make
 make -j4 || (make -j1 && false)
 
 echo ============================================ make check
-pushd couchdb     2>&1 > /dev/null
+pushd ${COUCHDBDIR}     2>&1 > /dev/null
 
 cpulimit -e 'beam.smp' -l 50 &
 CPULIMIT_PID=$!
@@ -40,7 +47,7 @@ then
    REPODIR="couchstore"
 fi
 
-PATH=$PATH:${WORKSPACE}/${REPODIR}   make check
+PATH=$PATH:${WORKSPACE}/${REPODIR}   make ${TESTTARGET}
 kill $CPULIMIT_PID || true
 
 popd              2>&1 > /dev/null
