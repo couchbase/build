@@ -64,7 +64,7 @@ cd                 ${WORKSPACE}
 zip  -r            ${AND_ZIP_DST}  ${ZIP_DST_DIR}
 
 echo ============================================  upload ${CBFS_URL}/${AND_ZIP_DST}
-curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP_DST} ${CBFS_URL}/${AND_ZIP_DST}
+curl -XPUT --data-binary  @${WORKSPACE}/${AND_ZIP_DST}    ${CBFS_URL}/${AND_ZIP_DST}
 
 
 cd                 ${WORKSPACE}
@@ -81,26 +81,26 @@ POM_FILE=${WORKSPACE}/couchbase-lite-android-liteserv/release/pom.xml
 
 cd ${WORKSPACE}/${ZIP_DST_DIR}
 echo ============================================  upload to maven repository
-for J in                        \
-    couchbase-lite-android       \
-    couchbase-lite-java-core      \
+for J in                           \
+    couchbase-lite-android         \
+    couchbase-lite-java-core       \
     couchbase-lite-java-javascript \
     couchbase-lite-java-listener
   do
     JARFILE=${J}-${RELEASE_NUMBER}.jar
     echo "UPLOADING ${J} to .... maven repo:  ${UPLOAD_MAVEN_REPO_URL}"
-    mvn --file ${POM_FILE}               \
-        --settings ${SETTINGS} -X        \
-        deploy:deploy-file               \
-        -Durl=${UPLOAD_MAVEN_REPO_URL}   \
-        -DrepositoryId=${REPO_ID}        \
-        -Dfile=${JARFILE}                \
-        -DuniqueVersion=false            \
-        -DgeneratePom=true               \
-        -DgroupId=com.couchbase.cblite   \
-        -DartifactId=${J}                \
-        -Dversion=${RELEASE_NUMBER}      \
-        -Dpackaging=jar                   
+    mvn --file ${POM_FILE}                             \
+        --settings ${SETTINGS} -X                      \
+        deploy:deploy-file                             \
+        -Durl=${UPLOAD_MAVEN_REPO_URL}                 \
+        -DrepositoryId=${REPO_ID}                      \
+        -Dfile=${WORKSPACE}/${ZIP_DST_DIR}/${JARFILE}  \
+        -DuniqueVersion=false                          \
+        -DgeneratePom=true                             \
+        -DgroupId=com.couchbase.cblite                 \
+        -DartifactId=${J}                              \
+        -Dversion=${RELEASE_NUMBER}                    \
+        -Dpackaging=jar                                
   done
 
 echo ============================================ `date`
