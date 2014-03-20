@@ -89,7 +89,7 @@ for J in                        \
   do
     JARFILE=${J}-${RELEASE_NUMBER}.jar
     echo "UPLOADING ${J} to .... maven repo:  ${UPLOAD_MAVEN_REPO_URL}"
-    mvn --pom ${POM_FILE}                \
+    mvn --file ${POM_FILE}               \
         --settings ${SETTINGS} -X        \
         deploy:deploy-file               \
         -Durl=${UPLOAD_MAVEN_REPO_URL}   \
