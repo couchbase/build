@@ -79,7 +79,7 @@ git pull  origin  ${GITSPEC}
 SETTINGS=${WORKSPACE}/couchbase-lite-android-liteserv/release/settings.xml
 POM_FILE=${WORKSPACE}/couchbase-lite-android-liteserv/release/pom.xml
 
-cd ${ZIP_DST_DIR}
+cd ${WORKSPACE}/${ZIP_DST_DIR}
 echo ============================================  upload to maven repository
 for J in                        \
     couchbase-lite-android       \
