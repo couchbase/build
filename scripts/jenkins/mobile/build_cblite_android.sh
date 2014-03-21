@@ -228,7 +228,7 @@ if  [[ -e ${WORKSPACE}/javadocs.log ]]
 fi
 cd libraries/couchbase-lite-java-core/build/docs/javadoc
 echo ============================================ zip up ${DOCS_ZIP}
-( zip -r  ${WORKSPACE}/${DOCS_ZIP} *  2>&1  >> ${WORKSPACE}/package_javadocs.log
+( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )  >> ${WORKSPACE}/package_javadocs.log
 
 if  [[ -e ${WORKSPACE}/pacakge_javadocs.log ]]
     then
