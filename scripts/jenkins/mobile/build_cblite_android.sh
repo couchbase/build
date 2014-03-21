@@ -119,6 +119,7 @@ echo "********RUNNING: ./build_android.sh *******************"
 
 if  [[ -e ${WORKSPACE}/android_build.log ]]
     then
+    echo
     echo "===================================== ${WORKSPACE}/android_build.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${WORKSPACE}/android_build.log
@@ -160,6 +161,7 @@ echo "ADB log for build ${BUILD_NUMBER}"      > ${WORKSPACE}/adb.log
 
 if  [[ -e ${WORKSPACE}/adb.log ]]
     then
+    echo
     echo "===================================== ${WORKSPACE}/adb.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${WORKSPACE}/adb.log
@@ -179,10 +181,12 @@ echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 
 if  [[ -e ${WORKSPACE}/android_unit_tests_err.log ]]
     then
+    echo
     echo "===================================== ${WORKSPACE}/android_unit_tests_err.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${WORKSPACE}/android_unit_tests_err.log
 fi
+echo "http://factory.hq.couchbase.com:8080/job/build_cblite_android_master/ws/app-under-test/android/couchbase-lite-android-liteserv/libraries/couchbase-lite-android/build/reports/instrumentTests/connected/index.html"
 
 FAILS=`grep -i FAIL ${WORKSPACE}/android_unit_tests_err.log | wc -l`
 if [[ $((FAILS)) > 0 ]]
@@ -222,6 +226,7 @@ JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:javadoc'
 
 if  [[ -e ${WORKSPACE}/javadocs.log ]]
     then
+    echo
     echo "===================================== ${WORKSPACE}/javadocs.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${WORKSPACE}/javadocs.log
@@ -232,6 +237,7 @@ echo ============================================ zip up ${DOCS_ZIP}
 
 if  [[ -e ${WORKSPACE}/pacakge_javadocs.log ]]
     then
+    echo
     echo "===================================== ${WORKSPACE}/pacakge_javadocs.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${WORKSPACE}/pacakge_javadocs.log
