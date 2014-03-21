@@ -13,9 +13,23 @@
 #            by build_cblite_android_master:     master         0.0.0
 #            by build_cblite_android_stable:     stable         1.0.0
 #          
+#          produces these log files, sampled in this scripts output:
+#            
+#            BLD_LOG - android_build.log
+#            PKG_LOG - android_package.log
+#            ADB_LOG - adb.log
+#            AUT_LOG - android_unit_tests_err.log
+#            DOC_LOG - javadocs.log
+#            ZIP_LOG - package_javadocs.log
+#            
+##############
 source ~jenkins/.bash_profile
 export DISPLAY=:0
 set -e
+
+LOG_TAIL=-24
+
+
 
 function usage
     {
@@ -101,13 +115,13 @@ cd ${ANDR_LITESRV_DIR}
 cp extra/jenkins_build/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
-./build_android.sh         2>&1              >> ${WORKSPACE}/android_build.log
+( ./build_android.sh   2>&1 )                >> ${WORKSPACE}/android_build.log
 
 if  [[ -e ${WORKSPACE}/android_build.log ]]
     then
     echo "===================================== ${WORKSPACE}/android_build.log"
     echo ". . ."
-    tail -24                                    ${WORKSPACE}/android_build.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/android_build.log
 fi
 
 echo ============================================  build android zipfile
@@ -121,7 +135,7 @@ if  [[ -e ${WORKSPACE}/android_package.log ]]
     then
     echo "===================================== ${WORKSPACE}/android_package.log"
     echo ". . ."
-    tail -24                                    ${WORKSPACE}/android_package.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/android_package.log
 fi
 
 file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
@@ -141,8 +155,15 @@ echo ""
 sleep 10
 adb wait-for-device
 sleep 90
-echo "ADB log for build ${BUILD_NUMBER}"   > ${WORKSPACE}/adb.log
-adb logcat -v time                        >> ${WORKSPACE}/adb.log &
+echo "ADB log for build ${BUILD_NUMBER}"      > ${WORKSPACE}/adb.log
+( adb logcat -v time   2>&1 )                >> ${WORKSPACE}/adb.log &
+
+if  [[ -e ${WORKSPACE}/adb.log ]]
+    then
+    echo "===================================== ${WORKSPACE}/adb.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${WORKSPACE}/adb.log
+fi
 
 echo ".......................................starting sync_gateway"
 killall sync_gateway || true
@@ -154,13 +175,13 @@ cd ${ANDR_LITESRV_DIR}
 echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 
-./run_android_unit_tests.sh  2>&1            >> ${WORKSPACE}/android_unit_tests_err.log
+( ./run_android_unit_tests.sh  2>&1 )        >> ${WORKSPACE}/android_unit_tests_err.log
 
 if  [[ -e ${WORKSPACE}/android_unit_tests_err.log ]]
     then
     echo "===================================== ${WORKSPACE}/android_unit_tests_err.log"
     echo ". . ."
-    tail -24                                    ${WORKSPACE}/android_unit_tests_err.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/android_unit_tests_err.log
 fi
 
 FAILS=`grep -i FAIL ${WORKSPACE}/android_unit_tests_err.log | wc -l`
@@ -195,11 +216,26 @@ curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  generate javadocs
-./gradlew :libraries:couchbase-lite-java-core:javadoc
-cd libraries/couchbase-lite-java-core/build/docs/javadoc
+JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:javadoc'
 
+( ${JAVADOC_CMD}  2>&1 )                     >> ${WORKSPACE}/javadocs.log
+
+if  [[ -e ${WORKSPACE}/javadocs.log ]]
+    then
+    echo "===================================== ${WORKSPACE}/javadocs.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${WORKSPACE}/javadocs.log
+fi
+cd libraries/couchbase-lite-java-core/build/docs/javadoc
 echo ============================================ zip up ${DOCS_ZIP}
-zip -r ${WORKSPACE}/${DOCS_ZIP} *
+( zip -r  ${WORKSPACE}/${DOCS_ZIP} *  2>&1  >> ${WORKSPACE}/package_javadocs.log
+
+if  [[ -e ${WORKSPACE}/pacakge_javadocs.log ]]
+    then
+    echo "===================================== ${WORKSPACE}/pacakge_javadocs.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${WORKSPACE}/pacakge_javadocs.log
+fi
 
 echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
