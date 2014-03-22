@@ -87,6 +87,8 @@ export GOOS ; export EXEC
 
 GO_RELEASE=1.2
 GOROOT=/usr/local/go/${GO_RELEASE}
+
+if [[ DISTRO =~ windows ]] ; then GOROOT="c:/cygwin"${GOROOT} ; fi
 PATH=${PATH}:${GOROOT}/bin 
 
 export GO_RELEASE ; export GOROOT ; export PATH
