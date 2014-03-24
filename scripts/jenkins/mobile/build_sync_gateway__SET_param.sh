@@ -26,7 +26,7 @@
 #   
 #     REVISION equal to a build number of the form n.n-mmmm
 #   
-#     GITSPEC = master, or stable (as appropriate)
+#     RELEASE = master, or 100 (for example)
 # 
 #   and will set the default value of the SYNCGATE_VERSION parameter in jobs
 #   
@@ -47,21 +47,21 @@ if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 
 if [[ ! ${3} ]] ; then usage ; exit 99 ; fi
-GITSPEC=${3}
+RELEASE=${3}
 
-export GITSPEC ; export VERSION ; export PARNAME
+export RELEASE ; export VERSION ; export PARNAME
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
 
 if [[ ${PARNAME} == SYNCGATE_VERSION_UBUNTU_X64 ]]
     then
-    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${GITSPEC}            -p SYNCGATE_VERSION -v ${REVISION}
-         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${GITSPEC}            -p SYNCGATE_VERSION -v ${REVISION}
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}            -p SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}            -p SYNCGATE_VERSION -v ${REVISION}
 fi
 if [[ ${PARNAME} == SYNCGATE_VERSION_CENTOS_X64 ]]
     then
-    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${GITSPEC} -p SYNCGATE_VERSION -v ${REVISION}
-         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${GITSPEC} -p SYNCGATE_VERSION -v ${REVISION}
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p SYNCGATE_VERSION -v ${REVISION}
 fi
 
