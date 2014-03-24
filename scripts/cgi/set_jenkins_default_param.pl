@@ -117,17 +117,29 @@ my $xmlref = $xml->XMLin($config, KeyAttr => {}, ForceArray => [] );
 my $paramarray = $$xmlref{'properties'}{'hudson.model.ParametersDefinitionProperty'}{'parameterDefinitions'}{'hudson.model.StringParameterDefinition'};
 
 if ($DEBUG)  { print STDERR Dumper($paramarray); }
-if ($DEBUG)  { print STDERR "There are $#$paramarray elements in the paramarray.\n\n"; }
 
-foreach my $ii (0..$#$paramarray)
+if ( (ref($paramarray) eq 'ARRAY') )
     {
-    my $parm = $$paramarray[$ii];
-    if ($DEBUG)  { print STDERR "\n......$ii\n", Dumper($parm); print "\n......\n", $$parm{'name'}; print "\n......\n"; }
-    if ($$parm{'name'} eq $parm_name)
+    if ($DEBUG)  { print STDERR "There are $#$paramarray elements in the paramarray.\n\n"; }
+    
+    foreach my $ii (0..$#$paramarray)
         {
-        $$paramarray[$ii]{'defaultValue'} = $new_val;
-        }
-    }
+        my $parm = $$paramarray[$ii];
+        if ($DEBUG)  { print STDERR "\n......$ii\n", Dumper($parm); print "\n......\n", $$parm{'name'}; print "\n......\n"; }
+        if ($$parm{'name'} eq $parm_name)
+            {
+            $$paramarray[$ii]{'defaultValue'} = $new_val;
+            }
+    }   }
+else
+    {
+    if ($DEBUG)  { print STDERR "There is only 1 element in the paramarray, and it's not even an array!\n\n"; }
+    
+    if ($$paramarray{'name'} eq $parm_name)
+        {
+        $$paramarray{'defaultValue'} = $new_val;
+    }   }
+
 $xmlref{'properties'}{'hudson.model.ParametersDefinitionProperty'}{'parameterDefinitions'}{'hudson.model.StringParameterDefinition'} = $paramarray;
 
 if ($DEBUG)  { print STDERR "\n----------------------------------------------------------------------\n\n"; }
