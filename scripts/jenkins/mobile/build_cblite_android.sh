@@ -151,7 +151,6 @@ echo ".......................................stopping emulator"
 ./stop_android_emulator.sh  || true
 echo ".......................................starting emulator"
 ./start_android_emulator.sh ${EMULATOR} -no-window -verbose -no-audio &
-echo ".......................................waiting for EMULATOR: ${EMULATOR}"
 echo ""
 sleep 10
 adb wait-for-device
