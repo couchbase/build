@@ -88,7 +88,6 @@ export GOOS ; export EXEC
 GO_RELEASE=1.2
 GOROOT=/usr/local/go/${GO_RELEASE}
 
-if [[ DISTRO =~ windows ]] ; then GOROOT="c:/cygwin"${GOROOT} ; fi
 PATH=${PATH}:${GOROOT}/bin 
 
 export GO_RELEASE ; export GOROOT ; export PATH
@@ -98,6 +97,9 @@ echo ============================================== `date`
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
+pushd ${WORKSPACE} 2>&1 > /dev/null
+WORKSPACE=`pwd`
+popd               2>&1 > /dev/null
 BLD_DIR=${WORKSPACE}/build
 SGW_DIR=${WORKSPACE}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
