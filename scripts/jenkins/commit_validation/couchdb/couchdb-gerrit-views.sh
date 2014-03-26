@@ -19,11 +19,11 @@ make clean-xfd-hard
 repo forall -c "git clean -xfd"
 
 echo ============================================ update couchdb
-cd couchdb
+pushd cmake/couchdb	2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
-cd ..
+popd			2>&1 > /dev/null
 make -j4 
 
 cd testrunner
