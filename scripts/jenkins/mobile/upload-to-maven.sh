@@ -75,7 +75,7 @@ git pull  origin  ${GITSPEC}
 echo ============================================  prepare maven buckets
 prepare_bucket ${REPOURL}/${GRP_URL}
 
-for J in ${LIST_OF_JARS} ; do prepare_bucket ${REPOURL}/${GRP_URL}/${J} ; done
+for J in ${LIST_OF_JARS} ; do prepare_bucket ${REPOURL}/${GRP_URL}/${J} ; prepare_bucket ${REPOURL}/${GRP_URL}/${J}/${REL_NUM} ; done
 
 cd ${JAR_DIR}
 echo ============================================  upload to maven repository
