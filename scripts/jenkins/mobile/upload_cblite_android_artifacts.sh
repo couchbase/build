@@ -9,6 +9,7 @@
 #              and upload the cblite JARS to our maven repository.
 #          
 #          called with paramters:
+#          
 #            branch name          master, release/1.0.0, etc.
 #            BLD_TO_RELEASE       number of ZIP file to download (0.0.0-1234)
 #            RELEASE_NUMBER       number/name to release as      (0.0.0, 0.0.0-beta)
@@ -19,7 +20,7 @@ set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch  bld_to_release  release_number \n\n"
+    echo -e "\nuse:  ${0}   branch  bld_to_release  release_number  [ release_name ]\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -44,8 +45,8 @@ cd ${WORKSPACE}
 AND_ZIP_SRC=cblite_android_${BLD_TO_RELEASE}.zip
 AND_ZIP_DST=cblite_android_${RELEASE_NUMBER}.zip
 
-ZIP_SRC_DIR=com.couchbase.cblite-${RELEASE}
-ZIP_DST_DIR=com.couchbase.cblite-${RELEASE_NUMBER}
+ZIP_SRC_DIR=com.couchbase.lite-${RELEASE}
+ZIP_DST_DIR=com.couchbase.lite-${RELEASE_NUMBER}
 
 echo ============================================  download ${CBFS_URL}/${AND_ZIP_SRC}
 
@@ -67,40 +68,7 @@ echo ============================================  upload ${CBFS_URL}/${AND_ZIP_
 curl -XPUT --data-binary  @${WORKSPACE}/${AND_ZIP_DST}    ${CBFS_URL}/${AND_ZIP_DST}
 
 
-cd                 ${WORKSPACE}
-echo ============================================  sync couchbase-lite-android-liteserv
-echo ============================================  to ${GITSPEC}
-
-if [[ ! -d couchbase-lite-android-liteserv ]] ; then git clone https://github.com/couchbase/couchbase-lite-android-liteserv.git ; fi
-cd         couchbase-lite-android-liteserv
-git checkout      ${GITSPEC}
-git pull  origin  ${GITSPEC}
-
-SETTINGS=${WORKSPACE}/couchbase-lite-android-liteserv/release/settings.xml
-POM_FILE=${WORKSPACE}/couchbase-lite-android-liteserv/release/pom.xml
-
-cd ${WORKSPACE}/${ZIP_DST_DIR}
 echo ============================================  upload to maven repository
-for J in                           \
-    couchbase-lite-android         \
-    couchbase-lite-java-core       \
-    couchbase-lite-java-javascript \
-    couchbase-lite-java-listener
-  do
-    JARFILE=${J}-${RELEASE_NUMBER}.jar
-    echo "UPLOADING ${J} to .... maven repo:  ${UPLOAD_MAVEN_REPO_URL}"
-    mvn --file ${POM_FILE}                             \
-        --settings ${SETTINGS} -X                      \
-        deploy:deploy-file                             \
-        -Durl=${UPLOAD_MAVEN_REPO_URL}                 \
-        -DrepositoryId=${REPO_ID}                      \
-        -Dfile=${WORKSPACE}/${ZIP_DST_DIR}/${JARFILE}  \
-        -DuniqueVersion=false                          \
-        -DgeneratePom=true                             \
-        -DgroupId=com.couchbase.cblite                 \
-        -DartifactId=${J}                              \
-        -Dversion=${RELEASE_NUMBER}                    \
-        -Dpackaging=jar                                
-  done
+${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC} ${WORKSPACE}/${ZIP_DST_DIR} ${RELEASE_NUMBER}
 
 echo ============================================ `date`

@@ -12,8 +12,9 @@
 #          
 #            by build_cblite_android_master:     master         0.0.0
 #            by build_cblite_android_stable:     stable         1.0.0
+#            by build_cblite_android_100:        release/1.0.0  1.0.0
 #          
-#          produces these log files, sampled in this scripts output:
+#          produces these log files, sampled in this script's output:
 #            
 #            BLD_LOG - android_build.log
 #            PKG_LOG - android_package.log
@@ -28,7 +29,6 @@ export DISPLAY=:0
 set -e
 
 LOG_TAIL=-24
-
 
 
 function usage
@@ -127,7 +127,7 @@ fi
 
 echo ============================================  build android zipfile
 
-MVN_ZIP=com.couchbase.cblite-${VERSION}-android.zip
+MVN_ZIP=com.couchbase.lite-${VERSION}-android.zip
 AND_ZIP=cblite_android_${REVISION}.zip
 
 cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log
@@ -246,6 +246,8 @@ fi
 echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
 
+echo ============================================  upload to maven repository
+${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${ANDR_LITESRV_DIR}/release/staging  ${AND_VRS}
 
 echo ============================================ removing couchbase-sync-gateway
 sudo dpkg --remove   couchbase-sync-gateway     || true
