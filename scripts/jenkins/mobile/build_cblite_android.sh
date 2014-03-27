@@ -247,8 +247,8 @@ echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
 
 echo ============================================  upload to maven repository
-echo ${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${AND_VRS}  ${ANDR_LITESRV_DIR}/release/staging
-     ${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${AND_VRS}  ${ANDR_LITESRV_DIR}/release/staging
+echo ${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${AND_VRSN}  ${ANDR_LITESRV_DIR}/release/staging
+     ${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${AND_VRSN}  ${ANDR_LITESRV_DIR}/release/staging
 
 echo ============================================ removing couchbase-sync-gateway
 sudo dpkg --remove   couchbase-sync-gateway     || true
