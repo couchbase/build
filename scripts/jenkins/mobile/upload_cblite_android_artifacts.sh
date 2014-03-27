@@ -69,6 +69,6 @@ curl -XPUT --data-binary  @${WORKSPACE}/${AND_ZIP_DST}    ${CBFS_URL}/${AND_ZIP_
 
 
 echo ============================================  upload to maven repository
-${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC} ${WORKSPACE}/${ZIP_DST_DIR} ${RELEASE_NUMBER}
+${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${RELEASE_NUMBER}  ${WORKSPACE}/${ZIP_DST_DIR}
 
 echo ============================================ `date`

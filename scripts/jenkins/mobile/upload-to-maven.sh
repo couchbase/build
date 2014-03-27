@@ -32,18 +32,18 @@ LIST_OF_JARS="                               \
              "
 function usage
     {
-    echo -e "\nuse:  ${0}   branch  release_number   dir_with_jars  [ release_bucket ]"
+    echo -e "\nuse:  ${0}   branch  release_number   dir_with_jars"
     echo -e "\nwill upload these jars:\n" ; for J in ${LIST_OF_JARS} ; do echo "      "$J ; done
     echo -e "\nto maven repo at:  ${REPOURL}"
     echo -e "\nusing repo-id ${REPO_ID}\n\n"
     }
-if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+if [[ ! ${1} ]] ; then usage ; echo error 99 ; exit 99 ; fi
 GITSPEC=${1}
 
-if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+if [[ ! ${2} ]] ; then usage ; echo error 88 ; exit 88 ; fi
 REL_NUM=${2}
 
-if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+if [[ ! ${3} ]] ; then usage ; echo error 77 ; exit 77 ; fi
 JAR_DIR=${3}
 
 MAVENDIR=${WORKSPACE}/couchbase-lite-android-liteserv/release
