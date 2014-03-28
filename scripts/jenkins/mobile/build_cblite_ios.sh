@@ -42,8 +42,6 @@ LIC_DEST=${ZIP_SRCD}
 
 RIO_SRCD=${BUILDDIR}/Release-ios-universal
 RIO_DEST=${ZIP_SRCD}
-R64_SRCD=${BUILDDIR}/Release\ 64bit-ios-universal
-R64_DEST=${ZIP_SRCD}
 
 REL_SRCD=${BUILDDIR}/Release
 REL_DEST=${ZIP_SRCD}
@@ -135,17 +133,6 @@ cd       ${ZIP_SRCD}
 rm -rf CouchbaseLite.framework.dSYM
 rm -rf CouchbaseLiteListener.framework.dSYM
 rm -rf LiteServ.app.dSYM
-
-echo  ============================================== now make 64-bit components
-cd ${WORKSPACE}/couchbase-lite-ios
-for TARGET in "CBL iOS"
-  do
-    echo ============================================  64-bit target: ${TARGET} | tee -a ${LOG_FILE}
-    xcodebuild -target "${TARGET}" -configuration 'Release 64bit'               | tee -a ${LOG_FILE}
-done
-cp  -r  "${R64_SRCD}/CouchbaseLite.framework"  "${R64_DEST}/CouchbaseLite.64bit.framework"
-rm -rf                                         "${R64_DEST}/CouchbaseLite.64bit.framework/PrivateHeaders"
-cd                                             "${R64_DEST}/CouchbaseLite.64bit.framework"  && file CouchbaseLite
 
 echo  ============================================== package ${ZIP_FILE}
 cd       ${ZIP_SRCD}
