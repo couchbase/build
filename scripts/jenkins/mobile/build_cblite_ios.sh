@@ -10,6 +10,9 @@
 source ~jenkins/.bash_profile
 set -e
 
+LOG_TAIL=-24
+
+
 function usage
     {
     echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
@@ -104,8 +107,16 @@ mkdir -p ${TARGET_BUILD_DIR}
 cd ${WORKSPACE}/couchbase-lite-ios
 for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation"
   do
-    echo ============================================  iOS target: ${TARGET}    | tee -a ${LOG_FILE}
-    xcodebuild -target "${TARGET}"                                              | tee -a ${LOG_FILE}
+    echo ============================================  iOS target: ${TARGET}
+    echo ============================================  iOS target: ${TARGET}  >>  ${LOG_FILE}
+    ( xcodebuild -target "${TARGET}"  2>&1 )                                  >>  ${LOG_FILE}
+    if  [[ -e ${LOGFILE} ]]
+        then
+        echo
+        echo "======================================= ${LOGFILE}"
+        echo ". . ."
+        tail  ${LOG_TAIL}                             ${LOGFILE}
+    fi
 done
 
 echo  ============================================== package ${DOC_ZIP_FILE}
