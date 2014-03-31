@@ -14,6 +14,11 @@
 #            by build_cblite_android_stable:     stable         1.0.0
 #            by build_cblite_android_100:        release/1.0.0  1.0.0
 #          
+#          in an environment with these variables set:
+#          
+#            MAVEN_UPLOAD_USERNAME
+#            MAVEN_UPLOAD_PASSWORD
+#          
 #          produces these log files, sampled in this script's output:
 #            
 #            BLD_LOG - android_build.log
@@ -42,6 +47,9 @@ if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
 AND_VRSN=${VERSION}.${BUILD_NUMBER}
+
+export MAVEN_UPLOAD_VERSION=${AND_VRSN}
+export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
@@ -257,9 +265,6 @@ fi
 echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
 
-echo ============================================  upload to maven repository
-echo ${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${AND_VRSN}  ${ANDR_LITESRV_DIR}/release/staging
-     ${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${AND_VRSN}  ${ANDR_LITESRV_DIR}/release/staging
 
 echo ============================================ removing couchbase-sync-gateway
 sudo dpkg --remove   couchbase-sync-gateway     || true
