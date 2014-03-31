@@ -125,6 +125,17 @@ if  [[ -e ${WORKSPACE}/android_build.log ]]
     tail ${LOG_TAIL}                            ${WORKSPACE}/android_build.log
 fi
 
+echo "********RUNNING: ./upload_android_artifacts.sh *******************"
+( ./upload_android_artifacts.sh 2>&1 )       >> ${WORKSPACE}/android__artifactsbuild.log
+
+if  [[ -e ${WORKSPACE}/android_build.log ]]
+    then
+    echo
+    echo "===================================== ${WORKSPACE}/android_build_artifacts.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${WORKSPACE}/android_build_artifacts.log
+fi
+
 echo ============================================  build android zipfile
 
 MVN_ZIP=com.couchbase.lite-${VERSION}-android.zip
