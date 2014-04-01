@@ -49,7 +49,7 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 AND_VRSN=${VERSION}.${BUILD_NUMBER}
 
 export MAVEN_UPLOAD_VERSION=${AND_VRSN}
-export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2
+export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
