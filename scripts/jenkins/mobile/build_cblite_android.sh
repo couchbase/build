@@ -87,8 +87,7 @@ if [[ ! -d couchbase-lite-android-liteserv ]] ; then git clone https://github.co
 cd         couchbase-lite-android-liteserv
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
-git submodule init
-git submodule update
+git submodule update --init --recursive
 git show --stat
 
 cd ${ANDR_DIR}
