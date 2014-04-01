@@ -134,7 +134,7 @@ if  [[ -e ${WORKSPACE}/android_build.log ]]
 fi
 
 echo "********RUNNING: ./upload_android_artifacts.sh *******************"
-( ./upload_android_artifacts.sh 2>&1 )       >> ${WORKSPACE}/android__artifactsbuild.log
+( ./upload_android_artifacts.sh 2>&1 )       >> ${WORKSPACE}/android_build_artifacts.log
 
 if  [[ -e ${WORKSPACE}/android_build.log ]]
     then
