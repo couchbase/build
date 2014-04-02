@@ -14,7 +14,7 @@ echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
 echo ============================================ clean
-sudo killal -9 beam.smp epmd memcached python >/dev/null || true
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 repo forall -c "git clean -xfd"
 
