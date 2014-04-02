@@ -118,6 +118,10 @@ sudo dpkg --install  ${SGW_PKG}
 
 popd                 2>&1 > /dev/null
 
+
+export MAVEN_LOCAL_REPO=${ANDR_LITESRV_DIR}/release/m2
+if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
+
 echo ============================================  build android
 cd ${ANDR_LITESRV_DIR}
 cp extra/jenkins_build/* .
