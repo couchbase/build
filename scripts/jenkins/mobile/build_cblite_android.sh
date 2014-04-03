@@ -75,6 +75,7 @@ mkdir -p ${ANDR_DIR}
 ANDR_LITESRV_DIR=${ANDR_DIR}/couchbase-lite-android-liteserv
 ANDR_LITESTS_DIR=${ANDR_DIR}/cblite-tests
 
+export MAVEN_LOCAL_REPO=${ANDR_LITESRV_DIR}/release/m2
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
@@ -119,7 +120,6 @@ sudo dpkg --install  ${SGW_PKG}
 popd                 2>&1 > /dev/null
 
 
-export MAVEN_LOCAL_REPO=${ANDR_LITESRV_DIR}/release/m2
 if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 
 echo ============================================  build android
@@ -258,12 +258,12 @@ cd libraries/couchbase-lite-java-core/build/docs/javadoc
 echo ============================================ zip up ${DOCS_ZIP}
 ( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )  >> ${WORKSPACE}/package_javadocs.log
 
-if  [[ -e ${WORKSPACE}/pacakge_javadocs.log ]]
+if  [[ -e ${WORKSPACE}/package_javadocs.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/pacakge_javadocs.log"
+    echo "===================================== ${WORKSPACE}/package_javadocs.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/pacakge_javadocs.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/package_javadocs.log
 fi
 
 echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
