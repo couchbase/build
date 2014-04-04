@@ -152,7 +152,7 @@ zip -r   ${ZIP_PATH} *
 echo  ============================================== upload ${CBFS_URL}/${ZIP_FILE}
 curl -XPUT --data-binary @${ZIP_PATH} ${CBFS_URL}/${ZIP_FILE}
 
-echo  ============================================== upload ${CBFS_URL}/${DOC_ZIP_PATH}
+echo  ============================================== upload ${CBFS_URL}/${DOC_ZIP_FILE}
 curl -XPUT --data-binary @${DOC_ZIP_PATH} ${CBFS_URL}/${DOC_ZIP_FILE}
 
 # echo  ============================================== update default value of test jobs
