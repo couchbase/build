@@ -120,7 +120,7 @@ for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteS
 done
 
 echo  ============================================== package ${DOC_ZIP_FILE}
-mv     ${TARGET_BUILD_DIR} ${DOC_ZIP_ROOT_DIR}
+mv     ${DERIVED_FILE_DIR} ${DOC_ZIP_ROOT_DIR}
 pushd  ${REL_SRCD}         2>&1 > /dev/null
 zip -r ${DOC_ZIP_PATH} ${REVISION}
 popd                        2>&1 > /dev/null
