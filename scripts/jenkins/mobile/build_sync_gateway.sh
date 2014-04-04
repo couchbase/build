@@ -59,14 +59,14 @@ if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
 if [[ $GOOS =~ linux   ]] ; then EXEC=sync_gateway     ;                       fi
 if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
 
-if [[ $DISTRO =~ centos  ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
-    if [[ $ARCH =~ i686  ]] ; then ARCH=i386   ; fi
-fi
-
 ARCHP=${ARCH}
+
+if [[ $DISTRO =~ centos  ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
+    if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
+fi
 if [[ $DISTRO =~ ubuntu  ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
-                             else ARCHP=i386   ; fi
+                              else ARCHP=i386  ; fi
 fi
 if [[ $GOOS =~ windows   ]] ; then PKGR=package-win.rb ; PKGTYPE=exe
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=x86   ; fi
