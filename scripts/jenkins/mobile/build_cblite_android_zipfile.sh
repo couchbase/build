@@ -71,8 +71,8 @@ echo ============================================  build android zipfile
 
 if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 
-MVN_ZIP=com.couchbase.lite-${REVISION}-android.zip
-AND_ZIP=cblite_android_${REVISION}.zip
+MVN_ZIP=couchbase-lite-${REVISION}-android.zip
+#AND_ZIP=cblite_android_${REVISION}.zip
 rm -f                                                            ${WORKSPACE}/android_package.log
 cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log
 
@@ -84,8 +84,8 @@ if  [[ -e ${WORKSPACE}/android_package.log ]]
 fi
 
 file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
-cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
+cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${MVN_ZIP}
 
-echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
-curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
+echo ============================================ upload ${CBFS_URL}/${MVN_ZIP}
+curl -XPUT --data-binary @${WORKSPACE}/${MVN_ZIP} ${CBFS_URL}/${MVN_ZIP}
 

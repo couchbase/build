@@ -150,8 +150,8 @@ fi
 
 #  echo ============================================  build android zipfile
 #  
-#  MVN_ZIP=com.couchbase.lite-${VERSION}-android.zip
-#  AND_ZIP=cblite_android_${REVISION}.zip
+#  MVN_ZIP=couchbase-lite-${VERSION}-android.zip
+#  #AND_ZIP=cblite_android_${REVISION}.zip
 #  
 #  cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log
 #  
@@ -163,7 +163,7 @@ fi
 #  fi
 #  
 #  file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
-#  cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
+#  cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${MVN_ZIP}
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
@@ -237,8 +237,8 @@ kill %adb                       || true
 kill %./start_android_emulator  || true
 kill %./sync_gateway            || true
 
-#  echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
-#  curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
+#  echo ============================================ upload ${CBFS_URL}/${MVN_ZIP}
+#  curl -XPUT --data-binary @${WORKSPACE}/${MVN_ZIP} ${CBFS_URL}/${MVN_ZIP}
 
 
 cd ${ANDR_LITESRV_DIR}
