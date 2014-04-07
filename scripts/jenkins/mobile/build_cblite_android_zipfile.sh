@@ -73,7 +73,7 @@ if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 
 MVN_ZIP=com.couchbase.lite-${REVISION}-android.zip
 AND_ZIP=cblite_android_${REVISION}.zip
-
+rm -f                                                            ${WORKSPACE}/android_package.log
 cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log
 
 if  [[ -e ${WORKSPACE}/android_package.log ]]
