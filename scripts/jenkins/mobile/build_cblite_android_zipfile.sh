@@ -3,21 +3,11 @@
 #          run by jenkins jobs: 'build_cblite_android_master'
 #                               'build_cblite_android_stable'
 #          
-#          with job paramters used in this script:
-#             
-#             SYNCGATE_VERSION  ( hard-coded to run on ubuntu-x64 )
-#                                 now of the form n.n-mmmm
-#             
-#          and called with paramters:         branch_name  release_number
+#          and called with paramters:         branch_name  release_number   build_number_of
 #          
-#            by build_cblite_android_master:     master         0.0.0
-#            by build_cblite_android_stable:     stable         1.0.0
-#            by build_cblite_android_100:        release/1.0.0  1.0.0
-#          
-#          in an environment with these variables set:
-#          
-#            MAVEN_UPLOAD_USERNAME
-#            MAVEN_UPLOAD_PASSWORD
+#            by build_cblite_android_master:     master         0.0.0     build_cblite_android_master
+#            by build_cblite_android_stable:     stable         1.0.0     build_cblite_android_stable
+#            by build_cblite_android_100:        release/1.0.0  1.0.0     build_cblite_android_100
 #          
 #          produces these log files, sampled in this script's output:
 #            
@@ -33,20 +23,19 @@ LOG_TAIL=-24
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
+    echo -e "\nuse:  ${0}   branch_name  release_number  build_number\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
-VERSION=${2}
-REVISION=${VERSION}-${BUILD_NUMBER}
-AND_VRSN=${VERSION}.${BUILD_NUMBER}
+RELEASE=${2}
 
-export MAVEN_UPLOAD_VERSION=${AND_VRSN}
-export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+BLD_NUM=${3}
 
-CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
+REVISION=${RELEASE}-${BLD_NUM}
+AND_VRSN=${RELEASE}.${BLD_NUM}
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
@@ -57,7 +46,10 @@ mkdir -p ${ANDR_DIR}
 
 ANDR_LITESRV_DIR=${ANDR_DIR}/couchbase-lite-android-liteserv
 
-export MAVEN_LOCAL_REPO=${ANDR_LITESRV_DIR}/release/m2
+export MAVEN_CBASE_REPO=http://files.couchbase.com/maven2/
+export MAVEN_LOCAL_REPO=file://${ANDR_LITESRV_DIR}/release/m2
+
+CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
@@ -75,16 +67,11 @@ git submodule update
 git show --stat
 
 
-if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
-
-echo ============================================  build android
-cd ${ANDR_LITESRV_DIR}
-cp extra/jenkins_build/* .
-
-
 echo ============================================  build android zipfile
 
-MVN_ZIP=com.couchbase.lite-${VERSION}-android.zip
+if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
+
+MVN_ZIP=com.couchbase.lite-${REVISION}-android.zip
 AND_ZIP=cblite_android_${REVISION}.zip
 
 cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log
@@ -101,5 +88,4 @@ cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
 echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
-
 
