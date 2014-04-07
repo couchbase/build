@@ -22,10 +22,10 @@ make clean-xfd-hard
 
 echo ============================================ update couchdb
 COUCHDBDIR="couchdb"
-TESTTARGET="test"
+TESTDIR="build/couchdb"
 if [ "$1" = "--legacy" ]
 then
-   TESTTARGET="check"
+   TESTDIR="couchdb"
 fi
 pushd ${COUCHDBDIR}     2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
@@ -35,14 +35,14 @@ echo ============================================ make
 make -j4 || (make -j1 && false)
 
 echo ============================================ make check
-pushd ${COUCHDBDIR}     2>&1 > /dev/null
+pushd ${TESTDIR}     2>&1 > /dev/null
 
 cpulimit -e 'beam.smp' -l 50 &
 CPULIMIT_PID=$!
 
 REPODIR="couchstore"
 
-PATH=$PATH:${WORKSPACE}/${REPODIR}   make ${TESTTARGET}
+PATH=$PATH:${WORKSPACE}/${REPODIR}   make check
 kill $CPULIMIT_PID || true
 
 popd              2>&1 > /dev/null
