@@ -47,7 +47,7 @@ mkdir -p ${ANDR_DIR}
 ANDR_LITESRV_DIR=${ANDR_DIR}/couchbase-lite-android-liteserv
 
 export MAVEN_CBASE_REPO=http://files.couchbase.com/maven2/
-export MAVEN_LOCAL_REPO=file://${ANDR_LITESRV_DIR}/release/m2
+export MAVEN_LOCAL_REPO=${ANDR_LITESRV_DIR}/release/m2
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
