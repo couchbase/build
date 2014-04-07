@@ -1,11 +1,11 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'cbsasl-gerrit-master'
 #                              cbsasl-gerrit-300
 #                              cbsasl-gerrit-250
-#          
+#
 #          with no paramters
-#          
+#
 #          triggered on Patchset Creation of repo: cbsasl  branch: master
 
 source ~jenkins/.bash_profile
@@ -20,7 +20,7 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 echo ============================================ update cbsasl
-pushd cmake/cbsal 2>&1 > /dev/null
+pushd cbsasl 2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/cbsasl $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make

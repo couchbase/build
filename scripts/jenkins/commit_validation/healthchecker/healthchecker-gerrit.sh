@@ -1,11 +1,11 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'healthchecker-gerrit-master'
 #                             healthchecker-gerrit-300
 #                             healthchecker-gerrit-251
-# 
+#
 #          use "--legacy" parameter for healthchecker-gerrit-251
-#         
+#
 #          triggered on Patchset Creation of repo: healthchecker branch: master
 
 source ~jenkins/.bash_profile
@@ -20,13 +20,7 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
 make clean-xfd-hard
 
-REPODIR="cmake/healthchecker"
-if [ "$1" = "--legacy" ]
-then
-   REPODIR="healthchecker"
-fi
-
-pushd ${REPODIR} 2>&1 > /dev/null
+pushd healthchecker 2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
@@ -81,4 +75,3 @@ python ./testrunner -i ini_file.ini -c cbhealthchecker.conf -p get_collectinfo=t
 sudo killall -9 beam.smp epmd memcached python  2>&1 > /dev/null || true
 
 echo ============================================ `date`
-

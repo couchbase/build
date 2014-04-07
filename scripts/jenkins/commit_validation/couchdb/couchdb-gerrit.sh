@@ -1,11 +1,11 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job:  couchdb-gerrit-master
 #                               couchdb-gerrit-251
 #
-#          use "--legacy" parameter for couchdb-gerrit-251                               
-#          
-#          
+#          use "--legacy" parameter for couchdb-gerrit-251
+#
+#
 #          triggered on Patchset Creation of repo: couchdb
 
 source ~jenkins/.bash_profile
@@ -14,18 +14,17 @@ ulimit -a
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
-  
+
 echo ============================================ clean
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 
 echo ============================================ update couchdb
-COUCHDBDIR="cmake/couchdb"
+COUCHDBDIR="couchdb"
 TESTTARGET="test"
 if [ "$1" = "--legacy" ]
 then
-   COUCHDBDIR="couchdb"
    TESTTARGET="check"
 fi
 pushd ${COUCHDBDIR}     2>&1 > /dev/null
@@ -41,11 +40,7 @@ pushd ${COUCHDBDIR}     2>&1 > /dev/null
 cpulimit -e 'beam.smp' -l 50 &
 CPULIMIT_PID=$!
 
-REPODIR="cmake/couchstore"
-if [ "$1" = "--legacy" ]
-then
-   REPODIR="couchstore"
-fi
+REPODIR="couchstore"
 
 PATH=$PATH:${WORKSPACE}/${REPODIR}   make ${TESTTARGET}
 kill $CPULIMIT_PID || true

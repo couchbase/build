@@ -17,7 +17,7 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 echo ============================================ update memcached
-pushd  cmake/platform 2>&1 > /dev/null
+pushd  platform 2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/platform $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
@@ -29,10 +29,3 @@ make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
 echo ============================================ `date`
-
-
-
-
-
-
-

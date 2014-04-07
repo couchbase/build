@@ -1,10 +1,10 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'portsigar-gerrit-master'
 #                              portsigar-gerrit-300
 #                              portsigar-gerrit-250
 #          with no paramters
-#          
+#
 #          triggered on Patchset Creation of repo: portsigar branch: master
 
 source ~jenkins/.bash_profile
@@ -19,7 +19,7 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 echo ============================================ update portsigar
-pushd cmake/portsigar  2>&1 > /dev/null 
+pushd portsigar  2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/portsigar $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make

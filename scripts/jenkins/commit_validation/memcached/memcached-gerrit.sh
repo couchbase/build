@@ -3,7 +3,7 @@
 # run by jenkins job 'memcached-gerrit'
 #
 #
-# triggered on Patchset Creation of repo: memcached 
+# triggered on Patchset Creation of repo: memcached
 
 source ~jenkins/.bash_profile
 set -e
@@ -17,7 +17,7 @@ sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 echo ============================================ update memcached
-pushd  cmake/memcached 2>&1 > /dev/null
+pushd  memcached 2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/memcached $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
@@ -25,7 +25,7 @@ popd 2>&1 > /dev/null
 make
 
 echo ============================================ run unit tests
-pushd  cmake/memcached 2>&1 > /dev/null
+pushd  memcached 2>&1 > /dev/null
 make test
 popd 2>&1 > /dev/null
 
@@ -35,4 +35,3 @@ make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
 echo ============================================ `date`
-

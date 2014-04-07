@@ -1,9 +1,9 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'ep-unit-tests-master.sh'
-#          
+#
 #          with no paramters
-#          
+#
 #          triggered on Patchset Creation of repo: ep-engine branch: master
 
 source ~jenkins/.bash_profile
@@ -19,10 +19,9 @@ make
 
 
 echo ============================================ update ep-engine
-pushd cmake/ep-engine    2>&1  >    /dev/null
+pushd ep-engine    2>&1  >    /dev/null
 make test
 make engine-tests
 popd                     2>&1  >    /dev/null
 
 echo ============================================ `date`
-

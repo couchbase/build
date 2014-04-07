@@ -1,9 +1,9 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'couchdb-gerrit-views-pre-merge-master'
-#          
+#
 #          with no paramters
-#          
+#
 #          triggered on Patchset Creation of repo: couchdb branch: master
 
 source ~jenkins/.bash_profile
@@ -21,12 +21,12 @@ rm -f ./testrunner/cluster_run.log
 df -h
 
 echo ============================================ update couchdb
-pushd cmake/couchdb
+pushd couchdb
 git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
 popd
-make -j4 
+make -j4
 
 cd testrunner
 scripts/start_cluster_and_run_tests.sh b/resources/dev-single-node.ini conf/view-conf/py-view-pre-merge.conf

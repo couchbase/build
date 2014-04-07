@@ -1,11 +1,11 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job:  couchstore-gerrit-master
 #                               couchstore-gerrit-300
 #                               couchstore-gerrit-251
-#          
+#
 #          use "--legacy" parameter for couchstore-gerrit-251
-#          
+#
 #          triggered on Patchset Creation of repo: couchstore
 
 source ~jenkins/.bash_profile
@@ -14,20 +14,15 @@ ulimit -a
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
-  
+
 echo ============================================ clean
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
 
 echo ============================================ update couchstore
-REPODIR="cmake/couchstore"
-if [ "$1" = "--legacy" ]
-then
-   REPODIR="couchstore"
-fi
 
-pushd $REPODIR  2>&1 > /dev/null
+pushd couchstore  2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchstore $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make

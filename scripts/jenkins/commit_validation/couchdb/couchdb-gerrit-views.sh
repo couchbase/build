@@ -1,9 +1,9 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'couchdb-gerrit-views-master'
-#          
+#
 #          with no paramters
-#          
+#
 #          triggered on Patchset Creation of repo: couchdb branch: master
 
 source ~jenkins/.bash_profile
@@ -19,12 +19,12 @@ make clean-xfd-hard
 repo forall -c "git clean -xfd"
 
 echo ============================================ update couchdb
-pushd cmake/couchdb	2>&1 > /dev/null
+pushd couchdb	2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
 echo ============================================ make
 popd			2>&1 > /dev/null
-make -j4 
+make -j4
 
 cd testrunner
 scripts/start_cluster_and_run_tests.sh b/resources/dev-single-node.ini conf/view-conf/py-viewmerge.conf
