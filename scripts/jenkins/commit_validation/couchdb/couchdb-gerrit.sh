@@ -12,46 +12,72 @@ source ~jenkins/.bash_profile
 set -e
 ulimit -a
 
-echo ============================================ `date`
+cat <<EOF
+============================================
+===                `date "+%H:%M:%S"`              ===
+============================================
+EOF
 env | grep -iv password | grep -iv passwd | sort
 
-echo ============================================ clean
+cat <<EOF
+============================================
+===               clean                  ===
+============================================
+EOF
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
+cat <<EOF
+============================================
+===            update CouchDB            ===
+============================================
+EOF
 
-echo ============================================ update couchdb
-COUCHDBDIR="couchdb"
-TESTDIR="build/couchdb"
-if [ "$1" = "--legacy" ]
-then
-   TESTDIR="couchdb"
-fi
-pushd ${COUCHDBDIR}     2>&1 > /dev/null
+pushd couchdb 2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
 popd              2>&1 > /dev/null
 
-echo ============================================ make
+cat <<EOF
+============================================
+===               Build                  ===
+============================================
+EOF
 make -j4 all install || (make -j1 && false)
 
-echo ============================================ make check
-pushd ${TESTDIR}     2>&1 > /dev/null
+cat <<EOF
+============================================
+===          Run unit tests              ===
+============================================
+EOF
+
+if [ -d build/couchdb ]
+then
+   pushd build/couchdb 2>&1 > /dev/null
+else
+   pushd couchdb 2>&1 > /dev/null
+fi
 
 cpulimit -e 'beam.smp' -l 50 &
+
 CPULIMIT_PID=$!
+PATH=$PATH:${WORKSPACE}/couchstore make check
 
-REPODIR="couchstore"
-
-PATH=$PATH:${WORKSPACE}/${REPODIR}   make check
 kill $CPULIMIT_PID || true
+popd 2>&1 > /dev/null
 
-popd              2>&1 > /dev/null
-
-echo ============================================ make simple-test
-pushd testrunner  2>&1 > /dev/null
+cat <<EOF
+============================================
+===         Run end to end tests         ===
+============================================
+EOF
+pushd testrunner 2>&1 > /dev/null
 make simple-test
-popd              2>&1 > /dev/null
+popd 2>&1 > /dev/null
 
+
+cat <<EOF
+============================================
+===                `date "+%H:%M:%S"`              ===
+============================================
+EOF
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-
-echo ============================================ `date`
