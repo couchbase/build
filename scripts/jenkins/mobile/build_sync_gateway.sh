@@ -3,13 +3,18 @@
 #    run by jenkins jobs:
 #          
 #        build_sync_gateway_master_<platform>
+#        build_sync_gateway_100_<platform>
 #        build_sync_gateway_stable_<platform>
 #          
-#    with required paramters:  branch_name    version   platform
+#    with required paramters:
+#   
+#          branch_name    version     platform   Edition
 #             
-#                     e.g.:     master       0.0-0000  centos-x86, centos-x64,
-#                     e.g.:     stable       1.0-1234  ubuntu-x86, ubutnu-x64,
-#                                                                  macosx-x64
+#    e.g.: master         0.0.0-0000  centos-x86   community
+#          release/1.0.0  1.0.0-1234  centos-x64   enterprise
+#          stable         0000000000  ubuntu-x86
+#                                     ubutnu-x64
+#                                     macosx-x64
 #    and optional parameters:
 #    
 #        OS        -- `uname -s`
@@ -21,7 +26,7 @@ set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  version  platform\n\n"
+    echo -e "\nuse:  ${0}   branch_name  version  platform  edition  [ OS ]  [ ARCH ]  [ DISTRO ]\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -32,13 +37,16 @@ VERSION=${2}
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 PLATFRM=${3}
 
-export GITSPEC ; export VERSION ; export PLATFRM
+if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
+EDITION=${4}
+
+export GITSPEC ; export VERSION ; export PLATFRM ; export EDITION
 
 LAST_GOOD_PARAM=SYNCGATE_VERSION_`echo ${PLATFRM} | tr '-' '_' | tr [a-z] [A-Z]`
 
-if [[ $4 ]] ; then  echo "setting OS     to $OS"        ; OS=$4     ; else OS=`uname -s`     ; fi
-if [[ $5 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$5   ; else ARCH=`uname -m`   ; fi
-if [[ $6 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$6 ; else DISTRO=`uname -a` ; fi
+if [[ $5 ]] ; then  echo "setting OS     to $OS"        ; OS=$5     ; else OS=`uname -s`     ; fi
+if [[ $6 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$6   ; else ARCH=`uname -m`   ; fi
+if [[ $7 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$7 ; else DISTRO=`uname -a` ; fi
 
 if [[ $DISTRO =~ Darwin ]] ; then DISTRO="macosx"  ; fi
 if [[ $DISTRO =~ CYGWIN ]] ; then DISTRO="windows" ; fi
@@ -80,8 +88,21 @@ fi
 GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
                                   PKG_NAME=couchbase-sync-gateway_${VERSION}_${ARCHP}.${PKGTYPE}
-if [[ $DISTRO =~ macosx ]] ; then PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}.tar.gz
-                                                                     PLATFORM=${DISTRO}-${ARCH}         ; fi
+                              NEW_PKG_NAME=${PKG_NAME}
+if [[ ${EDITION} =~ community ]]
+    then
+                              NEW_PKG_NAME=couchbase-sync-gateway_${VERSION}_${ARCHP}-${EDITION}.${PKGTYPE}
+fi
+if [[ $DISTRO =~ macosx ]]
+    then
+    PLATFORM=${DISTRO}-${ARCH}
+                                  PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}.tar.gz
+                              NEW_PKG_NAME=${PKG_NAME}
+    if [[ ${EDITION} =~ community ]]
+        then
+                              NEW_PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}-${EDITION}.tar.gz
+    fi
+fi
 
 export GOOS ; export EXEC
 
@@ -149,25 +170,24 @@ if [[ -e ${SGW_DIR}/${EXEC} ]]
 fi
 
 echo ======== test ================================
-echo .................... running test.sh
+echo ........................ running test.sh
                                 ./test.sh
 
-cp ${DEST_DIR}/${EXEC}     ${PREFIXD}/bin/
-cp ${BLD_DIR}/LICENSE.txt  ${PREFIXD}
-cp ${BLD_DIR}/README.txt   ${PREFIXD}
-echo ${VERSION}          > ${PREFIXD}/VERSION.txt
+cp ${DEST_DIR}/${EXEC}                ${PREFIXD}/bin/
+cp ${BLD_DIR}/README.txt              ${PREFIXD}
+echo ${VERSION}                     > ${PREFIXD}/VERSION.txt
+cp ${BLD_DIR}/LICENSE_${EDITION}.txt  ${PREFIXD}/LICENSE.txt
 
 echo ======== package =============================
 echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
-cd   ${BLD_DIR}
-./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
+cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 
 echo  ======= upload ==============================
-cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}
+cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
 cd                        ${SGW_DIR}
-md5sum ${PKG_NAME} > ${PKG_NAME}.md5
-echo ....................... uploading to ${CBFS_URL}/${PKG_NAME}
-curl -XPUT --data-binary @${PKG_NAME}     ${CBFS_URL}/${PKG_NAME}
-curl -XPUT --data-binary @${PKG_NAME}.md5 ${CBFS_URL}/${PKG_NAME}.md5
+md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+echo ........................... uploading to ${CBFS_URL}/${NEW_PKG_NAME}
+curl -XPUT --data-binary @${NEW_PKG_NAME}     ${CBFS_URL}/${NEW_PKG_NAME}
+curl -XPUT --data-binary @${NEW_PKG_NAME}.md5 ${CBFS_URL}/${NEW_PKG_NAME}.md5
 
 echo ============================================== `date`
