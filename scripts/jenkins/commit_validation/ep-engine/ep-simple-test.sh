@@ -1,9 +1,9 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'ep-simple-test-master.sh'
-#          
+#
 #          with no paramters
-#          
+#
 #          triggered on Patchset Creation of repo: ep-engine branch: master
 
 source ~jenkins/.bash_profile
@@ -19,7 +19,7 @@ make clean-xfd-hard
 
 
 echo ============================================ make
-make 
+make all install
 echo ============================================ make simple-test
 cd testrunner
 make simple-test

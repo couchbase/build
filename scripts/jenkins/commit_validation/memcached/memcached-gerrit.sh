@@ -22,10 +22,17 @@ git fetch ssh://review.couchbase.org:29418/memcached $GERRIT_REFSPEC && git chec
 
 echo ============================================ make
 popd 2>&1 > /dev/null
-make
+make all install
 
 echo ============================================ run unit tests
-pushd  memcached 2>&1 > /dev/null
+
+if [ -d build/memcached ]
+then
+   pushd build/memcached 2>&1 > /dev/null
+else
+   pushd memcached 2>&1 > /dev/null
+fi
+
 make test
 popd 2>&1 > /dev/null
 

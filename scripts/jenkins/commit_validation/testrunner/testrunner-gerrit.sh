@@ -1,9 +1,9 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'testrunner-gerrit-master.sh'
-#          
+#
 #          with no paramters
-#          
+#
 #          triggered on Patchset Creation of repo: testrunner branch: master
 #
 
@@ -27,7 +27,7 @@ git fetch ssh://review.couchbase.org:29418/testrunner $GERRIT_REFSPEC && git che
 
 echo ============================================ make
 cd ..
-make
+make all install
 echo ============================================ make simple-test
 cd testrunner
 make simple-test

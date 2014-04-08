@@ -22,7 +22,12 @@ git fetch ssh://review.couchbase.org:29418/platform $GERRIT_REFSPEC && git check
 
 echo ============================================ make
 popd 2>&1 > /dev/null
-make -j4
+make -j4 all install
+
+pushd build/platform 2>&1 > /dev/null
+make test
+popd 2>&1 > /dev/null
+
 echo ============================================ make simple-test
 cd testrunner
 make simple-test

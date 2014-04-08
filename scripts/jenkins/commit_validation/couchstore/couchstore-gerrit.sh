@@ -27,7 +27,17 @@ git fetch ssh://review.couchbase.org:29418/couchstore $GERRIT_REFSPEC && git che
 
 echo ============================================ make
 popd                    2>&1 > /dev/null
-make -j4 || (make -j1 && false)
+make -j4 all install || (make -j1 && false)
+
+if [ -d build/couchstore ]
+then
+  pushd build/couchstore 2>&1 > /dev/null
+else
+  pushd couchstore 2>&1 > /dev/null
+fi
+
+make test
+popd 2>&1 > /dev/null
 
 echo ============================================ make simple-test
 cd testrunner

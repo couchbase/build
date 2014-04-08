@@ -24,7 +24,7 @@ git fetch ssh://review.couchbase.org:29418/portsigar $GERRIT_REFSPEC && git chec
 
 echo ============================================ make
 popd   	               2>&1 > /dev/null
-make -j4 || (make -j1 && false)
+make -j4 all install || (make -j1 && false)
 echo ============================================ make simple-test
 cd testrunner
 make simple-test

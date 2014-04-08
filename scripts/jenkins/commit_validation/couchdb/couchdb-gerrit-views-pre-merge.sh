@@ -26,7 +26,7 @@ git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checko
 
 echo ============================================ make
 popd
-make -j4
+make -j4 all install
 
 cd testrunner
 scripts/start_cluster_and_run_tests.sh b/resources/dev-single-node.ini conf/view-conf/py-view-pre-merge.conf

@@ -15,13 +15,25 @@ env | grep -iv password | grep -iv passwd | sort
 
 echo ============================================ clean
 make clean-xfd-hard
-make
+make all install
 
 
 echo ============================================ update ep-engine
-pushd ep-engine    2>&1  >    /dev/null
+
+if [ -d build/ep-engine ]
+then
+   pushd build/ep-engine 2>&1 > /dev/null
+else
+   pushd ep-engine 2>&1 > /dev/null
+fi
+
 make test
-make engine-tests
-popd                     2>&1  >    /dev/null
+
+if [ -f Makefile.am ]
+then
+  make engine-tests
+fi
+
+popd 2>&1 > /dev/null
 
 echo ============================================ `date`

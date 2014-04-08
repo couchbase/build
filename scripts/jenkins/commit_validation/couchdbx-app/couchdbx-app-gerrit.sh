@@ -23,12 +23,12 @@ git fetch ssh://review.couchbase.org:29418/couchdbx-app $GERRIT_REFSPEC && git c
 
 echo ============================================ make
 cd ..
-make -j4
+make -j4 all install
 echo ============================================ make simple-test
 cd testrunner
 make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 sleep 30
-scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/py-viewmerge.conf 
+scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/py-viewmerge.conf
 
 echo ============================================ `date`

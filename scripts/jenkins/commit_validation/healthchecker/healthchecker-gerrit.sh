@@ -25,7 +25,7 @@ git fetch ssh://review.couchbase.org:29418/healthchecker $GERRIT_REFSPEC && git 
 
 echo ============================================ make
 popd  2>&1 > /dev/null
-make -j4
+make -j4 all install
 echo ============================================ make simple-test
 cd testrunner
 make simple-test

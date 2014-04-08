@@ -32,7 +32,7 @@ git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checko
 popd              2>&1 > /dev/null
 
 echo ============================================ make
-make -j4 || (make -j1 && false)
+make -j4 all install || (make -j1 && false)
 
 echo ============================================ make check
 pushd ${TESTDIR}     2>&1 > /dev/null

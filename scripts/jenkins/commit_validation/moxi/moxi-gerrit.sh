@@ -25,7 +25,7 @@ git fetch ssh://review.couchbase.org:29418/moxi $GERRIT_REFSPEC && git checkout 
 
 echo ============================================ make
 popd                2>&1 > /dev/null
-make -j4 || (make -j1 && false)
+make -j4 all install || (make -j1 && false)
 
 echo ============================================ make simple-test
 cd testrunner
