@@ -43,7 +43,11 @@ cat <<EOF
 ===               Build                  ===
 ============================================
 EOF
-make -j4 all install || (make -j1 && false)
+make -j4 all || (make -j1 && false)
+if [ -d build ]
+then
+   make install
+fi
 
 cat <<EOF
 ============================================
