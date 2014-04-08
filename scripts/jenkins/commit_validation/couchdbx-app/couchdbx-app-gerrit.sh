@@ -1,9 +1,9 @@
 #!/bin/bash
-#          
+#
 #          run by jenkins job 'couchdbx-app-gerrit-master'
-#          
+#
 #          with no paramters
-#          
+#
 #          triggered on Patchset Creation of repo: couchdbx-app branch: master
 
 source ~jenkins/.bash_profile

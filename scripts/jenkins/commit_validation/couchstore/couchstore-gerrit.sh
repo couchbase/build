@@ -12,23 +12,44 @@ source ~jenkins/.bash_profile
 set -e
 ulimit -a
 
-echo ============================================ `date`
+cat <<EOF
+============================================
+===                `date "+%H:%M:%S"`              ===
+============================================
+EOF
+
 env | grep -iv password | grep -iv passwd | sort
 
-echo ============================================ clean
+cat <<EOF
+============================================
+===               clean                  ===
+============================================
+EOF
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
-
-echo ============================================ update couchstore
-
+cat <<EOF
+============================================
+===         update couchstore            ===
+============================================
+EOF
 pushd couchstore  2>&1 > /dev/null
 git fetch ssh://review.couchbase.org:29418/couchstore $GERRIT_REFSPEC && git checkout FETCH_HEAD
 
-echo ============================================ make
-popd                    2>&1 > /dev/null
+popd 2>&1 > /dev/null
+
+cat <<EOF
+============================================
+===               Build                  ===
+============================================
+EOF
 make -j4 all install || (make -j1 && false)
 
+cat <<EOF
+============================================
+===          Run unit tests              ===
+============================================
+EOF
 if [ -d build/couchstore ]
 then
   pushd build/couchstore 2>&1 > /dev/null
@@ -39,9 +60,18 @@ fi
 make test
 popd 2>&1 > /dev/null
 
-echo ============================================ make simple-test
+cat <<EOF
+============================================
+===         Run end to end tests         ===
+============================================
+EOF
+
 cd testrunner
 make simple-test
-sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
-echo ============================================ `date`
+cat <<EOF
+============================================
+===                `date "+%H:%M:%S"`              ===
+============================================
+EOF
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
