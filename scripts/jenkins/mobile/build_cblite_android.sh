@@ -150,7 +150,7 @@ fi
 
 #  echo ============================================  build android zipfile
 #  
-#  MVN_ZIP=couchbase-lite-${VERSION}-android.zip
+#  MVN_ZIP=couchbase-lite-${AND_VRSN}-android.zip
 #  #AND_ZIP=cblite_android_${REVISION}.zip
 #  
 #  cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log

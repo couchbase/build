@@ -71,7 +71,7 @@ echo ============================================  build android zipfile
 
 if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 
-MVN_ZIP=couchbase-lite-${REVISION}-android.zip
+MVN_ZIP=couchbase-lite-${AND_VRSN}-android.zip
 #AND_ZIP=cblite_android_${REVISION}.zip
 rm -f                                                            ${WORKSPACE}/android_package.log
 cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log
