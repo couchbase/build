@@ -42,6 +42,11 @@ cat <<EOF
 ===               Build                  ===
 ============================================
 EOF
+
+=====Copy couchdb.plt from ${WORKSPACE} to ${WORKSPACE}/build/couchdb to gain build time
+
+cp ${WORKSPACE}/couchdb.plt ${WORSPACE}/build/couchdb/
+
 make -j4 all install || (make -j1 && false)
 
 cat <<EOF
