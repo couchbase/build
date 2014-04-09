@@ -20,12 +20,13 @@
 #          
 #          produces these log files, sampled in this script's output:
 #            
-#            BLD_LOG - android_build.log
-#            PKG_LOG - android_package.log
-#            ADB_LOG - adb.log
-#            AUT_LOG - android_unit_tests_err.log
-#            DOC_LOG - javadocs.log
-#            ZIP_LOG - package_javadocs.log
+#            BLD_LOG - 00_android_build.log
+#            ADB_LOG - 01_adb.log
+#            AUT_LOG - 02_android_unit_test.log
+#            UPL_LOG - 03_upload_android_artifacts.log
+#            PKG_LOG - 04_android_package.log
+#            DOC_LOG - 05_javadocs.log
+#            ZIP_LOG - 06_package_javadocs.log
 #            
 ##############
 source ~jenkins/.bash_profile
@@ -134,47 +135,15 @@ cd ${ANDR_LITESRV_DIR}
 cp extra/jenkins_build/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
-( ./build_android.sh   2>&1 )                >> ${WORKSPACE}/android_build.log
+( ./build_android.sh   2>&1 )                >> ${WORKSPACE}/00_android_build.log
 
-if  [[ -e ${WORKSPACE}/android_build.log ]]
+if  [[ -e ${WORKSPACE}/00_android_build.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/android_build.log"
+    echo "===================================== ${WORKSPACE}/00_android_build.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/android_build.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/00_android_build.log
 fi
-
-echo "********RUNNING: ./upload_android_artifacts.sh *******************"
-( ./upload_android_artifacts.sh 2>&1 )       >> ${WORKSPACE}/android_build_artifacts.log
-
-if  [[ -e ${WORKSPACE}/android_build.log ]]
-    then
-    echo
-    echo "===================================== ${WORKSPACE}/android_build_artifacts.log"
-    echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/android_build_artifacts.log
-fi
-
-echo ============================================  build android zipfile
-
-if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
-
-cd ${ANDR_LITESRV_DIR}/release
-cp LICENSE_${EDITION}.txt LICENSE.txt
-
-MVN_ZIP=couchbase-lite-${REVISION}-android.zip
-rm -f                                           ${WORKSPACE}/android_package.log
-                      ./zip_jars.sh ${REVISION} ${WORKSPACE}/android_package.log
-
-if  [[ -e ${WORKSPACE}/android_package.log ]]
-    then
-    echo "===================================== ${WORKSPACE}/android_package.log"
-    echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/android_package.log
-fi
-
-file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
-cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${MVN_ZIP}
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
@@ -190,15 +159,15 @@ echo ""
 sleep 10
 adb wait-for-device
 sleep 90
-echo "ADB log for build ${BUILD_NUMBER}"      > ${WORKSPACE}/adb.log
-( adb logcat -v time   2>&1 )                >> ${WORKSPACE}/adb.log &
+echo "ADB log for build ${BUILD_NUMBER}"      > ${WORKSPACE}/01_adb.log
+( adb logcat -v time   2>&1 )                >> ${WORKSPACE}/01_adb.log &
 
-if  [[ -e ${WORKSPACE}/adb.log ]]
+if  [[ -e ${WORKSPACE}/01_adb.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/adb.log"
+    echo "===================================== ${WORKSPACE}/01_adb.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/adb.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/01_adb.log
 fi
 
 echo ".......................................starting sync_gateway"
@@ -211,22 +180,22 @@ cd ${ANDR_LITESRV_DIR}
 echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 
-( ./run_android_unit_tests.sh  2>&1 )        >> ${WORKSPACE}/android_unit_tests_err.log
+( ./run_android_unit_tests.sh  2>&1 )        >> ${WORKSPACE}/02_android_unit_test.log
 
-if  [[ -e ${WORKSPACE}/android_unit_tests_err.log ]]
+if  [[ -e ${WORKSPACE}/02_android_unit_test.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/android_unit_tests_err.log"
+    echo "===================================== ${WORKSPACE}/02_android_unit_test.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/android_unit_tests_err.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/02_android_unit_test.log
 fi
 echo "http://factory.hq.couchbase.com:8080/job/build_cblite_android_master/ws/app-under-test/android/couchbase-lite-android-liteserv/libraries/couchbase-lite-android/build/reports/instrumentTests/connected/index.html"
 
-FAILS=`grep -i FAIL ${WORKSPACE}/android_unit_tests_err.log | wc -l`
+FAILS=`grep -i FAIL ${WORKSPACE}/02_android_unit_test.log | wc -l`
 if [[ $((FAILS)) > 0 ]]
     then
     echo "---------------------------- ${FAILS} test FAILs -----------------------"
-       cat -n ${WORKSPACE}/android_unit_tests_err.log | grep -i FAIL
+       cat -n ${WORKSPACE}/02_android_unit_test.log | grep -i FAIL
     echo "------------------------------------------------------------------------"
     exit ${FAILS}
 fi
@@ -240,13 +209,45 @@ fi
 #cp ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject/CBLite/build/reports/instrumentTests/connected/*.html ${WORKSPACE}/build_cblite_android/
 
 
-echo "build started: ${BUILD_ID}"        >> ${WORKSPACE}/adb.log
+echo "build started: ${BUILD_ID}"        >> ${WORKSPACE}/01_adb.log
 
 # kill background jobs
 jobs
 kill %adb                       || true
 kill %./start_android_emulator  || true
 kill %./sync_gateway            || true
+
+echo "********RUNNING: ./upload_android_artifacts.sh *******************"
+( ./upload_android_artifacts.sh 2>&1 )       >> ${WORKSPACE}/03_upload_android_artifacts.log
+
+if  [[ -e ${WORKSPACE}/03_upload_android_artifacts.log ]]
+    then
+    echo
+    echo "===================================== ${WORKSPACE}/03_upload_android_artifacts.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${WORKSPACE}/03_upload_android_artifacts.log
+fi
+
+echo ============================================  build android zipfile
+
+if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
+
+cd ${ANDR_LITESRV_DIR}/release
+cp LICENSE_${EDITION}.txt LICENSE.txt
+
+MVN_ZIP=couchbase-lite-${REVISION}-android.zip
+rm -f                                           ${WORKSPACE}/04_android_package.log
+                      ./zip_jars.sh ${REVISION} ${WORKSPACE}/04_android_package.log
+
+if  [[ -e ${WORKSPACE}/04_android_package.log ]]
+    then
+    echo "===================================== ${WORKSPACE}/04_android_package.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${WORKSPACE}/04_android_package.log
+fi
+
+file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
+cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${MVN_ZIP}
 
 echo ============================================ upload ${CBFS_URL}/${MVN_ZIP}
 curl -XPUT --data-binary @${WORKSPACE}/${MVN_ZIP} ${CBFS_URL}/${MVN_ZIP}
@@ -256,25 +257,25 @@ cd ${ANDR_LITESRV_DIR}
 echo ============================================  generate javadocs
 JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:javadoc'
 
-( ${JAVADOC_CMD}  2>&1 )                     >> ${WORKSPACE}/javadocs.log
+( ${JAVADOC_CMD}  2>&1 )                     >> ${WORKSPACE}/05_javadocs.log
 
-if  [[ -e ${WORKSPACE}/javadocs.log ]]
+if  [[ -e ${WORKSPACE}/05_javadocs.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/javadocs.log"
+    echo "===================================== ${WORKSPACE}/05_javadocs.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/javadocs.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/05_javadocs.log
 fi
 cd libraries/couchbase-lite-java-core/build/docs/javadoc
 echo ============================================ zip up ${DOCS_ZIP}
-( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )  >> ${WORKSPACE}/package_javadocs.log
+( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )  >> ${WORKSPACE}/06_package_javadocs.log
 
-if  [[ -e ${WORKSPACE}/package_javadocs.log ]]
+if  [[ -e ${WORKSPACE}/06_package_javadocs.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/package_javadocs.log"
+    echo "===================================== ${WORKSPACE}/06_package_javadocs.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/package_javadocs.log
+    tail ${LOG_TAIL}                            ${WORKSPACE}/06_package_javadocs.log
 fi
 
 echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
