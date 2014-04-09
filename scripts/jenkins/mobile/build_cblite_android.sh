@@ -1,18 +1,17 @@
 #!/bin/bash
 #          
 #          run by jenkins jobs: 'build_cblite_android_master'
-#                               'build_cblite_android_stable'
+#                               'build_cblite_android_100'
 #          
 #          with job paramters used in this script:
 #             
 #             SYNCGATE_VERSION  ( hard-coded to run on ubuntu-x64 )
 #                                 now of the form n.n-mmmm
 #             
-#          and called with paramters:         branch_name  release_number
+#          and called with paramters:         branch_name  release_number   edition
 #          
-#            by build_cblite_android_master:     master         0.0.0
-#            by build_cblite_android_stable:     stable         1.0.0
-#            by build_cblite_android_100:        release/1.0.0  1.0.0
+#            by build_cblite_android_master:     master         0.0.0      community
+#            by build_cblite_android_100:        release/1.0.0  1.0.0      enterprise
 #          
 #          in an environment with these variables set:
 #          
@@ -38,7 +37,7 @@ LOG_TAIL=-24
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
+    echo -e "\nuse:  ${0}   branch_name  release_number  edition (community or enterprise)\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -47,6 +46,9 @@ if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
 
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+EDITION=${3}
+
 export MAVEN_UPLOAD_VERSION=${REVISION}
 export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 
@@ -54,7 +56,13 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
 
 PLATFORM=linux-amd64
-SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64.deb
+
+if [[ ${EDITION} =~ 'community' ]]
+  then
+    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64-${EDITION}.deb
+else
+    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64.deb
+fi
 
 AND_TARG=24
                 #  "android-17"
