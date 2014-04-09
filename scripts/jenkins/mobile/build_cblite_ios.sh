@@ -2,10 +2,10 @@
 #          
 #          run by jenkins jobs 'build_cblite_ios_master', 'build_cblite_ios_stable'
 #          
-#          with paramters:  branch_name  release number
+#          with paramters:  branch_name  release_number   Edition
 #          
-#                 e.g.:     master         0.0
-#                 e.g.:     stable         1.0
+#                 e.g.:     master         0.0.0          community
+#                           release/1.0.0  1.0.0          enterprise
 #          
 source ~jenkins/.bash_profile
 set -e
@@ -15,7 +15,7 @@ LOG_TAIL=-24
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  release_number\n\n"
+    echo -e "\nuse:  ${0}   branch_name  release_number   edition\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -24,10 +24,15 @@ if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
 
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+EDITION=${3}
+
+
 LOG_FILE=${WORKSPACE}/build_ios_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
 
-ZIP_FILE=cblite_ios_${REVISION}.zip
+                                        ZIP_FILE=cblite_ios_${REVISION}.zip
+if [[ ${EDITION} =~ community ]] ; then ZIP_FILE=cblite_ios_${REVISION}-${EDITION}.zip ; fi
 
 BASE_DIR=${WORKSPACE}/couchbase-lite-ios
 BUILDDIR=${BASE_DIR}/build
@@ -40,8 +45,8 @@ README_F=${README_D}/README.md
 RME_DEST=${ZIP_SRCD}
 
 LICENSED=${BASE_DIR}/release
-LICENSEF=${LICENSED}/LICENSE.txt
-LIC_DEST=${ZIP_SRCD}
+LICENSEF=${LICENSED}/LICENSE_${EDITION}.txt
+LIC_DEST=${ZIP_SRCD}/LICENSE.txt
 
 RIO_SRCD=${BUILDDIR}/Release-ios-universal
 RIO_DEST=${ZIP_SRCD}
