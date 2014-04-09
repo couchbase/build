@@ -46,9 +46,8 @@ GITSPEC=${1}
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
-AND_VRSN=${VERSION}.${BUILD_NUMBER}
 
-export MAVEN_UPLOAD_VERSION=${AND_VRSN}
+export MAVEN_UPLOAD_VERSION=${REVISION}
 export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
@@ -148,22 +147,23 @@ if  [[ -e ${WORKSPACE}/android_build.log ]]
     tail ${LOG_TAIL}                            ${WORKSPACE}/android_build_artifacts.log
 fi
 
-#  echo ============================================  build android zipfile
-#  
-#  MVN_ZIP=couchbase-lite-${AND_VRSN}-android.zip
-#  #AND_ZIP=cblite_android_${REVISION}.zip
-#  
-#  cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${AND_VRSN} ${WORKSPACE}/android_package.log
-#  
-#  if  [[ -e ${WORKSPACE}/android_package.log ]]
-#      then
-#      echo "===================================== ${WORKSPACE}/android_package.log"
-#      echo ". . ."
-#      tail ${LOG_TAIL}                            ${WORKSPACE}/android_package.log
-#  fi
-#  
-#  file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
-#  cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${MVN_ZIP}
+echo ============================================  build android zipfile
+
+if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
+
+MVN_ZIP=couchbase-lite-${REVISION}-android.zip
+rm -f                                                            ${WORKSPACE}/android_package.log
+cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${REVISION} ${WORKSPACE}/android_package.log
+
+if  [[ -e ${WORKSPACE}/android_package.log ]]
+    then
+    echo "===================================== ${WORKSPACE}/android_package.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${WORKSPACE}/android_package.log
+fi
+
+file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
+cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${MVN_ZIP}
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
@@ -237,8 +237,8 @@ kill %adb                       || true
 kill %./start_android_emulator  || true
 kill %./sync_gateway            || true
 
-#  echo ============================================ upload ${CBFS_URL}/${MVN_ZIP}
-#  curl -XPUT --data-binary @${WORKSPACE}/${MVN_ZIP} ${CBFS_URL}/${MVN_ZIP}
+echo ============================================ upload ${CBFS_URL}/${MVN_ZIP}
+curl -XPUT --data-binary @${WORKSPACE}/${MVN_ZIP} ${CBFS_URL}/${MVN_ZIP}
 
 
 cd ${ANDR_LITESRV_DIR}
