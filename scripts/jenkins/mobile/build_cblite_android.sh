@@ -159,9 +159,12 @@ echo ============================================  build android zipfile
 
 if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 
+cd ${ANDR_LITESRV_DIR}/release
+cp LICENSE_${EDITION}.txt LICENSE.txt
+
 MVN_ZIP=couchbase-lite-${REVISION}-android.zip
-rm -f                                                            ${WORKSPACE}/android_package.log
-cd    ${ANDR_LITESRV_DIR}/release  &&  ./zip_jars.sh ${REVISION} ${WORKSPACE}/android_package.log
+rm -f                                           ${WORKSPACE}/android_package.log
+                      ./zip_jars.sh ${REVISION} ${WORKSPACE}/android_package.log
 
 if  [[ -e ${WORKSPACE}/android_package.log ]]
     then
