@@ -53,6 +53,7 @@ POM_FILE=${MAVENDIR}/pom.xml
 function prepare_bucket
     {
     NEW_BUCKET=$1
+    echo "DEBUG:  preparing bucket...........................  ${NEW_BUCKET}"
     
     if [[     ! `curl --user ${MAVEN_UPLOAD_CREDENTS} --fail   ${NEW_BUCKET}` ]]
         then
