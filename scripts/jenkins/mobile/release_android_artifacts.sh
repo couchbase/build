@@ -62,7 +62,6 @@ fi
     SRC_ROOTDIR=couchbase-lite-${BLD_TO_RELEASE}
     DST_ROOTDIR=couchbase-lite-${RELEASE_NUMBER}
 
-#ANDROID_SRC_DIR=${WORKSPACE}/android/src
 ANDROID_JAR_DIR=${WORKSPACE}/android/jar
 
 
@@ -134,8 +133,8 @@ for J in ${LIST_OF_JARS}
     prepare_bucket ${REPOURL}/${GRP_URL}/${J}
     prepare_bucket ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}
     
-    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${JARFILE} ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${JARFILE}
-    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${POMFILE} ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${POMFILE}
+    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  ${ANDROID_JAR_DIR}/${JARFILE} ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${JARFILE}
+    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  ${ANDROID_JAR_DIR}/${POMFILE} ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${POMFILE}
 done
 
 # echo ============================================  upload to maven repository
