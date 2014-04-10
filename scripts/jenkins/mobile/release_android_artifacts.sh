@@ -27,6 +27,8 @@ LIST_OF_JARS="                \
              "
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
+MAVEN_UPLOAD_CREDENTS=${MAVEN_UPLOAD_USERNAME}:${MAVEN_UPLOAD_PASSWORD}
+
 REPOURL=http://files.couchbase.com/maven2
 GRP_URL=com/couchbase/lite
 
