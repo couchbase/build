@@ -15,6 +15,8 @@
 #          
 #            MAVEN_UPLOAD_USERNAME
 #            MAVEN_UPLOAD_PASSWORD
+#          
+source ~/.bash_profile
 set -e
 
 REPO_ID=couchbase.public.repo
