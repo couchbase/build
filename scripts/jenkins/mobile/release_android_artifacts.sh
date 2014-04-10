@@ -15,7 +15,7 @@
 #            RELEASE_NUMBER       number/name to release as      (0.0.0, 0.0.0-beta)
 #            EDITION              'community' or 'enterprise'
 #          
-#source ~/.bash_profile
+source ~/.bash_profile
 export DISPLAY=:0
 set -e
 
