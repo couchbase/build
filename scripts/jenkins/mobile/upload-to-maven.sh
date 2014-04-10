@@ -13,8 +13,8 @@
 #          
 #          in an environment with these variables set:
 #          
-#            MVN_UPLOAD_USERNAME
-#            MVN_UPLOAD_PASSWORD
+#            MAVEN_UPLOAD_USERNAME
+#            MAVEN_UPLOAD_PASSWORD
 set -e
 
 REPO_ID=couchbase.public.repo
@@ -22,7 +22,7 @@ GROUPID=com.couchbase.lite
 GRP_URL=com/couchbase/lite
 REPOURL=http://files.couchbase.com/maven2
 
-MVN_UPLOAD_CREDENTS=${MVN_UPLOAD_USERNAME}:${MVN_UPLOAD_PASSWORD}
+MAVEN_UPLOAD_CREDENTS=${MAVEN_UPLOAD_USERNAME}:${MAVEN_UPLOAD_PASSWORD}
 
 LIST_OF_JARS="                               \
               couchbase-lite-android         \
@@ -54,10 +54,10 @@ function prepare_bucket
     {
     NEW_BUCKET=$1
     
-    if [[     ! `curl --user ${MVN_UPLOAD_CREDENTS} --fail   ${NEW_BUCKET}` ]]
+    if [[     ! `curl --user ${MAVEN_UPLOAD_CREDENTS} --fail   ${NEW_BUCKET}` ]]
         then
-        echo "DEBUG:  creating bucket....................... ${NEW_BUCKET}"
-        curl          --user ${MVN_UPLOAD_CREDENTS} -XMKCOL  ${NEW_BUCKET}
+        echo "DEBUG:  creating bucket........................  ${NEW_BUCKET}"
+        curl          --user ${MAVEN_UPLOAD_CREDENTS} -XMKCOL  ${NEW_BUCKET}
     fi
     }
 
