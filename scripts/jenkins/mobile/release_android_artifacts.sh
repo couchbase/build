@@ -37,6 +37,8 @@ EDITION=${4}
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
+LOG_TAIL=-24
+
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
@@ -118,6 +120,14 @@ curl -XPUT --data-binary  @${ANDROID_JAR_DIR}/${AND_ZIP_DST} ${CBFS_URL}/${AND_Z
 
 
 echo ============================================  upload to maven repository
-${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${RELEASE_NUMBER}  ${ANDROID_JAR_DIR}/${DST_ROOTDIR}
+( ${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${RELEASE_NUMBER}  ${ANDROID_JAR_DIR}/${DST_ROOTDIR} 2>&1 ) >> ${WORKSPACE}/upload-to-maven.log
+
+if  [[ -e ${WORKSPACE}/upload-to-maven.log ]]
+    then
+    echo
+    echo "===================================== ${WORKSPACE}/upload-to-maven.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${WORKSPACE}/upload-to-maven.log
+fi
 
 echo ============================================ `date`
