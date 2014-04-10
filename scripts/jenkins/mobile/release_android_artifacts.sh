@@ -132,8 +132,8 @@ for J in ${LIST_OF_JARS}
     prepare_bucket ${REPOURL}/${GRP_URL}/${J}
     prepare_bucket ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}
     
-    curl -XPUT --data-binary  @${ANDROID_JAR_DIR}/${JARFILE} ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${JARFILE}
-    curl -XPUT --data-binary  @${ANDROID_JAR_DIR}/${POMFILE} ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${POMFILE}
+    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${JARFILE} ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${JARFILE}
+    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${POMFILE} ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${POMFILE}
 done
 
 # echo ============================================  upload to maven repository
