@@ -93,6 +93,20 @@ function prepare_bucket
     fi
     }
 
+function upload_new_package
+    {
+    local PROD=$1
+    local EXTN=$2
+    local NEWV=$3
+    
+    JARFILE=${PROD}-${NEWV}.${EXTN}
+    POMFILE=${PROD}-${NEWV}.pom
+    echo "UPLOADING ${PROD} to .... maven repo:  ${REPOURL}/${GRP_URL}/${PROD}/${NEWV}"
+    
+    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${JARFILE}  ${REPOURL}/${GRP_URL}/${PROD}/${NEWV}/${JARFILE}
+    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${POMFILE}  ${REPOURL}/${GRP_URL}/${PROD}/${NEWV}/${POMFILE}
+    }
+
 
 ##############################################################################   S T A R T
 echo ============================================ `date`
@@ -121,31 +135,16 @@ zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
 echo ============================================  uploading ${CBFS_URL}/${AND_ZIP_DST}
 curl -XPUT --data-binary  @${ANDROID_JAR_DIR}/${AND_ZIP_DST} ${CBFS_URL}/${AND_ZIP_DST}
 
+echo ============================================  prepare buckets
+                              prepare_bucket ${REPOURL}/${GRP_URL}
+for J in ${LIST_OF_JARS} ; do prepare_bucket ${REPOURL}/${GRP_URL}/${J} ; prepare_bucket ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER} ; done
+
 cd ${ANDROID_JAR_DIR}
 echo ============================================  upload to maven repository
-    prepare_bucket ${REPOURL}/${GRP_URL}
 
-for J in ${LIST_OF_JARS}
-  do
-    JARFILE=${J}-${RELEASE_NUMBER}.jar
-    POMFILE=${J}-${RELEASE_NUMBER}.pom
-    echo "UPLOADING ${J} to .... maven repo:  ${REPOURL}/${GRP_URL}"
-    prepare_bucket ${REPOURL}/${GRP_URL}/${J}
-    prepare_bucket ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}
-    
-    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${JARFILE}  ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${JARFILE}
-    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${POMFILE}  ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER}/${POMFILE}
-done
+upload_new_package  android          aar  ${RELEASE_NUMBER}
+upload_new_package  java-core        jar  ${RELEASE_NUMBER}
+upload_new_package  java-javascript  jar  ${RELEASE_NUMBER}
+upload_new_package  java-listener    jar  ${RELEASE_NUMBER}
 
-# echo ============================================  upload to maven repository
-# ( ${WORKSPACE}/build/scripts/jenkins/mobile/upload-to-maven.sh  ${GITSPEC}  ${RELEASE_NUMBER}  ${ANDROID_JAR_DIR}/${DST_ROOTDIR} 2>&1 ) >> ${WORKSPACE}/upload-to-maven.log
-# 
-# if  [[ -e ${WORKSPACE}/upload-to-maven.log ]]
-#     then
-#     echo
-#     echo "===================================== ${WORKSPACE}/upload-to-maven.log"
-#     echo ". . ."
-#     tail ${LOG_TAIL}                            ${WORKSPACE}/upload-to-maven.log
-# fi
-# 
 echo ============================================ `date`
