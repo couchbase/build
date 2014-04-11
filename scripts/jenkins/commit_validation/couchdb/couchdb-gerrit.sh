@@ -43,7 +43,7 @@ cat <<EOF
 ============================================
 EOF
 
-=====Copy couchdb.plt from ${WORKSPACE} to ${WORKSPACE}/build/couchdb to gain build time
+# Copy couchdb.plt from ${WORKSPACE} to ${WORKSPACE}/build/couchdb to gain build time
 
 cp ${WORKSPACE}/couchdb.plt ${WORKSPACE}/build/couchdb/
 
