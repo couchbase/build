@@ -1,6 +1,6 @@
 #!/bin/bash
 #          
-#          run by jenkins jobs 'build_cblite_ios_master', 'build_cblite_ios_stable'
+#          run by jenkins jobs 'build_cblite_ios_master', 'build_cblite_ios_100'
 #          
 #          with paramters:  branch_name  release_number   Edition
 #          
@@ -19,6 +19,18 @@ function usage
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
+
+JOB_SUFX=${GITSPEC}
+                      vrs_rex='([0-9]{1,})\.([0-9]{1,})\.([0-9]{1,})'
+if [[ ${JOB_SUFX} =~ $vrs_rex ]]
+    then
+    JOB_SUFX=""
+    for N in 1 2 3 ; do
+        if [[ $N -eq 1 ]] ; then            JOB_SUFX=${BASH_REMATCH[$N]} ; fi
+        if [[ $N -eq 2 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+        if [[ $N -eq 3 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+    done
+fi
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
@@ -160,9 +172,9 @@ curl -XPUT --data-binary @${ZIP_PATH} ${CBFS_URL}/${ZIP_FILE}
 echo  ============================================== upload ${CBFS_URL}/${DOC_ZIP_FILE}
 curl -XPUT --data-binary @${DOC_ZIP_PATH} ${CBFS_URL}/${DOC_ZIP_FILE}
 
-# echo  ============================================== update default value of test jobs
-# ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${GITSPEC}      -p LITESERV_VERSION  -v ${BUILD_NUMBER}
-# ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${GITSPEC}  -p LITESERV_VERSION  -v ${BUILD_NUMBER}
+echo  ============================================== update default value of test jobs
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${JOB_SUFX}      -p LITESERV_VERSION  -v ${REVISION}
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${JOB_SUFX}  -p LITESERV_VERSION  -v ${REVISION}
 
 echo  ============================================== test
 

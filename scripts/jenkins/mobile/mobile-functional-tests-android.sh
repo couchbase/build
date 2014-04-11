@@ -9,24 +9,32 @@
 #             SYNCGATE_VERSION  ( hard-coded to run on centos-x64 )
 #                                 now of the form n.n-mmmm
 #             
-#          and called with paramters:                release_number
+#          and called with paramters:                     edition
 #          
-#             mobile_functional_tests_android_master:     0.0
-#             mobile_functional_tests_android_stable:     1.0
+#             mobile_functional_tests_androids_master:   community
+#             mobile_functional_tests_androids_100:      enterprise
 #             
 source ~jenkins/.bash_profile
 set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   release_number\n\n"
+    echo -e "\nuse:  ${0}   edition\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-VERSION=${1}
+EDITION=${1}
 
 
 PLATFORM=linux-amd64
-SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_x86_64.rpm
+if [[ ${EDITION} =~ 'community' ]]
+  then
+    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_x86_64-${EDITION}.rpm
+    LIT_PKG=cblite_ios_${LITESERV_VERSION}-${EDITION}.zip
+else
+    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_x86_64.rpm
+    LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
+fi
+
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
@@ -49,11 +57,11 @@ rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/cblite_ios_${LITESERV_VER}.zip
+wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/${LIT_PKG}
 
 cd ${LITESERV_DIR}
-if [[ ! -e ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip" ; exit 99 ; fi
-unzip   -q ${DOWNLOAD}/cblite_ios_${LITESERV_VER}.zip
+if [[ ! -e ${DOWNLOAD}/${LIT_PKG} ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/${LIT_PKG}" ; exit 99 ; fi
+unzip   -q ${DOWNLOAD}/${LIT_PKG}
                                                          # want all of the zip file contents
 export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
 
