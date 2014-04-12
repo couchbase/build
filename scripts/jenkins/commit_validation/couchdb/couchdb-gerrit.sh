@@ -45,6 +45,13 @@ EOF
 
 # Copy couchdb.plt from ${WORKSPACE} to ${WORKSPACE}/build/couchdb to gain build time
 
+if [ ! -d "${WORKSPACE}/build” ]; then
+  mkdir ${WORKSPACE}/build
+fi
+if [ ! -d "${WORKSPACE}/build/couchdb” ]; then
+  mkdir ${WORKSPACE}/build/couchdb
+fi
+
 if [ -f ${WORKSPACE}/couchdb.plt ]
 then
   cp ${WORKSPACE}/couchdb.plt ${WORKSPACE}/build/couchdb/
