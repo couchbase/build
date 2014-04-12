@@ -45,7 +45,10 @@ EOF
 
 # Copy couchdb.plt from ${WORKSPACE} to ${WORKSPACE}/build/couchdb to gain build time
 
-cp ${WORKSPACE}/couchdb.plt ${WORKSPACE}/build/couchdb/
+if [ -f ${WORKSPACE}/couchdb.plt ]
+then
+  cp ${WORKSPACE}/couchdb.plt ${WORKSPACE}/build/couchdb/
+fi
 
 make -j4 all install || (make -j1 && false)
 
