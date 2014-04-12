@@ -64,4 +64,9 @@ if [[ ${PARNAME} == SYNCGATE_VERSION_CENTOS_X64 ]]
     echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p SYNCGATE_VERSION -v ${REVISION}
          ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p SYNCGATE_VERSION -v ${REVISION}
 fi
+if [[ ${PARNAME} == SYNCGATE_VERSION_MACOSX_X64 ]]
+    then
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${RELEASE}     -p SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${RELEASE}     -p SYNCGATE_VERSION -v ${REVISION}
+fi
 
