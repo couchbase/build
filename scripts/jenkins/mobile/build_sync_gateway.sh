@@ -172,6 +172,15 @@ GOPATH=${SGW_DIR}:${SGW_DIR}/vendor
 export GOPATH
 export CGO_ENABLED=1
 
+
+# prevent connection timed out:  https://google.com: dial tcp 74.125.239.97:443...
+
+let STARTUP_DELAY=3+${RANDOM}/6552
+sleep ${STARTUP_DELAY}
+
+# ... caused by all builders running at once
+
+
 GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbaselabs/sync_gateway
 if [[ -e ${SGW_DIR}/${EXEC} ]]
   then
