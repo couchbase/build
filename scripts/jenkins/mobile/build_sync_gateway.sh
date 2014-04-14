@@ -184,7 +184,6 @@ fi
 echo ======== remove build meta-data ==============
 for TF in ${TEMPLATE_FILES}
   do
-    rm  ${TF}.new
     mv  ${TF}.orig ${TF}
 done
 
