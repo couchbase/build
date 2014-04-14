@@ -146,6 +146,18 @@ git submodule update
 git show --stat
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
+TEMPLATE_FILES="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
+
+echo ======== insert build meta-data ==============
+for TF in ${TEMPLATE_FILES}
+  do
+    cat ${TF} | sed -e "s,@PRODUCT_VERSION@,${VERSION},g" \
+              | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
+    mv  ${TF}      ${TF}.orig
+    mv  ${TF}.new  ${TF}
+done
+
+
 if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
 mkdir -p ${PREFIXD}/bin/
 
@@ -169,16 +181,23 @@ if [[ -e ${SGW_DIR}/${EXEC} ]]
     echo "############################# FAIL! no such file: ${DEST_DIR}/${EXEC}"
 fi
 
+echo ======== remove build meta-data ==============
+for TF in ${TEMPLATE_FILES}
+  do
+    rm  ${TF}.new
+    mv  ${TF}.orig ${TF}
+done
+
 echo ======== test ================================
 echo ........................ running test.sh
                                 ./test.sh
 
+echo ======== package =============================
 cp ${DEST_DIR}/${EXEC}                ${PREFIXD}/bin/
 cp ${BLD_DIR}/README.txt              ${PREFIXD}
 echo ${VERSION}                     > ${PREFIXD}/VERSION.txt
 cp ${BLD_DIR}/LICENSE_${EDITION}.txt  ${PREFIXD}/LICENSE.txt
 
-echo ======== package =============================
 echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 
