@@ -100,6 +100,19 @@ git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
 git submodule update --init --recursive
 git show --stat
+REPO_SHA=`git log --oneline --pretty="format:%H" -1`
+
+TEMPLATE_FILES="CouchbaseLite.xcodeproj/project.pbxproj"
+
+echo ============================================== insert build meta-data
+for TF in ${TEMPLATE_FILES}
+  do
+    cat ${TF} | sed -e "s,@PRODUCT_VERSION@,${REVISION},g" \
+              | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
+    mv  ${TF}      ${TF}.orig
+    mv  ${TF}.new  ${TF}
+done
+
 
 cd ${WORKSPACE}
 echo ============================================  sync cblite-build
@@ -134,6 +147,12 @@ for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteS
         echo ". . ."
         tail  ${LOG_TAIL}                             ${LOGFILE}
     fi
+done
+
+echo  ============================================== remove build meta-data
+for TF in ${TEMPLATE_FILES}
+  do
+    mv  ${TF}.orig ${TF}
 done
 
 echo  ============================================== package ${DOC_ZIP_FILE}
