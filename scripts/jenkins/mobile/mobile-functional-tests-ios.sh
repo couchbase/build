@@ -29,10 +29,10 @@ PLATFORM=darwin-amd64
 
 if [[ ${EDITION} =~ 'community' ]]
   then
-    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64-${EDITION}.deb
+    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_macosx-x86_64-${EDITION}.tar.gz
     LIT_PKG=cblite_ios_${LITESERV_VERSION}-${EDITION}.zip
 else
-    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64.deb
+    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_macosx-x86_64.tar.gz
     LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
 fi
 
@@ -70,7 +70,7 @@ export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
 
 popd                 2>&1 > /dev/null
 
-echo ============================================ install sync_gateway
+echo ============================================ download sync_gateway
 rm   -rf ${SYNCGATE_DIR}
 mkdir -p ${SYNCGATE_DIR}
 pushd    ${SYNCGATE_DIR} 2>&1 > /dev/null
@@ -79,9 +79,9 @@ wget --no-verbose ${CBFS_URL}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 
-export SYNCGATE_PATH=/opt/couchbase-sync-gateway/bin/sync_gateway
-sudo dpkg --remove   couchbase-sync-gateway || true
-sudo dpkg --install  ${SGW_PKG}
+echo ============================================ install sync_gateway
+tar xvf    ${SYNCGATE_DIR}/${SGW_PKG}
+export SYNCGATE_PATH=${SYNCGATE_DIR}/couchbase-sync-gateway/bin/sync_gateway
 
 popd                 2>&1 > /dev/null
 
