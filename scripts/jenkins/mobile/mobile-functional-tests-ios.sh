@@ -79,12 +79,9 @@ wget --no-verbose ${CBFS_URL}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 
-unzip -q s${SGW_PKG}
-                                                         # want to choose from the zip file contents
-export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
-cp ${PLATFORM}/sync_gateway ${SYNCGATE_PATH}
-
-
+export SYNCGATE_PATH=/opt/couchbase-sync-gateway/bin/sync_gateway
+sudo dpkg --remove   couchbase-sync-gateway || true
+sudo dpkg --install  ${SGW_PKG}
 
 popd                 2>&1 > /dev/null
 
