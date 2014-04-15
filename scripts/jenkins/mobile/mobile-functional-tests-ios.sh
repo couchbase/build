@@ -36,6 +36,8 @@ else
     LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
 fi
 
+CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
+
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
 mkdir -p ${AUT_DIR}/liteserv
