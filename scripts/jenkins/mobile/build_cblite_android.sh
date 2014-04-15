@@ -43,6 +43,18 @@ function usage
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
+JOB_SUFX=${GITSPEC}
+                      vrs_rex='([0-9]{1,})\.([0-9]{1,})\.([0-9]{1,})'
+if [[ ${JOB_SUFX} =~ $vrs_rex ]]
+    then
+    JOB_SUFX=""
+    for N in 1 2 3 ; do
+        if [[ $N -eq 1 ]] ; then            JOB_SUFX=${BASH_REMATCH[$N]} ; fi
+        if [[ $N -eq 2 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+        if [[ $N -eq 3 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+    done
+fi
+
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 REVISION=${VERSION}-${BUILD_NUMBER}
@@ -295,7 +307,10 @@ echo ============================================ set default value of BLD_TO_RE
 echo ============================================ in upload_cblite_android_artifacts_${GITSPEC}
 echo ============================================ to ${REVISION}
 
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j release_android_artifacts_${GITSPEC} -p BLD_TO_RELEASE -v ${REVISION}
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j release_android_artifacts_${JOB_SUFX}       -p BLD_TO_RELEASE   -v ${REVISION}
+
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${JOB_SUFX}     -p LITESERV_VERSION -v ${REVISION}
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${JOB_SUFX} -p LITESERV_VERSION -v ${REVISION}
 
 echo ============================================ `date`
 
