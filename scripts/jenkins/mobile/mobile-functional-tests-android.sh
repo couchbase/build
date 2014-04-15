@@ -41,7 +41,6 @@ if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
 mkdir -p ${AUT_DIR}/liteserv
 mkdir -p ${AUT_DIR}/sync_gateway
 
-LITESERV_VER=${VERSION}-${LITESERV_VERSION}
 LITESERV_DIR=${AUT_DIR}/liteserv
 SYNCGATE_DIR=${AUT_DIR}/sync_gateway
 
