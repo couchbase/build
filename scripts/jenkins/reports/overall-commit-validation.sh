@@ -1,5 +1,14 @@
 #!/bin/bash
 
+#
+#          run by jenkins job:  overall-commit-validation
+#
+#
+#
+
+
+STARTTIME=$(date +%s)
+
 if [[ -e ${WORKSPACE}/build ]]  ;  then  rm -rf ${WORKSPACE}/build ; fi
 
 echo git clone http://github.com/couchbase/build.git ${WORKSPACE}/build
@@ -28,5 +37,19 @@ ${WORKSPACE}/build/scripts/jenkins/commit_validation/memcached/memcached-gerrit.
 ${WORKSPACE}/build/scripts/jenkins/commit_validation/couchbase-cli/couchbase-cli-gerrit.sh
 
 ${WORKSPACE}/build/scripts/jenkins/commit_validation/platform/platform-gerrit.sh
+
+## Calculate elapsed time
+
+ENDTIME=$(date +%s)
+
+dt=$(($ENDTIME - $STARTTIME))
+
+echo "It takes $(($ENDTIME - $STARTTIME)) seconds to complete this task.../n"
+
+ds=$((dt % 60))
+dm=$(((dt / 60) % 60))
+dh=$((dt / 3600))
+printf '%d:%02d:%02d' $dh $dm $ds
+
 
 
