@@ -30,3 +30,10 @@ make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
 echo ============================================ `date`
+
+## Cleanup .repo directory
+
+if [ -d ${WORKSPACE}/.repo ]
+then
+  rm -rf ${WORKSPACE}/.repo
+fi

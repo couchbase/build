@@ -31,3 +31,10 @@ sleep 30
 scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/py-viewmerge.conf
 
 echo ============================================ `date`
+
+## Cleanup .repo directory
+
+if [ -d ${WORKSPACE}/.repo ]
+then
+  rm -rf ${WORKSPACE}/.repo
+fi

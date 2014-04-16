@@ -51,3 +51,10 @@ cat <<EOF
 ===                `date "+%H:%M:%S"`              ===
 ============================================
 EOF
+
+## Cleanup .repo directory
+
+if [ -d ${WORKSPACE}/.repo ]
+then
+  rm -rf ${WORKSPACE}/.repo
+fi

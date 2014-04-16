@@ -75,3 +75,10 @@ python ./testrunner -i ini_file.ini -c cbhealthchecker.conf -p get_collectinfo=t
 sudo killall -9 beam.smp epmd memcached python  2>&1 > /dev/null || true
 
 echo ============================================ `date`
+
+## Cleanup .repo directory
+
+if [ -d ${WORKSPACE}/.repo ]
+then
+  rm -rf ${WORKSPACE}/.repo
+fi
