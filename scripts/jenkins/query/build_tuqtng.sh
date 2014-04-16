@@ -101,6 +101,16 @@ git  pull  origin  ${GITSPEC}
 git  show --stat
 echo ==============================================
 
+PROJDIR=src/github.com/russross/blackfriday
+cd   ${WORKSPACE}
+echo ======== sync russross/blackfriday ==========
+
+if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/russross/blackfriday.git       ${PROJDIR} ; fi
+cd         ${PROJDIR}
+git  pull  origin  ${GITSPEC}
+git  show --stat
+echo ==============================================
+
 PROJDIR=src/github.com/sbinet/liner
 cd   ${WORKSPACE}
 echo ======== sync sbinet/liner ===================
