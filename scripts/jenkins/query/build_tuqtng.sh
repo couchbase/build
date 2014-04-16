@@ -156,7 +156,7 @@ function build_engine
 function build_client
     {
     echo "------- starting build_client --------------"
-    pkg=${PROJECT}/tuq_client
+    pkg=${PROJECT}/cbq
     goflags="-v -ldflags '-X main.VERSION ${REVISION}'"
 
     eval GOARCH=386           GOOS=linux   CGO_ENABLED=0 go build -o $DIST/cbq.lin32     $goflags $pkg
@@ -220,9 +220,9 @@ function build_dist_packages
 function compress
     {
     echo "------- starting compress ------------------"
-    rm -f $DIST/tuqtng.*.gz $DIST/tuq_client.*.gz $DIST/tuq_tutorial.*.gz || true
+    rm -f $DIST/tuqtng.*.gz $DIST/cbq.*.gz $DIST/tuq_tutorial.*.gz || true
 
-    for i in $DIST/tuqtng.* $DIST/tuq_client.*
+    for i in $DIST/tuqtng.* $DIST/cbq.*
     do
         gzip -9v $i
     done
