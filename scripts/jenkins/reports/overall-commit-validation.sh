@@ -28,6 +28,8 @@ ${WORKSPACE}/build/scripts/jenkins/commit_validation/ep-engine/ep-unit-tests.sh
 
 ${WORKSPACE}/build/scripts/jenkins/commit_validation/ns_server/ns_server-gerrit.sh
 
+${WORKSPACE}/build/scripts/jenkins/commit_validation/testrunner/testrunner-gerrit.sh
+
 ${WORKSPACE}/build/scripts/jenkins/commit_validation/healthchecker/healthchecker-gerrit.sh
 
 ${WORKSPACE}/build/scripts/jenkins/commit_validation/libmemcached/libmemcached-gerrit.sh
