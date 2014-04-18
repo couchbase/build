@@ -1,11 +1,18 @@
+@echo on
+
+rem Parameters
+set BUILD_NUM=%1
+set VOLTRON_BRANCH=%2
+set MANIFEST=%3
+set LICENSE=%4
 
 rem Detect 32-bit or 64-bit OS
-Set RegQry=HKLM\Hardware\Description\System\CentralProcessor\0
+set RegQry=HKLM\Hardware\Description\System\CentralProcessor\0
 REG.exe Query %RegQry% > checkOS.txt
-Find /i "x86" < CheckOS.txt > StringCheck.txt
-If %ERRORLEVEL% == 0 (
+find /i "x86" < CheckOS.txt > StringCheck.txt
+if %ERRORLEVEL% == 0 (
     set target_platform=x86
-) ELSE (
+) else (
     set target_platform=amd64
 )
 
@@ -23,6 +30,7 @@ call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" amd6
 goto repo_download
 
 :repo_download
+@echo on
 if not exist couchbase mkdir couchbase
 cd couchbase
 if not exist .\.repo (
@@ -30,7 +38,7 @@ if not exist .\.repo (
     cd .\.repo
     git clone git://github.com/trondn/git-repo repo
     cd ..
-    repo init -u git://github.com/couchbase/manifest -m branch-master.xml
+    repo init -u git://github.com/couchbase/manifest -m %MANIFEST%
 )
 repo sync --jobs=4
 set SOURCE_ROOT=%CD%
@@ -75,14 +83,19 @@ nmake
 cd %SOURCE_ROOT%
 
 :build_couchbase
-nmake
+if "%LICENSE%" == "enterprise" (
+   set BUILD_ENTERPRISE=True
+) else (
+   set BUILD_ENTERPRISE=False
+)
+nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE%
 
 cd ..
 if exist voltron goto package_win
-git clone ssh://git@github.com/ceejatec/voltron.git
+git clone --branch %VOLTRON_BRANCH% ssh://git@github.com/ceejatec/voltron.git
 
 :package_win
 cd voltron
-ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase-server 3.0.0-666 enterprise
+ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase-server %BUILD_NUMBER% %LICENSE%
 
 :eof
