@@ -92,7 +92,7 @@ nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE%
 
 cd ..
 if exist voltron goto package_win
-git clone --branch %VOLTRON_BRANCH% ssh://git@github.com/ceejatec/voltron.git
+git clone --branch %VOLTRON_BRANCH% ssh://git@github.com/couchbase/voltron.git
 
 :package_win
 cd voltron
