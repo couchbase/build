@@ -245,7 +245,7 @@ echo ============================================  build android zipfile
 if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 
 cd ${ANDR_LITESRV_DIR}/release
-cp LICENSE_${EDITION}.txt LICENSE.txt
+cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
 
 MVN_ZIP=couchbase-lite-${REVISION}-android.zip
 AND_ZIP=${MVN_ZIP}

@@ -121,7 +121,7 @@ CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 pushd ${WORKSPACE} 2>&1 > /dev/null
 WORKSPACE=`pwd`
 popd               2>&1 > /dev/null
-BLD_DIR=${WORKSPACE}/build
+LIC_DIR=${WORKSPACE}/build/license/sync_gateway
 SGW_DIR=${WORKSPACE}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
 
@@ -204,7 +204,7 @@ echo ======== package =============================
 cp ${DEST_DIR}/${EXEC}                ${PREFIXD}/bin/
 cp ${BLD_DIR}/README.txt              ${PREFIXD}
 echo ${VERSION}                     > ${PREFIXD}/VERSION.txt
-cp ${BLD_DIR}/LICENSE_${EDITION}.txt  ${PREFIXD}/LICENSE.txt
+cp ${LIC_DIR}/LICENSE_${EDITION}.txt  ${PREFIXD}/LICENSE.txt
 
 echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}

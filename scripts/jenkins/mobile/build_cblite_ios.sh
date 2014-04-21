@@ -46,19 +46,20 @@ if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
                                         ZIP_FILE=cblite_ios_${REVISION}.zip
 if [[ ${EDITION} =~ community ]] ; then ZIP_FILE=cblite_ios_${REVISION}-${EDITION}.zip ; fi
 
+                                        # Additional Behaviours: Local subdirectory for repo
 BASE_DIR=${WORKSPACE}/couchbase-lite-ios
 BUILDDIR=${BASE_DIR}/build
 
 ZIP_PATH=${BASE_DIR}/${ZIP_FILE}
 ZIP_SRCD=${BASE_DIR}/zipfile_staging
 
+LICENSED=${WORKSPACE}/build/license/couchbase-lite
+LICENSEF=${LICENSED}/LICENSE_${EDITION}.txt
+LIC_DEST=${ZIP_SRCD}/LICENSE.txt
+
 README_D=${BASE_DIR}
 README_F=${README_D}/README.md
 RME_DEST=${ZIP_SRCD}
-
-LICENSED=${BASE_DIR}/release
-LICENSEF=${LICENSED}/LICENSE_${EDITION}.txt
-LIC_DEST=${ZIP_SRCD}/LICENSE.txt
 
 RIO_SRCD=${BUILDDIR}/Release-ios-universal
 RIO_DEST=${ZIP_SRCD}
