@@ -12,8 +12,8 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw(                get_url_root    get_repo_builder   get_commit_valid  html_RUN_link  html_OK_link  html_FAIL_link   get_json   test_running_indicator  response_code  test_job_status    );
-our %EXPORT_TAGS = ( DEFAULT  => [qw( &get_url_root  &get_repo_builder  &get_commit_valid &html_RUN_link &html_OK_link &html_FAIL_link  &get_json  &test_running_indicator &response_code &test_job_status )] );
+our @EXPORT_OK   = qw(                get_url_root    get_repo_builder   get_commit_valid  html_RUN_link  html_OK_link  html_FAIL_link   get_json   test_running_indicator  response_code  test_job_status    get_server_builder);
+our %EXPORT_TAGS = ( DEFAULT  => [qw( &get_url_root  &get_repo_builder  &get_commit_valid &html_RUN_link &html_OK_link &html_FAIL_link  &get_json  &test_running_indicator &response_code &test_job_status &get_server_builder)] );
 
 ############ 
 
@@ -36,6 +36,7 @@ my $URL_ROOT='http://factory.hq.couchbase.com:8080';
 
 my $DEBUG = 0;
 
+
 ############                        get_url_root ( )
 #          
 #           
@@ -44,6 +45,7 @@ sub get_url_root
     {
     return($URL_ROOT);
     }
+
 
 ############                        get_repo_builder ( <branch> )
 #
@@ -72,6 +74,10 @@ sub get_repo_builder
     if (defined( $repo{$branch} ))  { return $repo{$branch}; }
     }
 
+############                        get_commit_valid ( <repo>, <branch>, [ <test_type> ] )
+#    
+#                                   returns name of jenkins job
+#    
 my %valid = ( 'couchbase-cli'  => { 'gerrit'   => { "250"    => "couchbase-cli-gerrit-250",
                                                     "2.5.0"  => "couchbase-cli-gerrit-250",
                                                     "300"    => "couchbase-cli-gerrit-300",
@@ -154,9 +160,6 @@ my %valid = ( 'couchbase-cli'  => { 'gerrit'   => { "250"    => "couchbase-cli-g
                                  }                },
             );
 
-############                        get_commit_valid ( <repo>, <branch>, [ <test_type> ] )
-#    
-#                                   returns name of jenkins job
 sub get_commit_valid
     {
     my ( $proj, $bran, $test) = @_;
@@ -168,6 +171,31 @@ sub get_commit_valid
     if (! defined( $valid{$proj}{$test}{$bran} ))   { print STDERR "branch $bran not supported by get_commit_valid(), for project $proj, for test type $test\n";    return(0); }
     
     return(  $valid{$proj}{$test}{$bran} );
+    }
+
+############                        get_server_builder ( <os>, <bit-width>, <branch>, [ <toy-owner> ] )
+#
+#
+#
+my %cb_server  = ( "production" => { "windows" => { 32 => { "0.0.0"  =>  "server_build_master_win3208",
+                                                            "master" =>  "server_build_master_win3208",
+                                                          },
+                                                    64 => { "0.0.0"  =>  "server_build_master_win6408",
+                                                            "master" =>  "server_build_master_win6408",
+                                                          },
+                                   }              }
+                 );
+sub get_server_builder
+    {
+    my ($os, $arch, $branch, $toy) = @_;
+    
+    my $type = 'production';             if (defined($toy))  { print STDERR "TOY builds not supported yet"; return(0); }
+    
+    if (! defined( $cb_server{$type}{$os}                 ))  { print STDERR "OS $os not supported by get_server_builder()\n"; return(0); }
+    if (! defined( $cb_server{$type}{$os}{$arch}          ))  { print STDERR "$os $arch-bit is not supported by get_server_builder()\n"; return(0); }
+    if (! defined( $cb_server{$type}{$os}{$arch}{$branch} ))  { print STDERR "branch '$branch' is not supported by get_server_builder(), for platform $os $arch-bit\n"; return(0); }
+    
+    return( $cb_server{$type}{$os}{$arch}{$branch} );
     }
 
 

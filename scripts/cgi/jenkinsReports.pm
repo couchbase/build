@@ -14,12 +14,12 @@ our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( last_done_sgw_bld  last_done_sgw_pkg   last_good_sgw_bld last_good_sgw_pkg \
                        last_done_ios_bld  last_good_ios_bld   last_done_and_bld last_good_and_bld \
-                       last_done_repo     last_commit_valid   get_builder                         \
+                       last_done_repo     last_commit_valid   get_builder       last_done_server  \
                      );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_bld  &last_done_sgw_pkg   &last_good_sgw_bld  &last_good_sgw_pkg )],
                      IOS_ANDROID  => [qw( &last_done_ios_bld  &last_good_ios_bld   &last_done_and_bld  &last_good_and_bld )],
-                     DEFAULT      => [qw( &last_done_repo     &last_commit_valid   &get_builder                           )],
+                     DEFAULT      => [qw( &last_done_repo     &last_commit_valid   &get_builder        &last_done_server  )],
                    );
 
 my $DEBUG = 0;   # FALSE
@@ -182,7 +182,7 @@ sub last_done_sgw_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "sgw");
     my $property = 'lastCompletedBuild';
-    return_build_info($platform, $branch, $builder, $property);
+    return_build_info($builder, $property);
     }
    
 ############                        last_good_sgw_bld ( platform, branch )
@@ -193,7 +193,7 @@ sub last_good_sgw_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "sgw");
     my $property = 'lastSuccessfulBuild';
-    return_build_info($platform, $branch, $builder, $property);
+    return_build_info($builder, $property);
     }
    
 
@@ -206,7 +206,7 @@ sub last_done_ios_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "ios");
     my $property = 'lastCompletedBuild';
-    return_build_info($platform, $branch, $builder, $property);
+    return_build_info($builder, $property);
     }
    
 ############                        last_good_ios_bld ( platform, branch )
@@ -217,7 +217,7 @@ sub last_good_ios_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "ios");
     my $property = 'lastSuccessfulBuild';
-    return_build_info($platform, $branch, $builder, $property);
+    return_build_info($builder, $property);
     }
    
 
@@ -229,7 +229,7 @@ sub last_done_and_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastCompletedBuild';
-    return_build_info($platform, $branch, $builder, $property);
+    return_build_info($builder, $property);
     }
    
 ############                        last_good_and_bld ( platform, branch )
@@ -240,7 +240,7 @@ sub last_good_and_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastSuccessfulBuild';
-    return_build_info($platform, $branch, $builder, $property);
+    return_build_info($builder, $property);
     }
    
 
@@ -254,7 +254,7 @@ sub last_done_repo
     ($branch) = @_;
     my $builder  = get_builder($platform,$branch, "repo","repo");
     my $property = 'lastCompletedBuild';
-    return_build_info($branch, $branch, $builder, $property);
+    return_build_info($builder, $property);
     }
    
 
@@ -268,7 +268,7 @@ sub last_commit_valid
     my $property = 'lastCompletedBuild';
     my ($gerrit_url, $gerrit_num);
     
-    my ($build_num, $is_running, $bld_date, $bld_stat) = return_build_info($branch, $branch, $builder, $property);
+    my ($build_num, $is_running, $bld_date, $bld_stat) = return_build_info($builder, $property);
     
     if ($DEBUG)  { print STDERR "last_commit_valid got build info ($build_num, $is_running, $bld_date, $bld_stat)\n"; }
     
@@ -300,18 +300,29 @@ sub last_commit_valid
     }
    
 
+############                        last_done_server ( <os>, <arch>, <branch> )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status, change_url )
+#          
+sub last_done_server
+    {
+    my ($os, $arch, $branch) = @_;
+    
+    my $builder  = jenkinsQuery::get_server_builder($os, $arch, $branch);
+    my $property = 'lastCompletedBuild';
+    return_build_info($builder, $property);
+    }
 
 
-############                        return_build_info ( platform, branch, job_name, property )
+############                        return_build_info ( job_name, property )
 #          
 #                                       my $builder  = "build_sync_gateway_$branch";
 #          
 #                                   returns ( build_num, is_build_running, build_date, status )
 #          
-#                                       of
 sub return_build_info
     {
-    my ($platform, $branch, $job_name, $property) = @_;
+    my ($job_name, $property) = @_;
     my ($bldnum, $is_running, $bld_date, $isgood);
    
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$job_name.")\n";    }
