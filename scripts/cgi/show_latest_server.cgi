@@ -12,7 +12,7 @@ use warnings;
 #use strict;
 $|++;
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 
 
 use File::Basename;
