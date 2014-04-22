@@ -82,9 +82,9 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 ########   S T A R T   H E R E 
 
 
-print STDERR "calling  jenkinsReports::last_done_repo(".$branch.")";
+print STDERR "calling  jenkinsReports::last_done_server(".$os.", ".$arch.", ".$branch." )";
 
-($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_repo($branch);
+($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_server($os, $arch, $branch);
 print STDERR "according to last_done_build, is_running = $is_running\n";
 
 my ($jenkins_color, $jenkins_row);
@@ -124,7 +124,7 @@ else
 
 
 
-htmlReports::print_HTML_Page(  $query, $jenkins_row,  "$branch Repo Builder Status",  $buildbot_color );
+htmlReports::print_HTML_Page(  $query, $jenkins_row,  "$branch Repo Builder Status",  $jenkins_color );
 
 # print "\n---------------------------\n";
 __END__
