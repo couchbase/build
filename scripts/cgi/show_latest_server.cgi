@@ -26,7 +26,7 @@ my $installed_URL='http://factory.hq.couchbase.com/cgi/show_latest_server.cgi';
 
 use jenkinsQuery    qw(:DEFAULT);
 use jenkinsReports  qw(:DEFAULT);
-
+use buildbotReports qw(:DEFAULT);
 use htmlReports     qw(:DEFAULT);
 
 use CGI qw(:standard);
@@ -61,9 +61,9 @@ if ( $query->param('branch') && $query->param('os') && $query->param('arch')  )
     $os      = $query->param('os');
     $arch    = $query->param('arch');
     $branch  = $query->param('branch');
-    if ($DEBUG)  { print STDERR "called with ( $os, $arch, $branch)\n"; }
-    $jenkins_builder  =    jenkinsQuery::get_server_builder( $branch );
-    if ($DEBUG)  { print STDERR "\nready to start with: $jenkins_builder\n"; }
+    if ($DEBUG)                { print STDERR "called with ( $os, $arch, $branch)\n"; }
+    $jenkins_builder  =    jenkinsQuery::get_server_builder( $os, $arch, $branch );
+    if ($DEBUG)                { print STDERR "\nready to start with: $jenkins_builder\n"; }
     }
 else
     {
