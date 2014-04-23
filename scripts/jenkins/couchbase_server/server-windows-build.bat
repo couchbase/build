@@ -17,11 +17,11 @@ if %ERRORLEVEL% == 0 (
 )
 
 if "%target_platform%" == "amd64" goto setup_amd64
-if "%target_platform%" == "x86" goto setup_x86
+if "%target_platform%" == "x86"   goto setup_x86
 
 :setup_x86
 echo Setting up Visual Studio environment for x86
-call "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\vcvarsall.bat" x86
+call "C:\Program Files\Microsoft Visual Studio 20.0\VC\vcvarsall.bat"       x86
 goto repo_download
 
 :setup_amd64
@@ -34,8 +34,8 @@ goto repo_download
 if not exist couchbase mkdir couchbase
 cd couchbase
 if not exist .\.repo (
-    mkdir .\.repo
-    cd .\.repo
+    mkdir    .\.repo
+    cd       .\.repo
     git clone git://github.com/trondn/git-repo repo
     cd ..
     repo init -u git://github.com/couchbase/manifest -m %MANIFEST%
@@ -92,7 +92,7 @@ nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE%
 
 cd ..
 if exist voltron goto package_win
-git clone --branch %VOLTRON_BRANCH% ssh://git@github.com/couchbase/voltron.git
+    git clone --branch %VOLTRON_BRANCH% git://10.1.1.210/voltron.git
 
 :package_win
 cd voltron
