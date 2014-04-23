@@ -1,4 +1,4 @@
-#!/bin/bash
+thub.com/couchbaselabs/tuqtng/...#!/bin/bash
 #
 #          run by jenkins job 'build_tuqtng'
 #
@@ -12,7 +12,7 @@ GITSPEC=master
 VERSION=1.0
 REVISION=${VERSION}-${BUILD_NUMBER}
 
-LICENSE=license-ce-2013.txt
+LICENSE=license-ce.txt
 PROJECT=github.com/couchbaselabs/tuqtng
 export GOPATH=${WORKSPACE}
 
@@ -23,106 +23,10 @@ PROJDIR=src/github.com/couchbaselabs/tuqtng
 cd   ${WORKSPACE}
 echo ======== sync tuqtng =========================
 
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/couchbaselabs/tuqtng.git        ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-
-PROJDIR=src/github.com/couchbaselabs/dparval
-cd   ${WORKSPACE}
-echo ======== sync dparval ========================
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/couchbaselabs/dparval.git       ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-
-PROJDIR=src/github.com/couchbaselabs/clog
-cd   ${WORKSPACE}
-echo ======== sync clog ===========================
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/couchbaselabs/clog.git          ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-
-PROJDIR=src/github.com/couchbaselabs/go-couchbase
-cd   ${WORKSPACE}
-echo ======== sync go-couchbase ===================
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/couchbaselabs/go-couchbase.git  ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-
-PROJDIR=src/github.com/dustin/go-jsonpointer
-cd   ${WORKSPACE}
-echo ======== sync dustin/go-jsonpointer ==========
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/dustin/go-jsonpointer.git       ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-
-PROJDIR=src/github.com/dustin/gojson
-cd   ${WORKSPACE}
-echo ======== sync dustin/gojson ==================
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/dustin/gojson.git               ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-
-PROJDIR=src/github.com/dustin/gomemcached
-cd   ${WORKSPACE}
-echo ======== sync dustin/gomemcached =============
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/dustin/gomemcached.git         ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-
-PROJDIR=src/github.com/gorilla/mux
-cd   ${WORKSPACE}
-echo ======== sync gorilla/mux ====================
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/gorilla/mux.git                 ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-
-PROJDIR=src/github.com/gorilla/context
-cd   ${WORKSPACE}
-echo ======== sync gorilla/context ================
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/gorilla/context.git             ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-echo ==============================================
-
-PROJDIR=src/github.com/russross/blackfriday
-cd   ${WORKSPACE}
-echo ======== sync russross/blackfriday ==========
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/russross/blackfriday.git       ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-echo ==============================================
-
-PROJDIR=src/github.com/sbinet/liner
-cd   ${WORKSPACE}
-echo ======== sync sbinet/liner ===================
-
-if [[ ! -d ${PROJDIR} ]] ; then git clone https://github.com/sbinet/liner.git                ${PROJDIR} ; fi
-cd         ${PROJDIR}
-git  pull  origin  ${GITSPEC}
-git  show --stat
-echo ==============================================
-
+go get github.com/couchbaselabs/tuqtng/...
 
 TOPD=${WORKSPACE}/src/${PROJECT}
+top=${TOPD}
 DIST=${TOPD}/dist
 cd   ${TOPD}
 
@@ -214,6 +118,7 @@ function build_dist_packages
     {
     echo "------- starting build_dist_packages -------"
     mkdir -p $DIST/tutorial_tmp
+    cd $DIST/..
     cd tutorial
     go build
     cd $top
