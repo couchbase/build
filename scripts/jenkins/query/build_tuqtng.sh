@@ -1,4 +1,4 @@
-thub.com/couchbaselabs/tuqtng/...#!/bin/bash
+#!/bin/bash
 #
 #          run by jenkins job 'build_tuqtng'
 #
