@@ -91,11 +91,16 @@ if "%LICENSE%" == "enterprise" (
 nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE%
 
 cd ..
-if exist voltron goto package_win
+if exist voltron goto voltron_exists
     git clone --branch %VOLTRON_BRANCH% git://10.1.1.210/voltron.git
+:voltron_exists
+
+cd voltron
+git fetch
+git checkout    %VOLTRON_BRANCH%
+git pull origin %VOLTRON_BRANCH%
 
 :package_win
-cd voltron
 ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase-server %BUILD_NUMBER% %LICENSE%
 
 :eof
