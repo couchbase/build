@@ -21,7 +21,7 @@ if "%target_platform%" == "x86"   goto setup_x86
 
 :setup_x86
 echo Setting up Visual Studio environment for x86
-call "C:\Program Files\Microsoft Visual Studio 20.0\VC\vcvarsall.bat"       x86
+call "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"       x86
 goto repo_download
 
 :setup_amd64
