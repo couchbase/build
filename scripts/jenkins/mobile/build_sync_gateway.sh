@@ -214,7 +214,7 @@ cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
 cd                        ${SGW_DIR}
 md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
 echo ........................... uploading to ${CBFS_URL}/${NEW_PKG_NAME}
-curl -XPUT --data-binary @${NEW_PKG_NAME}     ${CBFS_URL}/${NEW_PKG_NAME}
-curl -XPUT --data-binary @${NEW_PKG_NAME}.md5 ${CBFS_URL}/${NEW_PKG_NAME}.md5
+curl --fail -XPUT --data-binary @${NEW_PKG_NAME}     ${CBFS_URL}/${NEW_PKG_NAME}
+curl --fail -XPUT --data-binary @${NEW_PKG_NAME}.md5 ${CBFS_URL}/${NEW_PKG_NAME}.md5
 
 echo ============================================== `date`

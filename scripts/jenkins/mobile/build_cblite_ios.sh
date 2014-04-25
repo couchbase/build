@@ -187,10 +187,10 @@ cd       ${ZIP_SRCD}
 zip -r   ${ZIP_PATH} *
 
 echo  ============================================== upload ${CBFS_URL}/${ZIP_FILE}
-curl -XPUT --data-binary @${ZIP_PATH} ${CBFS_URL}/${ZIP_FILE}
+curl --fail -XPUT --data-binary @${ZIP_PATH} ${CBFS_URL}/${ZIP_FILE}
 
 echo  ============================================== upload ${CBFS_URL}/${DOC_ZIP_FILE}
-curl -XPUT --data-binary @${DOC_ZIP_PATH} ${CBFS_URL}/${DOC_ZIP_FILE}
+curl --fail -XPUT --data-binary @${DOC_ZIP_PATH} ${CBFS_URL}/${DOC_ZIP_FILE}
 
 echo  ============================================== update default value of test jobs
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${JOB_SUFX}      -p LITESERV_VERSION  -v ${REVISION}

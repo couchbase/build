@@ -281,7 +281,7 @@ file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
 cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
 echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
-curl -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
+curl --fail -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
 
 
 cd ${ANDR_LITESRV_DIR}
@@ -310,7 +310,7 @@ if  [[ -e ${WORKSPACE}/06_package_javadocs.log ]]
 fi
 
 echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
-curl -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
+curl --fail -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
 
 
 echo ============================================ removing couchbase-sync-gateway
