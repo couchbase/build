@@ -111,6 +111,17 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
+echo ============================================  instantiate tokens in source file
+cd ${ANDR_DIR}/libraries/couchbase-lite-java-core
+
+TMPL=src/main/java/com/couchbase/lite/support/Version.java
+
+cat ${TMPL} | sed "s/\${VERSION_NAME}/${VERSION}/"    | \
+              sed "s/\${VERSION_CODE}/${BUILD_NUMBER}/"  > ${TMPL}.swap
+
+mv  ${TMPL}      ${TMPL}.orig
+mv  ${TMPL}.swap ${TMPL}
+
 
 cd ${ANDR_DIR}
 echo ============================================  sync cblite-tests
@@ -156,6 +167,8 @@ if  [[ -e ${WORKSPACE}/00_android_build.log ]]
     echo ". . ."
     tail ${LOG_TAIL}                            ${WORKSPACE}/00_android_build.log
 fi
+echo ============================================  UNDO instantiate tokens
+mv  ${TMPL}.orig ${TMPL}
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
