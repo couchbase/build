@@ -177,11 +177,11 @@ sub get_commit_valid
 #
 #
 #
-my %cb_server  = ( "production" => { "windows" => { 32 => { "0.0.0"  =>  "server_build_master_win3208",
-                                                            "master" =>  "server_build_master_win3208",
+my %cb_server  = ( "production" => { "windows" => { 32 => { "0.0.0"  =>  "cs_mst_win3208",
+                                                            "master" =>  "cs_mst_win3208",
                                                           },
-                                                    64 => { "0.0.0"  =>  "server_build_master_win6408",
-                                                            "master" =>  "server_build_master_win6408",
+                                                    64 => { "0.0.0"  =>  "cs_mst_win6408",
+                                                            "master" =>  "cs_mst_win6408",
                                                           },
                                    }              }
                  );
