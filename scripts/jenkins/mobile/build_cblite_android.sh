@@ -112,7 +112,7 @@ git submodule init
 git submodule update
 git show --stat
 echo ============================================  instantiate tokens in source file
-cd ${ANDR_DIR}/libraries/couchbase-lite-java-core
+cd ${ANDR_LITESRV_DIR}/libraries/couchbase-lite-java-core
 
 TMPL=src/main/java/com/couchbase/lite/support/Version.java
 
