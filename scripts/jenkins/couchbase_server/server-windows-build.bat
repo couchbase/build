@@ -1,7 +1,7 @@
 @echo on
 
 rem Parameters
-set BUILD_NUM=%1
+set BUILD_NUMBER=%1
 set VOLTRON_BRANCH=%2
 set MANIFEST=%3
 set LICENSE=%4
