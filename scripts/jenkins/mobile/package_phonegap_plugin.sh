@@ -18,7 +18,7 @@
 source ~jenkins/.bash_profile
 set -e
 
-CURL_CMD="curl --fail --retry 10 --silent --show-error"
+CURL_CMD="curl --fail --retry 10"
 
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi

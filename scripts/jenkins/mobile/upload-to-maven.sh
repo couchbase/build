@@ -19,7 +19,7 @@
 source ~/.bash_profile
 set -e
 
-CURL_CMD="curl --fail --retry 5 --silent --show-error"
+CURL_CMD="curl --fail --retry 10"
 
 REPO_ID=couchbase.public.repo
 GROUPID=com.couchbase.lite

@@ -19,7 +19,7 @@ source ~/.bash_profile
 export DISPLAY=:0
 set -e
 
-CURL_CMD="curl --fail --retry 10 --silent --show-error"
+CURL_CMD="curl --fail --retry 10"
 
 LIST_OF_JARS="                \
               android         \
