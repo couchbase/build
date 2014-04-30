@@ -117,8 +117,8 @@ JAVA_VER_FILE=${ANDR_LITESRV_DIR}/libraries/couchbase-lite-java-core/src/main/ja
 echo ============================================  instantiate tokens in source file
 echo ${JAVA_VER_FILE}
 
-sed -i .ORIG  -e 's,\${VERSION_NAME},'${VERSION}','      ${JAVA_VER_FILE}
-sed -i        -e 's,\${VERSION_CODE},'${BUILD_NUMBER}',' ${JAVA_VER_FILE}
+sed -i.ORIG  -e 's,\${VERSION_NAME},'${VERSION}','      ${JAVA_VER_FILE}
+sed -i       -e 's,\${VERSION_CODE},'${BUILD_NUMBER}',' ${JAVA_VER_FILE}
 
 diff ${JAVA_VER_FILE} ${JAVA_VER_FILE}.ORIG
 
@@ -156,8 +156,8 @@ MANIFEST_FILE="${ANDR_LITESRV_DIR}/couchbase-lite-android-liteserv/src/main/Andr
 echo ======== insert build meta-data ==============
 echo ${MANIFEST_FILE}
 
-sed -i .ORIG  -e 's,android:versionCode=".*",android:versionCode="'${BUILD_NUMBER}'",'  ${MANIFEST_FILE}
-sed -i        -e 's,android:versionName=".*",android:versionName="'${VERSION}'",'       ${MANIFEST_FILE}
+sed -i.ORIG  -e 's,android:versionCode=".*",android:versionCode="'${BUILD_NUMBER}'",'  ${MANIFEST_FILE}
+sed -i       -e 's,android:versionName=".*",android:versionName="'${VERSION}'",'       ${MANIFEST_FILE}
 
 diff ${MANIFEST_FILE} ${MANIFEST_FILE}.ORIG
 
