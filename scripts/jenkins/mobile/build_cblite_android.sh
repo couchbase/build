@@ -111,16 +111,15 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
+
+JAVA_VER_FILE=${ANDR_LITESRV_DIR}/libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
 echo ============================================  instantiate tokens in source file
-cd ${ANDR_LITESRV_DIR}/libraries/couchbase-lite-java-core
+echo ${JAVA_VER_FILE}
 
-TMPL=src/main/java/com/couchbase/lite/support/Version.java
+sed -i .ORIG  -e 's,\${VERSION_NAME},'${VERSION}','      ${JAVA_VER_FILE}
+sed -i        -e 's,\${VERSION_CODE},'${BUILD_NUMBER}',' ${JAVA_VER_FILE}
 
-cat ${TMPL} | sed "s/\${VERSION_NAME}/${VERSION}/"    | \
-              sed "s/\${VERSION_CODE}/${BUILD_NUMBER}/"  > ${TMPL}.swap
-
-mv  ${TMPL}      ${TMPL}.orig
-mv  ${TMPL}.swap ${TMPL}
+diff ${JAVA_VER_FILE} ${JAVA_VER_FILE}.ORIG
 
 
 cd ${ANDR_DIR}
@@ -150,8 +149,16 @@ sudo dpkg --install  ${SGW_PKG}
 
 popd                 2>&1 > /dev/null
 
-
 if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
+
+MANIFEST_FILE="${ANDR_LITESRV_DIR}/couchbase-lite-android-liteserv/src/main/AndroidManifest.xml"
+echo ======== insert build meta-data ==============
+echo ${MANIFEST_FILE}
+
+sed -i .ORIG  -e 's,android:versionCode=".*",android:versionCode="'${BUILD_NUMBER}'",'  ${MANIFEST_FILE}
+sed -i        -e 's,android:versionName=".*",android:versionName="'${VERSION}'",'       ${MANIFEST_FILE}
+
+diff ${MANIFEST_FILE} ${MANIFEST_FILE}.ORIG
 
 echo ============================================  build android
 cd ${ANDR_LITESRV_DIR}
@@ -168,7 +175,8 @@ if  [[ -e ${WORKSPACE}/00_android_build.log ]]
     tail ${LOG_TAIL}                            ${WORKSPACE}/00_android_build.log
 fi
 echo ============================================  UNDO instantiate tokens
-mv  ${TMPL}.orig ${TMPL}
+cp  ${JAVA_VER_FILE}.ORIG ${JAVA_VER_FILE}
+cp  ${MANIFEST_FILE}.ORIG ${MANIFEST_FILE}
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
