@@ -24,7 +24,7 @@
 source ~/.bash_profile
 set -e
 
-CURL_CMD="curl --fail --retry 5"
+CURL_CMD="curl --fail --retry 5 --silent --show-error"
 
 
 function usage

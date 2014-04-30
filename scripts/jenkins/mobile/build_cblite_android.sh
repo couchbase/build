@@ -34,7 +34,7 @@ export DISPLAY=:0
 set -e
 
 LOG_TAIL=-24
-CURL_CMD="curl --fail --retry 5"
+CURL_CMD="curl --fail --retry 5 --silent --show-error"
 
 
 function usage
