@@ -104,17 +104,6 @@ git submodule update --init --recursive
 git show --stat
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
-TEMPLATE_FILES="CouchbaseLite.xcodeproj/project.pbxproj"
-
-echo ============================================== insert build meta-data
-for TF in ${TEMPLATE_FILES}
-  do
-    cat ${TF} | sed -e "s,@PRODUCT_VERSION@,${REVISION},g" \
-              | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
-    mv  ${TF}      ${TF}.orig
-    mv  ${TF}.new  ${TF}
-done
-
 
 cd ${WORKSPACE}
 echo ============================================  sync cblite-build
@@ -136,12 +125,14 @@ DOC_ZIP_ROOT_DIR=${REL_SRCD}/${REVISION}
 
 mkdir -p ${TARGET_BUILD_DIR}
 
+XCODE_CMD="xcodebuild CURRENT_PROJECT_VERSION=${BUILD_NUMBER} CBL_VERSION_STRING=${VERSION} CBL_SOURCE_REVISION=${REPO_SHA}"
+
 cd ${WORKSPACE}/couchbase-lite-ios
 for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation"
   do
     echo ============================================  iOS target: ${TARGET}
     echo ============================================  iOS target: ${TARGET}  >>  ${LOG_FILE}
-    ( xcodebuild -target "${TARGET}"  2>&1 )                                  >>  ${LOG_FILE}
+    ( ${XCODE_CMD} -target "${TARGET}"  2>&1 )                                >>  ${LOG_FILE}
     if  [[ -e ${LOGFILE} ]]
         then
         echo
@@ -149,12 +140,6 @@ for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteS
         echo ". . ."
         tail  ${LOG_TAIL}                             ${LOGFILE}
     fi
-done
-
-echo  ============================================== remove build meta-data
-for TF in ${TEMPLATE_FILES}
-  do
-    mv  ${TF}.orig ${TF}
 done
 
 echo  ============================================== package ${DOC_ZIP_FILE}
