@@ -19,6 +19,8 @@
 source ~/.bash_profile
 set -e
 
+CURL_CMD="curl --fail --retry 5"
+
 REPO_ID=couchbase.public.repo
 GROUPID=com.couchbase.lite
 GRP_URL=com/couchbase/lite
@@ -55,12 +57,12 @@ POM_FILE=${MAVENDIR}/pom.xml
 function prepare_bucket
     {
     NEW_BUCKET=$1
-    echo "DEBUG:  preparing bucket...........................  ${NEW_BUCKET}"
+    echo "DEBUG:  preparing bucket..................................  ${NEW_BUCKET}"
     
-    if [[     ! `curl --user ${MAVEN_UPLOAD_CREDENTS} --fail   ${NEW_BUCKET}` ]]
+    if [[     ! `${CURL_CMD} --user ${MAVEN_UPLOAD_CREDENTS} --fail   ${NEW_BUCKET}` ]]
         then
-        echo "DEBUG:  creating bucket........................  ${NEW_BUCKET}"
-        curl          --user ${MAVEN_UPLOAD_CREDENTS} -XMKCOL  ${NEW_BUCKET}
+        echo "DEBUG:  creating bucket...............................  ${NEW_BUCKET}"
+        ${CURL_CMD}          --user ${MAVEN_UPLOAD_CREDENTS} -XMKCOL  ${NEW_BUCKET}
     fi
     }
 

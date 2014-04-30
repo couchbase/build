@@ -34,6 +34,7 @@ export DISPLAY=:0
 set -e
 
 LOG_TAIL=-24
+CURL_CMD="curl --fail --retry 5"
 
 
 function usage
@@ -289,7 +290,7 @@ file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
 cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
 
 echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
-curl --fail -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
+${CURL_CMD} -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
 
 
 cd ${ANDR_LITESRV_DIR}
@@ -317,8 +318,8 @@ if  [[ -e ${WORKSPACE}/06_package_javadocs.log ]]
     tail ${LOG_TAIL}                            ${WORKSPACE}/06_package_javadocs.log
 fi
 
-echo ============================================ upload ${CBFS_URL}/${DOCS_ZIP}
-curl --fail -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
+echo ============================================ upload  ${CBFS_URL}/${DOCS_ZIP}
+${CURL_CMD} -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
 
 
 echo ============================================ removing couchbase-sync-gateway

@@ -24,6 +24,9 @@
 source ~/.bash_profile
 set -e
 
+CURL_CMD="curl --fail --retry 5"
+
+
 function usage
     {
     echo -e "\nuse:  ${0}   branch_name  version  platform  edition  [ OS ]  [ ARCH ]  [ DISTRO ]\n\n"
@@ -213,8 +216,8 @@ echo  ======= upload ==============================
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
 cd                        ${SGW_DIR}
 md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
-echo ........................... uploading to ${CBFS_URL}/${NEW_PKG_NAME}
-curl --fail -XPUT --data-binary @${NEW_PKG_NAME}     ${CBFS_URL}/${NEW_PKG_NAME}
-curl --fail -XPUT --data-binary @${NEW_PKG_NAME}.md5 ${CBFS_URL}/${NEW_PKG_NAME}.md5
+echo        ........................... uploading to ${CBFS_URL}/${NEW_PKG_NAME}
+${CURL_CMD} -XPUT --data-binary @${NEW_PKG_NAME}     ${CBFS_URL}/${NEW_PKG_NAME}
+${CURL_CMD} -XPUT --data-binary @${NEW_PKG_NAME}.md5 ${CBFS_URL}/${NEW_PKG_NAME}.md5
 
 echo ============================================== `date`

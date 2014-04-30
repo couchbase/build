@@ -18,6 +18,9 @@
 source ~jenkins/.bash_profile
 set -e
 
+CURL_CMD="curl --fail --retry 5"
+
+
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 if [[ ! ${VERSION} ]] ; then VERSION=1.0    ; fi
 
@@ -119,7 +122,7 @@ ZIP_FILE=Couchbase-Lite-PhoneGap-Plugin_${REVISION}.zip
 zip -r ${ZIP_FILE} *
 
 echo  ======= upload =========================================
-echo ................... uploading to ${CBFS_URL}/${ZIP_FILE}
-curl -XPUT --data-binary @${ZIP_FILE} ${CBFS_URL}/${ZIP_FILE}
+echo                                         ${CBFS_URL}/${ZIP_FILE}
+${CURL_CMD} -XPUT --data-binary @${ZIP_FILE} ${CBFS_URL}/${ZIP_FILE}
 
 popd                     2>&1 >/dev/null

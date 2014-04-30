@@ -19,6 +19,8 @@ source ~/.bash_profile
 export DISPLAY=:0
 set -e
 
+CURL_CMD="curl --fail --retry 5"
+
 LIST_OF_JARS="                \
               android         \
               java-core       \
@@ -86,10 +88,10 @@ function prepare_bucket
     NEW_BUCKET=$1
     echo "DEBUG:  preparing bucket...........................  ${NEW_BUCKET}"
     
-    if [[     ! `curl --user ${MAVEN_UPLOAD_CREDENTS} --fail   ${NEW_BUCKET}` ]]
+    if [[     ! `${CURL_CMD} --user ${MAVEN_UPLOAD_CREDENTS}   ${NEW_BUCKET}` ]]
         then
         echo "DEBUG:  creating bucket........................  ${NEW_BUCKET}"
-        curl          --user ${MAVEN_UPLOAD_CREDENTS} -XMKCOL  ${NEW_BUCKET}
+        ${CURL_CMD}   --user ${MAVEN_UPLOAD_CREDENTS} -XMKCOL  ${NEW_BUCKET}
     fi
     }
 
@@ -103,8 +105,8 @@ function upload_new_package
     POMFILE=${PROD}-${NEWV}.pom
     echo "UPLOADING ${PROD} to .... maven repo:  ${REPOURL}/${GRP_URL}/${PROD}/${NEWV}"
     
-    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${JARFILE}  ${REPOURL}/${GRP_URL}/${PROD}/${NEWV}/${JARFILE}
-    curl --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${POMFILE}  ${REPOURL}/${GRP_URL}/${PROD}/${NEWV}/${POMFILE}
+    ${CURL_CMD} --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${JARFILE}  ${REPOURL}/${GRP_URL}/${PROD}/${NEWV}/${JARFILE}
+    ${CURL_CMD} --user ${MAVEN_UPLOAD_CREDENTS} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${POMFILE}  ${REPOURL}/${GRP_URL}/${PROD}/${NEWV}/${POMFILE}
     }
 
 
@@ -133,7 +135,7 @@ cd                 ${ANDROID_JAR_DIR}
 zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
 
 echo ============================================  uploading ${CBFS_URL}/${AND_ZIP_DST}
-curl -XPUT --data-binary  @${ANDROID_JAR_DIR}/${AND_ZIP_DST} ${CBFS_URL}/${AND_ZIP_DST}
+${CURL_CMD} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${AND_ZIP_DST} ${CBFS_URL}/${AND_ZIP_DST}
 
 echo ============================================  prepare buckets
                               prepare_bucket ${REPOURL}/${GRP_URL}

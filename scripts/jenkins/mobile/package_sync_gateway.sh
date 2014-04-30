@@ -17,6 +17,9 @@
 source ~jenkins/.bash_profile
 set -e
 
+CURL_CMD="curl --fail --retry 5"
+
+
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 
 if [[ $1 ]] ; then  echo "setting OS     to $OS"        ; OS=$1     ; else OS=`uname -s`     ; fi
@@ -114,8 +117,8 @@ cd   ${BLD_DIR}
 ./${PKGR} ${PREFIX} ${PREFIXP} ${REVISION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 
 echo  ======= upload ==============================
+echo                                         ${CBFS_URL}/${PKG_NAME}
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}
 cd                        ${SGW_DIR}
-echo ................... uploading to ${CBFS_URL}/${PKG_NAME}
-curl -XPUT --data-binary @${PKG_NAME} ${CBFS_URL}/${PKG_NAME}
+${CURL_CMD} -XPUT --data-binary @${PKG_NAME} ${CBFS_URL}/${PKG_NAME}
 
