@@ -120,7 +120,7 @@ echo ${JAVA_VER_FILE}
 sed -i.ORIG  -e 's,\${VERSION_NAME},'${VERSION}','      ${JAVA_VER_FILE}
 sed -i       -e 's,\${VERSION_CODE},'${BUILD_NUMBER}',' ${JAVA_VER_FILE}
 
-diff ${JAVA_VER_FILE} ${JAVA_VER_FILE}.ORIG
+diff ${JAVA_VER_FILE} ${JAVA_VER_FILE}.ORIG || true
 
 
 cd ${ANDR_DIR}
@@ -159,7 +159,7 @@ echo ${MANIFEST_FILE}
 sed -i.ORIG  -e 's,android:versionCode=".*",android:versionCode="'${BUILD_NUMBER}'",'  ${MANIFEST_FILE}
 sed -i       -e 's,android:versionName=".*",android:versionName="'${VERSION}'",'       ${MANIFEST_FILE}
 
-diff ${MANIFEST_FILE} ${MANIFEST_FILE}.ORIG
+diff ${MANIFEST_FILE} ${MANIFEST_FILE}.ORIG || true
 
 echo ============================================  build android
 cd ${ANDR_LITESRV_DIR}
