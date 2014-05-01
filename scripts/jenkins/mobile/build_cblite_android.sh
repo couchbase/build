@@ -286,10 +286,12 @@ if  [[ -e ${WORKSPACE}/04_android_package.log ]]
     tail ${LOG_TAIL}                            ${WORKSPACE}/04_android_package.log
 fi
 
+echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
+echo  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}
 file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
 cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
+echo  ${WORKSPACE}/${AND_ZIP}
 
-echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
 ${CURL_CMD} -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
 
 
