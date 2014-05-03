@@ -78,9 +78,8 @@ else
     SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64.deb
 fi
 
-AND_TARG=24
-                #  "android-17"
-AND_TARG=1
+                #  "android-19"
+AND_TARG=4
 EMULATOR=cblite
 
 AUT_DIR=${WORKSPACE}/app-under-test
