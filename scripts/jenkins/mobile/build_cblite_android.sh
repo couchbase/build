@@ -222,7 +222,7 @@ if  [[ -e ${WORKSPACE}/02_android_unit_test.log ]]
     echo ". . ."
     tail ${LOG_TAIL}                            ${WORKSPACE}/02_android_unit_test.log
 fi
-echo "http://factory.hq.couchbase.com:8080/job/build_cblite_android_master/ws/app-under-test/android/couchbase-lite-android-liteserv/libraries/couchbase-lite-android/build/reports/instrumentTests/connected/index.html"
+echo "http://factory.hq.couchbase.com:8080/job/build_cblite_android_master/ws/app-under-test/android/couchbase-lite-android-liteserv/libraries/couchbase-lite-android/build/reports/androidTests/connected/index.html"
 
 FAILS=`grep -i FAIL ${WORKSPACE}/02_android_unit_test.log | wc -l`
 if [[ $((FAILS)) > 0 ]]
