@@ -177,8 +177,10 @@ export CGO_ENABLED=1
 
 
 # prevent connection timed out:  https://google.com: dial tcp 74.125.239.97:443...
+# 
+# RANDOM in 1..32767
 
-let STARTUP_DELAY=3+${RANDOM}/6552
+let STARTUP_DELAY=3+${RANDOM}/3277
 sleep ${STARTUP_DELAY}
 
 # ... caused by all builders running at once
@@ -216,8 +218,10 @@ echo  ======= upload ==============================
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
 cd                        ${SGW_DIR}
 md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+sleep ${STARTUP_DELAY}
 echo        ........................... uploading to ${CBFS_URL}/${NEW_PKG_NAME}
 ${CURL_CMD} -XPUT --data-binary @${NEW_PKG_NAME}     ${CBFS_URL}/${NEW_PKG_NAME}
+sleep ${STARTUP_DELAY}
 ${CURL_CMD} -XPUT --data-binary @${NEW_PKG_NAME}.md5 ${CBFS_URL}/${NEW_PKG_NAME}.md5
 
 echo ============================================== `date`
