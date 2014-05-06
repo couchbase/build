@@ -62,7 +62,7 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 EDITION=${3}
 
-PKGSTORE=s3://packages.northscale.com/latestbuilds/mobile/${VERSION}
+PKGSTORE=s3://packages.couchbase.com/builds/mobile/${VERSION}
 PUT_CMD="s3cmd put -P"
 
 export MAVEN_UPLOAD_VERSION=${REVISION}

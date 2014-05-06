@@ -48,7 +48,7 @@ BLD_TO_RELEASE=${2}
 if [[ ${BLD_TO_RELEASE} =~ '([0-9.]*)-'  ]]
   then
     VERSION=${BASH_REMATCH[1]}
-    PKGSTORE=s3://packages.northscale.com/latestbuilds/mobile/${VERSION}
+    PKGSTORE=s3://packages.couchbase.com/builds/mobile/${VERSION}
 else
     echo "illegal value for BLD_TO_RELEASE: ${BLD_TO_RELEASE}"
     exit 88

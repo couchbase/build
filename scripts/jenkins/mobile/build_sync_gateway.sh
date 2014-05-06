@@ -37,7 +37,7 @@ GITSPEC=${1}
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 
-PKGSTORE=s3://packages.northscale.com/latestbuilds/mobile/${VERSION}
+PKGSTORE=s3://packages.couchbase.com/builds/mobile/${VERSION}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 PLATFRM=${3}
