@@ -5,10 +5,11 @@
 #          with job paramters:  
 #                   
 #                   IOS_BLDNUM    -- get IOS_BLDNUM artifacts
-#                   
-#                   ANDROID_REL   -- get ANDROID_REL artifacts
 #
-#                   ANDROID_DIR   -- directory that contains ANDROID_REL artifacts
+#                   ANDROID_URL   -- URL for zip file of Android artifacts
+#                                 -- examples:
+# http://packages.couchbase.com/releases/couchbase-lite/android/couchbase-lite-community-android_1.0-23.zip
+# http://cbfs-ext.hq.couchbase.com/builds/couchbase-lite-0.0.0-262-android-community.zip
 #
 #                   GITSPEC       -- revision to sync: couchbase-lite-phonegap-plugin-builder
 #          
@@ -30,7 +31,6 @@ env | grep -iv password | grep -iv passwd | sort -u
 echo ========================================================= `date`
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
-ANRL_URL=http://packages.couchbase.com/releases/couchbase-lite/android/${ANDROID_DIR}
 TDSO_JAR=http://cl.ly/Pr1r/td_collator_so.jar
 
 
@@ -75,8 +75,7 @@ if [[ -e ${DOWN_ADIR} ]] ; then rm -rf ${DOWN_ADIR} ; fi
 mkdir -p ${DOWN_ADIR}
 pushd    ${DOWN_ADIR}    2>&1 >/dev/null
 
-AND_PKG=couchbase-lite-community-android_${ANDROID_REL}.zip
-wget --no-verbose ${ANRL_URL}/${AND_PKG}
+wget --no-verbose ${ANDROID_URL}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${AND_PKG}" ; exit ${STATUS} ; fi
 
@@ -86,13 +85,6 @@ mkdir -p ${AND_DIR}
 
 # copy all jar files into the target directory
 cp -r ${DOWN_ADIR}/*.jar ${AND_DIR}
-
-# get the collator from Traun's URL
-# (this can be removed when CBLT-235 is closed)
-cd ${AND_DIR}
-#echo now is `pwd`
-wget --no-verbose ${TDSO_JAR}
-
 
 popd                     2>&1 >/dev/null
 
