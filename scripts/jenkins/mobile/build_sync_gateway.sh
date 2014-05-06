@@ -24,7 +24,7 @@
 source ~/.bash_profile
 set -e
 
-CURL_CMD="curl --fail --retry 10"
+PUT_CMD="s3cmd put -P"
 
 
 function usage
@@ -36,6 +36,8 @@ GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
+
+PKGSTORE=s3://packages.northscale.com/latestbuilds/mobile/${VERSION}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 PLATFRM=${3}
@@ -118,8 +120,6 @@ export GO_RELEASE ; export GOROOT ; export PATH
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
-
-CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 pushd ${WORKSPACE} 2>&1 > /dev/null
 WORKSPACE=`pwd`
@@ -218,10 +218,10 @@ echo  ======= upload ==============================
 cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
 cd                        ${SGW_DIR}
 md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
-echo        ........................... uploading to ${CBFS_URL}/${NEW_PKG_NAME}
-${CURL_CMD} -XPUT --data-binary @${NEW_PKG_NAME}     ${CBFS_URL}/${NEW_PKG_NAME}
+${PUT_CMD}  ${NEW_PKG_NAME}                          ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
-${CURL_CMD} -XPUT --data-binary @${NEW_PKG_NAME}.md5 ${CBFS_URL}/${NEW_PKG_NAME}.md5
+${PUT_CMD}  ${NEW_PKG_NAME}.md5                      ${PKGSTORE}/${NEW_PKG_NAME}.md5
 
 echo ============================================== `date`

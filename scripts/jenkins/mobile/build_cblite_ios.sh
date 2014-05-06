@@ -40,6 +40,8 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 EDITION=${3}
 
+PKGSTORE=s3://packages.northscale.com/latestbuilds/mobile/${VERSION}
+PUT_CMD="s3cmd put -P"
 
 LOG_FILE=${WORKSPACE}/build_ios_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
@@ -77,8 +79,6 @@ LIB_DEST=${ZIP_SRCD}/Extras
 
 JSC_SRCD=${BASE_DIR}/vendor/JavaScriptCore.framework
 JSC_DEST=${ZIP_SRCD}
-
-CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 
 export TAP_TIMEOUT=120
 
@@ -172,11 +172,11 @@ echo  ============================================== package ${ZIP_FILE}
 cd       ${ZIP_SRCD}
 zip -r   ${ZIP_PATH} *
 
-echo  ============================================== upload ${CBFS_URL}/${ZIP_FILE}
-${CURL_CMD} -XPUT --data-binary @${ZIP_PATH} ${CBFS_URL}/${ZIP_FILE}
+echo  ============================================== upload ${PKGSTORE}/${ZIP_FILE}
+${PUT_CMD}  ${ZIP_PATH}                                     ${PKGSTORE}/${ZIP_FILE}
 
-echo  ============================================== upload ${CBFS_URL}/${DOC_ZIP_FILE}
-${CURL_CMD} -XPUT --data-binary @${DOC_ZIP_PATH} ${CBFS_URL}/${DOC_ZIP_FILE}
+echo  ============================================== upload ${PKGSTORE}/${DOC_ZIP_FILE}
+${PUT_CMD}  ${DOC_ZIP_PATH}                                 ${PKGSTORE}/${DOC_ZIP_FILE}
 
 echo  ============================================== update default value of test jobs
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${JOB_SUFX}      -p LITESERV_VERSION  -v ${REVISION}

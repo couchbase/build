@@ -5,7 +5,7 @@
 #          
 #           to download an android ZIP file,
 #              rename the couchbase JARs inside,
-#              rename the ZIP file and upload it to cbfs,
+#              rename the ZIP file and upload it to S3,
 #              and upload the cblite JARS to our maven repository.
 #          
 #          called with paramters:
@@ -20,6 +20,7 @@ export DISPLAY=:0
 set -e
 
 CURL_CMD="curl --fail --retry 10"
+PUT_CMD="s3cmd put -P"
 
 LIST_OF_JARS="                \
               android         \
@@ -27,8 +28,6 @@ LIST_OF_JARS="                \
               java-javascript \
               java-listener   \
              "
-CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
-
 MAVEN_UPLOAD_CREDENTS=${MAVEN_UPLOAD_USERNAME}:${MAVEN_UPLOAD_PASSWORD}
 
 REPOURL=http://files.couchbase.com/maven2
@@ -46,9 +45,18 @@ GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 BLD_TO_RELEASE=${2}
+if [[ ${BLD_TO_RELEASE} =~ '([0-9.]*)-'  ]]
+  then
+    VERSION=${BASH_REMATCH[1]}
+    PKGSTORE=s3://packages.northscale.com/latestbuilds/mobile/${VERSION}
+else
+    echo "illegal value for BLD_TO_RELEASE: ${BLD_TO_RELEASE}"
+    exit 88
+fi
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 RELEASE_NUMBER=${3}
+
 
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
@@ -117,9 +125,9 @@ env | grep -iv password | grep -iv passwd | sort
 rm   -rf  ${ANDROID_JAR_DIR}
 mkdir -p  ${ANDROID_JAR_DIR}
 cd        ${ANDROID_JAR_DIR}
-echo ============================================  download ${CBFS_URL}/${AND_ZIP_SRC}
+echo ============================================  download ${PKGSTORE}/${AND_ZIP_SRC}
 
-wget  --no-verbose  ${CBFS_URL}/${AND_ZIP_SRC}
+wget  --no-verbose  ${PKGSTORE}/${AND_ZIP_SRC}
 unzip ${AND_ZIP_SRC}
 
 echo ============================================  renumber to ${AND_ZIP_DST}
@@ -134,8 +142,8 @@ change_jar_version  java-listener    jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
 cd                 ${ANDROID_JAR_DIR}
 zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
 
-echo ============================================  uploading ${CBFS_URL}/${AND_ZIP_DST}
-${CURL_CMD} -XPUT --data-binary  @${ANDROID_JAR_DIR}/${AND_ZIP_DST} ${CBFS_URL}/${AND_ZIP_DST}
+echo ============================================  uploading ${PKGSTORE}/${AND_ZIP_DST}
+${PUT_CMD}  ${ANDROID_JAR_DIR}/${AND_ZIP_DST}                ${PKGSTORE}/${AND_ZIP_DST}
 
 echo ============================================  prepare buckets
                               prepare_bucket ${REPOURL}/${GRP_URL}

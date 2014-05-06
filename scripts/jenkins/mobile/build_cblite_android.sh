@@ -34,7 +34,6 @@ export DISPLAY=:0
 set -e
 
 LOG_TAIL=-24
-CURL_CMD="curl --fail --retry 10"
 
 
 function usage
@@ -63,10 +62,12 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 EDITION=${3}
 
+PKGSTORE=s3://packages.northscale.com/latestbuilds/mobile/${VERSION}
+PUT_CMD="s3cmd put -P"
+
 export MAVEN_UPLOAD_VERSION=${REVISION}
 export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 
-CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
 
 PLATFORM=linux-amd64
@@ -136,7 +137,7 @@ rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-wget --no-verbose ${CBFS_URL}/${SGW_PKG}
+wget --no-verbose ${PKGSTORE}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 
@@ -295,13 +296,12 @@ if  [[ -e ${WORKSPACE}/04_android_package.log ]]
     tail ${LOG_TAIL}                            ${WORKSPACE}/04_android_package.log
 fi
 
-echo ============================================ upload ${CBFS_URL}/${AND_ZIP}
+echo ============================================ upload ${PKGSTORE}/${AND_ZIP}
 echo  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}
-file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} || exit 99
-cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP} ${WORKSPACE}/${AND_ZIP}
-echo  ${WORKSPACE}/${AND_ZIP}
-
-${CURL_CMD} -XPUT --data-binary @${WORKSPACE}/${AND_ZIP} ${CBFS_URL}/${AND_ZIP}
+file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}  || exit 99
+cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}     ${WORKSPACE}/${AND_ZIP}
+echo        ${WORKSPACE}/${AND_ZIP}
+${PUT_CMD}  ${WORKSPACE}/${AND_ZIP}                      ${PKGSTORE}/${AND_ZIP}
 
 
 cd ${ANDR_LITESRV_DIR}
@@ -329,8 +329,8 @@ if  [[ -e ${WORKSPACE}/06_package_javadocs.log ]]
     tail ${LOG_TAIL}                            ${WORKSPACE}/06_package_javadocs.log
 fi
 
-echo ============================================ upload  ${CBFS_URL}/${DOCS_ZIP}
-${CURL_CMD} -XPUT --data-binary @${WORKSPACE}/${DOCS_ZIP} ${CBFS_URL}/${DOCS_ZIP}
+echo ============================================ upload  ${PKGSTORE}/${DOCS_ZIP}
+${PUT_CMD}  ${WORKSPACE}/${DOCS_ZIP}                      ${PKGSTORE}/${DOCS_ZIP}
 
 
 echo ============================================ removing couchbase-sync-gateway
