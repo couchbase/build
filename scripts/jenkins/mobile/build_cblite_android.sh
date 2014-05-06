@@ -186,12 +186,22 @@ echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --f
 echo ".......................................stopping emulator"
 ./stop_android_emulator.sh  || true
 echo ".......................................starting emulator"
-./start_android_emulator.sh ${EMULATOR} -no-window -verbose -no-audio &
+./start_android_emulator.sh ${EMULATOR} -no-window -verbose -no-audio -no-skin &
 echo ".......................................waiting for emulator"
 echo ""
 sleep 10
 adb wait-for-device
-sleep 90
+sleep 30
+
+OUT=`adb shell getprop init.svc.bootanim`
+while [[ ${OUT:0:7}  != 'stopped' ]]; do
+		OUT=`adb shell getprop init.svc.bootanim`
+		echo 'Waiting for emulator to fully boot...'
+		sleep 10
+done
+
+
+
 echo "ADB log for build ${BUILD_NUMBER}"      > ${WORKSPACE}/01_adb.log
 ( adb logcat -v time   2>&1 )                >> ${WORKSPACE}/01_adb.log &
 
