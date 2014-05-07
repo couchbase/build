@@ -20,7 +20,9 @@ export DISPLAY=:0
 set -e
 
 CURL_CMD="curl --fail --retry 10"
+
 PUT_CMD="s3cmd put -P"
+GET_CMD="s3cmd get"
 
 LIST_OF_JARS="                \
               android         \
@@ -127,7 +129,7 @@ mkdir -p  ${ANDROID_JAR_DIR}
 cd        ${ANDROID_JAR_DIR}
 echo ============================================  download ${PKGSTORE}/${AND_ZIP_SRC}
 
-wget  --no-verbose  ${PKGSTORE}/${AND_ZIP_SRC}
+${GET_CMD}  ${PKGSTORE}/${AND_ZIP_SRC}
 unzip ${AND_ZIP_SRC}
 
 echo ============================================  renumber to ${AND_ZIP_DST}

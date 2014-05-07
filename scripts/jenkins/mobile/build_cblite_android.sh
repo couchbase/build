@@ -64,6 +64,7 @@ EDITION=${3}
 
 PKGSTORE=s3://packages.couchbase.com/builds/mobile/${VERSION}
 PUT_CMD="s3cmd put -P"
+GET_CMD="s3cmd get"
 
 export MAVEN_UPLOAD_VERSION=${REVISION}
 export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
@@ -137,7 +138,7 @@ rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-wget --no-verbose ${PKGSTORE}/${SGW_PKG}
+${GET_CMD}  ${PKGSTORE}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 
