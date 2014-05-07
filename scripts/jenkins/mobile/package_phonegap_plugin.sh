@@ -84,7 +84,7 @@ unzip -q android_jars.zip
 mkdir -p ${AND_DIR}
 
 # copy all jar files into the target directory
-cp -r ${DOWN_ADIR}/*.jar ${AND_DIR}
+cp ${DOWN_ADIR}/**/*.jar ${AND_DIR}
 
 popd                     2>&1 >/dev/null
 
