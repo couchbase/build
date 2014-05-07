@@ -75,12 +75,12 @@ if [[ -e ${DOWN_ADIR} ]] ; then rm -rf ${DOWN_ADIR} ; fi
 mkdir -p ${DOWN_ADIR}
 pushd    ${DOWN_ADIR}    2>&1 >/dev/null
 
-wget --no-verbose ${ANDROID_URL}
+wget --no-verbose -O android_jars.zip ${ANDROID_URL}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${AND_PKG}" ; exit ${STATUS} ; fi
 
 echo ======== expand android =================================
-unzip -q ${AND_PKG}
+unzip -q android_jars.zip
 mkdir -p ${AND_DIR}
 
 # copy all jar files into the target directory
