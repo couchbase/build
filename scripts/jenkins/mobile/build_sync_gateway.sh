@@ -36,8 +36,14 @@ GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
-
-PKGSTORE=s3://packages.couchbase.com/builds/mobile/${VERSION}
+if [[ ${VERSION} =~ '([0-9.]*)-'  ]]
+  then
+    RELEASE=${BASH_REMATCH[1]}
+    PKGSTORE=s3://packages.couchbase.com/builds/mobile/${RELEASE}/${VERSION}
+else
+    echo "illegal value for BLD_TO_RELEASE: ${BLD_TO_RELEASE}"
+    exit 88
+fi
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 PLATFRM=${3}
