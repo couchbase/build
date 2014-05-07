@@ -134,6 +134,7 @@ git pull
 
 cd ${WORKSPACE}
 echo ============================================  install sync_gateway
+echo     ${PKGSTORE}/${SGW_PKG}
 rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
