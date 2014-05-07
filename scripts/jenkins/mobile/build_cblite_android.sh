@@ -62,7 +62,8 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 EDITION=${3}
 
-PKGSTORE=s3://packages.couchbase.com/builds/mobile/${VERSION}/${REVISION}
+PKG_SRCD=s3://packages.couchbase.com/builds/mobile/sync_gateway/${VERSION}/${SYNCGATE_VERSION}
+PKGSTORE=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${REVISION}
 PUT_CMD="s3cmd put -P"
 GET_CMD="s3cmd get"
 
@@ -134,12 +135,12 @@ git pull
 
 cd ${WORKSPACE}
 echo ============================================  install sync_gateway
-echo     ${PKGSTORE}/${SGW_PKG}
+echo     ${PKG_SRCD}/${SGW_PKG}
 rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-${GET_CMD}  ${PKGSTORE}/${SGW_PKG}
+${GET_CMD}  ${PKG_SRCD}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 

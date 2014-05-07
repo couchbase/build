@@ -40,7 +40,7 @@ REVISION=${VERSION}-${BUILD_NUMBER}
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 EDITION=${3}
 
-PKGSTORE=s3://packages.couchbase.com/builds/mobile/${VERSION}/${REVISION}
+PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${REVISION}
 PUT_CMD="s3cmd put -P"
 
 LOG_FILE=${WORKSPACE}/build_ios_results.log

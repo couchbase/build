@@ -40,7 +40,7 @@ VERSION=${2}
 if [[ ${VERSION} =~ $vrs_rex ]]
   then
     RELEASE=${BASH_REMATCH[1]}
-    PKGSTORE=s3://packages.couchbase.com/builds/mobile/${RELEASE}/${VERSION}
+    PKGSTORE=s3://packages.couchbase.com/builds/mobile/sync_gateway/${RELEASE}/${VERSION}
 else
     echo "illegal value for VERSION: ${VERSION}"
     exit 88
