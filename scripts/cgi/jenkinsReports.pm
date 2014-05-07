@@ -12,12 +12,12 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( last_done_sgw_bld  last_done_sgw_pkg   last_good_sgw_bld last_good_sgw_pkg \
+our @EXPORT_OK   = qw( last_done_sgw_trigger  last_done_sgw_package   last_good_sgw_trigger last_good_sgw_package \
                        last_done_ios_bld  last_good_ios_bld   last_done_and_bld last_good_and_bld \
                        last_done_repo     last_commit_valid   get_builder       last_done_server  \
                      );
 
-our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_bld  &last_done_sgw_pkg   &last_good_sgw_bld  &last_good_sgw_pkg )],
+our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_trigger  &last_done_sgw_package   &last_good_sgw_trigger  &last_good_sgw_package )],
                      IOS_ANDROID  => [qw( &last_done_ios_bld  &last_good_ios_bld   &last_done_and_bld  &last_good_and_bld )],
                      DEFAULT      => [qw( &last_done_repo     &last_commit_valid   &get_builder        &last_done_server  )],
                    );
@@ -51,21 +51,24 @@ sub get_builder
     my ($platform, $branch, $type, $prod) = @_;
     my  $builder;
     
+    if ($type eq 'trigger')
+        {
+        if ($prod eq 'sgw')  { $builder = "build_sync_gateway_".$branch;    }
+        }
     if ($type eq 'build')
         {
-        if ($prod eq 'sgw')  { $builder = $type."_sync_gateway_".$branch;   }
         if ($prod eq 'ios')  { $builder = "build_cblite_ios_".$branch;      }
         if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch;  }
         }
-    if ($type eq 'package')  { $builder = $type."_sync_gateway-".$platform; }
-    if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);  }
+    if ($type eq 'package')  { $builder = "build_sync_gateway_".$branch."_".$platform;  }
+    if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);      }
     return($builder);
     }
 
-############                        last_done_sgw_pkg ( platform, branch )
+############                        last_done_sgw_package ( platform, branch )
 #          
 #                                   returns ( job_num, build_num, is_build_running, build_date, status )
-sub last_done_sgw_pkg
+sub last_done_sgw_package
     {
     my ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "package", "sgw");
@@ -174,24 +177,24 @@ sub last_done_sgw_pkg
 
 
 
-############                        last_done_sgw_bld ( platform, branch )
+############                        last_done_sgw_trigger ( branch )
 #          
 #                                   returns ( build_num, is_build_running, build_date, status )
-sub last_done_sgw_bld
+sub last_done_sgw_trigger
     {
-    ($platform, $branch) = @_;
-    my $builder  = get_builder($platform, $branch, "build", "sgw");
+    ($branch) = @_;
+    my $builder  = get_builder('None',  $branch, "build", "sgw");
     my $property = 'lastCompletedBuild';
     return_build_info($builder, $property);
     }
    
-############                        last_good_sgw_bld ( platform, branch )
+############                        last_good_sgw_trigger ( branch )
 #          
 #                                   returns ( build_num, is_build_running, build_date, status )
-sub last_good_sgw_bld
+sub last_good_sgw_trigger
     {
-    ($platform, $branch) = @_;
-    my $builder  = get_builder($platform, $branch, "build", "sgw");
+    ($branch) = @_;
+    my $builder  = get_builder('None', $branch, "build", "sgw");
     my $property = 'lastSuccessfulBuild';
     return_build_info($builder, $property);
     }

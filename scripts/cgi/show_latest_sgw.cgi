@@ -6,7 +6,7 @@
 #  Call with these parameters:
 #  
 #  PLATFORM        e.g. centos-x64, ..., ubuntu-x86
-#  BRANCH          e.g. master, 2.5.0
+#  BRANCH          e.g. master, 100
 #  TYPE            'build' or 'package'
 #  
 use warnings;
@@ -34,8 +34,8 @@ my $delay = 1 + int rand(5.3);    sleep $delay;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
-my %release = ( 'master' => '0.0',
-                'stable' => '1.0',
+my %release = ( 'master' => '0.0.0',
+                '100'    => '1.0.0',
               );
 my $builder;
 
@@ -67,42 +67,55 @@ sub print_HTML_Page
 my $usage = "ERROR: must specify 'platform', 'branch', 'type'\n\n"
            ."<PRE>"
            ."For example:\n\n"
-           ."    $installed_URL?platform=centos-x86&branch=master&type=build\n"
-           ."    $installed_URL?platform=ubuntu-x64&branch=2.5.0&type=package\n"
+           ."    $installed_URL?branch=master&type=trigger\n"
+           ."    $installed_URL?platform=ubuntu-x64&branch=100&type=package\n"
            ."</PRE><BR>"
            ."\n"
            ."\n";
 
 my ($platform, $branch, $job_type);
 
-if ( $query->param('platform') && $query->param('branch') && $query->param('type') )
+if ( $query->param('branch') && $query->param('type') )
     {
-    $platform = $query->param('platform');
     $branch   = $query->param('branch');
     $job_type = $query->param('type');
-    if ( ($job_type ne 'build') && ($job_type ne 'package'))
+    
+    if    ( $job_type eq 'trigger')
+        {
+        $builder = "build_sync_gateway_".$branch;
+        $builder  = jenkinsReports::get_builder('None', $branch, $job_type, 'sgw');
+        }
+    elsif ( $job_type eq 'package')
+        {
+        if ( $query->param('platform') )
+            {
+            $platform = $query->param('platform');
+            $builder  = jenkinsReports::get_builder($platform, $branch, $job_type, 'sgw');
+            }
+        else
+            {
+            if ($DEBUG)  { print STDERR "platform required for job_type: $job_type\n"; }
+            print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
+            exit;
+            }
+        }
+    else
         {
         if ($DEBUG)  { print STDERR "illegal job_type: $job_type\n"; }
         print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
         exit;
         }
-    $builder  = jenkinsReports::get_builder($platform, $branch, $job_type, 'sgw');
     if ($DEBUG)  { print STDERR "\nready to start with ($builder, $branch)\n"; }
-    }
-else
-    {
-    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
-    exit;
     }
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 
 
 #### S T A R T  H E R E 
 
-if ($job_type eq 'build')   { ($bldnum,            $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_bld($platform, $branch);
+if ($job_type eq 'trigger') { ($bldnum,            $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_trigger($branch);
                                         $rev_numb = $release{$branch}.'-'.$bldnum;
                             }
-if ($job_type eq 'package') { ($bldnum, $rev_numb, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_pkg($platform, $branch);
+if ($job_type eq 'package') { ($bldnum, $rev_numb, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_package($platform, $branch);
                             }
 
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
