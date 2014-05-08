@@ -190,6 +190,8 @@ echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --f
 echo ".......................................stopping emulator"
 ./stop_android_emulator.sh  || true
 echo ".......................................starting emulator"
+# remove Android emulator temporary directory
+rm -rf /tmp/android-${USER}
 ./start_android_emulator.sh ${EMULATOR} -no-window -verbose -no-audio -no-skin &
 echo ".......................................waiting for emulator"
 echo ""
