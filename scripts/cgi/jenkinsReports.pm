@@ -13,9 +13,9 @@ our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( last_done_sgw_trigger  last_done_sgw_package  last_good_sgw_trigger  last_good_sgw_package \
-                       last_done_ios_bld      last_good_ios_bld       last_done_and_bld     last_good_and_bld     \
+                       last_done_ios_bld      last_good_ios_bld      last_done_and_bld      last_good_and_bld     \
                        get_builder            link_to_package                                                     \
-                       last_done_repo         last_commit_valid       last_done_server                            \
+                       last_done_repo         last_commit_valid      last_done_server                             \
                      );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_trigger  &last_done_sgw_package   &last_good_sgw_trigger  &last_good_sgw_package )],
@@ -39,9 +39,17 @@ my $TIMEZONE = `date +%Z`;    chomp($TIMEZONE);
 
 sub date_from_id
     {
-    my ($jobID) = @_;
+    my ($jobID, $brief) = @_;
+    
+    my ($dat, $hor, $min, $sec);
     my $date_rex = '([0-9-]+)_([0-9]+)-([0-9]+)-([0-9]+)';
-    if ($jobID =~ $date_rex)  { return $1.'&nbsp;<SMALL>'."$2:$3:$4".'&nbsp;'.$TIMEZONE.'</SMALL>'; }
+    
+    if ($jobID =~ $date_rex)
+        {
+        $dat = $1;  $hor = $2;  $min = $3;  $sec = $4;
+        if (defined($brief)) {  return $dat; }
+        else                 {  return $dat.'&nbsp;<SMALL>'."$hor:$min:$sec".'&nbsp;'.$TIMEZONE.'</SMALL>'; }
+        }
     return $jobID;
     }
 
@@ -217,13 +225,13 @@ sub last_done_sgw_package
     
     my $result  = jenkinsQuery::get_json($builder.'/'.$jobnum);
     $is_running = 'unknown';
-    if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');   if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
+    if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');        if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
  
     $bld_date   = 'unknown';
-    if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'} );      if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }}
+    if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'}, 'brief' ); if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }          }
 
     $isgood     = 'unknown';
-    if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS'); if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
+    if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS');      if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
  
     return( $jobnum, $found_bldnum, $is_running, $bld_date, $isgood );
     }
