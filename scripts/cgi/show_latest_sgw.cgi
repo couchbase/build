@@ -80,14 +80,14 @@ sub link_to_package
     
     my %display = ( 'centos-x64' => 'RPM',
                     'centos-x86' => 'RPM',
-                    'macosx-x64' => 'TAR.Z',
+                    'macosx-x64' => 'TAR',
                     'ubuntu-x64' => 'DEB',
                     'ubuntu-x86' => 'DEB',
                   );
     
     $URL="http://packages.couchbase.com/builds/mobile/sync_gateway/".$release."/".$revision."/couchbase-sync-gateway_".$revision."_".$pkgname{$platform};
     
-    $HTML = '<a href="'.$URL.'">'.$display{$platform}.'</A>';
+    $HTML = '&nbsp;&nbsp;&nbsp;<a href="'.$URL.'">'.$display{$platform}.'</A>';
     }
 
 my $usage = "ERROR: must specify 'platform', 'branch', 'type'\n\n"
