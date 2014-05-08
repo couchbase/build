@@ -183,7 +183,7 @@ sub last_done_sgw_package
 sub last_done_sgw_trigger
     {
     ($branch) = @_;
-    my $builder  = get_builder('None',  $branch, "build", "sgw");
+    my $builder  = get_builder('None',  $branch, "trigger", "sgw");
     my $property = 'lastCompletedBuild';
     return_build_info($builder, $property);
     }
@@ -194,7 +194,7 @@ sub last_done_sgw_trigger
 sub last_good_sgw_trigger
     {
     ($branch) = @_;
-    my $builder  = get_builder('None', $branch, "build", "sgw");
+    my $builder  = get_builder('None', $branch, "trigger", "sgw");
     my $property = 'lastSuccessfulBuild';
     return_build_info($builder, $property);
     }
