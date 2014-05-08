@@ -64,6 +64,32 @@ sub print_HTML_Page
     print $query->end_html;
     }
 
+sub link_to_package
+    {
+    my ($revision, $platform) = @_;
+    my ($release, $URL, $HTML);
+
+    if ($revision =~ /[0-9.]*-([0-9]*)/)  { $release = $1; }
+
+    my %pkgname = ( 'centos-x64' => 'x86_64.rpm',
+                    'centos-x86' => 'i386.rpm',
+                    'macosx-x64' => 'x86_64.tar.z',
+                    'ubuntu-x64' => 'amd65.deb',
+                    'ubuntu-x86' => 'i386.deb',
+                  );
+    
+    my %display = ( 'centos-x64' => 'RPM',
+                    'centos-x86' => 'RPM',
+                    'macosx-x64' => 'TAR.Z',
+                    'ubuntu-x64' => 'DEB',
+                    'ubuntu-x86' => 'DEB',
+                  );
+    
+    $URL="http://packages.couchbase.com/builds/mobile/sync_gateway/".$release."/".$revision."/couchbase-sync-gateway_".$revision."_".$pkgname{$platform};
+    
+    $HTML = '<a href="'.$URL.'">'.$display{$platform}.'</A>';
+    }
+
 my $usage = "ERROR: must specify 'platform', 'branch', 'type'\n\n"
            ."<PRE>"
            ."For example:\n\n"
@@ -133,7 +159,7 @@ elsif ($bldstatus)
     my $made_color;    $made_color = $good_color;
     
     print_HTML_Page( jenkinsQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date ),
-                     $running,
+                     link_to_package($bldnum, $platform),
                      $builder,
                      $made_color );
     }
