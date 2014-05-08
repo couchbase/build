@@ -34,11 +34,11 @@ my $delay = 1 + int rand(5.3);    sleep $delay;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
-my %release = ( 'master' => '0.0.0',
-                '100'    => '1.0.0',
+my %release = ( 'master'   => '0.0.0',
+                '100'      => '1.0.0',
               );
-my %edition = ( 'master'        => 'community',
-                '100',          => 'enterprise',
+my %edition = ( 'master'   => 'community',
+                '100',     => 'enterprise',
               );
 my $builder;
 
@@ -136,8 +136,8 @@ elsif ($bldstatus)
     {
     my $made_color;    $made_color = $good_color;
     
-    print_HTML_Page( jenkinsQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date ),
-                     jenkinsReports::link_to_package('sgw', $bldnum, $platform, $edition{$branch}),
+    print_HTML_Page( jenkinsQuery::html_OK_link( $builder,  $bldnum,   $rev_numb, $bld_date ),
+                     jenkinsReports::link_to_package('sgw', $rev_numb, $platform, $edition{$branch}),
                      $builder,
                      $made_color );
     }
