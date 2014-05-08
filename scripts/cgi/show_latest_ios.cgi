@@ -33,7 +33,7 @@ my $delay = 3 + int rand(3.3);    sleep $delay;
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
 my %release = ( 'master'        => '0.0.0',
-                'release/1.0.0' => '1.0.0',
+                '100'           => '1.0.0',
               );
 my $builder;
 
