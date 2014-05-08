@@ -35,6 +35,9 @@ my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', 
 my %release = ( 'master'        => '0.0.0',
                 '100'           => '1.0.0',
               );
+my %edition = ( 'master'        => 'community',
+                '100',          => 'enterprise',
+              );
 my $builder;
 
 my $timestamp = "";
@@ -115,7 +118,7 @@ elsif ($bldstatus)
     my $made_color;    $made_color = $good_color;
     
     print_HTML_Page( jenkinsQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date ),
-                     $running,
+                     jenkins::Reports::link_to_package('and', $bldnum, $platform, $edition{$branch}),
                      $builder,
                      $made_color );
     }

@@ -12,14 +12,16 @@ use Exporter qw(import);
 our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
-our @EXPORT_OK   = qw( last_done_sgw_trigger  last_done_sgw_package   last_good_sgw_trigger last_good_sgw_package \
-                       last_done_ios_bld  last_good_ios_bld   last_done_and_bld last_good_and_bld \
-                       last_done_repo     last_commit_valid   get_builder       last_done_server  \
+our @EXPORT_OK   = qw( last_done_sgw_trigger  last_done_sgw_package  last_good_sgw_trigger  last_good_sgw_package \
+                       last_done_ios_bld      last_good_ios_bld       last_done_and_bld     last_good_and_bld     \
+                       get_builder            link_to_package                                                     \
+                       last_done_repo         last_commit_valid       last_done_server                            \
                      );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_trigger  &last_done_sgw_package   &last_good_sgw_trigger  &last_good_sgw_package )],
-                     IOS_ANDROID  => [qw( &last_done_ios_bld  &last_good_ios_bld   &last_done_and_bld  &last_good_and_bld )],
-                     DEFAULT      => [qw( &last_done_repo     &last_commit_valid   &get_builder        &last_done_server  )],
+                     IOS_ANDROID  => [qw( &last_done_ios_bld      &last_good_ios_bld       &last_done_and_bld      &last_good_and_bld     )],
+                     DEFAULT      => [qw( &get_builder            &link_to_package         \
+                                          &last_done_repo         &last_commit_valid       &last_done_server  )],
                    );
 
 my $DEBUG = 0;   # FALSE
@@ -64,6 +66,54 @@ sub get_builder
     if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);      }
     return($builder);
     }
+
+############                        link_to_package( prod, revision, platform, edtion )
+#          
+#                                   returns ( HTML )
+sub link_to_package
+    {
+    my ($prod, $revision, $platform, $edition) = @_;
+    my ($release, $URL, $HTML);
+
+    if ($revision =~ /([0-9.]*)-[0-9]*/)  { $release = $1; }
+
+    my %pkgname = ( 'enterprise' => { 'centos-x64' => 'x86_64.rpm',
+                                      'centos-x86' => 'i386.rpm',
+                                      'macosx-x64' => 'macosx-x86_64.tar.gz',
+                                      'ubuntu-x64' => 'amd65.deb',
+                                      'ubuntu-x86' => 'i386.deb',
+                                    },
+                    'community'  => { 'centos-x64' => 'x86_64-community.rpm',
+                                      'centos-x86' => 'i386-community.rpm',
+                                      'macosx-x64' => 'macosx-x86_64-community.tar.gz',
+                                      'ubuntu-x64' => 'amd64-community.deb',
+                                      'ubuntu-x86' => 'i386-community.deb',
+                                    },
+                  );
+    
+    my %display = ( 'centos-x64' => 'RPM',
+                    'centos-x86' => 'RPM',
+                    'macosx-x64' => 'TAR',
+                    'ubuntu-x64' => 'DEB',
+                    'ubuntu-x86' => 'DEB',
+                  );
+    
+    my %jobname = ( 'and'    => "build_cblite_android",
+                    'ios'    => "build_cblite_ios",
+                    'sgw'    => "couchbase-sync-gateway",
+                  );
+    
+    my %bucket  = ( 'and'    => "android",
+                    'ios'    => "ios",
+                    'sgw'    => "sync_gateway",
+                  );
+    
+    $URL  = "http://packages.couchbase.com/builds/mobile/".$bucket{$prod}."/"
+          . $release."/".$revision."/".$jobname{$prod}."_".$revision."_".$pkgname{$edition}{$platform};
+    
+    $HTML = '&nbsp;&nbsp;&nbsp;<a href="'.$URL.'">'.$display{$platform}.'</A>';
+    }
+
 
 ############                        last_done_sgw_package ( platform, branch )
 #          
@@ -265,61 +315,6 @@ sub last_done_repo
    
 
 
-############                        last_commit_valid ( job_name, branch )
-#          
-#                                   returns ( build_num, is_build_running, build_date, status, change_url )
-sub last_commit_valid
-    {
-    my ($builder, $branch) = @_;
-    my $property = 'lastCompletedBuild';
-    my ($gerrit_url, $gerrit_num);
-    
-    my ($build_num, $is_running, $bld_date, $bld_stat) = return_build_info($builder, $property);
-    
-    if ($DEBUG)  { print STDERR "last_commit_valid got build info ($build_num, $is_running, $bld_date, $bld_stat)\n"; }
-    
-    my $result  = jenkinsQuery::get_json($builder.'/'.$build_num);
-    if ($DEBUG)  { print STDERR "result from $builder/$build_num\n"; }
-    
-    for my $aa (0 .. scalar $$results{'actions'})
-        {
-        if ($DEBUG)  { print STDERR "-----------------------------aa is $aa\n"; }
-        if ( defined( $$results{'actions'}[$aa]{'parameters'} ))
-            {
-            for my $pp (0 .. scalar $$result{'actions'}[$aa]{'parameters'})
-                {
-                if ($DEBUG)  { print STDERR "pp is $pp-----------------------------\n"; }
-                if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_NUMBER')
-                    {
-                    $gerrit_num = $$result{'actions'}[$aa]{'parameters'}[$pp]{'value'};
-                    if ($DEBUG)  { print STDERR "detected revision: $gerrit_num\n"; }
-                    }
-                if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_URL')
-                    {
-                        $gerrit_url = $$result{'actions'}[$aa]{'parameters'}[$pp]{'value'};
-                    if ($DEBUG)  { print STDERR "detected revision: $gerrit_url\n"; }
-                    }
-                last if (defined( $gerrit_num) && defined( $gerrit_url) );
-                }
-        }   }
-    return($build_num, $is_running, $bld_date, $bld_stat, $gerrit_url, $gerrit_num);
-    }
-   
-
-############                        last_done_server ( <os>, <arch>, <branch> )
-#          
-#                                   returns ( build_num, is_build_running, build_date, status, change_url )
-#          
-sub last_done_server
-    {
-    my ($os, $arch, $branch) = @_;
-    
-    my $builder  = jenkinsQuery::get_server_builder($os, $arch, $branch);
-    my $property = 'lastCompletedBuild';
-    return_build_info($builder, $property);
-    }
-
-
 ############                        return_build_info ( job_name, property )
 #          
 #                                       my $builder  = "build_sync_gateway_$branch";
@@ -375,6 +370,59 @@ sub return_build_info
     return( $bldnum, $is_running, $bld_date, $isgood );
     }
 
+############                        last_commit_valid ( job_name, branch )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status, change_url )
+sub last_commit_valid
+    {
+    my ($builder, $branch) = @_;
+    my $property = 'lastCompletedBuild';
+    my ($gerrit_url, $gerrit_num);
+    
+    my ($build_num, $is_running, $bld_date, $bld_stat) = return_build_info($builder, $property);
+    
+    if ($DEBUG)  { print STDERR "last_commit_valid got build info ($build_num, $is_running, $bld_date, $bld_stat)\n"; }
+    
+    my $result  = jenkinsQuery::get_json($builder.'/'.$build_num);
+    if ($DEBUG)  { print STDERR "result from $builder/$build_num\n"; }
+    
+    for my $aa (0 .. scalar $$results{'actions'})
+        {
+        if ($DEBUG)  { print STDERR "-----------------------------aa is $aa\n"; }
+        if ( defined( $$results{'actions'}[$aa]{'parameters'} ))
+            {
+            for my $pp (0 .. scalar $$result{'actions'}[$aa]{'parameters'})
+                {
+                if ($DEBUG)  { print STDERR "pp is $pp-----------------------------\n"; }
+                if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_NUMBER')
+                    {
+                    $gerrit_num = $$result{'actions'}[$aa]{'parameters'}[$pp]{'value'};
+                    if ($DEBUG)  { print STDERR "detected revision: $gerrit_num\n"; }
+                    }
+                if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_URL')
+                    {
+                        $gerrit_url = $$result{'actions'}[$aa]{'parameters'}[$pp]{'value'};
+                    if ($DEBUG)  { print STDERR "detected revision: $gerrit_url\n"; }
+                    }
+                last if (defined( $gerrit_num) && defined( $gerrit_url) );
+                }
+        }   }
+    return($build_num, $is_running, $bld_date, $bld_stat, $gerrit_url, $gerrit_num);
+    }
+   
+
+############                        last_done_server ( <os>, <arch>, <branch> )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status, change_url )
+#          
+sub last_done_server
+    {
+    my ($os, $arch, $branch) = @_;
+    
+    my $builder  = jenkinsQuery::get_server_builder($os, $arch, $branch);
+    my $property = 'lastCompletedBuild';
+    return_build_info($builder, $property);
+    }
 
 1;
 __END__
