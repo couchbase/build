@@ -118,7 +118,7 @@ elsif ($bldstatus)
     my $made_color;    $made_color = $good_color;
     
     print_HTML_Page( jenkinsQuery::html_OK_link( $builder, $bldnum, $rev_numb, $bld_date ),
-                     jenkins::Reports::link_to_package('ios', $bldnum, $platform, $edition{$branch}),
+                     jenkinsReports::link_to_package('ios', $bldnum, $platform, $edition{$branch}),
                      $builder,
                      $made_color );
     }
