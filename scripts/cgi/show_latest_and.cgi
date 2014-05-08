@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 
 # queries Factory Jenkins JSON api to find latest good 
-# android build of master or stable branch.
+# android build of master or release/1.0.0 branch.
 #  
 #  Call with these parameters:
 #  
-#  BRANCH          e.g. master, 2.5.0
+#  BRANCH          e.g. master, 100
 #  
 use warnings;
 #use strict;
@@ -32,8 +32,8 @@ my $delay = 2 + int rand(5.3);    sleep $delay;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
-my %release = ( 'master' => '0.0',
-                'stable' => '1.0',
+my %release = ( 'master'        => '0.0.0',
+                'release/1.0.0' => '1.0.0',
               );
 my $builder;
 
@@ -66,7 +66,7 @@ my $usage = "ERROR: must specify 'branch' and 'outcome'\n\n"
            ."<PRE>"
            ."For example:\n\n"
            ."    $installed_URL?branch=master&outcome=good\n"
-           ."    $installed_URL?branch=stable&outcome=done\n"
+           ."    $installed_URL?branch=100&outcome=done\n"
            ."</PRE><BR>"
            ."\n"
            ."\n";
