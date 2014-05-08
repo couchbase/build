@@ -281,7 +281,7 @@ sub last_good_ios_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "ios");
     my $property = 'lastSuccessfulBuild';
-    return_build_info($builder, $property);
+    return_build_info($builder, $property, 'brief');
     }
    
 
@@ -304,7 +304,7 @@ sub last_good_and_bld
     ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastSuccessfulBuild';
-    return_build_info($builder, $property);
+    return_build_info($builder, $property, 'brief');
     }
    
 
@@ -323,15 +323,13 @@ sub last_done_repo
    
 
 
-############                        return_build_info ( job_name, property )
-#          
-#                                       my $builder  = "build_sync_gateway_$branch";
+############                        return_build_info ( job_name, property, [ brief timestamp ] )
 #          
 #                                   returns ( build_num, is_build_running, build_date, status )
 #          
 sub return_build_info
     {
-    my ($job_name, $property) = @_;
+    my ($job_name, $property, $brief) = @_;
     my ($bldnum, $is_running, $bld_date, $isgood);
    
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$job_name.")\n";    }
@@ -367,13 +365,13 @@ sub return_build_info
     
     my $result  = jenkinsQuery::get_json($job_name.'/'.$bldnum);
     $is_running = 'unknown';
-    if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');   if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
+    if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');        if ($DEBUG) { print STDERR "setting is_running to $$result{'building'}\n";}}
      
     $bld_date   = 'unknown';
-    if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'} );     if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }}
+    if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'}, $brief );  if ($DEBUG) { print STDERR "setting bld_date   to $bld_date\n"; }          }
     
     $isgood     = 'unknown';
-    if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS'); if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
+    if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS');      if ($DEBUG) { print STDERR "setting isgood     to :$$result{'result'}:\n";}}
  
     return( $bldnum, $is_running, $bld_date, $isgood );
     }
