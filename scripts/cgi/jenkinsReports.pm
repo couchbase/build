@@ -80,7 +80,7 @@ sub link_to_package
     my %pkgname = ( 'enterprise' => { 'centos-x64' => 'x86_64.rpm',
                                       'centos-x86' => 'i386.rpm',
                                       'macosx-x64' => 'macosx-x86_64.tar.gz',
-                                      'ubuntu-x64' => 'amd65.deb',
+                                      'ubuntu-x64' => 'amd64.deb',
                                       'ubuntu-x86' => 'i386.deb',
                                     },
                     'community'  => { 'centos-x64' => 'x86_64-community.rpm',
