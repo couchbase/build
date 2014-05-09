@@ -311,7 +311,7 @@ ${PUT_CMD}  ${WORKSPACE}/${AND_ZIP}                      ${PKGSTORE}/${AND_ZIP}
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  generate javadocs
-JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:javadoc'
+JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:generateJavadocs'
 
 ( ${JAVADOC_CMD}  2>&1 )                     >> ${WORKSPACE}/05_javadocs.log
 
