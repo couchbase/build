@@ -81,45 +81,53 @@ sub get_builder
 sub link_to_package
     {
     my ($prod, $revision, $platform, $edition) = @_;
-    my ($release, $URL, $HTML);
+    my  $HTML;
+    my ($release, $display, $pkg_name, $URL);
 
     if ($revision =~ /([0-9.]*)-[0-9]*/)  { $release = $1; }
-
-    my %pkgname = ( 'enterprise' => { 'centos-x64' => 'x86_64.rpm',
-                                      'centos-x86' => 'i386.rpm',
-                                      'macosx-x64' => 'macosx-x86_64.tar.gz',
-                                      'ubuntu-x64' => 'amd64.deb',
-                                      'ubuntu-x86' => 'i386.deb',
-                                    },
-                    'community'  => { 'centos-x64' => 'x86_64-community.rpm',
-                                      'centos-x86' => 'i386-community.rpm',
-                                      'macosx-x64' => 'macosx-x86_64-community.tar.gz',
-                                      'ubuntu-x64' => 'amd64-community.deb',
-                                      'ubuntu-x86' => 'i386-community.deb',
-                                    },
-                  );
     
-    my %display = ( 'centos-x64' => 'RPM',
-                    'centos-x86' => 'RPM',
-                    'macosx-x64' => 'TAR',
-                    'ubuntu-x64' => 'DEB',
-                    'ubuntu-x86' => 'DEB',
-                  );
-    
-    my %jobname = ( 'and'    => "build_cblite_android",
-                    'ios'    => "build_cblite_ios",
-                    'sgw'    => "couchbase-sync-gateway",
-                  );
+    if    ($prod eq 'and')
+        {
+        if ($edition eq 'community') { $pkg_name = 'couchbase-lite-'.$revision.'-android-community.zip'; }
+        else                         { $pkg_name = 'couchbase-lite-'.$revision.'-android.zip';           }
+        $display = 'ZIP';
+        }
+    elsif ($prod eq 'ios')
+        {
+        if ($edition eq 'community') { $pkg_name = 'cblite_ios_'    .$revision.'-community.zip';         }
+        else                         { $pkg_name = 'cblite_ios_'    .$revision.'.zip';                   }
+        $display = 'ZIP';
+        }
+    else
+        {
+        my %pkg_sfx = ( 'enterprise' => { 'centos-x64' => 'x86_64.rpm',
+                                          'centos-x86' => 'i386.rpm',
+                                          'macosx-x64' => 'macosx-x86_64.tar.gz',
+                                          'ubuntu-x64' => 'amd64.deb',
+                                          'ubuntu-x86' => 'i386.deb',
+                                        },
+                        'community'  => { 'centos-x64' => 'x86_64-community.rpm',
+                                          'centos-x86' => 'i386-community.rpm',
+                                          'macosx-x64' => 'macosx-x86_64-community.tar.gz',
+                                          'ubuntu-x64' => 'amd64-community.deb',
+                                          'ubuntu-x86' => 'i386-community.deb',
+                      },                );
+        $pkg_name = "couchbase-sync-gateway"."_".$revision."_".$pkg_sfx{$edition}{$platform};
+        
+        my %display = ( 'centos-x64' => 'RPM',  'centos-x86' => 'RPM',
+                        'ubuntu-x64' => 'DEB',  'ubuntu-x86' => 'DEB',
+                        'macosx-x64' => 'TGZ',
+                      );
+        $display = $display{$platform};
+        }
     
     my %bucket  = ( 'and'    => "android",
                     'ios'    => "ios",
                     'sgw'    => "sync_gateway",
                   );
+    $URL  = "http://packages.couchbase.com/builds/mobile/".$bucket{$prod}."/". $release."/".$revision."/".$pkg_name;
     
-    $URL  = "http://packages.couchbase.com/builds/mobile/".$bucket{$prod}."/"
-          . $release."/".$revision."/".$jobname{$prod}."_".$revision."_".$pkgname{$edition}{$platform};
-    
-    $HTML = '&nbsp;&nbsp;&nbsp;<a href="'.$URL.'">'.$display{$platform}.'</A>';
+    $HTML = '&nbsp;&nbsp;&nbsp;<a href="'.$URL.'">'.$display.'</A>';
     }
 
 

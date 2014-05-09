@@ -74,7 +74,8 @@ my $usage = "ERROR: must specify 'branch' and 'outcome'\n\n"
            ."\n"
            ."\n";
 
-my ($platform, $branch, $job_type);
+my  $platform = 'default';
+my ($branch, $job_type);
 
 if ( $query->param('branch') && $query->param('outcome') )
     {
