@@ -238,8 +238,7 @@ sub html_FAIL_link
     {
     my ($builder, $bnum, $is_running, $date) = @_;
     
-    my $HTML = '<font color="red">FAIL</font>&nbsp;&nbsp;' ."($date)". '&nbsp;&nbsp;'
-              .'<a href="'.$URL_ROOT.'/job/'.$builder.'/'.$bnum.'" target="_blank">build logs</a>';
+    my $HTML = '<font color="red"><a href="'.$URL_ROOT.'/job/'.$builder.'/'.$bnum.'" target="_blank">FAIL</a></font>&nbsp;&nbsp;'."($date)";
     
     return($HTML);
     }
