@@ -127,6 +127,9 @@ mkdir -p ${TARGET_BUILD_DIR}
 
 XCODE_CMD="xcodebuild CURRENT_PROJECT_VERSION=${BUILD_NUMBER} CBL_VERSION_STRING=${VERSION} CBL_SOURCE_REVISION=${REPO_SHA}"
 
+echo "using command: ${XCODE_CMD}"
+echo "using command: ${XCODE_CMD}"                                            >>  ${LOG_FILE}
+
 cd ${WORKSPACE}/couchbase-lite-ios
 for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation"
   do
