@@ -136,10 +136,10 @@ echo ============================================  renumber to ${AND_ZIP_DST}
 mv ${SRC_ROOTDIR}  ${DST_ROOTDIR}
 cd                 ${DST_ROOTDIR}
 
-change_jar_version  android          aar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
-change_jar_version  java-core        jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
-change_jar_version  java-javascript  jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
-change_jar_version  java-listener    jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
+change_jar_version  couchbase-lite-android          aar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
+change_jar_version  couchbase-lite-java-core        jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
+change_jar_version  couchbase-lite-java-javascript  jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
+change_jar_version  couchbase-lite-java-listener    jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
 
 cd                 ${ANDROID_JAR_DIR}
 zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
@@ -154,9 +154,9 @@ for J in ${LIST_OF_JARS} ; do prepare_bucket ${REPOURL}/${GRP_URL}/${J} ; prepar
 cd ${ANDROID_JAR_DIR}
 echo ============================================  upload to maven repository
 
-upload_new_package  android          aar  ${RELEASE_NUMBER}
-upload_new_package  java-core        jar  ${RELEASE_NUMBER}
-upload_new_package  java-javascript  jar  ${RELEASE_NUMBER}
-upload_new_package  java-listener    jar  ${RELEASE_NUMBER}
+upload_new_package  couchbase-lite-android          aar  ${RELEASE_NUMBER}
+upload_new_package  couchbase-lite-java-core        jar  ${RELEASE_NUMBER}
+upload_new_package  couchbase-lite-java-javascript  jar  ${RELEASE_NUMBER}
+upload_new_package  couchbase-lite-java-listener    jar  ${RELEASE_NUMBER}
 
 echo ============================================ `date`

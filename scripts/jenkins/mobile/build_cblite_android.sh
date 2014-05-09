@@ -180,7 +180,9 @@ if  [[ -e ${WORKSPACE}/00_android_build.log ]]
 fi
 echo ============================================  UNDO instantiate tokens
 cp  ${JAVA_VER_FILE}.ORIG ${JAVA_VER_FILE}
+rm  ${JAVA_VER_FILE}.ORIG
 cp  ${MANIFEST_FILE}.ORIG ${MANIFEST_FILE}
+rm  ${MANIFEST_FILE}.ORIG
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
