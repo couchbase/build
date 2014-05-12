@@ -78,9 +78,8 @@ sub dir_list
             $left  = $dat.'&nbsp;'.$tim.'&nbsp;&nbsp;'.$siz.'&nbsp;';
             $right = file_link($filepath)
             }
-        $HTML .= html_row($left, $right)."\n";
+        $HTML .= "    ".html_row($left, $right)."\n";
         }
-    
     return $HTML;
     }
 
@@ -100,17 +99,26 @@ sub get_timestamp
     $timestamp = "page generated $hour:$minute:$second  on $year-$month-$dayOfMonth";
     }
 
+sub html_row
+    {
+    my ($frag_left, $frag_right) = @_;
+    
+    my $HTML = "\n".'<tr>'."\n".'<td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr>'."\n";
+    return $HTML;
+    }
+
 sub print_HTML_Page
     {
-    my ($frag_left, $frag_right, $page_title, $color) = @_;
+    my ($table_rows, $page_title, $color) = @_;
     
     print $query->header;
     print $query->start_html( -title   => $page_title,
                               -BGCOLOR => $color,
                             );
-    print "\n".'<div style="overflow-x: hidden">'."\n"
-         .'<table border="0" cellpadding="0" cellspacing="0"><tr>'."\n".'<td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr>'."\n".'</table>'
-         .'</div>'."\n";
+    print "\n".'<div style="overflow-x: hidden">'."\n".'<table border="0" cellpadding="0" cellspacing="0">'
+              .$table_rows
+         ."\n".'</table>'
+              .'</div>'."\n";
     print $query->end_html;
     }
 
@@ -129,7 +137,7 @@ if ($DEBUG)  { print STDERR "\nready to start with ($repo)\n"; }
 
 #### S T A R T  H E R E 
 
-print_HTML_Page( expand_dir($repo), dir_list($repo), $repo, $note_color);
+print_HTML_Page( dir_list($repo), $repo, $note_color);
 
 
 # print "\n---------------------------\n";
