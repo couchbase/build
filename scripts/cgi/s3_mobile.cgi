@@ -20,6 +20,7 @@ BEGIN
 my $installed_URL='http://factory.hq.couchbase.com/cgi/s3_mobile.cgi';
 
 $DEFAULT_REPO = 's3://packages.couchbase.com/builds/mobile/';
+$S3CMD        = 's3cmd --config=/var/www/.s3cfg';
 
 use CGI qw(:standard);
 my  $query = new CGI;
@@ -62,7 +63,7 @@ sub dir_list
     
     my ($left, $right);
     
-    open(DIR, "s3cmd ls $s3_path |")  or die "$!";
+    open(DIR, "$S3CMD ls $s3_path |")  or die "$!";
     while(<DIR>)
         {
         if  ($_ =~ 'DIR')
@@ -101,13 +102,15 @@ sub get_timestamp
 
 sub print_HTML_Page
     {
-    my ($contents, $page_title, $color) = @_;
+    my ($frag_left, $frag_right, $page_title, $color) = @_;
     
     print $query->header;
     print $query->start_html( -title   => $page_title,
                               -BGCOLOR => $color,
                             );
-    print $contents;
+    print "\n".'<div style="overflow-x: hidden">'."\n"
+         .'<table border="0" cellpadding="0" cellspacing="0"><tr>'."\n".'<td valign="TOP">'.$frag_left.'</td><td valign="TOP">'.$frag_right.'</td></tr>'."\n".'</table>'
+         .'</div>'."\n";
     print $query->end_html;
     }
 
@@ -126,7 +129,7 @@ if ($DEBUG)  { print STDERR "\nready to start with ($repo)\n"; }
 
 #### S T A R T  H E R E 
 
-print_HTML_Page( dir_list($repo), $repo, $note_color);
+print_HTML_Page( expand_dir($repo), dir_list($repo), $repo, $note_color);
 
 
 # print "\n---------------------------\n";
