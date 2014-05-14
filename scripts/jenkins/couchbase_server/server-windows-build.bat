@@ -33,13 +33,7 @@ goto repo_download
 @echo on
 if not exist couchbase mkdir couchbase
 cd couchbase
-if not exist .\.repo (
-    mkdir    .\.repo
-    cd       .\.repo
-    git clone git://github.com/trondn/git-repo repo
-    cd ..
-    repo init -u git://github.com/couchbase/manifest -m %MANIFEST%
-)
+repo init -u git://github.com/couchbase/manifest -m %MANIFEST%
 repo sync --jobs=4
 set SOURCE_ROOT=%CD%
 
@@ -88,7 +82,7 @@ if "%LICENSE%" == "enterprise" (
 ) else (
    set BUILD_ENTERPRISE=False
 )
-nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE%
+nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE% EXTRA_CMAKE_OPTIONS="-D CMAKE_ERL_LIB_INSTALL_PREFIX=lib -D CMAKE_BUILD_TYPE=Release"
 
 cd ..
 if exist voltron goto voltron_exists
@@ -99,6 +93,8 @@ cd voltron
 git fetch
 git checkout    %VOLTRON_BRANCH%
 git pull origin %VOLTRON_BRANCH%
+git reset --hard
+git clean -dfx
 
 :package_win
 ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase-server %BUILD_NUMBER% %LICENSE%
