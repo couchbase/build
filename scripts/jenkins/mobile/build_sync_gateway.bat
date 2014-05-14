@@ -26,7 +26,7 @@ set  VERSION=%2
 if "%VERSION%" == "" call :usage 88
 
 set  RELEASE=%3
-if "%VERSION%" == "" call :usage 77
+if "%RELEASE%" == "" call :usage 77
 
 set  PLATFRM=%4
 if "%PLATFRM%" == "" call :usage 66
@@ -42,15 +42,15 @@ set GOOS=windows
 set OS=windows
 set EXEC=sync_gateway.exe
 
-if x%PROCESSOR_ARCHITECTURE:64=% NEQ x%PROCESSOR_ARCHITECTURE% (
+if NOT x%PROCESSOR_ARCHITECTURE:64=% == x%PROCESSOR_ARCHITECTURE% (
     set ARCH=amd64
     set GOARCH=amd64 
     )
-if x%PROCESSOR_ARCHITECTURE:86=% NEQ x%PROCESSOR_ARCHITECTURE% (
+if NOT x%PROCESSOR_ARCHITECTURE:86=% == x%PROCESSOR_ARCHITECTURE% (
     set ARCH=x86
     set GOARCH=386
     )
-if "%GOARCH%" EQ "" call :usage 44
+if "%GOARCH%" == "" call :usage 44
 
 set GOPLAT=%GOOS%-%GOARCH%
 set PLATFORM=%OS%-%ARCH%
@@ -60,10 +60,10 @@ set PKGTYPE=exe
 
 set PKG_NAME=couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
 
-if %EDITION:community=%  NEQ %EDITION% (
+if NOT %EDITION:community=%  == %EDITION% (
      set NEW_PKG_NAME=couchbase-sync-gateway_%VERSION%_%ARCHP%-%EDITION%.%PKGTYPE%
      )
-if %EDITION:enterprise=% NEQ %EDITION% (
+if NOT %EDITION:enterprise=% == %EDITION% (
      set NEW_PKG_NAME=%PKG_NAME%
      )
 
