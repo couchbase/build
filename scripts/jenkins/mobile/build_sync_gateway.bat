@@ -19,19 +19,19 @@
 ::          
 
 set  GITSPEC=%1
-if "%GITSPEC%" == "" call usage 99
+if "%GITSPEC%" == "" call :usage 99
 
 set  VERSION=%2
-if "%VERSION%" == "" call usage 88
+if "%VERSION%" == "" call :usage 88
 
 set  RELEASE=%3
-if "%VERSION%" == "" call usage 77
+if "%VERSION%" == "" call :usage 77
 
 set  PLATFRM=%4
-if "%PLATFRM%" == "" call usage 66
+if "%PLATFRM%" == "" call :usage 66
 
 set  EDITION=%5
-if "%EDITION%" == "" call usage 55
+if "%EDITION%" == "" call :usage 55
 
 set PUT_CMD="s3cmd put -P"
 set PKGSTORE="s3://packages.couchbase.com/builds/mobile/sync_gateway/%RELEASE%/%VERSION%"
@@ -49,7 +49,7 @@ if x%PROCESSOR_ARCHITECTURE:86=% NEQ x%PROCESSOR_ARCHITECTURE% (
     set ARCH=x86
     set GOARCH=386
     )
-if "%GOARCH%" EQ "" call usage 44
+if "%GOARCH%" EQ "" call :usage 44
 
 set GOPLAT=%GOOS%-%GOARCH%
 set PLATFORM=%OS%-%ARCH%
