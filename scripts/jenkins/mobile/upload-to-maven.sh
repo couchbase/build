@@ -29,10 +29,10 @@ REPOURL=http://files.couchbase.com/maven2
 MAVEN_UPLOAD_CREDENTS=${MAVEN_UPLOAD_USERNAME}:${MAVEN_UPLOAD_PASSWORD}
 
 LIST_OF_JARS="                \
-              android         \
-              java-core       \
-              java-javascript \
-              java-listener   \
+              couchbase-lite-android         \
+              couchbase-lite-java-core       \
+              couchbase-lite-java-javascript \
+              couchbase-lite-java-listener   \
              "
 function usage
     {

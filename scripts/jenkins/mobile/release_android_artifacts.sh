@@ -25,10 +25,10 @@ PUT_CMD="s3cmd put -P"
 GET_CMD="s3cmd get"
 
 LIST_OF_JARS="                \
-              android         \
-              java-core       \
-              java-javascript \
-              java-listener   \
+              couchbase-lite-android         \
+              couchbase-lite-java-core       \
+              couchbase-lite-java-javascript \
+              couchbase-lite-java-listener   \
              "
 MAVEN_UPLOAD_CREDENTS=${MAVEN_UPLOAD_USERNAME}:${MAVEN_UPLOAD_PASSWORD}
 
