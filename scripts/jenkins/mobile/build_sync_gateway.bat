@@ -17,6 +17,7 @@
 ::    e.g.: master         0.0.0-0000   0.0.0    windows-x64   community
 ::          release/1.0.0  1.0.0-1234   1.0.0    windows-x86   enterprise
 ::          
+set THIS_SCRIPT=%0
 
 set  GITSPEC=%1
 if "%GITSPEC%" == "" call :usage 99
@@ -172,8 +173,9 @@ goto :EOF
 :usage
     set ERR_CODE=%1
     echo.
-    echo "use:  %0   branch_name  version  platform  edition  [ OS ]  [ ARCH ]  [ DISTRO ]"
+    echo "use:  %THIS_SCRIPT%   branch_name  version  platform  edition  [ OS ]  [ ARCH ]  [ DISTRO ]"
     echo.
+    echo "exiting ERROR code: %ERR_CODE%"
     echo.
     exit %ERR_CODE%
     goto :EOF
