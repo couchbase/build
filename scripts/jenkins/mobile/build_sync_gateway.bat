@@ -60,10 +60,10 @@ set PKGTYPE=exe
 
 set PKG_NAME=couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
 
-if NOT %EDITION:community=%  == %EDITION% (
+if "%EDITION%" == "community"  (
      set NEW_PKG_NAME=couchbase-sync-gateway_%VERSION%_%ARCHP%-%EDITION%.%PKGTYPE%
      )
-if NOT %EDITION:enterprise=% == %EDITION% (
+if "%EDITION%" == "enterprise" (
      set NEW_PKG_NAME=%PKG_NAME%
      )
 
