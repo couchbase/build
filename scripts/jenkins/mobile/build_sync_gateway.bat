@@ -42,11 +42,11 @@ set GOOS=windows
 set OS=windows
 set EXEC=sync_gateway.exe
 
-if NOT x%PROCESSOR_IDENTIFIER:64=% == x%PROCESSOR_IDENTIFIER% (
+if NOT "%PROCESSOR_IDENTIFIER:64=%" == "%PROCESSOR_IDENTIFIER%" (
     set ARCH=amd64
     set GOARCH=amd64 
     )
-if NOT x%PROCESSOR_IDENTIFIER:86=% == x%PROCESSOR_IDENTIFIER% (
+if NOT "%PROCESSOR_IDENTIFIER:86=%" == "%PROCESSOR_IDENTIFIER%" (
     set ARCH=x86
     set GOARCH=386
     )
