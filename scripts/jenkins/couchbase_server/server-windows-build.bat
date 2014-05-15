@@ -90,11 +90,11 @@ if exist voltron goto voltron_exists
 :voltron_exists
 
 cd voltron
+git reset --hard
+git clean -dfx
 git fetch
 git checkout    %VOLTRON_BRANCH%
 git pull origin %VOLTRON_BRANCH%
-git reset --hard
-git clean -dfx
 
 :package_win
 ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase-server %BUILD_NUMBER% %LICENSE%
