@@ -122,7 +122,7 @@ cd %SGW_DIR%
 echo ======== build ===============================
 del /s/f/q bin
 echo ................. %PLAT_DIR%
-DEST_DIR=%SGW_DIR%\bin\%PLAT_DIR%
+set DEST_DIR=%SGW_DIR%\bin\%PLAT_DIR%
 mkdir -p %DEST_DIR%
 
 set GOPATH=%SGW_DIR%;%SGW_DIR%\vendor
