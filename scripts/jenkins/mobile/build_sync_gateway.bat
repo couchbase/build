@@ -126,7 +126,9 @@ DEST_DIR=%SGW_DIR%\bin\%PLAT_DIR%
 mkdir -p %DEST_DIR%
 
 set GOPATH=%SGW_DIR%;%SGW_DIR%\vendor
-CGO_ENABLED=1 GOOS=%GOOS% GOARCH=%GOARCH% go build -v github.com\couchbaselabs\sync_gateway
+set CGO_ENABLED=1
+echo GOOS=%GOOS% GOARCH=%GOARCH%
+go build -v github.com\couchbaselabs\sync_gateway
 
 if NOT EXIST %SGW_DIR%\%EXEC% (
     echo "############################# FAIL! no such file: %DEST_DIR%\%EXEC%"
