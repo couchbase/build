@@ -99,9 +99,11 @@ git submodule init
 git submodule update
 git show --stat
 
-FOR /F "usebackq" %%i in (`git log --oneline --pretty="format:%H" -1`) do @set REPO_SHA=%%i
+set REPO_FILE=%WORKSPACE%\revision.txt
+git log --oneline --pretty="format:%H" -1 > %REPO_FILE%
+set /p REPO_SHA<%REPO_FILE%
 
-se t TEMPLATE_FILE="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
+set  TEMPLATE_FILE="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
 del %TEMPLATE_FILE%.orig
 del %TEMPLATE_FILE%.new
 
