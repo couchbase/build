@@ -90,7 +90,8 @@ set PREFIXP=.\opt\couchbase-sync-gateway
 if EXIST %PREFIXD% del /s/f/q %PREFIXD%
 mkdir    %PREFIXD%\bin\
 
-cd %WORKSPACE%
+if NOT EXIST %AUT_DIR%  mkdir %AUT_DIR%
+cd           %AUT_DIR%
 echo ======== sync sync_gateway ===================
 
 if NOT EXIST sync_gateway  git clone https://github.com/couchbase/sync_gateway.git
