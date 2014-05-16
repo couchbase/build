@@ -4,7 +4,9 @@
 #          
 #          with job paramters:  
 #                   
-#                   IOS_BLDNUM    -- get IOS_BLDNUM artifacts
+#                   IOS_URL    -- URL for zip file of iOS artifacts
+#                              -- example:
+# http://factory.couchbase.com/view/build/view/mobile_dev/view/ios/job/build_cblite_ios_100/56/artifact/couchbase-lite-ios/cblite_ios_1.0.0-56.zip
 #
 #                   ANDROID_URL   -- URL for zip file of Android artifacts
 #                                 -- examples:
@@ -49,12 +51,11 @@ if [[ -e ${DOWN_IDIR} ]] ; then rm -rf ${DOWN_IDIR} ; fi
 mkdir -p ${DOWN_IDIR}
 pushd    ${DOWN_IDIR}    2>&1 >/dev/null
 
-IOS_PKG=cblite_ios_${IOS_BLDNUM}.zip
-wget --no-verbose ${CBFS_URL}/${IOS_PKG}
+wget --no-verbose -O ios_build.zip ${IOS_URL}
 STATUS=$?
-if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${IOS_PKG}" ; exit ${STATUS} ; fi
+if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${IOS_URL}" ; exit ${STATUS} ; fi
 
-unzip -q ${IOS_PKG}
+unzip -q ios_build.zip
 
 if [[ -e ${STAGE_DIR} ]] ; then rm -rf ${STAGE_DIR} ; fi
 mkdir -p ${IOS_DIR}
@@ -77,7 +78,7 @@ pushd    ${DOWN_ADIR}    2>&1 >/dev/null
 
 wget --no-verbose -O android_jars.zip ${ANDROID_URL}
 STATUS=$?
-if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${AND_PKG}" ; exit ${STATUS} ; fi
+if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${ANDROID_URL}" ; exit ${STATUS} ; fi
 
 echo ======== expand android =================================
 unzip -q android_jars.zip
