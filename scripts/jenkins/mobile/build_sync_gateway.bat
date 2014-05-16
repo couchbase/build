@@ -78,11 +78,12 @@ set
 echo ============================================== %DATE%
 
 set LIC_DIR=%WORKSPACE%\build\license\sync_gateway
-set SGW_DIR=%WORKSPACE%\sync_gateway
 set AUT_DIR=%WORKSPACE%\app-under-test
-set BLD_DIR=%AUT_DIR%\sync_gateway\build
+set SGW_DIR=%AUT_DIR%\sync_gateway
+set BLD_DIR=%SGW_DIR%\build
+set STAGING=%AUT_DIR%\staging
 
-set PREFIXD=%BLD_DIR%\opt\couchbase-sync-gateway
+set PREFIXD=%STAGING%\opt\couchbase-sync-gateway
 set PREFIX=\opt\couchbase-sync-gateway
 set PREFIXP=.\opt\couchbase-sync-gateway
 

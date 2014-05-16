@@ -132,11 +132,12 @@ pushd ${WORKSPACE} 2>&1 > /dev/null
 WORKSPACE=`pwd`
 popd               2>&1 > /dev/null
 LIC_DIR=${WORKSPACE}/build/license/sync_gateway
-SGW_DIR=${WORKSPACE}/sync_gateway
 AUT_DIR=${WORKSPACE}/app-under-test
-BLD_DIR=${AUT_DIR}/build
+SGW_DIR=${AUT_DIR}/sync_gateway
+BLD_DIR=${SGW_DIR}/build
+STAGING=${AUT_DIR}/staging
 
-PREFIXD=${BLD_DIR}/opt/couchbase-sync-gateway
+PREFIXD=${STAGING}/opt/couchbase-sync-gateway
 PREFIX=/opt/couchbase-sync-gateway
 PREFIXP=./opt/couchbase-sync-gateway
                                                 #  needed by ~/.rpmmacros 
