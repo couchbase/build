@@ -86,7 +86,7 @@ set PREFIX=\opt\couchbase-sync-gateway
 set PREFIXP=.\opt\couchbase-sync-gateway
 
 if EXIST %PREFIXD% del /s/f/q %PREFIXD%
-mkdir -p %PREFIXD%\bin\
+mkdir    %PREFIXD%\bin\
 
 cd %WORKSPACE%
 echo ======== sync sync_gateway ===================
@@ -126,8 +126,8 @@ cd %SGW_DIR%
 echo ======== build ===============================
 del /s/f/q bin
 echo ................. %PLAT_DIR%
-set DEST_DIR=%SGW_DIR%\bin\%PLAT_DIR%
-mkdir -p %DEST_DIR%
+set    DEST_DIR=%SGW_DIR%\bin\%PLAT_DIR%
+mkdir %DEST_DIR%
 
 set GOPATH=%SGW_DIR%;%SGW_DIR%\vendor
 set CGO_ENABLED=1
