@@ -81,9 +81,9 @@ set LIC_DIR=%WORKSPACE%\build\license\sync_gateway
 set SGW_DIR=%WORKSPACE%\sync_gateway
 set BLD_DIR=%SGW_DIR%\build
 
-PREFIXD=%BLD_DIR%\opt\couchbase-sync-gateway
-PREFIX=\opt\couchbase-sync-gateway
-PREFIXP=.\opt\couchbase-sync-gateway
+set PREFIXD=%BLD_DIR%\opt\couchbase-sync-gateway
+set PREFIX=\opt\couchbase-sync-gateway
+set PREFIXP=.\opt\couchbase-sync-gateway
 
 if EXIST %PREFIXD% del /s/f/q %PREFIXD%
 mkdir -p %PREFIXD%\bin\
