@@ -61,6 +61,7 @@ sub get_builder
     my ($platform, $branch, $type, $prod) = @_;
     my  $builder;
     
+    if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);      }
     if ($type eq 'trigger')
         {
         if ($prod eq 'sgw')  { $builder = "build_sync_gateway_".$branch;    }
@@ -70,8 +71,12 @@ sub get_builder
         if ($prod eq 'ios')  { $builder = "build_cblite_ios_".$branch;      }
         if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch;  }
         }
-    if ($type eq 'package')  { $builder = "build_sync_gateway_".$branch."_".$platform;  }
-    if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);      }
+    if ($type eq 'package')
+        {
+        my  $plat = $platform;
+        if ($plat =~ 'windows-(.*)') { $plat = 'win-2008-'.$1; }
+        $builder = "build_sync_gateway_".$branch."_".$plat;
+        }
     return($builder);
     }
 
