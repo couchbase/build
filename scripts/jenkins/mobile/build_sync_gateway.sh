@@ -133,7 +133,8 @@ WORKSPACE=`pwd`
 popd               2>&1 > /dev/null
 LIC_DIR=${WORKSPACE}/build/license/sync_gateway
 SGW_DIR=${WORKSPACE}/sync_gateway
-BLD_DIR=${SGW_DIR}/build
+AUT_DIR=${WORKSPACE}/app-under-test
+BLD_DIR=${AUT_DIR}/build
 
 PREFIXD=${BLD_DIR}/opt/couchbase-sync-gateway
 PREFIX=/opt/couchbase-sync-gateway
