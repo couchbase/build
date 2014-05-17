@@ -135,11 +135,13 @@ LIC_DIR=${WORKSPACE}/build/license/sync_gateway
 AUT_DIR=${WORKSPACE}/app-under-test
 SGW_DIR=${AUT_DIR}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
-STAGING=${AUT_DIR}/staging
 
-PREFIXD=${STAGING}/opt/couchbase-sync-gateway
 PREFIX=/opt/couchbase-sync-gateway
 PREFIXP=./opt/couchbase-sync-gateway
+STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
+
+if [[ -e ${STAGING} ]] ; then rm -rf ${STAGING} ; fi
+
                                                 #  needed by ~/.rpmmacros 
                                                 #  called by package-rpm.rb
                                                 #
@@ -157,6 +159,9 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
+
+if [[ ! -d ${STAGING}/bin/ ]] ; then mkdir -p ${STAGING}/bin/ ; fi
+
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
 TEMPLATE_FILES="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
@@ -169,10 +174,6 @@ for TF in ${TEMPLATE_FILES}
     mv  ${TF}      ${TF}.orig
     mv  ${TF}.new  ${TF}
 done
-
-
-if [[ -e ${PREFIXD} ]] ; then rm -rf ${PREFIXD} ; fi
-mkdir -p ${PREFIXD}/bin/
 
 cd ${SGW_DIR}
 echo ======== build ===============================
@@ -216,16 +217,16 @@ echo ........................ running test.sh
                                 ./test.sh
 
 echo ======== package =============================
-cp ${DEST_DIR}/${EXEC}                ${PREFIXD}/bin/
-cp ${BLD_DIR}/README.txt              ${PREFIXD}
-echo ${VERSION}                     > ${PREFIXD}/VERSION.txt
-cp ${LIC_DIR}/LICENSE_${EDITION}.txt  ${PREFIXD}/LICENSE.txt
+cp ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
+cp ${BLD_DIR}/README.txt              ${STAGING}
+echo ${VERSION}                     > ${STAGING}/VERSION.txt
+cp ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
 
 echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 
 echo  ======= upload ==============================
-cp ${PREFIXD}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
+cp ${STAGING}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
 cd                        ${SGW_DIR}
 md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
 echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}

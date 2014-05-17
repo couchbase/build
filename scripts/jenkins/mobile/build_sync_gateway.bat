@@ -81,14 +81,12 @@ set LIC_DIR=%WORKSPACE%\build\license\sync_gateway
 set AUT_DIR=%WORKSPACE%\app-under-test
 set SGW_DIR=%AUT_DIR%\sync_gateway
 set BLD_DIR=%SGW_DIR%\build
-set STAGING=%AUT_DIR%\staging
 
 set PREFIX=\opt\couchbase-sync-gateway
 set PREFIXP=.\opt\couchbase-sync-gateway
-set PREFIXD=%STAGING%\opt\couchbase-sync-gateway
+set STAGING=%BLD_DIR%\opt\couchbase-sync-gateway
 
-if EXIST %PREFIXD% del /s/f/q %PREFIXD%
-mkdir    %PREFIXD%\bin\
+if EXIST %STAGING% del /s/f/q %STAGING%
 
 if NOT EXIST %AUT_DIR%  mkdir %AUT_DIR%
 cd           %AUT_DIR%
@@ -101,6 +99,8 @@ git pull  origin  %GITSPEC%
 git submodule init
 git submodule update
 git show --stat
+
+if NOT EXIST %STAGING%\bin\  mkdir %STAGING%\bin\
 
 set REPO_FILE=%WORKSPACE%\revision.txt
 git log --oneline --pretty="format:%%H" -1 > %REPO_FILE%
@@ -155,17 +155,17 @@ echo ................... running tests from test.sh
     go test    ./...
 
 echo ======== package =============================
-copy %DEST_DIR%\%EXEC%                 %PREFIXD%\bin\
-copy %BLD_DIR%\README.txt              %PREFIXD%
-echo %VERSION%                       > %PREFIXD%\VERSION.txt
-copy %LIC_DIR%\LICENSE_%EDITION%.txt   %PREFIXD%\LICENSE.txt
+copy %DEST_DIR%\%EXEC%                 %STAGING%\bin\
+copy %BLD_DIR%\README.txt              %STAGING%
+echo %VERSION%                       > %STAGING%\VERSION.txt
+copy %LIC_DIR%\LICENSE_%EDITION%.txt   %STAGING%\LICENSE.txt
 
 echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 cd   %BLD_DIR%
                      .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 
 echo  ======= upload ==============================
-copy %PREFIXD%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
+copy %STAGING%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
 cd                        %SGW_DIR%
 md5sum  %NEW_PKG_NAME%  > %NEW_PKG_NAME%.md5
 echo        ........................... uploading to %PKGSTORE%\%NEW_PKG_NAME%
