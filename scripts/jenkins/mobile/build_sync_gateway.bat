@@ -161,7 +161,8 @@ echo %VERSION%                       > %PREFIXD%\VERSION.txt
 copy %LIC_DIR%\LICENSE_%EDITION%.txt   %PREFIXD%\LICENSE.txt
 
 echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
-cd   %BLD_DIR%   ;   .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
+cd   %BLD_DIR%
+                     .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 
 echo  ======= upload ==============================
 copy %PREFIXD%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
