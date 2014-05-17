@@ -72,7 +72,7 @@ if "%EDITION%" == "enterprise" (
 set GO_RELEASE=1.2
 set GOROOT=c:\usr\local\go\%GO_RELEASE%
 
-set PATH=%PATH%;%GOROOT%\bin 
+set PATH=%PATH%;%GOROOT%\bin\
 
 set
 echo ============================================== %DATE%
@@ -83,9 +83,9 @@ set SGW_DIR=%AUT_DIR%\sync_gateway
 set BLD_DIR=%SGW_DIR%\build
 set STAGING=%AUT_DIR%\staging
 
-set PREFIXD=%STAGING%\opt\couchbase-sync-gateway
 set PREFIX=\opt\couchbase-sync-gateway
 set PREFIXP=.\opt\couchbase-sync-gateway
+set PREFIXD=%STAGING%\opt\couchbase-sync-gateway
 
 if EXIST %PREFIXD% del /s/f/q %PREFIXD%
 mkdir    %PREFIXD%\bin\
@@ -103,7 +103,7 @@ git submodule update
 git show --stat
 
 set REPO_FILE=%WORKSPACE%\revision.txt
-git log --oneline --pretty="format:%H" -1 > %REPO_FILE%
+git log --oneline --pretty="format:%%H" -1 > %REPO_FILE%
 set /p REPO_SHA<%REPO_FILE%
 
 set  TEMPLATE_FILE="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
