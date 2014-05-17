@@ -102,9 +102,9 @@ git show --stat
 
 if NOT EXIST %STAGING%\bin\  mkdir %STAGING%\bin\
 
-set REPO_FILE=%WORKSPACE%\revision.txt
-git log --oneline --pretty="format:%%H" -1 > %REPO_FILE%
-set /p REPO_SHA<%REPO_FILE%
+set  REPO_FILE=%WORKSPACE%\revision.bat
+git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
+call %REPO_FILE%
 
 set  TEMPLATE_FILE="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
 del %TEMPLATE_FILE%.orig
