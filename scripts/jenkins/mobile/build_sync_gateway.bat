@@ -138,7 +138,7 @@ echo GOOS=%GOOS% GOARCH=%GOARCH%
 go build -v github.com\couchbaselabs\sync_gateway
 
 if NOT EXIST %SGW_DIR%\%EXEC% (
-    echo "############################# FAIL! no such file: %DEST_DIR%\%EXEC%"
+    echo "############################# FAIL! no such file: %SGW_DIR%\%EXEC%"
     exit 1
     )
 move   %SGW_DIR%\%EXEC% %DEST_DIR%
@@ -155,18 +155,18 @@ echo ................... running tests from test.sh
     go test    ./...
 
 echo ======== package =============================
-cp %DEST_DIR%\%EXEC%                 %PREFIXD%\bin\
-cp %BLD_DIR%\README.txt              %PREFIXD%
-echo %VERSION%                     > %PREFIXD%\VERSION.txt
-cp %LIC_DIR%\LICENSE_%EDITION%.txt   %PREFIXD%\LICENSE.txt
+copy %DEST_DIR%\%EXEC%                 %PREFIXD%\bin\
+copy %BLD_DIR%\README.txt              %PREFIXD%
+echo %VERSION%                       > %PREFIXD%\VERSION.txt
+copy %LIC_DIR%\LICENSE_%EDITION%.txt   %PREFIXD%\LICENSE.txt
 
 echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 cd   %BLD_DIR%   ;   .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 
 echo  ======= upload ==============================
-cp %PREFIXD%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
-cd                      %SGW_DIR%
-md5sum %NEW_PKG_NAME% > %NEW_PKG_NAME%.md5
+copy %PREFIXD%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
+cd                        %SGW_DIR%
+md5sum  %NEW_PKG_NAME%  > %NEW_PKG_NAME%.md5
 echo        ........................... uploading to %PKGSTORE%\%NEW_PKG_NAME%
 %PUT_CMD%  %NEW_PKG_NAME%                            %PKGSTORE%\%NEW_PKG_NAME%
 %PUT_CMD%  %NEW_PKG_NAME%.md5                        %PKGSTORE%\%NEW_PKG_NAME%.md5
