@@ -146,8 +146,8 @@ PREFIXP=./opt/couchbase-sync-gateway
 RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-sync-gateway_${VERSION}/rpmbuild/
 export RPM_ROOT_DIR
 
-if [[! -d ${AUT_DIR} ]] ; then  mkdir -p ${AUT_DIR} ; fi
-cd        ${AUT_DIR}
+if [[ ! -d ${AUT_DIR} ]] ; then  mkdir -p ${AUT_DIR} ; fi
+cd         ${AUT_DIR}
 echo ======== sync sync_gateway ===================
 
 if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
