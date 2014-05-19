@@ -75,6 +75,7 @@ sub dir_list
         else
             {
             my ($dat, $tim, $siz, $filepath) = split(" ", $_);
+            next if ($siz == 0);
             $left  = $dat.'&nbsp;'.$tim.'&nbsp;&nbsp;'.$siz.'&nbsp;';
             $right = file_link($filepath)
             }
