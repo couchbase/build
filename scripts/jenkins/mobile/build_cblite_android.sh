@@ -8,10 +8,10 @@
 #             SYNCGATE_VERSION  ( hard-coded to run on ubuntu-x64 )
 #                                 now of the form n.n-mmmm
 #             
-#          and called with paramters:         branch_name  release_number   edition
+#          and called with paramters:         branch_name  release_number  build_number  edition
 #          
-#            by build_cblite_android_master:     master         0.0.0      community
-#            by build_cblite_android_100:        release/1.0.0  1.0.0      enterprise
+#            by build_cblite_android_master:     master           0.0.0       1234      community
+#            by build_cblite_android_100:        release/1.0.0    1.0.0       1234      enterprise
 #          
 #          in an environment with these variables set:
 #          
@@ -57,10 +57,13 @@ fi
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
-REVISION=${VERSION}-${BUILD_NUMBER}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
-EDITION=${3}
+BLD_NUM=${3}
+REVISION=${VERSION}-${BLD_NUM}
+
+if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
+EDITION=${4}
 
 PKG_SRCD=s3://packages.couchbase.com/builds/mobile/sync_gateway/${VERSION}/${SYNCGATE_VERSION}
 PKGSTORE=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${REVISION}
@@ -119,8 +122,8 @@ JAVA_VER_FILE=${ANDR_LITESRV_DIR}/libraries/couchbase-lite-java-core/src/main/ja
 echo ============================================  instantiate tokens in source file
 echo ${JAVA_VER_FILE}
 
-sed -i.ORIG  -e 's,\${VERSION_NAME},'${VERSION}','      ${JAVA_VER_FILE}
-sed -i       -e 's,\${VERSION_CODE},'${BUILD_NUMBER}',' ${JAVA_VER_FILE}
+sed -i.ORIG  -e 's,\${VERSION_NAME},'${VERSION}','  ${JAVA_VER_FILE}
+sed -i       -e 's,\${VERSION_CODE},'${BLD_NUM}','  ${JAVA_VER_FILE}
 
 diff ${JAVA_VER_FILE} ${JAVA_VER_FILE}.ORIG || true
 
@@ -159,8 +162,8 @@ MANIFEST_FILE="${ANDR_LITESRV_DIR}/couchbase-lite-android-liteserv/src/main/Andr
 echo ======== insert build meta-data ==============
 echo ${MANIFEST_FILE}
 
-sed -i.ORIG  -e 's,android:versionCode=".*",android:versionCode="'${BUILD_NUMBER}'",'  ${MANIFEST_FILE}
-sed -i       -e 's,android:versionName=".*",android:versionName="'${VERSION}'",'       ${MANIFEST_FILE}
+sed -i.ORIG  -e 's,android:versionCode=".*",android:versionCode="'${BLD_NUM}'",'  ${MANIFEST_FILE}
+sed -i       -e 's,android:versionName=".*",android:versionName="'${VERSION}'",'  ${MANIFEST_FILE}
 
 diff ${MANIFEST_FILE} ${MANIFEST_FILE}.ORIG || true
 
@@ -210,7 +213,7 @@ done
 
 
 
-echo "ADB log for build ${BUILD_NUMBER}"      > ${WORKSPACE}/01_adb.log
+echo "ADB log for build ${BLD_NUM}"           > ${WORKSPACE}/01_adb.log
 ( adb logcat -v time   2>&1 )                >> ${WORKSPACE}/01_adb.log &
 
 if  [[ -e ${WORKSPACE}/01_adb.log ]]
