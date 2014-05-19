@@ -2,10 +2,10 @@
 #          
 #          run by jenkins jobs 'build_cblite_ios_master', 'build_cblite_ios_100'
 #          
-#          with paramters:  branch_name  release_number   Edition
+#          with paramters:  branch_name  release_number  build_number  Edition
 #          
-#                 e.g.:     master         0.0.0          community
-#                           release/1.0.0  1.0.0          enterprise
+#                 e.g.:     master           0.0.0         1234       community
+#                           release/1.0.0    1.0.0         1234       enterprise
 #          
 source ~jenkins/.bash_profile
 set -e
@@ -16,7 +16,7 @@ CURL_CMD="curl --fail --retry 10"
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  release_number   edition\n\n"
+    echo -e "\nuse:  ${0}   branch_name  release_number  build_number  edition\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -35,10 +35,13 @@ fi
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
-REVISION=${VERSION}-${BUILD_NUMBER}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
-EDITION=${3}
+BLD_NUM=${3}
+REVISION=${VERSION}-${BLD_NUM}
+
+if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
+EDITION=${4}
 
 PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${REVISION}
 PUT_CMD="s3cmd put -P"
