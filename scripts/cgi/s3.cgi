@@ -17,9 +17,9 @@ BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
-my $installed_URL='http://factory.hq.couchbase.com/cgi/s3_mobile.cgi';
+my $installed_URL='http://factory.hq.couchbase.com/cgi/s3.cgi';
 
-$DEFAULT_REPO = 's3://packages.couchbase.com/builds/mobile/';
+$DEFAULT_REPO = 's3://packages.couchbase.com/builds/';
 $S3CMD        = 's3cmd --config=/var/www/.s3cfg';
 
 use CGI qw(:standard);
