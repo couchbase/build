@@ -34,7 +34,7 @@ if "%PLATFRM%" == "" call :usage 66
 set  EDITION=%5
 if "%EDITION%" == "" call :usage 55
 
-set PUT_CMD="s3cmd put -P"
+set PUT_CMD=s3cmd put -P
 set PKGSTORE="s3://packages.couchbase.com/builds/mobile/sync_gateway/%RELEASE%/%VERSION%"
 
 set LAST_GOOD_PARAM=%SYNCGATE_VERSION_PARAM%
@@ -60,6 +60,7 @@ set PLATFORM=%OS%-%ARCH%
 set PKGR=package-win.rb
 set PKGTYPE=exe
 
+set ARCHP=%ARCH%
 set PKG_NAME=couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
 
 if "%EDITION%" == "community"  (
