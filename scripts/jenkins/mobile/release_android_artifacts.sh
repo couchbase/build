@@ -47,7 +47,9 @@ GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 BLD_TO_RELEASE=${2}
-if [[ ${BLD_TO_RELEASE} =~ '([0-9.]*)-'  ]]
+
+vrs_rex='([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})'
+if [[ ${BLD_TO_RELEASE} =~ $vrs_rex  ]]
   then
     VERSION=${BASH_REMATCH[1]}
     PKGSTORE=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${BLD_TO_RELEASE}
