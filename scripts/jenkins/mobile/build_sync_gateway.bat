@@ -61,7 +61,7 @@ set PKGR=package-win.rb
 set PKGTYPE=exe
 
 set ARCHP=%ARCH%
-set PKG_NAME=couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
+set PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
 
 if "%EDITION%" == "community"  (
      set NEW_PKG_NAME=couchbase-sync-gateway_%VERSION%_%ARCHP%-%EDITION%.%PKGTYPE%
@@ -169,9 +169,9 @@ echo  ======= upload ==============================
 copy %STAGING%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
 cd                        %SGW_DIR%
 md5sum  %NEW_PKG_NAME%  > %NEW_PKG_NAME%.md5
-echo        ........................... uploading to %PKGSTORE%\%NEW_PKG_NAME%
-%PUT_CMD%  %NEW_PKG_NAME%                            %PKGSTORE%\%NEW_PKG_NAME%
-%PUT_CMD%  %NEW_PKG_NAME%.md5                        %PKGSTORE%\%NEW_PKG_NAME%.md5
+echo        ........................... uploading to %PKGSTORE%/%NEW_PKG_NAME%
+%PUT_CMD%  %NEW_PKG_NAME%                            %PKGSTORE%/%NEW_PKG_NAME%
+%PUT_CMD%  %NEW_PKG_NAME%.md5                        %PKGSTORE%/%NEW_PKG_NAME%.md5
 
 echo ============================================== %DATE%
 
