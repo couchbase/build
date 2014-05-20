@@ -107,7 +107,7 @@ set  REPO_FILE=%WORKSPACE%\revision.bat
 git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
 call %REPO_FILE%
 
-set  TEMPLATE_FILE="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
+set  TEMPLATE_FILE="src\github.com\couchbaselabs\sync_gateway\rest\api.go"
 del %TEMPLATE_FILE%.orig
 del %TEMPLATE_FILE%.new
 
