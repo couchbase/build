@@ -114,7 +114,7 @@ del %TEMPLATE_FILE%.new
 echo ======== insert build meta-data ==============
 
 setlocal disabledelayedexpansion
-for /r %%i in (%TEMPLATE_FILE%) do (
+for /f "delims=" %%i in (%TEMPLATE_FILE%) do (
     set line_A=%%i
     setlocal enabledelayedexpansion
     set line_B=%line_A:@PRODUCT_VERSION@=%VERSION%
