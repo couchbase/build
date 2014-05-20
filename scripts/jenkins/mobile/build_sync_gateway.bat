@@ -157,9 +157,10 @@ echo ................... running tests from test.sh
 
 echo ======== package =============================
 copy %DEST_DIR%\%EXEC%                 %STAGING%\bin\
-copy %BLD_DIR%\README.txt              %STAGING%
+copy %BLD_DIR%\README.txt              %STAGING%\README.txt
 echo %VERSION%                       > %STAGING%\VERSION.txt
 copy %LIC_DIR%\LICENSE_%EDITION%.txt   %STAGING%\LICENSE.txt
+copy %LIC_DIR%\LICENSE_%EDITION%.rtf   %STAGING%\LICENSE.rtf
 
 echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 cd   %BLD_DIR%
