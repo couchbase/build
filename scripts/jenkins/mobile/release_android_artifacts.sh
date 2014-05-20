@@ -85,13 +85,18 @@ function change_jar_version
     local EXTN=$2
     local OLDV=$3
     local NEWV=$4
+    local NOPOM=$5
     echo +++++++++++++++++++++++++  changing version on ${PROD} from ${OLDV} to ${NEWV}
     echo ::::::::: ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.${EXTN}
-    echo ::::::::: ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom
+    if [[ ${NOPOM} = "" ]]; then
+	echo ::::::::: ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom
+    fi
     
     mv  ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.${EXTN}                                                                    ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${NEWV}.${EXTN} 
-    cat ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom | sed -e "s,<version>${OLDV}</version>,<version>${NEWV}</version>,g" > ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${NEWV}.pom
-    rm  ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom
+    if [[ ${NOPOM} = "" ]]; then
+	cat ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom | sed -e "s,<version>${OLDV}</version>,<version>${NEWV}</version>,g" > ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${NEWV}.pom
+	rm  ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom
+    fi
     echo +++++++++++++++++++++++++  created new artifact:  ${PROD}-${NEWV}.${EXTN}
     }
 
@@ -132,16 +137,19 @@ cd        ${ANDROID_JAR_DIR}
 echo ============================================  download ${PKGSTORE}/${AND_ZIP_SRC}
 
 ${GET_CMD}  ${PKGSTORE}/${AND_ZIP_SRC}
+pwd
 unzip ${AND_ZIP_SRC}
 
 echo ============================================  renumber to ${AND_ZIP_DST}
 mv ${SRC_ROOTDIR}  ${DST_ROOTDIR}
 cd                 ${DST_ROOTDIR}
 
-change_jar_version  couchbase-lite-android          aar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
+change_jar_version  couchbase-lite-android          aar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER} NO_POM
+change_jar_version  couchbase-lite-android          jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
 change_jar_version  couchbase-lite-java-core        jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
 change_jar_version  couchbase-lite-java-javascript  jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
 change_jar_version  couchbase-lite-java-listener    jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
+change_jar_version  cbl_collator_so                 jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER} NO_POM
 
 cd                 ${ANDROID_JAR_DIR}
 zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
@@ -157,6 +165,7 @@ cd ${ANDROID_JAR_DIR}
 echo ============================================  upload to maven repository
 
 upload_new_package  couchbase-lite-android          aar  ${RELEASE_NUMBER}
+#upload_new_package  couchbase-lite-android          jar  ${RELEASE_NUMBER}
 upload_new_package  couchbase-lite-java-core        jar  ${RELEASE_NUMBER}
 upload_new_package  couchbase-lite-java-javascript  jar  ${RELEASE_NUMBER}
 upload_new_package  couchbase-lite-java-listener    jar  ${RELEASE_NUMBER}
