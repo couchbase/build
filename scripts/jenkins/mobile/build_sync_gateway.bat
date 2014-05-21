@@ -120,7 +120,7 @@ for /F "usebackq tokens=1* delims=]" %%I in (`type %TEMPLATE_FILE% ^| find /V /N
     setlocal enabledelayedexpansion
     set LINEB=!LINEA:@PRODUCT_VERSION@=1.2.3.4!
     set LINEC=!LINEB:@COMMIT_SHA@=asdf1234!
-    echo !LINEC!>> api.go.MODIFIED
+    echo !LINEC!>> %TEMPLATE_FILE%.new
     endlocal )
     )
 endlocal
