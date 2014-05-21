@@ -114,13 +114,14 @@ del %TEMPLATE_FILE%.new
 echo ======== insert build meta-data ==============
 
 setlocal disabledelayedexpansion
-for /f "delims=" %%i in (%TEMPLATE_FILE%) do (
-    set   line_A=%%i
+for /F "usebackq tokens=1* delims=]" %%I in (`type %TEMPLATE_FILE% ^| find /V /N ""`) do (
+    if "%%J"=="" (echo.>> %TEMPLATE_FILE%.new) else (
+    set LINEA=%%J
     setlocal enabledelayedexpansion
-    set   line_B=!line_A:@PRODUCT_VERSION@=%VERSION%!
-    set   line_C=!line_B:@COMMIT_SHA@=%REPO_SHA%!
-    echo !line_C!>>%TEMPLATE_FILE%.new
-    endlocal
+    set LINEB=!LINEA:@PRODUCT_VERSION@=1.2.3.4!
+    set LINEC=!LINEB:@COMMIT_SHA@=asdf1234!
+    echo !LINEC!>> api.go.MODIFIED
+    endlocal )
     )
 endlocal
 
