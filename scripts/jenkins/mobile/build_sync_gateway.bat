@@ -1,4 +1,4 @@
-@echo on
+@echo off
 ::          
 ::    run by jenkins jobs:
 ::          
@@ -34,7 +34,7 @@ if "%PLATFRM%" == "" call :usage 66
 set  EDITION=%5
 if "%EDITION%" == "" call :usage 55
 
-set PUT_CMD=s3cmd put -P
+set PUT_CMD=s3cmd put -P --no-progress --config=c:\Users\Administrator\s3cmd.ini
 set PKGSTORE="s3://packages.couchbase.com/builds/mobile/sync_gateway/%RELEASE%/%VERSION%"
 
 set LAST_GOOD_PARAM=%SYNCGATE_VERSION_PARAM%
