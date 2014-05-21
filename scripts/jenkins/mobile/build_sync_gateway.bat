@@ -115,11 +115,11 @@ echo ======== insert build meta-data ==============
 
 setlocal disabledelayedexpansion
 for /f "delims=" %%i in (%TEMPLATE_FILE%) do (
-    set line_A=%%i
+    set   line_A=%%i
     setlocal enabledelayedexpansion
-    set line_B=%line_A:@PRODUCT_VERSION@=%VERSION%
-    set line_C=%line_B:@COMMIT_SHA@=%REPO_SHA%
-    echo %line_C% >> %TEMPLATE_FILE%.new
+    set   line_B=!line_A:@PRODUCT_VERSION@=%VERSION%!
+    set   line_C=!line_B:@COMMIT_SHA@=%REPO_SHA%!
+    echo !line_C! >> %TEMPLATE_FILE%.new
     endlocal
     )
 endlocal
