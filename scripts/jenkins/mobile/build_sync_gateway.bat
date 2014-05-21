@@ -44,7 +44,7 @@ set EXEC=sync_gateway.exe
 
 if NOT "%PROCESSOR_IDENTIFIER:64=%" == "%PROCESSOR_IDENTIFIER%" (
     set ARCH=amd64
-    set GOARCH=amd64 
+    set GOARCH=amd64
     set GOHOSTARCH=%GOARCH%
     )
 if NOT "%PROCESSOR_IDENTIFIER:86=%" == "%PROCESSOR_IDENTIFIER%" (
