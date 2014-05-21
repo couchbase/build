@@ -118,8 +118,8 @@ for /F "usebackq tokens=1* delims=]" %%I in (`type %TEMPLATE_FILE% ^| find /V /N
     if "%%J"=="" (echo.>> %TEMPLATE_FILE%.new) else (
     set LINEA=%%J
     setlocal enabledelayedexpansion
-    set LINEB=!LINEA:@PRODUCT_VERSION@=1.2.3.4!
-    set LINEC=!LINEB:@COMMIT_SHA@=asdf1234!
+    set LINEB=!LINEA:@PRODUCT_VERSION@=%VERSION%!
+    set LINEC=!LINEB:@COMMIT_SHA@=%REPO_SHA%!
     echo !LINEC!>> %TEMPLATE_FILE%.new
     endlocal )
     )
