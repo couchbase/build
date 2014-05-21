@@ -119,12 +119,14 @@ for /f "delims=" %%i in (%TEMPLATE_FILE%) do (
     setlocal enabledelayedexpansion
     set   line_B=!line_A:@PRODUCT_VERSION@=%VERSION%!
     set   line_C=!line_B:@COMMIT_SHA@=%REPO_SHA%!
-    echo !line_C! >> %TEMPLATE_FILE%.new
+    echo !line_C!>>%TEMPLATE_FILE%.new
     endlocal
     )
 endlocal
-move  %TEMPLATE_FILE%       %TEMPLATE_FILE%.orig
-move  %TEMPLATE_FILE%.new   %TEMPLATE_FILE%
+
+dos2unix %TEMPLATE_FILE%.new
+move     %TEMPLATE_FILE%       %TEMPLATE_FILE%.orig
+move     %TEMPLATE_FILE%.new   %TEMPLATE_FILE%
 
 cd %SGW_DIR%
 echo ======== build ===============================
