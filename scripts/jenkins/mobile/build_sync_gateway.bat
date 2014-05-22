@@ -61,14 +61,14 @@ set PKGR=package-win.rb
 set PKGTYPE=exe
 
 set ARCHP=%ARCH%
-set PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
+    set     PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
 
 if "%EDITION%" == "community"  (
-     set NEW_PKG_NAME=couchbase-sync-gateway_%VERSION%_%ARCHP%-%EDITION%.%PKGTYPE%
-     )
+    set NEW_PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%-%EDITION%.%PKGTYPE%
+    )
 if "%EDITION%" == "enterprise" (
-     set NEW_PKG_NAME=%PKG_NAME%
-     )
+    set NEW_PKG_NAME=%PKG_NAME%
+    )
 
 set GO_RELEASE=1.2
 set GOROOT=c:\usr\local\go\%GO_RELEASE%
@@ -164,6 +164,10 @@ copy %BLD_DIR%\README.txt              %STAGING%\README.txt
 echo %VERSION%                       > %STAGING%\VERSION.txt
 copy %LIC_DIR%\LICENSE_%EDITION%.txt   %STAGING%\LICENSE.txt
 copy %LIC_DIR%\LICENSE_%EDITION%.rtf   %STAGING%\LICENSE.rtf
+
+unix2dos  %STAGING%\README.txt
+unix2dos  %STAGING%\VERSION.txt
+unix2dos  %STAGING%\LICENSE.txt
 
 echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 cd   %BLD_DIR%
