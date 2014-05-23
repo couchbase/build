@@ -52,7 +52,6 @@ vrs_rex='([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})'
 if [[ ${BLD_TO_RELEASE} =~ $vrs_rex  ]]
   then
     VERSION=${BASH_REMATCH[1]}
-    PKGSTORE=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${BLD_TO_RELEASE}
 else
     echo "illegal value for BLD_TO_RELEASE: "'>>'${BLD_TO_RELEASE}'<<'
     exit 88
@@ -60,6 +59,9 @@ fi
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 RELEASE_NUMBER=${3}
+
+PKG_SRC=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${BLD_TO_RELEASE}
+PKG_DEST=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${RELEASE_NUMBER}
 
 
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
@@ -134,9 +136,9 @@ env | grep -iv password | grep -iv passwd | sort
 rm   -rf  ${ANDROID_JAR_DIR}
 mkdir -p  ${ANDROID_JAR_DIR}
 cd        ${ANDROID_JAR_DIR}
-echo ============================================  download ${PKGSTORE}/${AND_ZIP_SRC}
+echo ============================================  download ${PKG_SRC}/${AND_ZIP_SRC}
 
-${GET_CMD}  ${PKGSTORE}/${AND_ZIP_SRC}
+${GET_CMD}  ${PKG_SRC}/${AND_ZIP_SRC}
 pwd
 unzip ${AND_ZIP_SRC}
 
@@ -154,8 +156,8 @@ change_jar_version  cbl_collator_so                 jar  ${BLD_TO_RELEASE}  ${RE
 cd                 ${ANDROID_JAR_DIR}
 zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
 
-echo ============================================  uploading ${PKGSTORE}/${AND_ZIP_DST}
-${PUT_CMD}  ${ANDROID_JAR_DIR}/${AND_ZIP_DST}                ${PKGSTORE}/${AND_ZIP_DST}
+echo ============================================  uploading ${PKG_DEST}/${AND_ZIP_DST}
+${PUT_CMD}  ${ANDROID_JAR_DIR}/${AND_ZIP_DST}                ${PKG_DEST}/${AND_ZIP_DST}
 
 echo ============================================  prepare buckets
                               prepare_bucket ${REPOURL}/${GRP_URL}
