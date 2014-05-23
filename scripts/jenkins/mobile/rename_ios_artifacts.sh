@@ -45,11 +45,11 @@ EDITION=${3}
 
 if [[ ${EDITION} =~ 'community' ]]
   then
-    IOS_ZIP_SRC=cblite-ios-${BLD_NUM}-${EDITION}.zip
-    IOS_ZIP_DST=cblite-ios-${REL_NUM}-${EDITION}.zip
+    IOS_ZIP_SRC=cblite-ios_${BLD_NUM}-${EDITION}.zip
+    IOS_ZIP_DST=cblite-ios_${REL_NUM}-${EDITION}.zip
 else
-    IOS_ZIP_SRC=cblite-ios-${BLD_NUM}.zip
-    IOS_ZIP_DST=cblite-ios-${REL_NUM}.zip
+    IOS_ZIP_SRC=cblite-ios_${BLD_NUM}.zip
+    IOS_ZIP_DST=cblite-ios_${REL_NUM}.zip
 fi
 
 
