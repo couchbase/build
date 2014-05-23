@@ -6,10 +6,9 @@
 #
 source ~jenkins/.bash_profile
 set -e
-CBFS_URL=http://cbfs.hq.couchbase.com:8484/tuqtng
 
 GITSPEC=master
-VERSION=1.0
+VERSION=1.0.0
 REVISION=${VERSION}-${BUILD_NUMBER}
 
 LICENSE=license-ce.txt
@@ -23,7 +22,19 @@ PROJDIR=src/github.com/couchbaselabs/tuqtng
 cd   ${WORKSPACE}
 echo ======== sync tuqtng =========================
 
+###################################
+#Manifest file
+###################################
+
+cd ${WORKSPACE}
+touch manifest.txt
+echo 'temporary manifest file' > ${WORKSPACE}/manifest.txt
+
 go get github.com/couchbaselabs/tuqtng/...
+cd ${WORKPSPACE}/build/scripts/jenkins/query/
+./go-manifest > current-versions_${REVISION}
+./go-set-version current-versions_${REVISION}
+
 
 TOPD=${WORKSPACE}/src/${PROJECT}
 top=${TOPD}
@@ -124,11 +135,11 @@ function build_dist_packages
     cd $top
     tutorial/tutorial -src tutorial/content/ -dst $DIST/tutorial_tmp/
     
-    build_pkg  cbq-engine.lin32      cbq.lin32      couchbase-query_dev_preview1_x86_linux.tar.gz     tar
-    build_pkg  cbq-engine.lin64      cbq.lin64      couchbase-query_dev_preview1_x86_64_linux.tar.gz  tar
-    build_pkg  cbq-engine.mac        cbq.mac        couchbase-query_dev_preview1_x86_64_mac.zip       zip
-    build_pkg  cbq-engine.win32.exe  cbq.win32.exe  couchbase-query_dev_preview1_x86_win.zip          zip
-    build_pkg  cbq-engine.win64.exe  cbq.win64.exe  couchbase-query_dev_preview1_x86_64_win.zip       zip
+    build_pkg  cbq-engine.lin32      cbq.lin32      couchbase-query_x86_linux_${REVISION}.tar.gz     tar
+    build_pkg  cbq-engine.lin64      cbq.lin64      couchbase-query_x86_64_linux_${REVISION}.tar.gz  tar
+    build_pkg  cbq-engine.mac        cbq.mac        couchbase-query_x86_64_mac_${REVISION}.zip       zip
+    build_pkg  cbq-engine.win32.exe  cbq.win32.exe  couchbase-query_x86_win_${REVISION}.zip          zip
+    build_pkg  cbq-engine.win64.exe  cbq.win64.exe  couchbase-query_x86_64_win_${REVISION}.zip       zip
     }
 
 
@@ -163,30 +174,31 @@ function coverage
     cd $top
     }
 
-function upload
+function s3_upload
     {
-    echo "------- starting upload --------------------"
-    echo  ======= upload ==============================
-    for PKG in couchbase-query_dev_preview1_x86_linux.tar.gz   \
-               couchbase-query_dev_preview1_x86_64_linux.tar.gz \
-               couchbase-query_dev_preview1_x86_64_mac.zip       \
-               couchbase-query_dev_preview1_x86_win.zip           \
-               couchbase-query_dev_preview1_x86_64_win.zip
-    do
-        echo ............... uploading to ${CBFS_URL}/${PKG}
-        curl -XPUT --data-binary  @${PKG} ${CBFS_URL}/${PKG}
-    done
-    HTML=redirect.html
-    echo ............... uploading to ${CBFS_URL}/${HTML}
-    curl -XPUT --data-binary @${HTML} ${CBFS_URL}/${HTML}
+     echo "------- starting upload --------------------"
+     echo  ======= upload ==============================
+     s3cmd put -v -P  ${REVISION} s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/
+     cd $DIST
+     echo ............... uploading packages to s3://packages.couchbase.com/builds/query/tuqtng/${VE
+RSION}/${REVISION}/
+     s3cmd put -v -P  *.tar.gz    s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVIS
+ION}/
+     s3cmd put -v -P  *.zip       s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVIS
+ION}/
+     cd ${WORKPSPACE}/build/scripts/jenkins/query/
+     s3cmd put -v -P  current-versions_${REVISION}    s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVIS
+ION}/
     }
+
+
 
 #testpkg
 mkversion
 build_engine
 build_client
 build_dist_packages
+s3_upload
 #compress
 #benchmark
 #coverage
-#upload
