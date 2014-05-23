@@ -54,7 +54,7 @@ if [[ ${BLD_TO_RELEASE} =~ $vrs_rex  ]]
     VERSION=${BASH_REMATCH[1]}
     PKGSTORE=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${BLD_TO_RELEASE}
 else
-    echo "illegal value for BLD_TO_RELEASE: ${BLD_TO_RELEASE}"
+    echo "illegal value for BLD_TO_RELEASE: "'>>'${BLD_TO_RELEASE}'<<'
     exit 88
 fi
 
