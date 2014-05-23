@@ -184,7 +184,9 @@ ${PUT_CMD}  ${ZIP_PATH}                                     ${PKGSTORE}/${ZIP_FI
 echo  ============================================== upload ${PKGSTORE}/${DOC_ZIP_FILE}
 ${PUT_CMD}  ${DOC_ZIP_PATH}                                 ${PKGSTORE}/${DOC_ZIP_FILE}
 
-echo  ============================================== update default value of test jobs
+echo  ============================================== update default value of test and release jobs
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j rename_ios_artifacts_${JOB_SUFX}             -p BLD_TO_RELEASE    -v ${REVISION}
+
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${JOB_SUFX}      -p LITESERV_VERSION  -v ${REVISION}
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${JOB_SUFX}  -p LITESERV_VERSION  -v ${REVISION}
 
