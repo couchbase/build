@@ -10,10 +10,9 @@
 #          
 #          called with paramters:
 #          
-#            branch name          master, release/1.0.0, etc.
-#            BLD_TO_RELEASE       number of ZIP file to download (0.0.0-1234)
-#            RELEASE_NUMBER       number/name to release as      (0.0.0, 0.0.0-beta)
-#            EDITION              'community' or 'enterprise'
+#            BLD_NUM       number of ZIP file to download (0.0.0-1234)
+#            REL_NUM       number/name to release as      (0.0.0, 0.0.0-beta)
+#            EDITION       'community' or 'enterprise'
 #          
 source ~/.bash_profile
 export DISPLAY=:0
@@ -35,48 +34,43 @@ MAVEN_UPLOAD_CREDENTS=${MAVEN_UPLOAD_USERNAME}:${MAVEN_UPLOAD_PASSWORD}
 REPOURL=http://files.couchbase.com/maven2
 GRP_URL=com/couchbase/lite
 
-#LOG_TAIL=-24
-
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch  bld_to_release  release_number  edition\n\n"
+    echo -e "\nuse:  ${0}   bld_to_release  release_number  edition\n\n"
     }
+
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-GITSPEC=${1}
-
-if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
-BLD_TO_RELEASE=${2}
-
-vrs_rex='([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})'
-if [[ ${BLD_TO_RELEASE} =~ $vrs_rex  ]]
+BLD_NUM=${1}
+                     vrs_rex='([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})'
+if [[ ${BLD_NUM} =~ $vrs_rex  ]]
   then
     VERSION=${BASH_REMATCH[1]}
 else
-    echo "illegal value for BLD_TO_RELEASE: "'>>'${BLD_TO_RELEASE}'<<'
+    echo "illegal value for BLD_NUM: "'>>'${BLD_NUM}'<<'
     exit 88
 fi
 
+if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+REL_NUM=${2}
+
+PKG_SRC=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${BLD_NUM}
+PKG_DEST=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${REL_NUM}
+
+
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
-RELEASE_NUMBER=${3}
-
-PKG_SRC=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${BLD_TO_RELEASE}
-PKG_DEST=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${RELEASE_NUMBER}
-
-
-if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
-EDITION=${4}
+EDITION=${3}
 
 if [[ ${EDITION} =~ 'community' ]]
     then
-    AND_ZIP_SRC=couchbase-lite-${BLD_TO_RELEASE}-android-${EDITION}.zip
-    AND_ZIP_DST=couchbase-lite-${RELEASE_NUMBER}-android-${EDITION}.zip
+    AND_ZIP_SRC=couchbase-lite-${BLD_NUM}-android-${EDITION}.zip
+    AND_ZIP_DST=couchbase-lite-${REL_NUM}-android-${EDITION}.zip
 else
-    AND_ZIP_SRC=couchbase-lite-${BLD_TO_RELEASE}-android.zip
-    AND_ZIP_DST=couchbase-lite-${RELEASE_NUMBER}-android.zip
+    AND_ZIP_SRC=couchbase-lite-${BLD_NUM}-android.zip
+    AND_ZIP_DST=couchbase-lite-${REL_NUM}-android.zip
 fi
-    SRC_ROOTDIR=couchbase-lite-${BLD_TO_RELEASE}
-    DST_ROOTDIR=couchbase-lite-${RELEASE_NUMBER}
+    SRC_ROOTDIR=couchbase-lite-${BLD_NUM}
+    DST_ROOTDIR=couchbase-lite-${REL_NUM}
 
 ANDROID_JAR_DIR=${WORKSPACE}/android/jar
 
@@ -146,12 +140,12 @@ echo ============================================  renumber to ${AND_ZIP_DST}
 mv ${SRC_ROOTDIR}  ${DST_ROOTDIR}
 cd                 ${DST_ROOTDIR}
 
-change_jar_version  couchbase-lite-android          aar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER} NO_POM
-change_jar_version  couchbase-lite-android          jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
-change_jar_version  couchbase-lite-java-core        jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
-change_jar_version  couchbase-lite-java-javascript  jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
-change_jar_version  couchbase-lite-java-listener    jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER}
-change_jar_version  cbl_collator_so                 jar  ${BLD_TO_RELEASE}  ${RELEASE_NUMBER} NO_POM
+change_jar_version  couchbase-lite-android          aar  ${BLD_NUM}  ${REL_NUM}  NO_POM
+change_jar_version  couchbase-lite-android          jar  ${BLD_NUM}  ${REL_NUM}
+change_jar_version  couchbase-lite-java-core        jar  ${BLD_NUM}  ${REL_NUM}
+change_jar_version  couchbase-lite-java-javascript  jar  ${BLD_NUM}  ${REL_NUM}
+change_jar_version  couchbase-lite-java-listener    jar  ${BLD_NUM}  ${REL_NUM}
+change_jar_version  cbl_collator_so                 jar  ${BLD_NUM}  ${REL_NUM}  NO_POM
 
 cd                 ${ANDROID_JAR_DIR}
 zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
@@ -161,15 +155,15 @@ ${PUT_CMD}  ${ANDROID_JAR_DIR}/${AND_ZIP_DST}                ${PKG_DEST}/${AND_Z
 
 echo ============================================  prepare buckets
                               prepare_bucket ${REPOURL}/${GRP_URL}
-for J in ${LIST_OF_JARS} ; do prepare_bucket ${REPOURL}/${GRP_URL}/${J} ; prepare_bucket ${REPOURL}/${GRP_URL}/${J}/${RELEASE_NUMBER} ; done
+for J in ${LIST_OF_JARS} ; do prepare_bucket ${REPOURL}/${GRP_URL}/${J} ; prepare_bucket ${REPOURL}/${GRP_URL}/${J}/${REL_NUM} ; done
 
 cd ${ANDROID_JAR_DIR}
 echo ============================================  upload to maven repository
 
-upload_new_package  couchbase-lite-android          aar  ${RELEASE_NUMBER}
-#upload_new_package  couchbase-lite-android          jar  ${RELEASE_NUMBER}
-upload_new_package  couchbase-lite-java-core        jar  ${RELEASE_NUMBER}
-upload_new_package  couchbase-lite-java-javascript  jar  ${RELEASE_NUMBER}
-upload_new_package  couchbase-lite-java-listener    jar  ${RELEASE_NUMBER}
+upload_new_package  couchbase-lite-android          aar  ${REL_NUM}
+#upload_new_package  couchbase-lite-android          jar  ${REL_NUM}
+upload_new_package  couchbase-lite-java-core        jar  ${REL_NUM}
+upload_new_package  couchbase-lite-java-javascript  jar  ${REL_NUM}
+upload_new_package  couchbase-lite-java-listener    jar  ${REL_NUM}
 
 echo ============================================ `date`
