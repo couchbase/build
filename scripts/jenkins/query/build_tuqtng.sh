@@ -1,15 +1,16 @@
 #!/bin/bash
 #
-#          run by jenkins job 'build_tuqtng'
+#          run by jenkins jobs: 'build_tuqtng_master'
+#                               'build_tuqtng_100'
 #
-#          with no paramters
+#          called with parameters:    branch_name     release_number
 #
+#          by build_tuqtng_master:    master          0.0.0
+#
+#          by build_tuqtng_100:       release/1.0.0   1.0.0
+
 source ~jenkins/.bash_profile
 set -e
-
-GITSPEC=master
-VERSION=1.0.0
-REVISION=${VERSION}-${BUILD_NUMBER}
 
 LICENSE=license-ce.txt
 PROJECT=github.com/couchbaselabs/tuqtng
@@ -22,6 +23,19 @@ PROJDIR=src/github.com/couchbaselabs/tuqtng
 cd   ${WORKSPACE}
 echo ======== sync tuqtng =========================
 
+function usage
+	{
+	echo -e "\nuse: ${0} branch_name release_number\n\n"
+	}
+	
+if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+GITSPEC=${1}
+
+if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+VERSION=${2}
+
+REVISION=${VERSION}-${BULD_NUMBER}
+
 ###################################
 #Manifest file
 ###################################
@@ -30,11 +44,15 @@ cd ${WORKSPACE}
 touch manifest.txt
 echo 'temporary manifest file' > ${WORKSPACE}/manifest.txt
 
-go get github.com/couchbaselabs/tuqtng/...
-cd ${WORKPSPACE}/build/scripts/jenkins/query/
-./go-manifest > current-versions_${REVISION}
-./go-set-version current-versions_${REVISION}
+cd ${WORKSPACE}/
+if [[ ! -d tuqtng ]] ; then git clone https://github.com/couchbaselabs/tuqtng.git ; fi			
+cd tuqtng
+git checkout ${GITSPEC}
+git pull origin ${GITSPEC}
+git show --stat
 
+cd ${WORKSPACE}/tuqtng
+go get github.com/couchbaselabs/tuqtng/...
 
 TOPD=${WORKSPACE}/src/${PROJECT}
 top=${TOPD}
@@ -174,21 +192,24 @@ function coverage
     cd $top
     }
 
+function go-manifest
+    {
+    echo "------- creating manifest file ------------------"
+    cd $DIST/..
+     ./dist/go-manifest > current-versions_${REVISION}
+    }
+
 function s3_upload
     {
      echo "------- starting upload --------------------"
      echo  ======= upload ==============================
      s3cmd put -v -P  ${REVISION} s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/
      cd $DIST
-     echo ............... uploading packages to s3://packages.couchbase.com/builds/query/tuqtng/${VE
-RSION}/${REVISION}/
-     s3cmd put -v -P  *.tar.gz    s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVIS
-ION}/
-     s3cmd put -v -P  *.zip       s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVIS
-ION}/
-     cd ${WORKPSPACE}/build/scripts/jenkins/query/
-     s3cmd put -v -P  current-versions_${REVISION}    s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVIS
-ION}/
+     echo ............... uploading packages to s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVISION}/
+     s3cmd put -v -P  *.tar.gz    s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVISION}/
+     s3cmd put -v -P  *.zip       s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVISION}/
+     cd $DIST/..
+     s3cmd put -v -P  current-versions_${REVISION}    s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVISION}/
     }
 
 
@@ -198,6 +219,7 @@ mkversion
 build_engine
 build_client
 build_dist_packages
+go-manifest
 s3_upload
 #compress
 #benchmark
