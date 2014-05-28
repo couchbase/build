@@ -34,7 +34,7 @@ GITSPEC=${1}
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 
-REVISION=${VERSION}-${BULD_NUMBER}
+REVISION=${VERSION}-${BUILD_NUMBER}
 
 ###################################
 #Manifest file
