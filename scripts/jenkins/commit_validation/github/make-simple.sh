@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-#          run by jenkins job 'make-simple-github'
+#          run by jenkins job 'make-simple-github' and 'make-simple-github-upr'
 #
-#          with no paramters
+#          with parameter either 'upr' or 'tap' (default will be 'tap')
 #
 #          triggered every three hours
 #
@@ -24,6 +24,7 @@ echo ============================================ make
 make all install
 echo ============================================ make simple-test
 cd testrunner
+export COUCHBASE_REPL_TYPE=${1-tap}
 make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 zip cluster_run_log cluster_run.log
