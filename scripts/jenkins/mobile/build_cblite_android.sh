@@ -29,6 +29,24 @@
 #            ZIP_LOG - 06_package_javadocs.log
 #            
 ##############
+#            
+#   see:     http://redsymbol.net/articles/bash-exit-traps/
+#
+function kill_child_processes
+    {
+    jobs -l | awk '{print "kill    "$2}' | bash
+    sleep  15
+    jobs -l | awk '{print "kill -9 "$2}' | bash
+    }
+function finish
+    {
+    kill_child_processes
+    sleep 15
+    echo ============================================ `date`
+    }
+trap finish EXIT
+##############
+
 source ~jenkins/.bash_profile
 export DISPLAY=:0
 set -e
@@ -265,11 +283,7 @@ fi
 
 echo "build started: ${BUILD_ID}"        >> ${WORKSPACE}/01_adb.log
 
-# kill background jobs
-jobs
-kill %adb                       || true
-kill %./start_android_emulator  || true
-kill %./sync_gateway            || true
+kill_child_processes
 
 echo "********RUNNING: ./upload_android_artifacts.sh *******************"
 ( ./upload_android_artifacts.sh 2>&1 )       >> ${WORKSPACE}/03_upload_android_artifacts.log
@@ -352,5 +366,4 @@ ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j release_android_a
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${JOB_SUFX}     -p LITESERV_VERSION -v ${REVISION}
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${JOB_SUFX} -p LITESERV_VERSION -v ${REVISION}
 
-echo ============================================ `date`
-
+############## EXIT function finish
