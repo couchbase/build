@@ -34,9 +34,9 @@
 #
 function kill_child_processes
     {
-    jobs -l | awk '{print "kill    "$2}' | bash
+    jobs -l | awk '{print "kill    "$2" || true"}' | bash
     sleep  15
-    jobs -l | awk '{print "kill -9 "$2}' | bash
+    jobs -l | awk '{print "kill -9 "$2" || true"}' | bash
     }
 function finish
     {
