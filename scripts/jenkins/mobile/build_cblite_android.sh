@@ -34,15 +34,27 @@
 #
 function kill_child_processes
     {
+    echo ============================================ killing child processes
     jobs -l | awk '{print "kill    "$2" || true"}' | bash
+    echo ============================================ try again after 15 sec.
     sleep  15
+  # for I in {a..o} ; do echo -n '=' ; sleep 1 ; done ; echo
     jobs -l | awk '{print "kill -9 "$2" || true"}' | bash
     }
 function finish
     {
+    EXIT_STATUS=$?
+    if [[ ${EXIT_STATUS} > 0 ]]
+        then
+        echo ============================================
+        echo ============  SIGNAL CAUGHT:  ${EXIT_STATUS}
+        echo ============================================
+    fi
     kill_child_processes
+    echo ============================================ make file handles closed
+  # for I in {a..o} ; do echo -n '=' ; sleep 1 ; done ; echo
     sleep 15
-    echo ============================================ `date`
+    echo ============================================  `date`
     }
 trap finish EXIT
 ##############
