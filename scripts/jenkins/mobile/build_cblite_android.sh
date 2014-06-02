@@ -83,6 +83,10 @@ REVISION=${VERSION}-${BLD_NUM}
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
 
+LOG_DIR=${WORKSPACE}/${EDITION}_logs
+if [[ -e ${LOG_DIR} ]] ; then rm -rf ${LOG_DIR} ; fi
+mkdir -p ${LOG_DIR}
+
 PKG_SRCD=s3://packages.couchbase.com/builds/mobile/sync_gateway/${VERSION}/${SYNCGATE_VERSION}
 PKGSTORE=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${REVISION}
 PUT_CMD="s3cmd put -P"
@@ -190,14 +194,14 @@ cd ${ANDR_LITESRV_DIR}
 cp extra/jenkins_build/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
-( ./build_android.sh   2>&1 )                >> ${WORKSPACE}/00_android_build.log
+( ./build_android.sh   2>&1 )                >> ${LOG_DIR}/00_android_build.log
 
-if  [[ -e ${WORKSPACE}/00_android_build.log ]]
+if  [[ -e ${LOG_DIR}/00_android_build.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/00_android_build.log"
+    echo "===================================== ${LOG_DIR}/00_android_build.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/00_android_build.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/00_android_build.log
 fi
 echo ============================================  UNDO instantiate tokens
 cp  ${JAVA_VER_FILE}.ORIG ${JAVA_VER_FILE}
@@ -231,15 +235,15 @@ done
 
 
 
-echo "ADB log for build ${BLD_NUM}"           > ${WORKSPACE}/01_adb.log
-( adb logcat -v time   2>&1 )                >> ${WORKSPACE}/01_adb.log &
+echo "ADB log for build ${BLD_NUM}"           > ${LOG_DIR}/01_adb.log
+( adb logcat -v time   2>&1 )                >> ${LOG_DIR}/01_adb.log &
 
-if  [[ -e ${WORKSPACE}/01_adb.log ]]
+if  [[ -e ${LOG_DIR}/01_adb.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/01_adb.log"
+    echo "===================================== ${LOG_DIR}/01_adb.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/01_adb.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/01_adb.log
 fi
 
 echo ".......................................starting sync_gateway"
@@ -252,22 +256,22 @@ cd ${ANDR_LITESRV_DIR}
 echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 
-( ./run_android_unit_tests.sh  2>&1 )        >> ${WORKSPACE}/02_android_unit_test.log
+( ./run_android_unit_tests.sh  2>&1 )        >> ${LOG_DIR}/02_android_unit_test.log
 
-if  [[ -e ${WORKSPACE}/02_android_unit_test.log ]]
+if  [[ -e ${LOG_DIR}/02_android_unit_test.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/02_android_unit_test.log"
+    echo "===================================== ${LOG_DIR}/02_android_unit_test.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/02_android_unit_test.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/02_android_unit_test.log
 fi
 echo "http://factory.hq.couchbase.com:8080/job/build_cblite_android_master/ws/app-under-test/android/couchbase-lite-android-liteserv/libraries/couchbase-lite-android/build/reports/androidTests/connected/index.html"
 
-FAILS=`grep -i FAIL ${WORKSPACE}/02_android_unit_test.log | wc -l`
+FAILS=`grep -i FAIL ${LOG_DIR}/02_android_unit_test.log | wc -l`
 if [[ $((FAILS)) > 0 ]]
     then
     echo "---------------------------- ${FAILS} test FAILs -----------------------"
-       cat -n ${WORKSPACE}/02_android_unit_test.log | grep -i FAIL
+       cat -n ${LOG_DIR}/02_android_unit_test.log | grep -i FAIL
     echo "------------------------------------------------------------------------"
     exit ${FAILS}
 fi
@@ -281,19 +285,19 @@ fi
 #cp ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject/CBLite/build/reports/instrumentTests/connected/*.html ${WORKSPACE}/build_cblite_android/
 
 
-echo "build started: ${BUILD_ID}"        >> ${WORKSPACE}/01_adb.log
+echo "build started: ${BUILD_ID}"            >> ${LOG_DIR}/01_adb.log
 
 kill_child_processes
 
 echo "********RUNNING: ./upload_android_artifacts.sh *******************"
-( ./upload_android_artifacts.sh 2>&1 )       >> ${WORKSPACE}/03_upload_android_artifacts.log
+( ./upload_android_artifacts.sh 2>&1 )       >> ${LOG_DIR}/03_upload_android_artifacts.log
 
-if  [[ -e ${WORKSPACE}/03_upload_android_artifacts.log ]]
+if  [[ -e ${LOG_DIR}/03_upload_android_artifacts.log ]]
     then
     echo
-    echo "===================================== ${WORKSPACE}/03_upload_android_artifacts.log"
+    echo "===================================== ${LOG_DIR}/03_upload_android_artifacts.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/03_upload_android_artifacts.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/03_upload_android_artifacts.log
 fi
 
 echo ============================================  build android zipfile
@@ -310,14 +314,14 @@ if [[ ${EDITION} =~ 'community' ]]
     then
     AND_ZIP=couchbase-lite-${REVISION}-android-${EDITION}.zip
 fi
-rm -f                                           ${WORKSPACE}/04_android_package.log
-                      ./zip_jars.sh ${REVISION} ${WORKSPACE}/04_android_package.log
+rm -f                                           ${LOG_DIR}/04_android_package.log
+                      ./zip_jars.sh ${REVISION} ${LOG_DIR}/04_android_package.log
 
-if  [[ -e ${WORKSPACE}/04_android_package.log ]]
+if  [[ -e ${LOG_DIR}/04_android_package.log ]]
     then
-    echo "===================================== ${WORKSPACE}/04_android_package.log"
+    echo "===================================== ${LOG_DIR}/04_android_package.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/04_android_package.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/04_android_package.log
 fi
 
 echo ============================================ upload ${PKGSTORE}/${AND_ZIP}
@@ -328,33 +332,40 @@ echo        ${WORKSPACE}/${AND_ZIP}
 ${PUT_CMD}  ${WORKSPACE}/${AND_ZIP}                      ${PKGSTORE}/${AND_ZIP}
 
 
-cd ${ANDR_LITESRV_DIR}
-echo ============================================  generate javadocs
-JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:generateJavadocs'
-
-( ${JAVADOC_CMD}  2>&1 )                     >> ${WORKSPACE}/05_javadocs.log
-
-if  [[ -e ${WORKSPACE}/05_javadocs.log ]]
-    then
-    echo
-    echo "===================================== ${WORKSPACE}/05_javadocs.log"
-    echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/05_javadocs.log
+if [[ ${EDITION} =~ 'community' ]]
+  then
+    echo ============================================ SKIPPING javadocs
+    echo ============================================ SKIPPING javadocs >> ${LOG_DIR}/05_javadocs.log
+    echo ============================================ SKIPPING javadocs >> ${LOG_DIR}/06_package_javadocs.log
+  else
+    cd ${ANDR_LITESRV_DIR}
+    echo ============================================  generate javadocs
+    JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:generateJavadocs'
+    
+    ( ${JAVADOC_CMD}  2>&1 )                     >> ${LOG_DIR}/05_javadocs.log
+    
+    if  [[ -e ${LOG_DIR}/05_javadocs.log ]]
+        then
+        echo
+        echo "===================================== ${LOG_DIR}/05_javadocs.log"
+        echo ". . ."
+        tail ${LOG_TAIL}                            ${LOG_DIR}/05_javadocs.log
+    fi
+    cd libraries/couchbase-lite-java-core/build/docs/javadoc
+    echo ============================================ zip up ${DOCS_ZIP}
+    ( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )   >> ${LOG_DIR}/06_package_javadocs.log
+    
+    if  [[ -e ${LOG_DIR}/06_package_javadocs.log ]]
+        then
+        echo
+        echo "===================================== ${LOG_DIR}/06_package_javadocs.log"
+        echo ". . ."
+        tail ${LOG_TAIL}                            ${LOG_DIR}/06_package_javadocs.log
+    fi
+    
+    echo ============================================ upload  ${PKGSTORE}/${DOCS_ZIP}
+    ${PUT_CMD}  ${WORKSPACE}/${DOCS_ZIP}                      ${PKGSTORE}/${DOCS_ZIP}
 fi
-cd libraries/couchbase-lite-java-core/build/docs/javadoc
-echo ============================================ zip up ${DOCS_ZIP}
-( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )  >> ${WORKSPACE}/06_package_javadocs.log
-
-if  [[ -e ${WORKSPACE}/06_package_javadocs.log ]]
-    then
-    echo
-    echo "===================================== ${WORKSPACE}/06_package_javadocs.log"
-    echo ". . ."
-    tail ${LOG_TAIL}                            ${WORKSPACE}/06_package_javadocs.log
-fi
-
-echo ============================================ upload  ${PKGSTORE}/${DOCS_ZIP}
-${PUT_CMD}  ${WORKSPACE}/${DOCS_ZIP}                      ${PKGSTORE}/${DOCS_ZIP}
 
 
 echo ============================================ removing couchbase-sync-gateway
