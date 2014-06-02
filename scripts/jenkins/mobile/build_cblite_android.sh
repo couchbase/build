@@ -95,7 +95,8 @@ REVISION=${VERSION}-${BLD_NUM}
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
 
-LOG_DIR=${WORKSPACE}/${EDITION}_logs
+LOG_DIR_NAME=${EDITION}_logs
+LOG_DIR=${WORKSPACE}/${LOG_DIR_NAME}
 if [[ -e ${LOG_DIR} ]] ; then rm -rf ${LOG_DIR} ; fi
 mkdir -p ${LOG_DIR}
 
@@ -379,6 +380,8 @@ if [[ ${EDITION} =~ 'community' ]]
     ${PUT_CMD}  ${WORKSPACE}/${DOCS_ZIP}                      ${PKGSTORE}/${DOCS_ZIP}
 fi
 
+echo ============================================ upload logs ${PKGSTORE}/${LOG_DIR_NAME}
+${PUT_CMD}  ${LOG_DIR}/*.log                                  ${PKGSTORE}/${LOG_DIR_NAME}/
 
 echo ============================================ removing couchbase-sync-gateway
 sudo dpkg --remove   couchbase-sync-gateway     || true
