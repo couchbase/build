@@ -81,7 +81,7 @@ LIB_SRCF=${LIB_SRCD}/libCBLJSViewCompiler.a
 LIB_DEST=${ZIP_SRCD}/Extras
 
 JSC_SRCD=${BASE_DIR}/vendor/JavaScriptCore.framework
-JSC_DEST=${ZIP_SRCD}
+JSC_DEST=${LIB_DEST}
 
 export TAP_TIMEOUT=120
 
