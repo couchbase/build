@@ -3,11 +3,11 @@
 #          run by jenkins jobs: 'build_tuqtng_master'
 #                               'build_tuqtng_100'
 #
-#          called with parameters:    branch_name     release_number
+#          called with parameters:    branch          release    build_number
 #
-#          by build_tuqtng_master:    master          0.0.0
+#          by build_tuqtng_master:    master          0.0.0      nnnn
 #
-#          by build_tuqtng_100:       release/1.0.0   1.0.0
+#          by build_tuqtng_100:       release/1.0.0   1.0.0      mmmm
 
 source ~jenkins/.bash_profile
 set -e
@@ -21,20 +21,32 @@ echo ==============================================
 
 PROJDIR=src/github.com/couchbaselabs/tuqtng
 cd   ${WORKSPACE}
-echo ======== sync tuqtng =========================
 
 function usage
 	{
-	echo -e "\nuse: ${0} branch_name release_number\n\n"
+	echo -e "\nuse: ${0}  branch_name  release_number  build_number\n\n"
 	}
 	
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
-VERSION=${2}
+RELEASE=${2}
 
-REVISION=${VERSION}-${BUILD_NUMBER}
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+BLD_NUM=${3}
+
+REVISION=${RELEASE}-${BLD_NUM}
+
+S3_REPO=s3://packages.couchbase.com/builds/query/tuqtng/${RELEASE}/${REVISION}
+
+UPLOADS="manifest.txt                                      \
+         couchbase-query_x86_linux_${REVISION}.tar.gz tar   \
+         couchbase-query_x86_64_linux_${REVISION}.tar.gz tar \
+         couchbase-query_x86_64_mac_${REVISION}.zip zip       \
+         couchbase-query_x86_win_${REVISION}.zip zip           \
+         couchbase-query_x86_64_win_${REVISION}.zip             \
+         "
 
 ###################################
 #Manifest file
@@ -44,7 +56,9 @@ cd ${WORKSPACE}
 touch manifest.txt
 echo 'temporary manifest file' > ${WORKSPACE}/manifest.txt
 
-cd ${WORKSPACE}/
+echo ============================================== sync tuqtng
+echo ============================================== to ${GITSPEC}
+cd ${WORKSPACE}
 if [[ ! -d tuqtng ]] ; then git clone https://github.com/couchbaselabs/tuqtng.git ; fi			
 cd tuqtng
 git checkout ${GITSPEC}
@@ -196,20 +210,17 @@ function go-manifest
     {
     echo "------- creating manifest file ------------------"
     cd $DIST/..
-     ./dist/go-manifest > current-versions_${REVISION}
+    ./dist/go-manifest > current-versions_${REVISION}
     }
 
 function s3_upload
     {
-     echo "------- starting upload --------------------"
-     echo  ======= upload ==============================
-     s3cmd put -v -P  ${REVISION} s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/
-     cd $DIST
-     echo ............... uploading packages to s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVISION}/
-     s3cmd put -v -P  *.tar.gz    s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVISION}/
-     s3cmd put -v -P  *.zip       s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVISION}/
-     cd $DIST/..
-     s3cmd put -v -P  current-versions_${REVISION}    s3://packages.couchbase.com/builds/query/tuqtng/${VERSION}/${REVISION}/
+    echo "------- starting upload --------------------"
+    for ARTIFACT in ${UPLOADS}
+      do
+        echo  ======= upload ============================== ${S3_REPO}/${ARTIFACT}
+        s3cmd put -v -P  ${DIST}/${ARTIFACT}  ${S3_REPO}/${ARTIFACT}
+    done
     }
 
 
