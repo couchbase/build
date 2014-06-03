@@ -14,10 +14,8 @@ set -e
 
 LICENSE=license-ce.txt
 PROJECT=github.com/couchbaselabs/tuqtng
-export GOPATH=${WORKSPACE}
 
 PROJDIR=src/github.com/couchbaselabs/tuqtng
-cd   ${WORKSPACE}
 
 function usage
 	{
@@ -48,27 +46,27 @@ BLD_DIR=${WORKSPACE}/build
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
-mkdir -p ${AUT_DIR}
 
+TUQ_DIR=${AUT_DIR}/tuqtng
+mkdir -p ${TUQ_DIR}
+cd       ${TUQ_DIR}
 
-TOPD=${AUT_DIR}/src/${PROJECT}
+TOPD=${TUQ_DIR}/src/${PROJECT}
 DIST=${TOPD}/dist
 
+export GOPATH=${TUQ_DIR}
 
 env | grep -iv password | grep -iv passwd | sort -u
-echo ==============================================
+echo ============================================== `date`
+
+go get -d -u github.com/couchbaselabs/tuqtng/...
 
 echo ============================================== sync tuqtng
 echo ============================================== to ${GITSPEC}
-cd ${AUT_DIR}
-if [[ ! -d tuqtng ]] ; then git clone https://github.com/couchbaselabs/tuqtng.git ; fi			
-cd         tuqtng
+cd ${TOPD}
 git checkout    ${GITSPEC}
 git pull origin ${GITSPEC}
 git show --stat
-
-cd ${AUT_DIR}/tuqtng
-go get github.com/couchbaselabs/tuqtng/...
 
 echo ============================================== generate manifest.txt
 ${BLD_DIR}/scripts/jenkins/query/go-manifest       > ${DIST}/manifest.txt
