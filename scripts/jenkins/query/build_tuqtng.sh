@@ -53,7 +53,6 @@ mkdir -p ${AUT_DIR}
 
 TOPD=${AUT_DIR}/src/${PROJECT}
 DIST=${TOPD}/dist
-cd   ${TOPD}
 
 
 env | grep -iv password | grep -iv passwd | sort -u
