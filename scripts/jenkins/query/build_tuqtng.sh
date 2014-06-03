@@ -16,9 +16,6 @@ LICENSE=license-ce.txt
 PROJECT=github.com/couchbaselabs/tuqtng
 export GOPATH=${WORKSPACE}
 
-env | grep -iv password | grep -iv passwd | sort -u
-echo ==============================================
-
 PROJDIR=src/github.com/couchbaselabs/tuqtng
 cd   ${WORKSPACE}
 
@@ -47,31 +44,40 @@ UPLOADS="manifest.txt                                      \
          couchbase-query_x86_win_${REVISION}.zip zip           \
          couchbase-query_x86_64_win_${REVISION}.zip             \
          "
+BLD_DIR=${WORKSPACE}/build
 
-###################################
-#Manifest file
-###################################
+AUT_DIR=${WORKSPACE}/app-under-test
+if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
+mkdir -p ${AUT_DIR}
 
-cd ${WORKSPACE}
-touch manifest.txt
-echo 'temporary manifest file' > ${WORKSPACE}/manifest.txt
+
+TOPD=${AUT_DIR}/src/${PROJECT}
+DIST=${TOPD}/dist
+cd   ${TOPD}
+
+
+env | grep -iv password | grep -iv passwd | sort -u
+echo ==============================================
 
 echo ============================================== sync tuqtng
 echo ============================================== to ${GITSPEC}
-cd ${WORKSPACE}
+cd ${AUT_DIR}
 if [[ ! -d tuqtng ]] ; then git clone https://github.com/couchbaselabs/tuqtng.git ; fi			
-cd tuqtng
-git checkout ${GITSPEC}
+cd         tuqtng
+git checkout    ${GITSPEC}
 git pull origin ${GITSPEC}
 git show --stat
 
-cd ${WORKSPACE}/tuqtng
+cd ${AUT_DIR}/tuqtng
 go get github.com/couchbaselabs/tuqtng/...
 
-TOPD=${WORKSPACE}/src/${PROJECT}
-top=${TOPD}
-DIST=${TOPD}/dist
-cd   ${TOPD}
+echo ============================================== generate manifest.txt
+${BLD_DIR}/scripts/jenkins/query/go-manifest       > ${DIST}/manifest.txt
+
+echo ============================================== insert meta-data
+echo "{\"version\": \"${REVISION}\"}"              > ${DIST}/version.json
+
+
 
 
 function testpkg
@@ -80,11 +86,6 @@ function testpkg
     go vet  ${PROJECT}/...
     }
 
-function mkversion
-    {
-    echo "------- starting mkversion -----------------"
-    echo "{\"version\": \"${REVISION}\"}" > $DIST/version.json
-    }
 
 function build_engine
     {
@@ -164,7 +165,7 @@ function build_dist_packages
     cd $DIST/..
     cd tutorial
     go build
-    cd $top
+    cd ${TOPD}
     tutorial/tutorial -src tutorial/content/ -dst $DIST/tutorial_tmp/
     
     build_pkg  cbq-engine.lin32      cbq.lin32      couchbase-query_x86_linux_${REVISION}.tar.gz     tar
@@ -199,19 +200,13 @@ function coverage
     do
         gocov test ${PROJECT}/$sub | gocov-html > $DIST/cov-$sub.html
     done
-    cd $top/test
+    cd ${TOPD}/test
     gocov test -deps -exclude-goroot > $DIST/integ.json
     cat $DIST/integ.json | jq '{"Packages": [.Packages[] | if .Name > "github.com/couchbaselabs/tuqtng" and .Name < "github.com/couchbaselabs/tuqtnh" then . else empty end]}' > $DIST/integ2.json
     cat $DIST/integ2.json |gocov-html > $DIST/integ-cov.html
-    cd $top
+    cd ${TOPD}
     }
 
-function go-manifest
-    {
-    echo "------- creating manifest file ------------------"
-    cd $DIST/..
-    ./dist/go-manifest > current-versions_${REVISION}
-    }
 
 function s3_upload
     {
@@ -225,13 +220,13 @@ function s3_upload
 
 
 
-#testpkg
-mkversion
+                       #testpkg
+#                       mkversion
 build_engine
 build_client
 build_dist_packages
-go-manifest
+#                       go-manifest
 s3_upload
-#compress
-#benchmark
-#coverage
+                       #compress
+                       #benchmark
+                       #coverage
