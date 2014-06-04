@@ -1,7 +1,7 @@
 #!/bin/bash
 #          
-#          run from manual jobs:   rename_ios_artifacts_master
-#                                  rename_ios_artifacts_100
+#          run from manual jobs:   prepare_release_ios_master
+#                                  prepare_release_ios_100
 #          
 #           to download an iOS ZIP file and upload it with a new number.
 #          
