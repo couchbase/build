@@ -1,7 +1,7 @@
 #!/bin/bash
 #          
-#          run from manual jobs:   rename_sgw_artifacts_master
-#                                  rename_sgw_artifacts_100
+#          run from manual jobs:   prepare_release_sgw_master
+#                                  prepare_release_sgw_100
 #          
 #           to download an Sync Gateway ZIP file and upload it with a new number.
 #          
