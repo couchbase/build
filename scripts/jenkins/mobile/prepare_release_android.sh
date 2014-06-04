@@ -1,7 +1,7 @@
 #!/bin/bash
 #          
-#          run from manual jobs:   release_android_artifacts_master
-#                                  release_android_artifacts_100
+#          run from manual jobs:   prepare_release_android_master
+#                                  prepare_release_android_100
 #          
 #           to download an android ZIP file,
 #              rename the couchbase JARs inside,
