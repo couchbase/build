@@ -186,10 +186,11 @@ echo  ============================================== upload ${PKGSTORE}/${DOC_ZI
 ${PUT_CMD}  ${DOC_ZIP_PATH}                                 ${PKGSTORE}/${DOC_ZIP_FILE}
 
 echo  ============================================== update default value of test and release jobs
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j prepare_release_ios_${JOB_SUFX}    -p ${EDN_PRFX}_BLD_TO_RELEASE  -v ${REVISION}
+  SET_SCRIPT=${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl
 
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${JOB_SUFX}      -p LITESERV_VERSION  -v ${REVISION}
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${JOB_SUFX}  -p LITESERV_VERSION  -v ${REVISION}
+${SET_SCRIPT}  -j prepare_release_ios_${JOB_SUFX}              -p ${EDN_PRFX}_BLD_TO_RELEASE    -v ${REVISION}
+${SET_SCRIPT}  -j mobile_functional_tests_ios_${JOB_SUFX}      -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
+${SET_SCRIPT}  -j mobile_functional_tests_android_${JOB_SUFX}  -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
 
 echo  ============================================== test
 
