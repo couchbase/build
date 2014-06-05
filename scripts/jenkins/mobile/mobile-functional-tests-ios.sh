@@ -5,6 +5,7 @@
 #          
 #          called with paramters:
 #             
+#             RELEASE           0.0.0, 1.0.0
 #             LITESERV_VERSION  set by build_cblite_ios_master, _100
 #             SYNCGATE_VERSION  ( hard-coded to run on macosx-x64 )
 #             EDITION
@@ -16,16 +17,19 @@ set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   liteserv.version   syncgateway.version  edtion\n\n"
+    echo -e "\nuse:  ${0}   release  liteserv.version   syncgateway.version  edtion\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-SYNCGATE_VERSION=${1}
+RELEASE=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
-LITESERV_VERSION=${2}
+SYNCGATE_VERSION=${2}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
-EDITION=${3}
+LITESERV_VERSION=${3}
+
+if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
+EDITION=${4}
 
 
 PLATFORM=darwin-amd64
@@ -39,8 +43,10 @@ else
     LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
 fi
 
-SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${SYNCGATE_VERSION}
-LIT_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${LITESERV_VERSION}
+SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${RELEASE}/${SYNCGATE_VERSION}
+LIT_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${RELEASE}/${LITESERV_VERSION}
+export SGW_PKGSTORE
+export LIT_PKGSTORE
 
 GET_CMD="s3cmd get"
 
