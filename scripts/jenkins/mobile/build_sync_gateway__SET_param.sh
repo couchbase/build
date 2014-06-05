@@ -2,14 +2,13 @@
 #          
 #   run by these jenkins jobs when successful:
 #   
-#   build_sync_gateway_master_centos-x86      |   build_sync_gateway_stable_centos-x86
-#   build_sync_gateway_master_centos-x64      |   build_sync_gateway_stable_centos-x64
-#   build_sync_gateway_master_macosx-x64      |   build_sync_gateway_stable_macosx-x64
-#   build_sync_gateway_master_ubuntu-x86      |   build_sync_gateway_stable_ubuntu-x86
-#   build_sync_gateway_master_ubuntu-x64      |   build_sync_gateway_stable_ubuntu-x64
-#   build_sync_gateway_master_win-2008-x86    |   build_sync_gateway_stable_win-2008-x86
-#   build_sync_gateway_master_win-2008-x64    |   build_sync_gateway_stable_win-2008-x64
-#   build_sync_gateway_master_win-2012-x64    |   build_sync_gateway_stable_win-2012-x64
+#   build_sync_gateway_master_centos-x86      |   build_sync_gateway_100_centos-x86
+#   build_sync_gateway_master_centos-x64      |   build_sync_gateway_100_centos-x64
+#   build_sync_gateway_master_macosx-x64      |   build_sync_gateway_100_macosx-x64
+#   build_sync_gateway_master_ubuntu-x86      |   build_sync_gateway_100_ubuntu-x86
+#   build_sync_gateway_master_ubuntu-x64      |   build_sync_gateway_100_ubuntu-x64
+#   build_sync_gateway_master_win-2008-x86    |   build_sync_gateway_100_win-2008-x86
+#   build_sync_gateway_master_win-2008-x64    |   build_sync_gateway_100_win-2008-x64
 #   
 #   with parameters
 #  
@@ -30,8 +29,8 @@
 # 
 #   and will set the default value of the SYNCGATE_VERSION parameter in jobs
 #   
-#      build_cblite_android_master            |  build_cblite_android_stable
-#      mobile_functional_tests_android_master |  mobile_functional_tests_android_stable
+#      build_cblite_android_master            |  build_cblite_android_100
+#      mobile_functional_tests_android_master |  mobile_functional_tests_android_100
 #          
 source ~/.bash_profile
 set -e
