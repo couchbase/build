@@ -3,15 +3,11 @@
 #          run by jenkins jobs: 'mobile_functional_tests_ios_master'
 #                               'mobile_functional_tests_ios_100'
 #          
-#          with job paramters (now of the form n.n.n-mmmm):
+#          called with paramters:
 #             
 #             LITESERV_VERSION  set by build_cblite_ios_master, _100
 #             SYNCGATE_VERSION  ( hard-coded to run on macosx-x64 )
-#             
-#          and called with paramters:                edition
-#          
-#             mobile_functional_tests_ios_master:     community
-#             mobile_functional_tests_ios_100:        enterprise
+#             EDITION
 #             
 source ~jenkins/.bash_profile
 export PATH=/usr/local/bin:$PATH
@@ -20,10 +16,17 @@ set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   edition\n\n"
+    echo -e "\nuse:  ${0}   liteserv.version   syncgateway.version  edtion\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-EDITION=${1}
+SYNCGATE_VERSION=${1}
+
+if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+LITESERV_VERSION=${2}
+
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+EDITION=${3}
+
 
 PLATFORM=darwin-amd64
 
@@ -36,7 +39,9 @@ else
     LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
 fi
 
-CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
+SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${SYNCGATE_VERSION}
+LIT_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${LITESERV_VERSION}
+
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
@@ -58,7 +63,7 @@ rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/${LIT_PKG}
+wget --no-verbose ${LIT_PKGSTORE}/${LIT_PKG}
 
 cd ${LITESERV_DIR}
 if [[ ! -e ${DOWNLOAD}/${LIT_PKG} ]]
@@ -77,7 +82,7 @@ rm   -rf ${SYNCGATE_DIR}
 mkdir -p ${SYNCGATE_DIR}
 pushd    ${SYNCGATE_DIR} 2>&1 > /dev/null
 
-wget --no-verbose ${CBFS_URL}/${SGW_PKG}
+wget --no-verbose ${SGW_PKGSTORE}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 

@@ -1,28 +1,30 @@
 #!/bin/bash
 #          
 #          run by jenkins jobs: 'mobile_functional_tests_android_master'
-#                               'mobile_functional_tests_android_stable'
+#                               'mobile_functional_tests_android_100'
 #          
-#          with job paramters:
+#          called with paramters:
 #             
 #             LITESERV_VERSION
 #             SYNCGATE_VERSION  ( hard-coded to run on centos-x64 )
 #                                 now of the form n.n-mmmm
-#             
-#          and called with paramters:                     edition
-#          
-#             mobile_functional_tests_androids_master:   community
-#             mobile_functional_tests_androids_100:      enterprise
+#             EDITION
 #             
 source ~jenkins/.bash_profile
 set -e
 
 function usage
     {
-    echo -e "\nuse:  ${0}   edition\n\n"
+    echo -e "\nuse:  ${0}   liteserv.version   syncgateway.version  edtion\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-EDITION=${1}
+SYNCGATE_VERSION=${1}
+
+if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
+LITESERV_VERSION=${2}
+
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+EDITION=${3}
 
 
 PLATFORM=linux-amd64
@@ -34,6 +36,9 @@ else
     SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_x86_64.rpm
     LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
 fi
+
+SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${SYNCGATE_VERSION}
+LIT_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${LITESERV_VERSION}
 
 
 AUT_DIR=${WORKSPACE}/app-under-test
@@ -56,7 +61,7 @@ rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-wget --no-verbose http://cbfs.hq.couchbase.com:8484/builds/${LIT_PKG}
+wget --no-verbose ${LIT_PKGSTORE}/${LIT_PKG}
 
 cd ${LITESERV_DIR}
 if [[ ! -e ${DOWNLOAD}/${LIT_PKG} ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/${LIT_PKG}" ; exit 99 ; fi
@@ -71,7 +76,7 @@ rm   -rf ${SYNCGATE_DIR}
 mkdir -p ${SYNCGATE_DIR}
 pushd    ${SYNCGATE_DIR} 2>&1 > /dev/null
 
-wget --no-verbose ${CBFS_URL}/${SGW_PKG}
+wget --no-verbose ${SGW_PKGSTORE}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 
