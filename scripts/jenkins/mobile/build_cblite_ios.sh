@@ -42,6 +42,7 @@ REVISION=${VERSION}-${BLD_NUM}
 
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
+EDN_PRFX=`echo ${EDITION} | tr '[a-z]' '[A-Z]'`
 
 PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${REVISION}
 PUT_CMD="s3cmd put -P"
@@ -185,7 +186,7 @@ echo  ============================================== upload ${PKGSTORE}/${DOC_ZI
 ${PUT_CMD}  ${DOC_ZIP_PATH}                                 ${PKGSTORE}/${DOC_ZIP_FILE}
 
 echo  ============================================== update default value of test and release jobs
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j rename_ios_artifacts_${JOB_SUFX}             -p BLD_TO_RELEASE    -v ${REVISION}
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j prepare_release_ios_${JOB_SUFX}    -p ${EDN_PRFX}_BLD_TO_RELEASE  -v ${REVISION}
 
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_ios_${JOB_SUFX}      -p LITESERV_VERSION  -v ${REVISION}
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl  -j mobile_functional_tests_android_${JOB_SUFX}  -p LITESERV_VERSION  -v ${REVISION}
