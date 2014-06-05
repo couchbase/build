@@ -389,7 +389,5 @@ sudo dpkg --remove   couchbase-sync-gateway     || true
 echo  ============================================== update default value of test and release jobs
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j prepare_release_android_${JOB_SUFX}         -p BLD_TO_RELEASE   -v ${REVISION}
 
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${JOB_SUFX}     -p LITESERV_VERSION -v ${REVISION}
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${JOB_SUFX} -p LITESERV_VERSION -v ${REVISION}
 
 ############## EXIT function finish
