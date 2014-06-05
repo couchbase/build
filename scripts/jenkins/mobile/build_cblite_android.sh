@@ -94,6 +94,7 @@ REVISION=${VERSION}-${BLD_NUM}
 
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
+EDN_PRFX=`echo ${EDITION} | tr '[a-z]' '[A-Z]'`
 
 LOG_DIR_NAME=${EDITION}_logs
 LOG_DIR=${WORKSPACE}/${LOG_DIR_NAME}
@@ -386,8 +387,8 @@ ${PUT_CMD}  ${LOG_DIR}/*.log                                  ${PKGSTORE}/${LOG_
 echo ============================================ removing couchbase-sync-gateway
 sudo dpkg --remove   couchbase-sync-gateway     || true
 
-echo  ============================================== update default value of test and release jobs
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j prepare_release_android_${JOB_SUFX}         -p BLD_TO_RELEASE   -v ${REVISION}
+echo  ============================================== update default value of release jobs
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j prepare_release_android_${JOB_SUFX}  -p ${EDN_PRFX}_BLD_TO_RELEASE  -v ${REVISION}
 
 
 ############## EXIT function finish
