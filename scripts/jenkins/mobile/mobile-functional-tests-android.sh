@@ -40,6 +40,8 @@ fi
 SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${SYNCGATE_VERSION}
 LIT_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${LITESERV_VERSION}
 
+GET_CMD="s3cmd get"
+
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
@@ -61,7 +63,7 @@ rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-wget --no-verbose ${LIT_PKGSTORE}/${LIT_PKG}
+${GET_CMD} ${LIT_PKGSTORE}/${LIT_PKG}
 
 cd ${LITESERV_DIR}
 if [[ ! -e ${DOWNLOAD}/${LIT_PKG} ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/${LIT_PKG}" ; exit 99 ; fi
@@ -76,7 +78,7 @@ rm   -rf ${SYNCGATE_DIR}
 mkdir -p ${SYNCGATE_DIR}
 pushd    ${SYNCGATE_DIR} 2>&1 > /dev/null
 
-wget --no-verbose ${SGW_PKGSTORE}/${SGW_PKG}
+${GET_CMD} ${SGW_PKGSTORE}/${SGW_PKG}
 STATUS=$?
 if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STATUS} ; fi
 
