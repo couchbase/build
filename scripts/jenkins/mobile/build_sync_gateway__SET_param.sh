@@ -23,9 +23,9 @@
 #           SYNCGATE_VERSION_WIN2008_X64
 #           SYNCGATE_VERSION_WIN2012_X64
 #   
-#     REVISION equal to a build number of the form n.n-mmmm
-#   
-#     RELEASE = master, or 100 (for example)
+#     REVISION  equal to a build number of the form n.n-mmmm
+#     RELEASE   master, or 100 (for example)
+#     EDITION   "community" or "enterprise"
 # 
 #   and will set the default value of the SYNCGATE_VERSION parameter in jobs
 #   
@@ -39,14 +39,18 @@ function usage
     {
     echo -e "\nuse:  ${0}   SYNCGATE-version-param  revision  branch\n\n"
     }
-if [[ ! ${1} ]] ; then usage ; exit 77 ; fi
+if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 PARNAME=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 
-if [[ ! ${3} ]] ; then usage ; exit 99 ; fi
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 RELEASE=${3}
+
+if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
+EDITION=${4}
+EDN_PRFX=`echo ${EDITION} | tr '[a-z]' '[A-Z]'`
 
 export RELEASE ; export VERSION ; export PARNAME
 
@@ -55,17 +59,17 @@ echo ============================================== `date`
 
 if [[ ${PARNAME} == SYNCGATE_VERSION_UBUNTU_X64 ]]
     then
-    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}            -p SYNCGATE_VERSION -v ${REVISION}
-         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}            -p SYNCGATE_VERSION -v ${REVISION}
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}            -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}            -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
 fi
 if [[ ${PARNAME} == SYNCGATE_VERSION_CENTOS_X64 ]]
     then
-    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p SYNCGATE_VERSION -v ${REVISION}
-         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p SYNCGATE_VERSION -v ${REVISION}
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
 fi
 if [[ ${PARNAME} == SYNCGATE_VERSION_MACOSX_X64 ]]
     then
-    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${RELEASE}     -p SYNCGATE_VERSION -v ${REVISION}
-         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${RELEASE}     -p SYNCGATE_VERSION -v ${REVISION}
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${RELEASE}     -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_ios_${RELEASE}     -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
 fi
 
