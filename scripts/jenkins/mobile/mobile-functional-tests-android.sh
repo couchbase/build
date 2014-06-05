@@ -40,7 +40,7 @@ else
     LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
 fi
 
-SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${RELEASE}/${SYNCGATE_VERSION}
+SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/sync_gateway/${RELEASE}/${SYNCGATE_VERSION}
 LIT_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${RELEASE}/${LITESERV_VERSION}
 export SGW_PKGSTORE
 export LIT_PKGSTORE
