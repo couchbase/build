@@ -63,12 +63,4 @@ case "$refname" in
 	git push --tags $repo
 	git gc --auto
 	;;
-    *)
-	echo "Hey, this is a head.  Maybe we outta merge it."
-	shortbranch=${refname##*/}
-	if [ -f automerge-enabled ] && [ $oldrev != $null ] && [ $newrev != $null ]
-	then
-	    $HOME/review_site/hooks/automerge "$PWD" "$shortbranch" "$project"
-	fi
-	;;
 esac
