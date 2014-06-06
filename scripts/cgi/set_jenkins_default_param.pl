@@ -112,7 +112,7 @@ my $delay = 2 + int rand(5.3);
 sleep $delay;
 
 my $config = get_config($job_name);
-my $xmlref = $xml->XMLin($config, KeyAttr => {}, ForceArray => [] );
+my $xmlref = $xml->XMLin($config, KeyAttr => {choices => "class", a => "class"}, ForceArray => ['choices','a'] );
 
 my $paramarray = $$xmlref{'properties'}{'hudson.model.ParametersDefinitionProperty'}{'parameterDefinitions'}{'hudson.model.StringParameterDefinition'};
 
@@ -148,7 +148,7 @@ if ($DEBUG)  { print STDERR "\n=================================================
 
 sleep $delay;
 
-put_config($job_name, $xml->XMLout($xmlref, RootName => 'project', NoSort => 1, NoAttr => 1, KeyAttr => {} ) );
+put_config($job_name, $xml->XMLout($xmlref, RootName => 'project', NoSort => 1, NoAttr => 0, KeyAttr => {choices => "class", a => "class"} ) );
 
 
 __END__
