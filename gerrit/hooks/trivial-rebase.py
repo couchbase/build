@@ -222,8 +222,6 @@ def Main():
     email_addr = GetEmailFromAcctId(approval["account_id"], server)
     SuExec(server, options.port, options.private_key_path, email_addr,
            ' '.join(gerrit_approve_cmd))
-    print "Executed trivial rebase auto-review"
-    print gerrit_approve_cmd
   exit(0)
 
 if __name__ == "__main__":

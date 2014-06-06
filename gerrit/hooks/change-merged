@@ -154,6 +154,21 @@ case $project in
     indexing)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    gomemcached)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    pyupr)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    perfrunner)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    cbfs)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    buildbot-internal)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
