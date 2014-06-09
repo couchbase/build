@@ -6,12 +6,14 @@
 #          called with paramters:
 #             
 #             RELEASE           0.0.0, 1.0.0
-#             LITESERV_VERSION
 #             SYNCGATE_VERSION  ( hard-coded to run on centos-x64 )
+#             ANDROID_VERSION
 #             EDITION
 #             
 source ~jenkins/.bash_profile
 set -e
+
+DEBUG=1
 
 function usage
     {
@@ -24,7 +26,7 @@ if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 SYNCGATE_VERSION=${2}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
-LITESERV_VERSION=${3}
+ANDROID_VERSION=${3}
 
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
@@ -34,16 +36,16 @@ PLATFORM=linux-amd64
 if [[ ${EDITION} =~ 'community' ]]
   then
     SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_x86_64-${EDITION}.rpm
-    LIT_PKG=cblite_ios_${LITESERV_VERSION}-${EDITION}.zip
+    AND_PKG=couchbase-lite-${ANDROID_VERSION}-android-community.zip
 else
     SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_x86_64.rpm
-    LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
+    AND_PKG=couchbase-lite-${ANDROID_VERSION}-android.zip
 fi
 
 SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/sync_gateway/${RELEASE}/${SYNCGATE_VERSION}
-LIT_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${RELEASE}/${LITESERV_VERSION}
+AND_PKGSTORE=s3://packages.couchbase.com/builds/mobile/android/${RELEASE}/${ANDROID_VERSION}
 export SGW_PKGSTORE
-export LIT_PKGSTORE
+export AND_PKGSTORE
 
 GET_CMD="s3cmd get"
 
@@ -53,12 +55,14 @@ if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
 mkdir -p ${AUT_DIR}/liteserv
 mkdir -p ${AUT_DIR}/sync_gateway
 
-LITESERV_DIR=${AUT_DIR}/liteserv
+LITESERV_DIR=${AUT_DIR}/android_liteserv
 SYNCGATE_DIR=${AUT_DIR}/sync_gateway
 
-#export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
-
 DOWNLOAD=${AUT_DIR}/download
+
+export LITESERV_PATH=${LITESERV_DIR}
+export LITESERV_PORT=8080
+export EMULATOR=cblite
 
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
@@ -68,13 +72,11 @@ rm   -rf ${DOWNLOAD}
 mkdir -p ${DOWNLOAD}
 pushd    ${DOWNLOAD} 2>&1 > /dev/null
 
-${GET_CMD} ${LIT_PKGSTORE}/${LIT_PKG}
+${GET_CMD} ${AND_PKGSTORE}/${AND_PKG}
 
 cd ${LITESERV_DIR}
-if [[ ! -e ${DOWNLOAD}/${LIT_PKG} ]] ; then echo "LiteServ download failed, cannot find ${DOWNLOAD}/${LIT_PKG}" ; exit 99 ; fi
-unzip   -q ${DOWNLOAD}/${LIT_PKG}
-                                                         # want all of the zip file contents
-export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
+if [[ ! -e ${DOWNLOAD}/${AND_PKG} ]] ; then echo "Android LiteServ download failed, cannot find ${DOWNLOAD}/${AND_PKG}" ; exit 99 ; fi
+unzip   -q ${DOWNLOAD}/${AND_PKG}
 
 popd                 2>&1 > /dev/null
 
@@ -106,12 +108,34 @@ cat                   ${WORKSPACE}/npm_install.log
 echo ============================================ killing any hanging LiteServ
 killall LiteServ || true
 
-# echo ===================================================================================== starting ${LITESERV_PATH}
-# ${LITESERV_PATH} | tee  ${WORKSPACE}/liteserv.log & 
-#
-# echo ===================================================================================== starting ./node_modules/.bin/tap
-# export TAP_TIMEOUT=500
-# ./node_modules/.bin/tap ./tests       1> ${WORKSPACE}/results.log  2> ${WORKSPACE}/gateway.log
+echo ===================================================================================== starting Android LiteServ
+cd ${LITESERV_PATH}
+echo ".......................................creating avd"
+echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --force
+
+echo ".......................................starting emulator"
+# remove Android emulator temporary directory
+rm -rf /tmp/android-${USER}
+
+adb shell setprop debug.assert ${DEBUG}
+emulator64-arm -avd ${EMULATOR} -no-window -verbose -no-audio -no-skin -netspeed full -netdelay none &
+echo ".......................................waiting for emulator"
+echo ""
+sleep 10
+adb wait-for-device
+sleep 30
+
+OUT=`adb shell getprop init.svc.bootanim`
+while [[ ${OUT:0:7}  != 'stopped' ]]
+  do
+    OUT=`adb shell getprop init.svc.bootanim`
+    echo 'Waiting for emulator to fully boot...'
+    sleep 10
+done
+
+adb shell am start -a android.intent.action.MAIN -n com.couchbase.liteservandroid/com.couchbase.liteservandroid.MainActivity --ei listen_port ${v}
+adb forward  tcp:${LITESERV_PORT}  tcp:${LITESERV_PORT}
+
 
 echo ============================================ npm test
 export TAP_TIMEOUT=20000

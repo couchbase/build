@@ -241,12 +241,12 @@ adb wait-for-device
 sleep 30
 
 OUT=`adb shell getprop init.svc.bootanim`
-while [[ ${OUT:0:7}  != 'stopped' ]]; do
-		OUT=`adb shell getprop init.svc.bootanim`
-		echo 'Waiting for emulator to fully boot...'
-		sleep 10
+while [[ ${OUT:0:7}  != 'stopped' ]]
+  do
+    OUT=`adb shell getprop init.svc.bootanim`
+    echo 'Waiting for emulator to fully boot...'
+    sleep 10
 done
-
 
 
 echo "ADB log for build ${BLD_NUM}"           > ${LOG_DIR}/01_adb.log
