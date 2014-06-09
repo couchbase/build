@@ -25,6 +25,7 @@ source ~/.bash_profile
 set -e
 
 PUT_CMD="s3cmd put -P"
+CHK_CMD="s3cmd ls"
 
 
 function usage
@@ -232,7 +233,9 @@ md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
 echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
 ${PUT_CMD}  ${NEW_PKG_NAME}                          ${PKGSTORE}/${NEW_PKG_NAME}
+${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
 ${PUT_CMD}  ${NEW_PKG_NAME}.md5                      ${PKGSTORE}/${NEW_PKG_NAME}.md5
+${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}.md5
 
 echo ============================================== `date`

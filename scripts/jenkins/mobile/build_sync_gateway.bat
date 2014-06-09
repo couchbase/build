@@ -34,7 +34,8 @@ if "%PLATFRM%" == "" call :usage 66
 set  EDITION=%5
 if "%EDITION%" == "" call :usage 55
 
-set PUT_CMD=s3cmd put -P --no-progress --config=c:\Users\Administrator\s3cmd.ini
+set PUT_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini put -P --no-progress
+set CHK_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini ls
 set PKGSTORE="s3://packages.couchbase.com/builds/mobile/sync_gateway/%RELEASE%/%VERSION%"
 
 set LAST_GOOD_PARAM=%SYNCGATE_VERSION_PARAM%
@@ -179,7 +180,9 @@ cd                        %SGW_DIR%
 md5sum  %NEW_PKG_NAME%  > %NEW_PKG_NAME%.md5
 echo        ........................... uploading to %PKGSTORE%/%NEW_PKG_NAME%
 %PUT_CMD%  %NEW_PKG_NAME%                            %PKGSTORE%/%NEW_PKG_NAME%
+%CHK_CMD%                                            %PKGSTORE%/%NEW_PKG_NAME%
 %PUT_CMD%  %NEW_PKG_NAME%.md5                        %PKGSTORE%/%NEW_PKG_NAME%.md5
+%CHK_CMD%                                            %PKGSTORE%/%NEW_PKG_NAME%.md5
 
 echo ============================================== %DATE%
 
