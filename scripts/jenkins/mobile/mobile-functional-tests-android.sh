@@ -17,7 +17,7 @@ DEBUG=1
 
 function usage
     {
-    echo -e "\nuse:  ${0}   release  liteserv.version   syncgateway.version  edtion\n\n"
+    echo -e "\nuse:  ${0}   release  android.version   syncgateway.version  edtion\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 RELEASE=${1}
@@ -52,7 +52,7 @@ GET_CMD="s3cmd get"
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR} ]] ; then rm -rf ${AUT_DIR} ; fi
-mkdir -p ${AUT_DIR}/liteserv
+mkdir -p ${AUT_DIR}/android_liteserv
 mkdir -p ${AUT_DIR}/sync_gateway
 
 LITESERV_DIR=${AUT_DIR}/android_liteserv
