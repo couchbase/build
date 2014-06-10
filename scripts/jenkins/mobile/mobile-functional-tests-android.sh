@@ -49,7 +49,7 @@ DEBUG=1
 
 function usage
     {
-    echo -e "\nuse:  ${0}   release  android.version   syncgateway.version  edtion\n\n"
+    echo -e "\nuse:  ${0}   release  syncgateway.version  android.version   edtion\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 RELEASE=${1}
@@ -168,7 +168,7 @@ while [[ ${OUT:0:7}  != 'stopped' ]]
 done
 
 adb shell setprop debug.assert ${DEBUG}
-adb shell am start -a android.intent.action.MAIN -n com.couchbase.liteservandroid/com.couchbase.liteservandroid.MainActivity --ei listen_port ${LITESERV_PORT}
+adb shell am start -a android.intent.action.MAIN -n com.couchbase.liteservandroid.MainActivity --ei listen_port ${LITESERV_PORT}
 adb forward  tcp:${LITESERV_PORT}  tcp:${LITESERV_PORT}
 
 
