@@ -55,6 +55,7 @@ function finish
   # for I in {a..o} ; do echo -n '=' ; sleep 1 ; done ; echo
     sleep 15
     echo ============================================  `date`
+    exit ${EXIT_STATUS}
     }
 trap finish EXIT
 ##############

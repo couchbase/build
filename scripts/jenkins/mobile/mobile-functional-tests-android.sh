@@ -37,6 +37,7 @@ function finish
   # for I in {a..o} ; do echo -n '=' ; sleep 1 ; done ; echo
     sleep 15
     echo ============================================  `date`
+    exit ${EXIT_STATUS}
     }
 trap finish EXIT
 ##############
@@ -175,8 +176,8 @@ echo ============================================ npm test
 export TAP_TIMEOUT=20000
 npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
 
-echo ============================================ killing any hanging LiteServ
-killall LiteServ || true
+echo ============================================ killing any child processes
+kill_child_processes
 
 FAILS=`cat ${WORKSPACE}/npm_test_results.log | grep 'npm ERR!' | wc -l`
 if [[ $((FAILS)) > 0 ]] 
