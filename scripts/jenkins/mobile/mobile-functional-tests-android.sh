@@ -10,6 +10,37 @@
 #             ANDROID_VERSION
 #             EDITION
 #             
+##############
+#            
+#   see:     http://redsymbol.net/articles/bash-exit-traps/
+#
+function kill_child_processes
+    {
+    echo ============================================ killing child processes
+    jobs -l | awk '{print "kill    "$2" || true"}' | bash
+    echo ============================================ try again after 15 sec.
+    sleep  15
+  # for I in {a..o} ; do echo -n '=' ; sleep 1 ; done ; echo
+    jobs -l | awk '{print "kill -9 "$2" || true"}' | bash
+    }
+function finish
+    {
+    EXIT_STATUS=$?
+    if [[ ${EXIT_STATUS} > 0 ]]
+        then
+        echo ============================================
+        echo ============  SIGNAL CAUGHT:  ${EXIT_STATUS}
+        echo ============================================
+    fi
+    kill_child_processes
+    echo ============================================ make file handles closed
+  # for I in {a..o} ; do echo -n '=' ; sleep 1 ; done ; echo
+    sleep 15
+    echo ============================================  `date`
+    }
+trap finish EXIT
+##############
+
 source ~jenkins/.bash_profile
 set -e
 
@@ -108,8 +139,8 @@ echo ============================================ npm install
 mkdir -p tmp/single
 npm install  2>&1  >  ${WORKSPACE}/npm_install.log
 cat                   ${WORKSPACE}/npm_install.log
-echo ============================================ killing any hanging LiteServ
-killall LiteServ || true
+echo ============================================ killing any child processes
+kill_child_processes
 
 echo ===================================================================================== starting Android LiteServ
 cd ${LITESERV_PATH}
