@@ -134,7 +134,7 @@ while [[ ${OUT:0:7}  != 'stopped' ]]
     sleep 10
 done
 
-adb shell am start -a android.intent.action.MAIN -n com.couchbase.liteservandroid/com.couchbase.liteservandroid.MainActivity --ei listen_port ${v}
+adb shell am start -a android.intent.action.MAIN -n com.couchbase.liteservandroid/com.couchbase.liteservandroid.MainActivity --ei listen_port ${LITESERV_PORT}
 adb forward  tcp:${LITESERV_PORT}  tcp:${LITESERV_PORT}
 
 
