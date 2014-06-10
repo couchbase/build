@@ -142,17 +142,16 @@ cat                   ${WORKSPACE}/npm_install.log
 echo ============================================ killing any child processes
 kill_child_processes
 
+# remove Android emulator temporary directory
+rm -rf /tmp/android-${USER}
 echo ===================================================================================== starting Android LiteServ
 cd ${LITESERV_PATH}
 echo ".......................................creating avd"
 echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --force
 
 echo ".......................................starting emulator"
-# remove Android emulator temporary directory
-rm -rf /tmp/android-${USER}
-
-adb shell setprop debug.assert ${DEBUG}
 emulator64-arm -avd ${EMULATOR} -no-window -verbose -no-audio -no-skin -netspeed full -netdelay none &
+
 echo ".......................................waiting for emulator"
 echo ""
 sleep 10
@@ -167,6 +166,7 @@ while [[ ${OUT:0:7}  != 'stopped' ]]
     sleep 10
 done
 
+adb shell setprop debug.assert ${DEBUG}
 adb shell am start -a android.intent.action.MAIN -n com.couchbase.liteservandroid/com.couchbase.liteservandroid.MainActivity --ei listen_port ${LITESERV_PORT}
 adb forward  tcp:${LITESERV_PORT}  tcp:${LITESERV_PORT}
 
