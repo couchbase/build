@@ -62,7 +62,9 @@ DOWNLOAD=${AUT_DIR}/download
 
 export LITESERV_PATH=${LITESERV_DIR}
 export LITESERV_PORT=8080
-export AND_TARG=4
+
+                  # specific to host:
+export AND_TARG=27
 export EMULATOR=cblite
 
 echo ============================================ `date`
