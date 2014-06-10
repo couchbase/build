@@ -189,7 +189,6 @@ echo  ============================================== update default value of tes
 
 ${SET_SCRIPT}  -j prepare_release_ios_${JOB_SUFX}              -p ${EDN_PRFX}_BLD_TO_RELEASE    -v ${REVISION}
 ${SET_SCRIPT}  -j mobile_functional_tests_ios_${JOB_SUFX}      -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
-${SET_SCRIPT}  -j mobile_functional_tests_android_${JOB_SUFX}  -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
 
 echo  ============================================== test
 

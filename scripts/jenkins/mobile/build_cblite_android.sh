@@ -388,7 +388,8 @@ echo ============================================ removing couchbase-sync-gatewa
 sudo dpkg --remove   couchbase-sync-gateway     || true
 
 echo  ============================================== update default value of release jobs
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j prepare_release_android_${JOB_SUFX}  -p ${EDN_PRFX}_BLD_TO_RELEASE  -v ${REVISION}
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${JOB_SUFX}  -p ${EDN_PRFX}_ANDROID_VERSION -v ${REVISION}
+${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j prepare_release_android_${JOB_SUFX}          -p ${EDN_PRFX}_BLD_TO_RELEASE  -v ${REVISION}
 
 
 ############## EXIT function finish
