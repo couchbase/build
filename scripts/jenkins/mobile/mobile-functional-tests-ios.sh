@@ -15,6 +15,9 @@ export PATH=/usr/local/bin:$PATH
 export DISPLAY=:0
 set -e
 
+LOG_TAIL=-24
+
+
 function usage
     {
     echo -e "\nuse:  ${0}   release  liteserv.version   syncgateway.version  edtion\n\n"
@@ -49,6 +52,11 @@ export SGW_PKGSTORE
 export LIT_PKGSTORE
 
 GET_CMD="s3cmd get"
+
+
+LOG_DIR=${WORKSPACE}/${EDITION}_logs
+if [[ -e ${LOG_DIR} ]] ; then rm -rf ${LOG_DIR} ; fi
+mkdir -p ${LOG_DIR}
 
 
 AUT_DIR=${WORKSPACE}/app-under-test
@@ -109,8 +117,17 @@ git show --stat
 
 echo ============================================ npm install
 mkdir -p tmp/single
-npm install  2>&1  >  ${WORKSPACE}/npm_install.log
-cat                   ${WORKSPACE}/npm_install.log
+
+( npm install  2>&1  )                       >> ${LOG_DIR}/npm_install.log
+
+if  [[ -e ${LOG_DIR}/npm_install.log ]]
+    then
+    echo
+    echo "===================================== ${LOG_DIR}/npm_install.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/npm_install.log
+fi
+
 echo ============================================ killing any hanging LiteServ
 killall LiteServ || true
 
@@ -123,12 +140,20 @@ killall LiteServ || true
 
 echo ============================================ npm test
 export TAP_TIMEOUT=2000
-npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
+( npm test     2>&1  )                       >> ${LOG_DIR}/npm_test_results.log
+
+if  [[ -e ${LOG_DIR}/npm_test_results.log ]]
+    then
+    echo
+    echo "===================================== ${LOG_DIR}/npm_test_results.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/npm_test_results.log
+fi
 
 echo ============================================ killing any hanging LiteServ
 killall LiteServ || true
 
-FAILS=`cat ${WORKSPACE}/npm_test_results.log | grep 'npm ERR!' | wc -l`
+FAILS=`cat ${LOG_DIR}/npm_test_results.log | grep 'npm ERR!' | wc -l`
 if [[ $((FAILS)) > 0 ]] 
   then
     echo ============================================ exit: ${FAILS}
