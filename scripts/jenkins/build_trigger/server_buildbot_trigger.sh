@@ -30,7 +30,12 @@ fi
 
 repo manifest -r  > ${MFST_NOW}
 
-manifest_diff=`diff ${MFST_NOW} ${MFST_PRE} | grep "project name" | grep -v testrunner`
+if [[ "$FORCE_BUILD" = "" ]]
+  then
+    manifest_diff="just_do_it"
+  else
+    manifest_diff=`diff ${MFST_NOW} ${MFST_PRE} | grep "project name" | grep -v testrunner`
+fi
 
 if [[ "x$manifest_diff" != "x" ]]
   then
