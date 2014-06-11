@@ -32,6 +32,7 @@ use Data::Dumper;
 
 
 my ($jenkins_user, $jenkins_api_token) = ('self.jenkins', '871e176226f645f2011fd50c5cb1a1eb');
+my $myProperties = 'fake_root_for_XMLin';
 
 ############                        get_config ( <job_name> )
 #          
@@ -41,8 +42,9 @@ my ($jenkins_user, $jenkins_api_token) = ('self.jenkins', '871e176226f645f2011fd
 sub get_config
     {
     my ($job) = @_;
-    my  $req;
-    my  $config;
+    my ($req, $config);
+    my ($begin_str_parms, $endof_str_parms) = (0,0);
+    my ($before_string_params, $string_params, $after_string_params) = ("", "", "");
     
     my $request_url  = $URL_ROOT .'/job/'. $job .'/config.xml';
     if ($DEBUG)  { print STDERR "\nrequest: $request_url\n\n"; }
@@ -51,16 +53,24 @@ sub get_config
     my $response = $ua->request($request);
     if ($DEBUG)  { print STDERR "respons: ".Dumper($response)."\n\n";  }
  
-    if ($response->is_success)
-        {
-        $config = $response->content;
-        return $config;
-        }
-    else
+    if (! $response->is_success)
         {
         if ($response->status_line =~ '404')  { return(0); }
         die $response->status_line;
-    }   }
+        }
+    $config = $response->content;
+    my @lines = split(/\n/, $config);
+    foreach my $line (@lines)
+        {
+        if ($line =~ '<hudson.model.StringParameterDefinition' )  { $begin_str_parms = 1;  $endof_str_parms = 0; }
+        if ($line =~ '</hudson.model.StringParameterDefinition')  { $endof_str_parms = 1;  $string_params .= $line."\n";  next; }
+        if (! $begin_str_parms)  { $before_string_params .= $line."\n";  next; }
+        if (  $endof_str_parms)  { $after_string_params  .= $line."\n";  next; }
+        $string_params .= $line."\n";
+        }
+    $string_params = '<'.$myProperties.'>'."\n".$string_params.'</'.$myProperties.'>';
+    return ($before_string_params, $string_params, $after_string_params);
+    }
 
 ############                        put_config ( <job_name>, <config_file_string> )
 #          
@@ -69,7 +79,7 @@ sub get_config
 #                                   else returns 0
 sub put_config
     {
-    my ($job, $config) = @_;    if ($DEBUG)  { print STDERR "putting config:\n$config\n";  }
+    my ($job, $config) = @_;    if ($DEBUG)  { print STDERR "putting config:\n$config\n"; }
 
     my $request_url  = $URL_ROOT .'/job/'. $job .'/config.xml';
     if ($DEBUG)  { print STDERR "\nrequest: $request_url\n\n"; }
@@ -111,10 +121,16 @@ else
 my $delay = 2 + int rand(5.3);
 sleep $delay;
 
-my $config = get_config($job_name);
-my $xmlref = $xml->XMLin($config, KeyAttr => {}, ForceArray => [] );
+my ($config_head, $config_parm, $config_tail) = get_config($job_name);
 
-my $paramarray = $$xmlref{'properties'}{'hudson.model.ParametersDefinitionProperty'}{'parameterDefinitions'}{'hudson.model.StringParameterDefinition'};
+if ($DEBUG)  { print STDERR "before is:\n\n$config_head\n\n"; }
+if ($DEBUG)  { print STDERR "after  is:\n\n$config_tail\n\n"; }
+if ($DEBUG)  { print STDERR "MIDDLE is:\n\n$config_parm\n\n"; }
+
+my $xmlref = $xml->XMLin($config_parm, ForceArray => ['hudson.model.ParametersDefinitionProperty'], KeyAttr => {} );
+if ($DEBUG)  { print STDERR Dumper($xmlref); }
+
+my $paramarray = $$xmlref{'hudson.model.StringParameterDefinition'};
 
 if ($DEBUG)  { print STDERR Dumper($paramarray); }
 
@@ -140,7 +156,7 @@ else
         $$paramarray{'defaultValue'} = $new_val;
     }   }
 
-$xmlref{'properties'}{'hudson.model.ParametersDefinitionProperty'}{'parameterDefinitions'}{'hudson.model.StringParameterDefinition'} = $paramarray;
+$$xmlref{'hudson.model.StringParameterDefinition'} = $paramarray;
 
 if ($DEBUG)  { print STDERR "\n----------------------------------------------------------------------\n\n"; }
 if ($DEBUG)  { print STDERR Dumper($xmlref); }
@@ -148,7 +164,13 @@ if ($DEBUG)  { print STDERR "\n=================================================
 
 sleep $delay;
 
-put_config($job_name, $xml->XMLout($xmlref, RootName => 'project', NoSort => 1, NoAttr => 1, KeyAttr => {} ) );
+my $new_config = $config_head
+                .$xml->XMLout($xmlref, RootName => undef, NoSort => 1, NoAttr => 1, KeyAttr => {}) 
+                .$config_tail;
+
+if ($DEBUG) { print STDERR $new_config."\n"; }
+
+put_config($job_name, $new_config);
 
 
 __END__
