@@ -30,7 +30,7 @@ fi
 
 repo manifest -r  > ${MFST_NOW}
 
-if [[ "$FORCE_BUILD" = "" ]]
+if [[ "$FORCE_BUILD" = "true" ]]
   then
     manifest_diff="just_do_it"
     echo "FORCING build to occur, as requested!"
