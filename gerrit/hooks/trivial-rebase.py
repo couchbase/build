@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.6
+#!/usr/bin/env python
 
 # Copyright (c) 2010, Code Aurora Forum. All rights reserved.
 #
@@ -168,24 +168,29 @@ def Main():
 
   if options.patchset == 1:
     # Nothing to detect on first patchset
+    print "First patchset, no need to check for rebase"
     exit(0)
   prev_revision = None
   prev_revision = FindPrevRev(options.changeId, options.patchset, server)
   if not prev_revision:
     # Couldn't find a previous revision
+    print "Couldn't find previous revision?"
     exit(0)
   prev_patch_id = GetPatchId(prev_revision)
   cur_patch_id = GetPatchId(options.commit)
   if cur_patch_id.split()[0] != prev_patch_id.split()[0]:
     # patch-ids don't match
+    print "trivial-rebase: patch_ids don't match"
     exit(0)
   # Patch ids match. This is a trivial rebase.
+  print "Trivial rebase detected!"
   # In addition to patch-id we should check if the commit message changed. Most
   # approvers would want to re-review changes when the commit message changes.
   changed = DiffCommitMessages(prev_revision, options.commit)
   if changed:
     # Insert a comment into the change letting the approvers know only the
     # commit message changed
+    print "Commit message changed, filing comment"
     comment_msg = ("\'--message=New patchset patch-id matches previous patchset"
                    ", but commit message has changed.'")
     comment_cmd = ['ssh', '-p', options.port, server, 'gerrit', 'review',
@@ -219,10 +224,14 @@ def Main():
     gerrit_approve_cmd = ['gerrit', 'review', '--project', options.project,
                           '--message', gerrit_approve_msg, approve_category,
                           score, options.commit]
+    print "About to approve..."
     email_addr = GetEmailFromAcctId(approval["account_id"], server)
+    print "Email address: {}".format(email_addr)
     SuExec(server, options.port, options.private_key_path, email_addr,
            ' '.join(gerrit_approve_cmd))
   exit(0)
 
 if __name__ == "__main__":
+  print "Executing trivial-rebase check..."
   Main()
+  print "trivial-rebase check complete."
