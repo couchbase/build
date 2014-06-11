@@ -49,15 +49,16 @@ PUT_CMD="s3cmd put -P"
 LOG_FILE=${WORKSPACE}/build_ios_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
 
-                                        ZIP_FILE=cblite_ios_${REVISION}.zip
-if [[ ${EDITION} =~ community ]] ; then ZIP_FILE=cblite_ios_${REVISION}-${EDITION}.zip ; fi
 
-                                        # Additional Behaviours: Local subdirectory for repo
 BASE_DIR=${WORKSPACE}/couchbase-lite-ios
 BUILDDIR=${BASE_DIR}/build
 
+ZIP_FILE=couchbase-lite-ios-${EDITION}_${REVISION}.zip
 ZIP_PATH=${BASE_DIR}/${ZIP_FILE}
 ZIP_SRCD=${BASE_DIR}/zipfile_staging
+
+DOC_ZIP_FILE=couchbase-lite-ios-${EDITION}_${REVISION}_Documentation.zip
+DOC_ZIP_PATH=${BASE_DIR}/${DOC_ZIP_FILE}
 
 LICENSED=${WORKSPACE}/build/license/couchbase-lite
 LICENSEF=${LICENSED}/LICENSE_${EDITION}.txt
@@ -118,9 +119,6 @@ git checkout      master
 git pull  origin  master
 git submodule update --init --recursive
 git show --stat
-
-DOC_ZIP_FILE=cblite_ios_${REVISION}_Documentation.zip
-DOC_ZIP_PATH=${BASE_DIR}/${DOC_ZIP_FILE}
                                                                    # required by "Documentation" target
 DERIVED_FILE_DIR=${REL_SRCD}/Documentation                         #  where the doc files are generated
 TARGET_BUILD_DIR=${REL_SRCD}/com.couchbase.CouchbaseLite.docset    #  where the doc set ends up

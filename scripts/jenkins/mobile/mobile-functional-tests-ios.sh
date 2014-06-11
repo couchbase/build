@@ -40,11 +40,10 @@ PLATFORM=darwin-amd64
 if [[ ${EDITION} =~ 'community' ]]
   then
     SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_macosx-x86_64-${EDITION}.tar.gz
-    LIT_PKG=cblite_ios_${LITESERV_VERSION}-${EDITION}.zip
 else
     SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_macosx-x86_64.tar.gz
-    LIT_PKG=cblite_ios_${LITESERV_VERSION}.zip
 fi
+    LIT_PKG=couchbase-lite-ios-${EDITION}_${LITESERV_VERSION}.zip
 
 SGW_PKGSTORE=s3://packages.couchbase.com/builds/mobile/sync_gateway/${RELEASE}/${SYNCGATE_VERSION}
 LIT_PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${RELEASE}/${LITESERV_VERSION}
