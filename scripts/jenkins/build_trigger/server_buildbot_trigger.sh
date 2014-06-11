@@ -33,6 +33,7 @@ repo manifest -r  > ${MFST_NOW}
 if [[ "$FORCE_BUILD" = "" ]]
   then
     manifest_diff="just_do_it"
+    echo "FORCING build to occur, as requested!"
   else
     manifest_diff=`diff ${MFST_NOW} ${MFST_PRE} | grep "project name" | grep -v testrunner`
 fi
