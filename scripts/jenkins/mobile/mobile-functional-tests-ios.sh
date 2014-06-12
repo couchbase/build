@@ -66,6 +66,8 @@ mkdir -p ${AUT_DIR}/sync_gateway
 LITESERV_DIR=${AUT_DIR}/liteserv
 SYNCGATE_DIR=${AUT_DIR}/sync_gateway
 
+export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
+
 #export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
 
 DOWNLOAD=${AUT_DIR}/download
@@ -88,8 +90,6 @@ if [[ ! -e ${DOWNLOAD}/${LIT_PKG} ]]
 fi
 unzip   -q ${DOWNLOAD}/${LIT_PKG}
                                                          # want all of the zip file contents
-export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
-
 popd                 2>&1 > /dev/null
 
 echo ============================================ download sync_gateway
