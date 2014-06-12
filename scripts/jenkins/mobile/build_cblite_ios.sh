@@ -147,9 +147,20 @@ for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteS
 done
 
 echo  ============================================== package ${DOC_ZIP_FILE}
+DOC_LOG=${WORKSPACE}/doc_zip.log
+if [[ -e ${DOC_LOG} ]] ; then rm -f ${DOC_LOG} ; fi
+
 mv     ${DERIVED_FILE_DIR} ${DOC_ZIP_ROOT_DIR}
 pushd  ${REL_SRCD}         2>&1 > /dev/null
-zip -r ${DOC_ZIP_PATH} ${REVISION}
+
+( zip -r ${DOC_ZIP_PATH} ${REVISION}  2>&1 )                                  >>  ${DOC_LOG}
+if  [[ -e ${DOC_LOG} ]]
+    then
+    echo
+    echo "======================================= ${DOC_LOG}"
+    echo ". . ."
+    tail  ${LOG_TAIL}                             ${DOC_LOG}
+fi
 popd                        2>&1 > /dev/null
 
 echo  ============================================== prepare ${ZIP_FILE}
@@ -173,8 +184,18 @@ rm -rf CouchbaseLiteListener.framework.dSYM
 rm -rf LiteServ.app.dSYM
 
 echo  ============================================== package ${ZIP_FILE}
-cd       ${ZIP_SRCD}
-zip -r   ${ZIP_PATH} *
+ZIP_LOG=${WORKSPACE}/doc_zip.log
+if [[ -e ${ZIP_LOG} ]] ; then rm -f ${ZIP_LOG} ; fi
+
+cd         ${ZIP_SRCD}
+( zip -r   ${ZIP_PATH} *  2>&1 )                                              >>  ${ZIP_LOG}
+if  [[ -e ${ZIP_LOG} ]]
+    then
+    echo
+    echo "======================================= ${ZIP_LOG}"
+    echo ". . ."
+    tail  ${LOG_TAIL}                             ${ZIP_LOG}
+fi
 
 echo  ============================================== upload ${PKGSTORE}/${ZIP_FILE}
 ${PUT_CMD}  ${ZIP_PATH}                                     ${PKGSTORE}/${ZIP_FILE}
