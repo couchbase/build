@@ -67,8 +67,9 @@ LITESERV_DIR=${AUT_DIR}/liteserv
 SYNCGATE_DIR=${AUT_DIR}/sync_gateway
 
 export LITESERV_PATH=${LITESERV_DIR}/LiteServ.app/Contents/MacOS/LiteServ
+export SYNCGATE_PATH=${SYNCGATE_DIR}/couchbase-sync-gateway/bin/sync_gateway
 
-#export SYNCGATE_PATH=${SYNCGATE_DIR}/sync_gateway
+export TAP_TIMEOUT=40000
 
 DOWNLOAD=${AUT_DIR}/download
 
@@ -103,7 +104,6 @@ if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${SGW_PKG}" ; exit ${STAT
 
 echo ============================================ install sync_gateway
 tar xvf    ${SYNCGATE_DIR}/${SGW_PKG}
-export SYNCGATE_PATH=${SYNCGATE_DIR}/couchbase-sync-gateway/bin/sync_gateway
 
 popd                 2>&1 > /dev/null
 
@@ -138,7 +138,6 @@ killall LiteServ || true
 # ./node_modules/.bin/tap ./tests       1> ${WORKSPACE}/results.log  2> ${WORKSPACE}/gateway.log
 
 echo ============================================ npm test
-export TAP_TIMEOUT=2000
 ( npm test     2>&1  )                       >> ${LOG_DIR}/npm_test_results.log
 
 if  [[ -e ${LOG_DIR}/npm_test_results.log ]]
