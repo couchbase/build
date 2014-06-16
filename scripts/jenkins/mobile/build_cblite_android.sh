@@ -69,7 +69,7 @@ LOG_TAIL=-24
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  release_number  edition (community or enterprise)\n\n"
+    echo -e "\nuse:  ${0}   branch_name  release_number  build_number  edition (community or enterprise)\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
