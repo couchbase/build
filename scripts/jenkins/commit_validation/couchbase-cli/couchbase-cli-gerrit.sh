@@ -23,6 +23,8 @@ git clean -xfd
 echo ============================================ update cli
 git fetch ssh://review.couchbase.org:29418/couchbase-cli $GERRIT_REFSPEC && git checkout FETCH_HEAD
  
+cd ${WORKSPACE}/couchbase-cli
+
 sudo easy_install --upgrade nose
 nosetests -v t/pump_upr_test.py
 
