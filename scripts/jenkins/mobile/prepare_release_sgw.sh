@@ -44,24 +44,24 @@ EDITION=${3}
 
 if [[ ${EDITION} =~ 'community' ]]
   then
-    SGW_SRC_LIST="                                                                \
-                 couchbase-sync-gateway_${BLD_NUM}_i386-community.rpm       \
-                 couchbase-sync-gateway_${BLD_NUM}_x86_64-community.rpm      \
-                 couchbase-sync-gateway_${BLD_NUM}_i386-community.deb         \
-                 couchbase-sync-gateway_${BLD_NUM}_amd64-community.deb         \
-                 couchbase-sync-gateway_${BLD_NUM}_macosx_x86_64-community.rpm  \
-                 setup_couchbase-sync-gateway_${BLD_NUM}_x86-community.rpm       \
-                 setup_couchbase-sync-gateway_${BLD_NUM}_amd64-community.rpm      \
+    SGW_SRC_LIST="                                                           \
+                 couchbase-sync-gateway_${BLD_NUM}_i386-community.rpm         \
+                 couchbase-sync-gateway_${BLD_NUM}_x86_64-community.rpm        \
+                 couchbase-sync-gateway_${BLD_NUM}_i386-community.deb           \
+                 couchbase-sync-gateway_${BLD_NUM}_amd64-community.deb           \
+                 couchbase-sync-gateway_${BLD_NUM}_macosx-x86_64-community.tar.gz \
+                 setup_couchbase-sync-gateway_${BLD_NUM}_x86-community.rpm         \
+                 setup_couchbase-sync-gateway_${BLD_NUM}_amd64-community.rpm        \
                  "
 else
-    SGW_SRC_LIST="                                                      \
-                 couchbase-sync-gateway_${BLD_NUM}_i386.rpm       \
-                 couchbase-sync-gateway_${BLD_NUM}_x86_64.rpm      \
-                 couchbase-sync-gateway_${BLD_NUM}_i386.deb         \
-                 couchbase-sync-gateway_${BLD_NUM}_amd64.deb         \
-                 couchbase-sync-gateway_${BLD_NUM}_macosx_x86_64.rpm  \
-                 setup_couchbase-sync-gateway_${BLD_NUM}_x86.rpm       \
-                 setup_couchbase-sync-gateway_${BLD_NUM}_amd64.rpm      \
+    SGW_SRC_LIST="                                                 \
+                 couchbase-sync-gateway_${BLD_NUM}_i386.rpm         \
+                 couchbase-sync-gateway_${BLD_NUM}_x86_64.rpm        \
+                 couchbase-sync-gateway_${BLD_NUM}_i386.deb           \
+                 couchbase-sync-gateway_${BLD_NUM}_amd64.deb           \
+                 couchbase-sync-gateway_${BLD_NUM}_macosx-x86_64.tar.gz \
+                 setup_couchbase-sync-gateway_${BLD_NUM}_x86.rpm         \
+                 setup_couchbase-sync-gateway_${BLD_NUM}_amd64.rpm        \
                  "
 fi
 
