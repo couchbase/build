@@ -147,6 +147,8 @@ sub last_done_sgw_package
     
     my %job_branch_token = ( 'master'        => 'master',
                              'release/1.0.0' => '100',
+                             'support/1.0.0' => '100',
+                             'support/1.0.1' => '101',
                            );
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
     my $sumpage = jenkinsQuery::get_json($builder);

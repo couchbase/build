@@ -36,9 +36,11 @@ my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', 
 
 my %release = ( 'master'   => '0.0.0',
                 '100'      => '1.0.0',
+                '101'      => '1.0.1',
               );
 my %edition = ( 'master'   => 'community',
                 '100',     => 'enterprise',
+                '101',     => 'enterprise',
               );
 my $builder;
 
