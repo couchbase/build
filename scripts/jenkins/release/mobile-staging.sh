@@ -7,34 +7,24 @@ TMP_DIR=~/release_tmp
 usage()
     {
     echo ""
-    echo "usage:   `basename {0}` VERSION [-p PLATFORM]"
+    echo "usage:  `basename $0`  VERSION  [ -m MODEL -e EDITION ]"
     echo ""
-    echo "          VERSION             product version string"
+    echo "           VERSION          prepared version, like 3.0.0 or 3.0.0-beta   "
     echo ""
-    echo "          [ -M MODEL ]     android or ios.     (both if not given)"
+    echo "          [ -m MODEL ]      android, ios, or sync_gateway (one only)     "
+    echo "          [ -e EDITION  ]   community or enterprise.                     "
     echo ""
-    echo "          [ -m TMP_DIR  ]     temp dir to use, if not ${TMP_DIR}"
+    echo "          [ -D TMP_DIR  ]   temp dir to use, if not ${TMP_DIR}"
     echo ""
-    echo "By default the script will handle pacakges for all platforms."
+    echo "          [ -h          ]   print this help message"
+    echo ""
+    exit 4
     }
-
-if [[ $1 = "--help" ]]
-then
-    echo ""
-    usage
-    exit
-fi
-
-####    globals
-
-#builds="http://cbfs.hq.couchbase.com:8484/builds"
-builds=http://packages.northscale.com/latestbuilds/mobile
-s3_relbucket="s3://packages.couchbase.com/releases"
+if [[ $1 == "--help" ]] ; then usage ; fi
 
 ####    required, positional arguments
 
-if [ ! ${1} ]; then echo ; echo "VERSION required" ; usage ; exit ; fi
-
+if [[ ! ${1} ]] ; then echo ; echo "VERSION required" ; usage ; exit ; fi
 version=${1}
 shift
 
@@ -55,12 +45,15 @@ fi
 
 ####    optional, named arguments
 
-while getopts "h:M:m:" OPTION; do
+while getopts "m:e:h" OPTION; do
   case "$OPTION" in
-      M)
+      m)
         MODEL="$OPTARG"
         ;;
-      m)
+      e)
+        EDITION="$OPTARG"
+        ;;
+      D)
         TMP_DIR="$OPTARG"
         ;;
       h)
@@ -75,14 +68,11 @@ while getopts "h:M:m:" OPTION; do
 done
 
 if [ -z "$MODEL" ]; then
-    echo "Stage packages for android, ios and couchbase-sync-gateway"
-    platforms=("android" "ios" "couchbase-sync-gateway")
-elif [ $MODEL == "all" ]; then
-    echo "Stage packages for android, ios and couchbase-sync-gateway"
-    platforms=("android" "ios" "couchbase-sync-gateway")
-else
     echo "Stage packages for $MODEL"
     platforms=$MODEL
+else
+    echo "Must choose one of: android, ios, sync_gateway"
+    exit 99
 fi
 
 rm ~/home_phone.txt
@@ -93,87 +83,60 @@ mkdir   -p  ${TMP_DIR}
 chmod   777 ${TMP_DIR}
 pushd       ${TMP_DIR}  2>&1 > /dev/null
 
-sync_types=("rpm" "deb" "zip")
-sync_platforms=("x86" "x86_64")
-android_check=0
-ios_check=0
 
-for platform_type in ${platforms[@]}; do
-    for s_type in ${sync_types[@]}; do
-        for s_pl in ${sync_platforms[@]}; do
-            if [ $platform_type == "android" ]; then
-                if [ $android_check -eq 0 ]; then
-                    package="couchbase-lite-android-rc1.zip"
-                    release="couchbase-lite-community-android_`echo ${version} | cut -d '-' -f1`-beta.zip"
-                    s3_target="${s3_relbucket}/couchbase-lite/android/1.0-beta/"
-                    android_check=1
-                else
-                    continue
-                fi
-            elif [ $platform_type == "ios" ]; then
-                if [ $ios_check -eq 0 ]; then
-                    package="cblite_ios_${version}.zip"
-                    release="couchbase-lite-community-ios_`echo ${version} | cut -d '-' -f1`-beta.zip"
-                    s3_target="${s3_relbucket}/couchbase-lite/ios/1.0-beta/"
-                    ios_check=1
-                else
-                    continue
-                fi
-            elif [ $platform_type == "couchbase-sync-gateway" ]; then
-                if [ $s_pl == "x86" ] && [ $s_type == "zip" ]; then
-                    echo "Do nothing for .zip with x86"
-                    continue
-                else
-                    package="couchbase-sync-gateway-community_${s_pl}_${version}.${s_type}"
-                    release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.${s_type}"
-                    if [ $s_type == "zip" ]
-                        then
-                        package="couchbase-sync-gateway-community_${s_pl}_${version}.tar.gz"
-                        release="couchbase-sync-gateway-community_`echo ${version} | cut -d '-' -f1`-beta_${s_pl}.tar.gz"
-                    fi
-                    s3_target="${s3_relbucket}/couchbase-sync-gateway/1.0-beta/"
-                fi
-            fi
+s3_build_src="s3://packages.couchbase.com/builds/mobile/$MODEL/${rel_num}/${version}"
+s3_relbucket="s3://packages.couchbase.com/releases/$MODEL/${version}/"
+#                                                    must end with "/"
+GET_CMD="s3cmd get"
+PUT_CMD="s3cmd put"
 
-            if [ $platform_type == "android" ]; then
-                wget --no-verbose "${builds}/${package}"
-                if [ -z `ls $package` ]; then
-                    echo "$package is not found on ${builds}"
-                    echo "Terminating the staging process"
-                    exit 1
-                fi
-            else
-                wget --no-verbose "${builds}/${package}"
-                if [ -z `ls $package` ]; then
-                    echo "$package is not found on ${builds}"
-                    echo "Terminating the staging process"
-                    exit 1
-                fi
-            fi
-            cp $package $release
-            
-            echo "Staging for $release"
-            touch "$release.staging"
-            
-            echo "Calculate md5sum for $release"
-            md5sum $release > $release.md5
-            
-            echo $package >> ~/home_phone.txt
-            rm $package
-        done
+if  [[ $MODEL == 'android' ]]
+    then
+    if [[ $EDITION == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}.zip"           ; fi
+    if [[ $EDITION == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-community.zip" ; fi
+fi
+ 
+if  [[ $MODEL == 'ios' ]]
+    then
+    if [[ $EDITION == 'enterprise' ]]  ; then  pkgs="couchbase-lite-ios-enterprise_${version}.zip couchbase-lite-ios-enterprise_${version}_Documentation.zip" ; fi
+    if [[ $EDITION == 'community'  ]]  ; then  pkgs="couchbase-lite-ios-community_${version}.zip  couchbase-lite-ios-community_${version}_Documentation.zip"  ; fi
+fi
+ 
+if  [[ $MODEL == 'sync_gateway' ]]
+    then
+    EE_pkgs="x86_64.rpm            i386.rpm             macosx-x86_64.tar.gz            amd64.deb            i386.deb            amd64.exe           x86.exe"
+    CE_pkgs="x86_64-community.rpm  i386-community.rpm   macosx-x86_64-community.tar.gz  amd64-community.deb  i386-community.deb  amd64-community.exe x86-community.exe"
+    PREFIX="couchbase-sync-gateway"
+    
+    if [[ $EDITION == 'enterprise' ]] ; then  pkg_ends=$EE_pkgs ; fi
+    if [[ $EDITION == 'community' ]]  ; then  pkg_ends=$CE_pkgs ; fi
+    pkgs=""
+    for src in ${pkg_ends[@]}
+      do
+        pkgs="$pkgs ${PREFIX}_${version}_${src}"
     done
+fi
+
+
+for this_pkg in ${pkgs[@]}
+  do
+    ${GET_CMD}  ${s3_build_src}/${this_pkg}
+    
+    echo "Staging for ${this_pkg}"
+    touch "${this_pkg}.staging"
+    
+    echo "Calculate md5sum for ${this_pkg}"
+    md5sum ${this_pkg} > ${this_pkg}.md5
+    
+    echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.staging
+    echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.md5
+    echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}
+    echo $package >> ~/home_phone.txt
+    echo --------- rm ${this_pkg}
 done
-
-####    upload .staging and then the regular files
-
-echo "Uploading .staging files to S3..."
-s3cmd put -P            *.staging       "${s3_target}"
-
-echo "Uploading packages to S3..."
-s3cmd put -P `ls | grep -v staging`     "${s3_target}"
-
+ 
 echo "Granting anonymous read access..."
-s3cmd setacl --acl-public --recursive "${s3_target}"
+s3cmd setacl --acl-public --recursive "${s3_relbucket}"
 
-s3cmd ls ${s3_target}
-popd                 2>&1 > /dev/null
+s3cmd ls ${s3_relbucket}
+popd                    2>&1 > /dev/null
