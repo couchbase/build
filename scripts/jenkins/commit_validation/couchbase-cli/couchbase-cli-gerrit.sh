@@ -18,15 +18,16 @@ env | grep -iv password | grep -iv passwd | sort
 echo ============================================ clean
 sudo killall -9 beam.smp epmd memcached python 2>&1 > /dev/null || true
 
-git clean -xfd
+make clean-xfd-hard
 
+pushd couchbase-cli 2>&1 > /dev/null
 echo ============================================ update cli
 git fetch ssh://review.couchbase.org:29418/couchbase-cli $GERRIT_REFSPEC && git checkout FETCH_HEAD
  
-cd ${WORKSPACE}/couchbase-cli
-
 sudo easy_install --upgrade nose
 nosetests -v t/pump_upr_test.py
+
+popd                2>&1 > /dev/null
 
 sudo killall -9 beam.smp epmd memcached python  2>&1 > /dev/null || true
 
