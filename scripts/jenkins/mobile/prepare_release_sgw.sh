@@ -50,8 +50,8 @@ if [[ ${EDITION} =~ 'community' ]]
                  couchbase-sync-gateway_${BLD_NUM}_i386-community.deb           \
                  couchbase-sync-gateway_${BLD_NUM}_amd64-community.deb           \
                  couchbase-sync-gateway_${BLD_NUM}_macosx-x86_64-community.tar.gz \
-                 setup_couchbase-sync-gateway_${BLD_NUM}_x86-community.rpm         \
-                 setup_couchbase-sync-gateway_${BLD_NUM}_amd64-community.rpm        \
+                 setup_couchbase-sync-gateway_${BLD_NUM}_x86-community.exe         \
+                 setup_couchbase-sync-gateway_${BLD_NUM}_amd64-community.exe        \
                  "
 else
     SGW_SRC_LIST="                                                 \
@@ -60,8 +60,8 @@ else
                  couchbase-sync-gateway_${BLD_NUM}_i386.deb           \
                  couchbase-sync-gateway_${BLD_NUM}_amd64.deb           \
                  couchbase-sync-gateway_${BLD_NUM}_macosx-x86_64.tar.gz \
-                 setup_couchbase-sync-gateway_${BLD_NUM}_x86.rpm         \
-                 setup_couchbase-sync-gateway_${BLD_NUM}_amd64.rpm        \
+                 setup_couchbase-sync-gateway_${BLD_NUM}_x86.exe         \
+                 setup_couchbase-sync-gateway_${BLD_NUM}_amd64.exe        \
                  "
 fi
 
