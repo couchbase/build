@@ -43,8 +43,8 @@ PKG_DEST=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${REL_NUM}
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 EDITION=${3}
 
-IOS_ZIP_SRC=coucbase-lite-ios-${EDITION}_${BLD_NUM}.zip
-IOS_ZIP_DST=coucbase-lite-ios-${EDITION}_${REL_NUM}.zip
+IOS_ZIP_SRC=couchbase-lite-ios-${EDITION}_${BLD_NUM}.zip
+IOS_ZIP_DST=couchbase-lite-ios-${EDITION}_${REL_NUM}.zip
 
 
 ##############################################################################   S T A R T
