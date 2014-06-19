@@ -1,46 +1,421 @@
 #!/bin/bash
 
+# Overall commit validation script for following projects: couchstore, healthchecker, libmemcached, platform, testrunner, couchdb
+#                     
 #
-#          run by jenkins job:  overall-commit-validation
 #
 #
 #
 
+echo ==========================
+echo script start time
+echo =========================
 
 STARTTIME=$(date +%s)
 
-if [[ -e ${WORKSPACE}/build ]]  ;  then  rm -rf ${WORKSPACE}/build ; fi
+echo ===========================
+echo PRODUCT IS COUCHSTORE
+echo ===========================
 
-echo git clone http://github.com/couchbase/build.git ${WORKSPACE}/build
-     git clone http://github.com/couchbase/build.git ${WORKSPACE}/build
+cd ${WORKSPACE}
+ 
+source ~jenkins/.bash_profile
+set -e
+ulimit -a
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/couchdb/couchdb-gerrit.sh
+cat <<EOF
+============================================
+===                `date "+%H:%M:%S"`              ===
+============================================
+EOF
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/couchdb/couchdb-gerrit-views-pre-merge.sh
+env | grep -iv password | grep -iv passwd | sort
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/couchdb/couchdb-gerrit-views.sh
+cat <<EOF
+============================================
+===               clean                  ===
+============================================
+EOF
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+make clean-xfd-hard
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/couchstore/couchstore-gerrit.sh
+cat <<EOF
+============================================
+===         update couchstore            ===
+============================================
+EOF
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/ep-engine/ep-engine-gerrit.sh
+cd ${WORKSPACE}
+if [ -d "couchstore" ]; then
+  rm -rf couchstore
+fi
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/ep-engine/ep-unit-tests.sh
+git clone https://github.com/couchbase/couchstore.git
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/ns_server/ns_server-gerrit.sh
+cat <<EOF
+============================================
+===               Build                  ===
+============================================
+EOF
+cd ${WORKSPACE}
+make -j4 all || (make -j1 && false)
+if [ -d build ]
+then
+   make install
+fi
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/testrunner/testrunner-gerrit.sh
+cat <<EOF
+============================================
+===          Run unit tests              ===
+============================================
+EOF
+if [ -d build/couchstore ]
+then
+  pushd build/couchstore 2>&1 > /dev/null
+else
+  pushd couchstore 2>&1 > /dev/null
+fi
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/healthchecker/healthchecker-gerrit.sh
+make test
+cd ${WORKSPACE}
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/libmemcached/libmemcached-gerrit.sh
+cat <<EOF
+============================================
+===         Run end to end tests         ===
+============================================
+EOF
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/memcached/memcached-gerrit.sh
+cd testrunner
+make simple-test
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/couchbase-cli/couchbase-cli-gerrit.sh
+cat <<EOF
+============================================
+===                `date "+%H:%M:%S"`              ===
+============================================
+EOF
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 
-${WORKSPACE}/build/scripts/jenkins/commit_validation/platform/platform-gerrit.sh
+echo ================================
+echo PROJECT IS NS_SERVER
+echo ================================
 
-## Calculate elapsed time
+
+cd ${WORKSPACE}
+
+
+echo ============================================ `date`
+env | grep -iv password | grep -iv passwd | sort
+
+echo ============================================ clean and fetch
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+make clean-xfd-hard
+
+
+cd ${WORKSPACE}
+if [ -d "ns_server" ]; then
+  rm -rf ns_server
+fi
+
+git clone https://github.com/couchbase/ns_server.git
+
+cd ${WORKSPACE}
+echo ============================================ make
+
+make -j4 all install
+
+echo ============================================ make simple
+cd testrunner
+make simple-test
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+sleep 30
+scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/py-viewmerge.conf
+
+echo ============================================ `date`
+
+
+cd ${WORKSPACE}
+
+echo ======================
+echo PROJECT IS healthchecker
+echo ======================
+
+echo ============================================ `date`
+env | grep -iv password | grep -iv passwd | sort
+
+echo ============================================ clean
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+
+make clean-xfd-hard
+
+cd ${WORKSPACE}
+if [ -d "healthchecker" ]; then
+  rm -rf healthchecker
+fi
+
+git clone https://github.com/couchbase/healthchecker.git
+
+echo ============================================ make
+
+cd ${WORKSPACE}
+make -j4 all install
+echo ============================================ make simple-test
+cd testrunner
+make simple-test
+
+Line1="clitest.healthcheckertest.HealthcheckerTests:"
+Line2="     healthchecker_test,sasl_buckets=1,doc_ops=update,GROUP=P0"
+Line3="     healthchecker_test,standard_buckets=1,doc_ops=delete,GROUP=P0"
+
+cat > ./cbhealthchecker.conf << EOL
+${Line1}
+${Line2}
+${Line3}
+EOL
+
+IP=`/sbin/ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'`;
+
+echo "IP is  $IP";
+
+iniLine1=“[global]"
+iniLine2=“username:root"
+iniLine3="password:couchbase"
+iniLine4=“port:8091"
+iniLine5=“”
+iniLine6=“[servers]"
+iniLine7=“1:$IP"
+iniLine8=“"
+iniLine9=“[membase]"
+iniLine10=“rest_username:Administrator"
+iniLine11=“rest_password:password”
+
+cat > ./ini_file.ini << EOL
+${iniLine1}
+${iniLine2}
+${iniLine3}
+${iniLine4}
+${iniLine5}
+${iniLine6}
+${iniLine7}
+${iniLine8}
+${iniLine9}
+${iniLine10}
+${iniLine11}
+EOL
+
+python ./testrunner -i ini_file.ini -c cbhealthchecker.conf -p get_collectinfo=true
+
+sudo killall -9 beam.smp epmd memcached python  2>&1 > /dev/null || true
+
+echo ============================================ `date`
+
+echo==============
+echo  PROJECT is LIBMEMCACHED
+echo==============
+
+
+echo ============================================ `date`
+env | grep -iv password | grep -iv passwd | sort
+
+echo ============================================ clean
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+make clean-xfd-hard
+
+echo ============================================ update memcached
+
+cd ${WORKSPACE}
+if [ -d "libmemcached" ]; then
+  rm -rf libmemcached
+fi
+git clone https://github.com/couchbase/libmemcached.git
+
+
+echo ============================================ make
+popd 2>&1 > /dev/null
+make -j4 all install
+echo ============================================ make simple-test
+
+cd ${WORKSPACE}
+make simple-test
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+
+echo ============================================ `date`
+
+
+
+echo =================
+echo PROJECT is PLATFORM
+echo ==============
+
+
+cd ${WORKSPACE}
+
+echo platform
+
+echo ============================================ `date`
+env | grep -iv password | grep -iv passwd | sort
+
+echo ============================================ clean
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+make clean-xfd-hard
+
+echo ============================================ update platform
+
+cd ${WORKSPACE}
+if [ -d "platform" ]; then
+  rm -rf platform
+fi
+git clone https://github.com/couchbase/platform.git
+
+echo ============================================ make
+
+cd ${WORKSPACE}
+make -j4 all install
+
+pushd build/platform 2>&1 > /dev/null
+make test
+popd 2>&1 > /dev/null
+
+echo ============================================ make simple-test
+cd testrunner
+make simple-test
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+
+echo ============================================ `date`
+
+echo ================
+echo PROJECT is TESTRUNNER
+echo ================
+
+
+
+cd ${WORKSPACE}
+
+echo testrunner
+
+echo ============================================ `date`
+env | grep -iv password | grep -iv passwd | sort
+
+echo ============================================ clean
+rm -rf testrunner/cluster_run.log
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+make clean-xfd-hard
+repo forall -c "git clean -xfd"
+
+echo ============================================ update testrunner
+cd ${WORKSPACE}/testrunner
+git reset --hard HEAD
+
+cd ${WORKSPACE}
+if [ -d "testrunner" ]; then
+  rm -rf testrunner
+fi
+git clone https://github.com/couchbase/testrunner.git
+
+echo ============================================ make
+cd ${WORKSPACE}
+make all install
+echo ============================================ make simple-test
+cd testrunner
+make simple-test
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+zip cluster_run_log cluster_run.log
+echo ============================================ `date`
+
+cd ${WORKSPACE}
+
+
+echo================
+echo PROJECT is COUCHDB
+echo================
+
+cat <<EOF
+============================================
+=== `date "+%H:%M:%S"` ===
+============================================
+EOF
+env | grep -iv password | grep -iv passwd | sort
+
+cat <<EOF
+============================================
+=== clean ===
+============================================
+EOF
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+make clean-xfd-hard
+
+cat <<EOF
+============================================
+=== update CouchDB ===
+============================================
+EOF
+
+cd ${WORKSPACE}
+if [ -d "couchdb" ]; then
+  rm -rf couchdb
+fi
+git clone https://github.com/couchbase/couchbdb.git
+
+
+cat <<EOF
+============================================
+=== Build ===
+============================================
+EOF
+
+# Copy couchdb.plt from ${WORKSPACE} to ${WORKSPACE}/build/couchdb to gain build time
+
+mkdir -p ${WORKSPACE}/build/couchdb
+
+if [ -f ${WORKSPACE}/couchdb.plt ]
+then
+cp ${WORKSPACE}/couchdb.plt ${WORKSPACE}/build/couchdb/
+fi
+
+
+cd ${WORKSPACE}
+make -j4 all install || (make -j1 && false)
+
+cat <<EOF
+============================================
+=== Run unit tests ===
+============================================
+EOF
+
+if [ -d build/couchdb ]
+then
+pushd build/couchdb 2>&1 > /dev/null
+else
+pushd couchdb 2>&1 > /dev/null
+fi
+
+cpulimit -e 'beam.smp' -l 50 &
+
+CPULIMIT_PID=$!
+PATH=$PATH:${WORKSPACE}/couchstore make check
+
+kill $CPULIMIT_PID || true
+cd ${WORKSPACE}
+
+cat <<EOF
+============================================
+=== Run end to end tests ===
+============================================
+EOF
+pushd testrunner 2>&1 > /dev/null
+make simple-test
+popd 2>&1 > /dev/null
+
+
+cat <<EOF
+============================================
+=== `date "+%H:%M:%S"` ===
+============================================
+EOF
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+
+===================================================
+=== Calculate elapsed time at the end of the script
+===================================================
 
 ENDTIME=$(date +%s)
 
