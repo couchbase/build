@@ -7,6 +7,8 @@ set -e
 
 if [[ ! ${WORKSPACE} ]] ; then WORKSPACE=`pwd` ; fi
 
+TMP_DIR=${WORKSPACE}/release_tmp
+
 usage()
     {
     echo ""
