@@ -4,6 +4,8 @@
 set -e
 
 TMP_DIR=~/release_tmp
+PHONE_HOME=~/home_phone.txt
+if [[ -e ${PHONE_HOME} ]] ; then rm -f ${PHONE_HOME} ; fi
 
 usage()
     {
@@ -57,8 +59,6 @@ while getopts "D:h" OPTION; do
   esac
 done
 
-
-rm ~/home_phone.txt
 
 echo "Create tmp folder to hold all the packages"
 rm      -rf ${TMP_DIR}
@@ -117,7 +117,7 @@ for this_pkg in ${pkgs[@]}
     echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.staging
     echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.md5
     echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}
-    echo $package >> ~/home_phone.txt
+    echo $package >> ${PHONE_HOME}
     echo --------- rm ${this_pkg}
 done
  
