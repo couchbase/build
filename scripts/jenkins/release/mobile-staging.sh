@@ -67,8 +67,6 @@ pushd       ${TMP_DIR}  2>&1 > /dev/null
 
 
 s3_build_src="s3://packages.couchbase.com/builds/mobile/${product}/${release}/${version}"
-s3_relbucket="s3://packages.couchbase.com/releases/${product}/${version}/"
-#                                                    must end with "/"
 GET_CMD="s3cmd get"
 PUT_CMD="s3cmd put"
 
@@ -76,12 +74,15 @@ if  [[ ${product} == 'android' ]]
     then
     if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}.zip"           ; fi
     if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-community.zip" ; fi
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}/"
+#                                                                           must end with "/"
 fi
  
 if  [[ ${product} == 'ios' ]]
     then
     if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-ios-enterprise_${version}.zip couchbase-lite-ios-enterprise_${version}_Documentation.zip" ; fi
     if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-ios-community_${version}.zip  couchbase-lite-ios-community_${version}_Documentation.zip"  ; fi
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}/"
 fi
  
 if  [[ ${product} == 'sync_gateway' ]]
@@ -97,6 +98,7 @@ if  [[ ${product} == 'sync_gateway' ]]
       do
         pkgs="$pkgs ${PREFIX}_${version}_${src}"
     done
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${release}/${version}/"
 fi
 
 
