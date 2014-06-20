@@ -82,39 +82,24 @@ GET_CMD="s3cmd get"
 PUT_CMD="s3cmd put"
 
 if  [[ ${product} == 'android' ]]
-    then
-    if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}-android.zip"           ; fi
-    if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-android-community.zip" ; fi
+  then
+    pkgs="couchbase-lite-android-${edition}_${version}.zip"
     s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${rel_dir}"
 fi
  
 if  [[ ${product} == 'ios' ]]
-    then
-    if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-ios-enterprise_${version}.zip couchbase-lite-ios-enterprise_${version}_Documentation.zip" ; fi
-    if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-ios-community_${version}.zip  couchbase-lite-ios-community_${version}_Documentation.zip"  ; fi
+  then
+    pkgs="couchbase-lite-ios-${edition}_${version}.zip couchbase-lite-ios-${edition}_${version}_Documentation.zip"
     s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${rel_dir}"
 fi
  
 if  [[ ${product} == 'sync_gateway' ]]
-    then
+  then
     pkgs=""
     PREFIX="couchbase-sync-gateway"
-    EE_pkgs="x86_64.rpm            i386.rpm             macosx-x86_64.tar.gz            amd64.deb            i386.deb"
-    CE_pkgs="x86_64-community.rpm  i386-community.rpm   macosx-x86_64-community.tar.gz  amd64-community.deb  i386-community.deb"
+    pkg_ends="x86_64.rpm  x86.rpm  x86_64.tar.gz  x86_64.deb  x86.deb  x86_64.exe  x68.exe"
     
-    if [[ ${edition} == 'enterprise' ]] ; then  pkg_ends=$EE_pkgs ; fi
-    if [[ ${edition} == 'community' ]]  ; then  pkg_ends=$CE_pkgs ; fi
-    
-    for src in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}_${version}_${src}" ; done
-    
-    PREFIX="setup_couchbase-sync-gateway"
-    EE_pkgs="amd64.exe           x86.exe"
-    CE_pkgs="amd64-community.exe x86-community.exe"
-    
-    if [[ ${edition} == 'enterprise' ]] ; then  pkg_ends=$EE_pkgs ; fi
-    if [[ ${edition} == 'community' ]]  ; then  pkg_ends=$CE_pkgs ; fi
-    
-    for src in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}_${version}_${src}" ; done
+    for end in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}_${version}_${end}" ; done
     
     s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${rel_dir}"
 fi
