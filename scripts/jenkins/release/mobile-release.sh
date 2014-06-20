@@ -104,7 +104,7 @@ for this_pkg in ${pkgs[@]}
   do
     echo "Releasing:  ${s3_relbucket}/${this_pkg}"
 
-    echo --------- ${DEL_CMD}  ${s3_relbucket}/${this_pkg}.staging
+    ${DEL_CMD}  ${s3_relbucket}/${this_pkg}.staging
 done
  
 s3cmd ls "${s3_relbucket}/ --recursive"

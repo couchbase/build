@@ -133,11 +133,11 @@ for this_pkg in ${pkgs[@]}
     echo "calculate md5sum for   ${this_pkg}"
     md5sum ${this_pkg} > ${this_pkg}.md5
     
-    echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.staging
-    echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.md5
-    echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}
-    echo $package >> ${PHONE_HOME}
-    echo --------- rm ${this_pkg}
+    ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.staging
+    ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.md5
+    ${PUT_CMD}  ${s3_relbucket}/${this_pkg}
+    rm   ${this_pkg}
+    echo ${this_pkg} >> ${PHONE_HOME}
 done
  
 echo "Granting anonymous read access..."

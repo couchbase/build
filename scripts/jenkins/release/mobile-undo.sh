@@ -105,9 +105,9 @@ for this_pkg in ${pkgs[@]}
   do
     echo "Undo Release and Staging:  ${s3_relbucket}/${this_pkg}"
 
-    echo --------- ${DEL_CMD}  ${s3_relbucket}/${this_pkg}.staging
-    echo --------- ${DEL_CMD}  ${s3_relbucket}/${this_pkg}.md5
-    echo --------- ${DEL_CMD}  ${s3_relbucket}/${this_pkg}
+    ${DEL_CMD}  ${s3_relbucket}/${this_pkg}.staging
+    ${DEL_CMD}  ${s3_relbucket}/${this_pkg}.md5
+    ${DEL_CMD}  ${s3_relbucket}/${this_pkg}
 done
  
 s3cmd ls "${s3_relbucket}/ --recursive"
