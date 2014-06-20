@@ -99,7 +99,7 @@ if  [[ ${product} == 'sync_gateway' ]]
     PREFIX="couchbase-sync-gateway"
     pkg_ends="x86_64.rpm  x86.rpm  x86_64.tar.gz  x86_64.deb  x86.deb  x86_64.exe  x68.exe"
     
-    for end in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}_${version}_${end}" ; done
+    for end in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}-${edition}_${version}_${end}" ; done
     
     s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${rel_dir}"
 fi
