@@ -7,8 +7,9 @@ TMP_DIR=~/release_tmp
 usage()
     {
     echo ""
-    echo "usage:  `basename $0`  VERSION  PRODUCT  EDITION  [ -D TMP_DIR ]"
+    echo "usage:  `basename $0`  RELEASE  VERSION  PRODUCT  EDITION  [ -D TMP_DIR ]"
     echo ""
+    echo "           RELEASE        release number, like 3.0.0 or 2.5.2          "
     echo "           VERSION        prepared version, like 3.0.0 or 3.0.0-beta   "
     echo "           PRODUCT        android, ios, or sync_gateway (one only)     "
     echo "           EDITION        community or enterprise.                     "
@@ -24,30 +25,18 @@ if [[ $1 == "--help" ]] ; then usage ; fi
 
 ####    required, positional arguments
 
-if [[ ! ${1} ]] ; then echo ; echo "VERSION required" ; usage ; exit ; fi
-version=${1}
+if [[ ! ${1} ]] ; then echo ; echo "RELEASE required" ; usage ; exit ; fi
+release=${1}
 
-if [[ ! ${2} ]] ; then echo ; echo "PRODUCT required (android, ios, sync_gateway)" ; exit ; fi
-product=${2}
+if [[ ! ${2} ]] ; then echo ; echo "VERSION required" ; usage ; exit ; fi
+version=${2}
 
-if [[ ! ${3} ]] ; then echo ; echo "EDITION required (android, ios, sync_gateway)" ; exit ; fi
-edition=${3}
+if [[ ! ${3} ]] ; then echo ; echo "PRODUCT required (android, ios, sync_gateway)" ; exit ; fi
+product=${3}
 
+if [[ ! ${4} ]] ; then echo ; echo "EDITION required (android, ios, sync_gateway)" ; exit ; fi
+edition=${4}
 
-vrs_rex='([0-9]\.[0-9])-([0-9]{1,})'
-
-if [[ $version =~ $vrs_rex ]]
-  then
-    for N in 1 2 ; do
-        if [[ $N -eq 1 ]] ; then rel_num=${BASH_REMATCH[$N]} ; fi
-        if [[ $N -eq 2 ]] ; then bld_num=${BASH_REMATCH[$N]} ; fi
-    done
-else
-    echo ""
-    echo "bad version number: ${version}"
-    usage
-    exit
-fi
 
 ####    optional, named arguments
 
@@ -77,7 +66,7 @@ chmod   777 ${TMP_DIR}
 pushd       ${TMP_DIR}  2>&1 > /dev/null
 
 
-s3_build_src="s3://packages.couchbase.com/builds/mobile/${product}/${rel_num}/${version}"
+s3_build_src="s3://packages.couchbase.com/builds/mobile/${product}/${release}/${version}"
 s3_relbucket="s3://packages.couchbase.com/releases/${product}/${version}/"
 #                                                    must end with "/"
 GET_CMD="s3cmd get"
