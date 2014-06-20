@@ -62,14 +62,16 @@ set PKGR=package-win.rb
 set PKGTYPE=exe
 
 set ARCHP=%ARCH%
-    set     PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
+set PARCH=%ARCHP%
 
-if "%EDITION%" == "community"  (
-    set NEW_PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%-%EDITION%.%PKGTYPE%
+if  "%ARCHP%" == "i386" (
+    set PARCH=x86
     )
-if "%EDITION%" == "enterprise" (
-    set NEW_PKG_NAME=%PKG_NAME%
+if "%ARCHP%" == "amd64" (
+    set PARCH=x86_64
     )
+set     PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
+set NEW_PKG_NAME=couchbase-sync-gateway-%EDITION%_%VERSION%_%PARCH%.%PKGTYPE%
 
 set GO_RELEASE=1.2
 set GOROOT=c:\usr\local\go\%GO_RELEASE%

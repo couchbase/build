@@ -81,6 +81,7 @@ if [[ $GOOS =~ linux   ]] ; then EXEC=sync_gateway     ;                       f
 if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
 
 ARCHP=${ARCH}
+PARCH=${ARCHP}
 
 if [[ $DISTRO =~ centos  ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
@@ -98,23 +99,20 @@ if [[ ! $PKGR ]]
     exit 666
 fi
 
+if [[ $ARCHP =~ i386  ]] ; then PARCH=x86    ; fi
+if [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
+
 GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
-                                  PKG_NAME=couchbase-sync-gateway_${VERSION}_${ARCHP}.${PKGTYPE}
-                              NEW_PKG_NAME=${PKG_NAME}
-if [[ ${EDITION} =~ community ]]
-    then
-                              NEW_PKG_NAME=couchbase-sync-gateway_${VERSION}_${ARCHP}-${EDITION}.${PKGTYPE}
-fi
+
+        PKG_NAME=couchbase-sync-gateway_${VERSION}_${ARCHP}.${PKGTYPE}
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}_${PARCH}.${PKGTYPE}
+
 if [[ $DISTRO =~ macosx ]]
     then
     PLATFORM=${DISTRO}-${ARCH}
-                                  PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}.tar.gz
-                              NEW_PKG_NAME=${PKG_NAME}
-    if [[ ${EDITION} =~ community ]]
-        then
-                              NEW_PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}-${EDITION}.tar.gz
-    fi
+        PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}.tar.gz
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}_${PARCH}.tar.gz
 fi
 
 export GOOS ; export EXEC
