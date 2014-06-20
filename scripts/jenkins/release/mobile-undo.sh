@@ -79,7 +79,7 @@ if  [[ ${product} == 'sync_gateway' ]]
   then
     pkgs=""
     PREFIX="couchbase-sync-gateway"
-    pkg_ends="x86_64.rpm  x86.rpm  x86_64.tar.gz  x86_64.deb  x86.deb  x86_64.exe  x68.exe"
+    pkg_ends="x86_64.rpm  x86.rpm  x86_64.tar.gz  x86_64.deb  x86.deb  x86_64.exe  x86.exe"
     
     for end in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}_${version}_${end}" ; done
     
