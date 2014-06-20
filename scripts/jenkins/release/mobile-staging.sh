@@ -90,17 +90,25 @@ fi
  
 if  [[ ${product} == 'sync_gateway' ]]
     then
-    EE_pkgs="x86_64.rpm            i386.rpm             macosx-x86_64.tar.gz            amd64.deb            i386.deb            amd64.exe           x86.exe"
-    CE_pkgs="x86_64-community.rpm  i386-community.rpm   macosx-x86_64-community.tar.gz  amd64-community.deb  i386-community.deb  amd64-community.exe x86-community.exe"
+    pkgs=""
     PREFIX="couchbase-sync-gateway"
+    EE_pkgs="x86_64.rpm            i386.rpm             macosx-x86_64.tar.gz            amd64.deb            i386.deb"
+    CE_pkgs="x86_64-community.rpm  i386-community.rpm   macosx-x86_64-community.tar.gz  amd64-community.deb  i386-community.deb"
     
     if [[ ${edition} == 'enterprise' ]] ; then  pkg_ends=$EE_pkgs ; fi
     if [[ ${edition} == 'community' ]]  ; then  pkg_ends=$CE_pkgs ; fi
-    pkgs=""
-    for src in ${pkg_ends[@]}
-      do
-        pkgs="$pkgs ${PREFIX}_${version}_${src}"
-    done
+    
+    for src in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}_${version}_${src}" ; done
+    
+    PREFIX="setup_couchbase-sync-gateway"
+    EE_pkgs="amd64.exe           x86.exe"
+    CE_pkgs="amd64-community.exe x86-community.exe"
+    
+    if [[ ${edition} == 'enterprise' ]] ; then  pkg_ends=$EE_pkgs ; fi
+    if [[ ${edition} == 'community' ]]  ; then  pkg_ends=$CE_pkgs ; fi
+    
+    for src in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}_${version}_${src}" ; done
+    
     s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${release}/${version}"
 fi
 
