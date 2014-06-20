@@ -3,9 +3,12 @@
 #              along with .staging files
 set -e
 
-TMP_DIR=~/release_tmp
-PHONE_HOME=~/home_phone.txt
+if [[ ! ${WORKSPACE} ]] ; then WORKSPACE=`pwd` ; fi
+
+TMP_DIR=${WORKSPACE}/release_tmp
+PHONE_HOME=${WORKSPACE}/home_phone.txt
 if [[ -e ${PHONE_HOME} ]] ; then rm -f ${PHONE_HOME} ; fi
+
 
 usage()
     {
