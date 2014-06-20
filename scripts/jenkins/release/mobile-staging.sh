@@ -6,7 +6,7 @@ set -e
 if [[ ! ${WORKSPACE} ]] ; then WORKSPACE=`pwd` ; fi
 
 TMP_DIR=${WORKSPACE}/release_tmp
-PHONE_HOME=${WORKSPACE}/home_phone.txt
+PHONE_HOME=${WORKSPACE}/phone_home.txt
 if [[ -e ${PHONE_HOME} ]] ; then rm -f ${PHONE_HOME} ; fi
 
 
