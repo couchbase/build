@@ -1,4 +1,6 @@
 #!/bin/bash -h
+#              Staging (step 1 of 3) 
+#              
 #              Download and upload to s3
 #              along with .staging files
 set -e
@@ -112,17 +114,21 @@ if  [[ ${product} == 'sync_gateway' ]]
     s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${release}/${version}"
 fi
 
+####################   S T A R T  H E R E
+
 
 for this_pkg in ${pkgs[@]}
   do
-    echo Downloading:  ${s3_build_src}/${this_pkg}
-    ${GET_CMD}         ${s3_build_src}/${this_pkg}
+    echo "Staging:  ${s3_relbucket}/${this_pkg}"
+    echo "download  ${s3_build_src}/${this_pkg}"
+    ${GET_CMD}      ${s3_build_src}/${this_pkg}
+    
     if [[ ! -e ${this_pkg} ]] ; then echo "FAILED to download ${s3_build_src}/${this_pkg}" ; exit 404 ; fi
     
-    echo "Staging for ${this_pkg}"
+    echo "create staging file for ${this_pkg}"
     touch "${this_pkg}.staging"
     
-    echo "Calculate md5sum for ${this_pkg}"
+    echo "calculate md5sum for   ${this_pkg}"
     md5sum ${this_pkg} > ${this_pkg}.md5
     
     echo --------- ${PUT_CMD}  ${s3_relbucket}/${this_pkg}.staging
