@@ -108,7 +108,8 @@ fi
 
 for this_pkg in ${pkgs[@]}
   do
-    ${GET_CMD}  ${s3_build_src}/${this_pkg}
+    echo Downloading:  ${s3_build_src}/${this_pkg}
+    ${GET_CMD}         ${s3_build_src}/${this_pkg}
     if [[ ! -e ${this_pkg} ]] ; then echo "FAILED to download ${s3_build_src}/${this_pkg}" ; exit 404 ; fi
     
     echo "Staging for ${this_pkg}"
