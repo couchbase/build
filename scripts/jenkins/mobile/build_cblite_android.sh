@@ -319,7 +319,6 @@ cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
 MVN_ZIP=couchbase-lite-${REVISION}-android.zip
 AND_ZIP=couchbase-lite-android-${EDITION}.zip
 
-fi
 rm -f                                           ${LOG_DIR}/04_android_package.log
                       ./zip_jars.sh ${REVISION} ${LOG_DIR}/04_android_package.log
 
