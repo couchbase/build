@@ -46,14 +46,24 @@ EDITION=${3}
 IOS_ZIP_SRC=couchbase-lite-ios-${EDITION}_${BLD_NUM}.zip
 IOS_ZIP_DST=couchbase-lite-ios-${EDITION}_${REL_NUM}.zip
 
+DOC_ZIP_SRC=couchbase-lite-ios-${EDITION}_${BLD_NUM}_Documentation.zip
+DOC_ZIP_DST=couchbase-lite-ios-${EDITION}_${REL_NUM}_Documentation.zip
+
 
 ##############################################################################   S T A R T
 echo ============================================ `date`
 env | grep -iv password | grep -iv passwd | sort
 
-echo ============================================  download ${PKG_SRC}/${IOS_ZIP_SRC}
+echo ============================================  download  ${PKG_SRC}/${IOS_ZIP_SRC}
 ${GET_CMD}  ${PKG_SRC}/${IOS_ZIP_SRC}
 mv      ${IOS_ZIP_SRC} ${IOS_ZIP_DST}
 echo ============================================  uploading ${PKG_DEST}/${IOS_ZIP_DST}
 ${PUT_CMD}             ${IOS_ZIP_DST}                        ${PKG_DEST}/${IOS_ZIP_DST}
+
+echo ============================================  download  ${PKG_SRC}/${DOC_ZIP_SRC}
+${GET_CMD}  ${PKG_SRC}/${DOC_ZIP_SRC}
+mv      ${DOC_ZIP_SRC} ${DOC_ZIP_DST}
+echo ============================================  uploading ${PKG_DEST}/${DOC_ZIP_DST}
+${PUT_CMD}             ${DOC_ZIP_DST}                        ${PKG_DEST}/${DOC_ZIP_DST}
+
 echo ============================================ `date`

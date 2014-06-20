@@ -78,15 +78,14 @@ if  [[ ${product} == 'android' ]]
     then
     if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}-android.zip"           ; fi
     if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-android-community.zip" ; fi
-    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}/"
-#                                                                           must end with "/"
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}"
 fi
  
 if  [[ ${product} == 'ios' ]]
     then
     if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-ios-enterprise_${version}.zip couchbase-lite-ios-enterprise_${version}_Documentation.zip" ; fi
     if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-ios-community_${version}.zip  couchbase-lite-ios-community_${version}_Documentation.zip"  ; fi
-    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}/"
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}"
 fi
  
 if  [[ ${product} == 'sync_gateway' ]]
@@ -102,7 +101,7 @@ if  [[ ${product} == 'sync_gateway' ]]
       do
         pkgs="$pkgs ${PREFIX}_${version}_${src}"
     done
-    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${release}/${version}/"
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${release}/${version}"
 fi
 
 
@@ -126,7 +125,7 @@ for this_pkg in ${pkgs[@]}
 done
  
 echo "Granting anonymous read access..."
-s3cmd setacl --acl-public --recursive "${s3_relbucket}"
+s3cmd setacl --acl-public --recursive "${s3_relbucket}/"
 
-s3cmd ls ${s3_relbucket}
+s3cmd ls "${s3_relbucket}/"
 popd                    2>&1 > /dev/null
