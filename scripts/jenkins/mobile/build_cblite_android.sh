@@ -110,7 +110,7 @@ GET_CMD="s3cmd get"
 export MAVEN_UPLOAD_VERSION=${REVISION}
 export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 
-DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
+DOCS_ZIP=couchbase-lite-android-javadocs_${REVISION}.zip
 
 PLATFORM=linux-amd64
 SGW_PKG=couchbase-sync-gateway-${EDITION}_${SYNCGATE_VERSION}_x86_64.deb
@@ -317,7 +317,7 @@ cd ${ANDR_LITESRV_DIR}/release
 cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
 
 MVN_ZIP=couchbase-lite-${REVISION}-android.zip
-AND_ZIP=couchbase-lite-android-${EDITION}.zip
+AND_ZIP=couchbase-lite-android-${EDITION}-${REVISION}.zip
 
 rm -f                                           ${LOG_DIR}/04_android_package.log
                       ./zip_jars.sh ${REVISION} ${LOG_DIR}/04_android_package.log
