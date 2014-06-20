@@ -31,16 +31,16 @@ if [[ $1 == "--help" ]] ; then usage ; fi
 
 ####    required, positional arguments
 
-if [[ ! ${1} ]] ; then echo ; echo "RELEASE required" ; usage ; exit ; fi
+if [[ ! ${1} ]] ; then echo ; echo "RELEASE required (1.0.1, 1.0.0, ...)"          ; usage ; exit ; fi
 release=${1}
 
-if [[ ! ${2} ]] ; then echo ; echo "VERSION required" ; usage ; exit ; fi
+if [[ ! ${2} ]] ; then echo ; echo "VERSION required (from prepare_release step)"  ; usage ; exit ; fi
 version=${2}
 
-if [[ ! ${3} ]] ; then echo ; echo "PRODUCT required (android, ios, sync_gateway)" ; exit ; fi
+if [[ ! ${3} ]] ; then echo ; echo "PRODUCT required (android, ios, sync_gateway)" ; usage ; exit ; fi
 product=${3}
 
-if [[ ! ${4} ]] ; then echo ; echo "EDITION required (android, ios, sync_gateway)" ; exit ; fi
+if [[ ! ${4} ]] ; then echo ; echo "EDITION required (enterprise, community)"      ; usage ; exit ; fi
 edition=${4}
 
 
@@ -76,8 +76,8 @@ PUT_CMD="s3cmd put"
 
 if  [[ ${product} == 'android' ]]
     then
-    if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}.zip"           ; fi
-    if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-community.zip" ; fi
+    if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}-android.zip"           ; fi
+    if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-android-community.zip" ; fi
     s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}/"
 #                                                                           must end with "/"
 fi
