@@ -41,6 +41,9 @@ product=${3}
 if [[ ! ${4} ]] ; then echo ; echo "EDITION required (enterprise, community)"      ; usage ; exit ; fi
 edition=${4}
 
+rel_dir=${release}/${version}
+if [[ ${release} == ${version} ]] ; then rel_dir=${release} ; fi
+
 
 ####    optional, named arguments
 
@@ -64,14 +67,14 @@ if  [[ ${product} == 'android' ]]
     then
     if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}-android.zip"           ; fi
     if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-android-community.zip" ; fi
-    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}"
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${rel_dir}"
 fi
  
 if  [[ ${product} == 'ios' ]]
     then
     if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-ios-enterprise_${version}.zip couchbase-lite-ios-enterprise_${version}_Documentation.zip" ; fi
     if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-ios-community_${version}.zip  couchbase-lite-ios-community_${version}_Documentation.zip"  ; fi
-    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${version}"
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-lite/${product}/${rel_dir}"
 fi
  
 if  [[ ${product} == 'sync_gateway' ]]
@@ -95,7 +98,7 @@ if  [[ ${product} == 'sync_gateway' ]]
     
     for src in ${pkg_ends[@]} ; do pkgs="$pkgs ${PREFIX}_${version}_${src}" ; done
     
-    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${release}/${version}"
+    s3_relbucket="s3://packages.couchbase.com/releases/couchbase-sync-gateway/${rel_dir}"
 fi
 
 ####################   S T A R T  H E R E
