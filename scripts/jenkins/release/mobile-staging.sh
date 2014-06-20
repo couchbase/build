@@ -1,6 +1,7 @@
 #!/bin/bash -h
 #              Download and upload to s3
 #              along with .staging files
+set -e
 
 TMP_DIR=~/release_tmp
 
@@ -105,6 +106,7 @@ fi
 for this_pkg in ${pkgs[@]}
   do
     ${GET_CMD}  ${s3_build_src}/${this_pkg}
+    if [[ ! -e ${this_pkg} ]] ; then echo "FAILED to download ${s3_build_src}/${this_pkg}" ; exit 404 ; fi
     
     echo "Staging for ${this_pkg}"
     touch "${this_pkg}.staging"
