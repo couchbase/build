@@ -7,26 +7,32 @@ TMP_DIR=~/release_tmp
 usage()
     {
     echo ""
-    echo "usage:  `basename $0`  VERSION  [ -m MODEL -e EDITION ]"
+    echo "usage:  `basename $0`  VERSION  PRODUCT  EDITION  [ -D TMP_DIR ]"
     echo ""
-    echo "           VERSION          prepared version, like 3.0.0 or 3.0.0-beta   "
+    echo "           VERSION        prepared version, like 3.0.0 or 3.0.0-beta   "
+    echo "           PRODUCT        android, ios, or sync_gateway (one only)     "
+    echo "           EDITION        community or enterprise.                     "
     echo ""
-    echo "          [ -m MODEL ]      android, ios, or sync_gateway (one only)     "
-    echo "          [ -e EDITION  ]   community or enterprise.                     "
+    echo "          [-D TMP_DIR ]   temp dir to use, if not ${TMP_DIR}"
     echo ""
-    echo "          [ -D TMP_DIR  ]   temp dir to use, if not ${TMP_DIR}"
-    echo ""
-    echo "          [ -h          ]   print this help message"
+    echo "           -h             print this help message"
     echo ""
     exit 4
     }
 if [[ $1 == "--help" ]] ; then usage ; fi
 
+
 ####    required, positional arguments
 
 if [[ ! ${1} ]] ; then echo ; echo "VERSION required" ; usage ; exit ; fi
 version=${1}
-shift
+
+if [[ ! ${2} ]] ; then echo ; echo "PRODUCT required (android, ios, sync_gateway)" ; exit ; fi
+product=${2}
+
+if [[ ! ${3} ]] ; then echo ; echo "EDITION required (android, ios, sync_gateway)" ; exit ; fi
+edition=${3}
+
 
 vrs_rex='([0-9]\.[0-9])-([0-9]{1,})'
 
@@ -45,14 +51,8 @@ fi
 
 ####    optional, named arguments
 
-while getopts "m:e:h" OPTION; do
+while getopts "D:h" OPTION; do
   case "$OPTION" in
-      m)
-        MODEL="$OPTARG"
-        ;;
-      e)
-        EDITION="$OPTARG"
-        ;;
       D)
         TMP_DIR="$OPTARG"
         ;;
@@ -67,13 +67,6 @@ while getopts "m:e:h" OPTION; do
   esac
 done
 
-if [ -z "$MODEL" ]; then
-    echo "Stage packages for $MODEL"
-    platforms=$MODEL
-else
-    echo "Must choose one of: android, ios, sync_gateway"
-    exit 99
-fi
 
 rm ~/home_phone.txt
 
@@ -84,32 +77,32 @@ chmod   777 ${TMP_DIR}
 pushd       ${TMP_DIR}  2>&1 > /dev/null
 
 
-s3_build_src="s3://packages.couchbase.com/builds/mobile/$MODEL/${rel_num}/${version}"
-s3_relbucket="s3://packages.couchbase.com/releases/$MODEL/${version}/"
+s3_build_src="s3://packages.couchbase.com/builds/mobile/${product}/${rel_num}/${version}"
+s3_relbucket="s3://packages.couchbase.com/releases/${product}/${version}/"
 #                                                    must end with "/"
 GET_CMD="s3cmd get"
 PUT_CMD="s3cmd put"
 
-if  [[ $MODEL == 'android' ]]
+if  [[ ${product} == 'android' ]]
     then
-    if [[ $EDITION == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}.zip"           ; fi
-    if [[ $EDITION == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-community.zip" ; fi
+    if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-${version}.zip"           ; fi
+    if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-${version}-community.zip" ; fi
 fi
  
-if  [[ $MODEL == 'ios' ]]
+if  [[ ${product} == 'ios' ]]
     then
-    if [[ $EDITION == 'enterprise' ]]  ; then  pkgs="couchbase-lite-ios-enterprise_${version}.zip couchbase-lite-ios-enterprise_${version}_Documentation.zip" ; fi
-    if [[ $EDITION == 'community'  ]]  ; then  pkgs="couchbase-lite-ios-community_${version}.zip  couchbase-lite-ios-community_${version}_Documentation.zip"  ; fi
+    if [[ ${edition} == 'enterprise' ]]  ; then  pkgs="couchbase-lite-ios-enterprise_${version}.zip couchbase-lite-ios-enterprise_${version}_Documentation.zip" ; fi
+    if [[ ${edition} == 'community'  ]]  ; then  pkgs="couchbase-lite-ios-community_${version}.zip  couchbase-lite-ios-community_${version}_Documentation.zip"  ; fi
 fi
  
-if  [[ $MODEL == 'sync_gateway' ]]
+if  [[ ${product} == 'sync_gateway' ]]
     then
     EE_pkgs="x86_64.rpm            i386.rpm             macosx-x86_64.tar.gz            amd64.deb            i386.deb            amd64.exe           x86.exe"
     CE_pkgs="x86_64-community.rpm  i386-community.rpm   macosx-x86_64-community.tar.gz  amd64-community.deb  i386-community.deb  amd64-community.exe x86-community.exe"
     PREFIX="couchbase-sync-gateway"
     
-    if [[ $EDITION == 'enterprise' ]] ; then  pkg_ends=$EE_pkgs ; fi
-    if [[ $EDITION == 'community' ]]  ; then  pkg_ends=$CE_pkgs ; fi
+    if [[ ${edition} == 'enterprise' ]] ; then  pkg_ends=$EE_pkgs ; fi
+    if [[ ${edition} == 'community' ]]  ; then  pkg_ends=$CE_pkgs ; fi
     pkgs=""
     for src in ${pkg_ends[@]}
       do
