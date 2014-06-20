@@ -61,16 +61,10 @@ PKG_DEST=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${REL_NUM}
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 EDITION=${3}
 
-if [[ ${EDITION} =~ 'community' ]]
-    then
-    AND_ZIP_SRC=couchbase-lite-${BLD_NUM}-android-${EDITION}.zip
-    AND_ZIP_DST=couchbase-lite-${REL_NUM}-android-${EDITION}.zip
-else
-    AND_ZIP_SRC=couchbase-lite-${BLD_NUM}-android.zip
-    AND_ZIP_DST=couchbase-lite-${REL_NUM}-android.zip
-fi
-    SRC_ROOTDIR=couchbase-lite-${BLD_NUM}
-    DST_ROOTDIR=couchbase-lite-${REL_NUM}
+AND_ZIP_SRC=couchbase-lite-android-${EDITION}_${BLD_NUM}.zip
+AND_ZIP_DST=couchbase-lite-android-${EDITION}_${REL_NUM}.zip
+SRC_ROOTDIR=couchbase-lite-${BLD_NUM}
+DST_ROOTDIR=couchbase-lite-${REL_NUM}
 
 ANDROID_JAR_DIR=${WORKSPACE}/android/jar
 
