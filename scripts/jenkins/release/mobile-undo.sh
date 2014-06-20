@@ -1,25 +1,24 @@
 #!/bin/bash -h
-#              Release (step 2 of 3) 
+#              (ignore SIGHUP)
 #              
-#              Remove the .staging files
-#              packages become available
+#       Release (step 2 of 3) 
+#              
+#       Remove the .staging files
+#       packages become available
 set -e
 
 if [[ ! ${WORKSPACE} ]] ; then WORKSPACE=`pwd` ; fi
 
-TMP_DIR=${WORKSPACE}/release_tmp
 
 usage()
     {
     echo ""
-    echo "usage:  `basename $0`  RELEASE  VERSION  PRODUCT  EDITION  [ -D TMP_DIR ]"
+    echo "usage:  `basename $0`   RELEASE   VERSION   PRODUCT   EDITION          "
     echo ""
     echo "           RELEASE        release number, like 3.0.0 or 2.5.2          "
     echo "           VERSION        prepared version, like 3.0.0 or 3.0.0-beta   "
     echo "           PRODUCT        android, ios, or sync_gateway (one only)     "
     echo "           EDITION        community or enterprise.                     "
-    echo ""
-    echo "          [-D TMP_DIR ]   temp dir to use, if not ${TMP_DIR}"
     echo ""
     echo "           -h             print this help message"
     echo ""
@@ -47,9 +46,6 @@ edition=${4}
 
 while getopts "D:h" OPTION; do
   case "$OPTION" in
-      D)
-        TMP_DIR="$OPTARG"
-        ;;
       h)
         usage
         exit 0
@@ -60,13 +56,6 @@ while getopts "D:h" OPTION; do
         ;;
   esac
 done
-
-
-echo "Create tmp folder to hold all the packages"
-rm      -rf ${TMP_DIR}
-mkdir   -p  ${TMP_DIR}
-chmod   777 ${TMP_DIR}
-pushd       ${TMP_DIR}  2>&1 > /dev/null
 
 
 DEL_CMD="s3cmd del"
@@ -122,4 +111,3 @@ for this_pkg in ${pkgs[@]}
 done
  
 s3cmd ls "${s3_relbucket}/ --recursive"
-popd                    2>&1 > /dev/null

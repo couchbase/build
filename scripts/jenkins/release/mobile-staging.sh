@@ -1,8 +1,10 @@
 #!/bin/bash -h
-#              Staging (step 1 of 3) 
+#              (ignore SIGHUP)
 #              
-#              Download and upload to s3
-#              along with .staging files
+#       Staging (step 1 of 3) 
+#              
+#       Download and upload to s3
+#       along with .staging files
 set -e
 
 if [[ ! ${WORKSPACE} ]] ; then WORKSPACE=`pwd` ; fi
