@@ -113,13 +113,7 @@ export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 DOCS_ZIP=cblite_android_javadocs_${REVISION}.zip
 
 PLATFORM=linux-amd64
-
-if [[ ${EDITION} =~ 'community' ]]
-  then
-    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64-${EDITION}.deb
-else
-    SGW_PKG=couchbase-sync-gateway_${SYNCGATE_VERSION}_amd64.deb
-fi
+SGW_PKG=couchbase-sync-gateway-${EDITION}_${SYNCGATE_VERSION}_x86_64.deb
 
                 #  "android-19"
 AND_TARG=4
