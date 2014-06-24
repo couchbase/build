@@ -64,10 +64,13 @@ cat <<EOF
 EOF
 
 ===========================================
-=== Print log file
+=== Print log file                    =====
 ===========================================
 
-cat ${WORKSPACE}/build/ep-engine/Testing/Temporary/LastTest.log
+if [ -f ${WORKSPACE}/build/ep-engine/Testing/Temporary/LastTest.log ]
+then
+  cat ${WORKSPACE}/build/ep-engine/Testing/Temporary/LastTest.log
+fi
 
 ## Cleanup .repo directory
 
