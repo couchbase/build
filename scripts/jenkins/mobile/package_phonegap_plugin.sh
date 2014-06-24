@@ -34,6 +34,9 @@ echo ========================================================= `date`
 
 CBFS_URL=http://cbfs.hq.couchbase.com:8484/builds
 TDSO_JAR=http://cl.ly/Pr1r/td_collator_so.jar
+# this is a build of https://github.com/phoboslab/JavaScriptCore-iOS
+# it can be dropped when we stop supporting iOS 6
+JSCORE_ZIP=https://dl.dropboxusercontent.com/u/14074521/JavaScriptCore.framework.zip
 
 
 BUILD_DIR=${WORKSPACE}/build
@@ -57,16 +60,24 @@ if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${IOS_URL}" ; exit ${STAT
 
 unzip -q ios_build.zip
 
+# for iOS 6
+wget --no-verbose -O JavaScriptCore.framework.zip ${JSCORE_ZIP}
+STATUS=$?
+if [[ ${STATUS} > 0 ]] ; then echo "FAILED to download ${JSCORE_ZIP}" ; exit ${STATUS} ; fi
+unzip -q JavaScriptCore.framework.zip
+
 if [[ -e ${STAGE_DIR} ]] ; then rm -rf ${STAGE_DIR} ; fi
 mkdir -p ${IOS_DIR}
 cp -r ${DOWN_IDIR}/CouchbaseLite.framework                               ${IOS_DIR}
 mv    ${IOS_DIR}/CouchbaseLite.framework/CouchbaseLite                 ${IOS_DIR}/CouchbaseLite.framework/CouchbaseLite.a
 cp -r ${DOWN_IDIR}/CouchbaseLiteListener.framework                       ${IOS_DIR}
 mv    ${IOS_DIR}/CouchbaseLiteListener.framework/CouchbaseLiteListener ${IOS_DIR}/CouchbaseLiteListener.framework/CouchbaseLiteListener.a
-cp -r ${DOWN_IDIR}/JavaScriptCore.framework                              ${IOS_DIR}
-mv    ${IOS_DIR}/JavaScriptCore.framework/JavaScriptCore               ${IOS_DIR}/JavaScriptCore.framework/JavaScriptCore.a
 cp -r ${DOWN_IDIR}/Extras/CBLRegisterJSViewCompiler.h                    ${IOS_DIR}
 cp -r ${DOWN_IDIR}/Extras/libCBLJSViewCompiler.a                         ${IOS_DIR}
+
+# for iOS 6
+cp -r JavaScriptCore.framework                                         ${IOS_DIR}
+mv    ${IOS_DIR}/JavaScriptCore.framework/JavaScriptCore               ${IOS_DIR}/JavaScriptCore.framework/JavaScriptCore.a
 popd                     2>&1 >/dev/null
 
 cd ${WORKSPACE}
