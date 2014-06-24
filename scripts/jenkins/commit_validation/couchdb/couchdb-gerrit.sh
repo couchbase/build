@@ -43,7 +43,8 @@ cat <<EOF
 ============================================
 EOF
 
-# Copy couchdb.plt from ${WORKSPACE} to ${WORKSPACE}/build/couchdb to gain build time
+# Copy couchdb.plt from ${WORKSPACE} (where it was copied from Jenkins master)
+# to ${WORKSPACE}/build/couchdb to gain build time
 
 mkdir -p ${WORKSPACE}/build/couchdb
 
@@ -53,6 +54,14 @@ then
 fi
 
 make -j4 all install || (make -j1 && false)
+
+# Copy couchdb.plt from ${WORKSPACE}/build/couchdb back to ${WORKSPACE} so it
+# can be stored back on Jenkins master
+
+if [ -f ${WORKSPACE}/build/couchdb/couchdb.plt ]
+then
+  cp ${WORKSPACE}/build/couchdb/couchdb.plt ${WORKSPACE}/
+fi
 
 cat <<EOF
 ============================================
