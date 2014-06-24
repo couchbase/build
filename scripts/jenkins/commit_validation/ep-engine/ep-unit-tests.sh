@@ -63,9 +63,7 @@ cat <<EOF
 ============================================
 EOF
 
-===========================================
-=== Print log file                    =====
-===========================================
+## Print log file
 
 if [ -f ${WORKSPACE}/build/ep-engine/Testing/Temporary/LastTest.log ]
 then
