@@ -99,6 +99,6 @@ git checkout    %VOLTRON_BRANCH%
 git pull origin %VOLTRON_BRANCH%
 
 :package_win
-ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase-server %BUILD_NUMBER% %LICENSE%
+ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase_server %BUILD_NUMBER% %LICENSE% %target_platform%
 
 :eof
