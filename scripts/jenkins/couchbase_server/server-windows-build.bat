@@ -84,7 +84,7 @@ if "%LICENSE%" == "enterprise" (
 )
 rem "-rel" in PRODUCT_VERSION means "built in Release mode". If we make
 rem build-type configurable in future, we should also change -rel.
-nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE% EXTRA_CMAKE_OPTIONS="-D PRODUCT_VERSION=%BUILD_NUMBER%-rel -D CMAKE_ERL_LIB_INSTALL_PREFIX=lib -D CMAKE_BUILD_TYPE=Release"
+nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE% EXTRA_CMAKE_OPTIONS="-D PRODUCT_VERSION=%BUILD_NUMBER%-rel -D CMAKE_ERL_LIB_INSTALL_PREFIX=lib -D CB_DOWNLOAD_DEPS=1 -D CMAKE_BUILD_TYPE=Release"
 
 cd ..
 if exist voltron goto voltron_exists

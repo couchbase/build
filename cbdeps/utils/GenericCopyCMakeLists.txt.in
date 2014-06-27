@@ -1,0 +1,2 @@
+# Just copy contents to CMAKE_INSTALL_PREFIX
+FILE (COPY bin lib include DESTINATION "${CMAKE_INSTALL_PREFIX}")
