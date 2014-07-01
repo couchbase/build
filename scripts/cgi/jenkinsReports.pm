@@ -175,7 +175,7 @@ sub last_done_sgw_package
         return( $jobnum, $bldnum, $is_running, $bld_date, $isgood );
         }
     my @results_numbers;
-    my ($found_bldnum, $found_branch);
+    my ($found_bldnum, $found_branch, $found_edition);
     for my $item ( 0 .. $len)  { if ($DEBUG) { print STDERR "array[ $item ] is $$results_array[$item]{'number'}\n"; }
                                                push @results_numbers, $$results_array[$item]{'number'};
                                              }
@@ -184,7 +184,7 @@ sub last_done_sgw_package
     if ($DEBUG)  { for my $NN ( @job_numbers ) { print STDERR "$NN\n";}  print STDERR "DEBUG: job_numbers: $#job_numbers\n"; }
     for my $jnum (@job_numbers)
         {
-        undef($found_bldnum);    undef($found_branch);
+        undef($found_bldnum);    undef($found_branch);    undef($found_edition);
         if ($DEBUG) { print STDERR "...checkint $jnum\n"; }
         $bldpage  = jenkinsQuery::get_json($builder.'/'.$jnum);
 
@@ -205,15 +205,20 @@ sub last_done_sgw_package
             if ($DEBUG)  { print STDERR "pp is $pp\n"; }
             if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'REVISION')
                 {
-                $found_bldnum = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
-                if ($DEBUG)  { print STDERR "detected revision: $found_bldnum\n"; }
+                $found_bldnum  = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)    { print STDERR "detected revision: $found_bldnum\n";}
                 }
             if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'GITSPEC')
                 {
-                $found_branch = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
-                if ($DEBUG)  { print STDERR "detected branch:   $found_branch\n"; }
+                $found_branch  = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)    { print STDERR "detected branch:   $found_branch\n";}
                 }
-            last if ( defined($found_bldnum) && defined($found_branch) );
+            if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'EDITION')
+                {
+                $found_edition = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)    { print STDERR "detected edition:  $found_edition\n";}
+                }
+            last if ( defined($found_bldnum) && defined($found_branch) && defined($found_edition) );
             }
         if ($job_branch_token{$found_branch} eq $branch)  { $jobnum = $jnum; last; }
         }
