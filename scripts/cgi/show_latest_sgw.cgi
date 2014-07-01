@@ -38,10 +38,6 @@ my %release = ( 'master'   => '0.0.0',
                 '100'      => '1.0.0',
                 '101'      => '1.0.1',
               );
-my %edition = ( 'master'   => 'community',
-                '100',     => 'enterprise',
-                '101',     => 'enterprise',
-              );
 my $builder;
 
 my $timestamp = "";
@@ -74,8 +70,8 @@ my $usage = "ERROR: must specify 'platform', 'branch', 'type'\n\n"
            ."<PRE>"
            ."For example:\n\n"
            ."    $installed_URL?branch=master&type=trigger\n"
-           ."    $installed_URL?platform=ubuntu-x64&branch=100&edition=EE&type=package\n"
-           ."    $installed_URL?platform=windows-x86&branch=101&edition=CE&type=package\n"
+           ."    $installed_URL?platform=ubuntu-x64&branch=100&edition=enterprise&type=package\n"
+           ."    $installed_URL?platform=windows-x86&branch=101&edition=community&type=package\n"
            ."</PRE><BR>"
            ."\n"
            ."\n";
@@ -107,6 +103,8 @@ if ( $query->param('branch') && $query->param('type') )
             exit;
             }
         $edition = $query->param('edition');
+        if ($edition eq 'EE' )  { $edition = 'enterprise'; }
+        if ($edition eq 'CE' )  { $edition = 'community';  }
         }
     else
         {
@@ -142,7 +140,7 @@ elsif ($bldstatus)
     my $made_color;    $made_color = $good_color;
     
     print_HTML_Page( jenkinsQuery::html_OK_link( $builder,  $bldnum,   $rev_numb, $bld_date ),
-                     jenkinsReports::link_to_package('sgw', $rev_numb, $platform, $edition{$branch}),
+                     jenkinsReports::link_to_package('sgw', $rev_numb, $platform, $edition),
                      $builder,
                      $made_color );
     }
