@@ -93,35 +93,30 @@ sub link_to_package
     
     if    ($prod eq 'and')
         {
-        if ($edition eq 'community') { $pkg_name = 'couchbase-lite-'.$revision.'-android-community.zip'; }
-        else                         { $pkg_name = 'couchbase-lite-'.$revision.'-android.zip';           }
+        $pkg_name = 'couchbase-lite-android-'.$edition.'_'.$revision.'.zip';
         $display = 'ZIP';
         }
     elsif ($prod eq 'ios')
         {
-        if ($edition eq 'community') { $pkg_name = 'cblite_ios_'    .$revision.'-community.zip';         }
-        else                         { $pkg_name = 'cblite_ios_'    .$revision.'.zip';                   }
+        $pkg_name = 'couchbase-lite-ios-'.$edition.'_'.$revision.'.zip';
         $display = 'ZIP';
         }
     else
         {
-        my %pkg_sfx = ( 'enterprise' => { 'centos-x64' => 'x86_64.rpm',
-                                          'centos-x86' => 'i386.rpm',
-                                          'macosx-x64' => 'macosx-x86_64.tar.gz',
-                                          'ubuntu-x64' => 'amd64.deb',
-                                          'ubuntu-x86' => 'i386.deb',
-                                        },
-                        'community'  => { 'centos-x64' => 'x86_64-community.rpm',
-                                          'centos-x86' => 'i386-community.rpm',
-                                          'macosx-x64' => 'macosx-x86_64-community.tar.gz',
-                                          'ubuntu-x64' => 'amd64-community.deb',
-                                          'ubuntu-x86' => 'i386-community.deb',
-                      },                );
-        $pkg_name = "couchbase-sync-gateway"."_".$revision."_".$pkg_sfx{$edition}{$platform};
+        my %pkg_sfx = ( 'centos-x64'  => 'x86_64.rpm',
+                        'centos-x86'  => 'x86.rpm',
+                        'macosx-x64'  => 'x86_64.tar.gz',
+                        'ubuntu-x64'  => 'x86_64.deb',
+                        'ubuntu-x86'  => 'x86.deb',
+                        'windows-x64' => 'exe',
+                        'windows-x64' => 'exe',
+                      );
+        $pkg_name = "couchbase-sync-gateway-".$edition."_".$revision."_".$pkg_sfx{$platform};
         
-        my %display = ( 'centos-x64' => 'RPM',  'centos-x86' => 'RPM',
-                        'ubuntu-x64' => 'DEB',  'ubuntu-x86' => 'DEB',
-                        'macosx-x64' => 'TGZ',
+        my %display = ( 'centos-x64'  => 'RPM',  'centos-x86'  => 'RPM',
+                        'ubuntu-x64'  => 'DEB',  'ubuntu-x86'  => 'DEB',
+                        'macosx-x64'  => 'TGZ',
+                        'windows-x64' => 'EXE',  'windows-x86' => 'EXE',
                       );
         $display = $display{$platform};
         }
@@ -136,12 +131,12 @@ sub link_to_package
     }
 
 
-############                        last_done_sgw_package ( platform, branch )
+############                        last_done_sgw_package ( platform, branch, $edition )
 #          
 #                                   returns ( job_num, build_num, is_build_running, build_date, status )
 sub last_done_sgw_package
     {
-    my ($platform, $branch) = @_;
+    my ($platform, $branch, $edition) = @_;
     my $builder  = get_builder($platform, $branch, "package", "sgw");
     my ($jobnum, $bldnum, $is_running, $bld_date, $isgood);
     
@@ -248,7 +243,7 @@ sub last_done_sgw_package
     $isgood     = 'unknown';
     if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS');      if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
  
-    return( $jobnum, $found_bldnum, $is_running, $bld_date, $isgood );
+    return( $builder, $jobnum, $found_bldnum, $is_running, $bld_date, $isgood );
     }
 
 
@@ -261,7 +256,7 @@ sub last_done_sgw_trigger
     ($branch) = @_;
     my $builder  = get_builder('None',  $branch, "trigger", "sgw");
     my $property = 'lastCompletedBuild';
-    return_build_info($builder, $property);
+    return($builder, return_build_info($builder, $property));
     }
    
 ############                        last_good_sgw_trigger ( branch )

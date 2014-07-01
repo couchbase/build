@@ -74,12 +74,13 @@ my $usage = "ERROR: must specify 'platform', 'branch', 'type'\n\n"
            ."<PRE>"
            ."For example:\n\n"
            ."    $installed_URL?branch=master&type=trigger\n"
-           ."    $installed_URL?platform=ubuntu-x64&branch=100&type=package\n"
+           ."    $installed_URL?platform=ubuntu-x64&branch=100&edition=EE&type=package\n"
+           ."    $installed_URL?platform=windows-x86&branch=101&edition=CE&type=package\n"
            ."</PRE><BR>"
            ."\n"
            ."\n";
 
-my ($platform, $branch, $job_type);
+my ($platform, $branch, $job_type, $edition);
 
 if ( $query->param('branch') && $query->param('type') )
     {
@@ -88,22 +89,24 @@ if ( $query->param('branch') && $query->param('type') )
     
     if    ( $job_type eq 'trigger')
         {
-        $builder = "build_sync_gateway_".$branch;
-        $builder  = jenkinsReports::get_builder('None', $branch, $job_type, 'sgw');
+        if ($DEBUG)  { print STDERR "job_type is 'trigger'\n"; }
         }
     elsif ( $job_type eq 'package')
         {
-        if ( $query->param('platform') )
-            {
-            $platform = $query->param('platform');
-            $builder  = jenkinsReports::get_builder($platform, $branch, $job_type, 'sgw');
-            }
-        else
+        if ( ! $query->param('platform') )
             {
             if ($DEBUG)  { print STDERR "platform required for job_type: $job_type\n"; }
             print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
             exit;
             }
+        $platform = $query->param('platform');
+        if ( ! $query->param('edition') )
+            {
+            if ($DEBUG)  { print STDERR "edition required for job_type: $job_type\n"; }
+            print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
+            exit;
+            }
+        $edition = $query->param('edition');
         }
     else
         {
@@ -111,17 +114,17 @@ if ( $query->param('branch') && $query->param('type') )
         print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
         exit;
         }
-    if ($DEBUG)  { print STDERR "\nready to start with ($builder, $branch)\n"; }
+    if ($DEBUG)  { print STDERR "\nready to start with ($branch, $job_type, $platform, $edition)\n"; }
     }
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 
 
 #### S T A R T  H E R E 
 
-if ($job_type eq 'trigger') { ($bldnum,            $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_trigger($branch);
-                                        $rev_numb = $release{$branch}.'-'.$bldnum;
+if ($job_type eq 'trigger') { ($builder, $bldnum,            $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_trigger($branch);
+                              $rev_numb = $release{$branch}.'-'.$bldnum;
                             }
-if ($job_type eq 'package') { ($bldnum, $rev_numb, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_package($platform, $branch);
+if ($job_type eq 'package') { ($builder, $bldnum, $rev_numb, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_sgw_package($platform, $branch, $edition);
                             }
 
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
