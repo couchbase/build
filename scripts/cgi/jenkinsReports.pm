@@ -145,8 +145,8 @@ sub last_done_sgw_package
                               'support/1.0.0' => '100',
                               'support/1.0.1' => '101',
                             );
-    my %job_edition_token = ( 'EE'  =>  'enterprise',
-                              'CE'  =>  'community',
+    my %job_edition_token = ( 'enterprise'    => 'EE',
+                              'community'     => 'CE',
                             );
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
     my $sumpage = jenkinsQuery::get_json($builder);
