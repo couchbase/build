@@ -108,10 +108,10 @@ sub link_to_package
                         'macosx-x64'  => 'x86_64.tar.gz',
                         'ubuntu-x64'  => 'x86_64.deb',
                         'ubuntu-x86'  => 'x86.deb',
-                        'windows-x64' => 'exe',
-                        'windows-x86' => 'exe',
+                        'windows-x64' => 'x86_64.exe',
+                        'windows-x86' => 'x86.exe',
                       );
-        $pkg_name = "couchbase-sync-gateway-".$edition."_".$revision.".".$pkg_sfx{$platform};
+        $pkg_name = "couchbase-sync-gateway-".$edition."_".$revision."_".$pkg_sfx{$platform};
         
         my %display = ( 'centos-x64'  => 'RPM',  'centos-x86'   => 'RPM',
                         'ubuntu-x64'  => 'DEB',  'ubuntu-x86'   => 'DEB',
