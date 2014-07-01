@@ -140,11 +140,14 @@ sub last_done_sgw_package
     my $builder  = get_builder($platform, $branch, "package", "sgw");
     my ($jobnum, $bldnum, $is_running, $bld_date, $isgood);
     
-    my %job_branch_token = ( 'master'        => 'master',
-                             'release/1.0.0' => '100',
-                             'support/1.0.0' => '100',
-                             'support/1.0.1' => '101',
-                           );
+    my %job_branch_token  = ( 'master'        => 'master',
+                              'release/1.0.0' => '100',
+                              'support/1.0.0' => '100',
+                              'support/1.0.1' => '101',
+                            );
+    my %job_edition_token = ( 'EE'  =>  'enterprise',
+                              'CE'  =>  'community',
+                            );
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
     my $sumpage = jenkinsQuery::get_json($builder);
     my $len = scalar keys %$sumpage;
@@ -220,7 +223,7 @@ sub last_done_sgw_package
                 }
             last if ( defined($found_bldnum) && defined($found_branch) && defined($found_edition) );
             }
-        if ($job_branch_token{$found_branch} eq $branch)  { $jobnum = $jnum; last; }
+        if (($job_branch_token{$found_branch} eq $branch) && ( $job_edition_token{$found_edition} eq $edition ))  { $jobnum = $jnum; last; }
         }
     if (! defined ($jobnum))
         {
