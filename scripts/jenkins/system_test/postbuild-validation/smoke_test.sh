@@ -53,6 +53,6 @@ cp ${CONFIG_SRC}/${CONFIG}  ${CONFIG_DEST}
 
 python ${AUT_DIR}/scripts/install.py -i ${CONFIG_DEST}/${CONFIG} -p version=${VERSION},product=cb,parallel=True,vbuckets=16
 
-python ${AUT_DIR}/testrunner         -i ${CONFIG_DEST}/${CONFIG} -c conf/simple.conf
+python ${AUT_DIR}/testrunner.py      -i ${CONFIG_DEST}/${CONFIG} -c conf/simple.conf
 
 
