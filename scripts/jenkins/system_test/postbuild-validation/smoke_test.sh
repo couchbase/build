@@ -9,6 +9,8 @@ source ~/.bash_profile
 set -e
 ulimit -a
 
+THIS_DIR=`dirname $0`
+
 function usage
     {
     echo -e "\nuse:  ${0}   platform  build_number\n\nwhere\n"
@@ -22,7 +24,8 @@ OS_ARCH=${1}
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
 
-CONFIG_SRC=$(pwd)
+
+CONFIG_SRC=${THIS_DIR}
 
 AUT_DIR=${WORKSPACE}/testrunner
 CONFIG_DEST=${AUT_DIR}/b/resources/
