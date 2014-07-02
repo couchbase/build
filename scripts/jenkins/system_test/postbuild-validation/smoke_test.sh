@@ -30,10 +30,10 @@ CONFIG_SRC=${THIS_DIR}
 AUT_DIR=${WORKSPACE}/testrunner
 CONFIG_DEST=${AUT_DIR}/b/resources/
 
-if [[ $OS_ARCH =~ centos-6-64 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
-if [[ $OS_ARCH =~ centos-6-86 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
-if [[ $OS_ARCH =~ ubuntu-6-64 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
-if [[ $OS_ARCH =~ ubuntu-6-86 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
+if [[ $OS_ARCH =~ centos-6-x64 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
+if [[ $OS_ARCH =~ centos-6-x86 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
+if [[ $OS_ARCH =~ ubuntu-6-x64 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
+if [[ $OS_ARCH =~ ubuntu-6-x86 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
 
 if [[ !                  ${CONFIG} ]] ; then echo -e "\n\nUnsupported platform: ${OS_ARCH}\n"               ; usage ; exit 1 ; fi
 if [[ ! -e ${CONFIG_SRC}/${CONFIG} ]] ; then echo -e "\n\nMissing config file:  ${CONFIG_SRC}/${CONFIG}\n"  ; usage ; exit 2 ; fi
