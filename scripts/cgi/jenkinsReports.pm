@@ -141,6 +141,7 @@ sub last_done_sgw_package
     my ($jobnum, $bldnum, $is_running, $bld_date, $isgood);
     
     my %job_branch_token  = ( 'master'        => 'master',
+                              'release/1.0.1' => '101',
                               'release/1.0.0' => '100',
                               'support/1.0.0' => '100',
                               'support/1.0.1' => '101',
