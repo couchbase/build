@@ -58,17 +58,17 @@ sub date_from_id
 #                                   returns ( builder )
 sub get_builder
     {
-    my ($platform, $branch, $type, $prod) = @_;
+    my ($platform, $branch, $type, $prod, $edition) = @_;
     my  $builder;
     
-    if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);      }
+    if ($type eq 'repo')     { $builder = jenkinsQuery::get_repo_builder($branch);  }
     if ($type eq 'trigger')
         {
         if ($prod eq 'sgw')  { $builder = "build_sync_gateway_".$branch;    }
         }
     if ($type eq 'build')
         {
-        if ($prod eq 'ios')  { $builder = "build_cblite_ios_".$branch;      }
+        if ($prod eq 'ios')  { $builder = "build_cblite_ios_".$branch.'-'.$edition; }
         if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch;  }
         }
     if ($type eq 'package')
@@ -187,7 +187,7 @@ sub last_done_sgw_package
         undef($found_bldnum);    undef($found_branch);    undef($found_edition);
         if ($DEBUG) { print STDERR "...checkint $jnum\n"; }
         $bldpage  = jenkinsQuery::get_json($builder.'/'.$jnum);
-
+        
         if (! defined( $$bldpage{'actions'} ))
             {
             die "no such field: actions\n";
@@ -258,7 +258,7 @@ sub last_done_sgw_package
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_done_sgw_trigger
     {
-    ($branch) = @_;
+    my ($branch) = @_;
     my $builder  = get_builder('None',  $branch, "trigger", "sgw");
     my $property = 'lastCompletedBuild';
     return($builder, return_build_info($builder, $property));
@@ -269,7 +269,7 @@ sub last_done_sgw_trigger
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_good_sgw_trigger
     {
-    ($branch) = @_;
+    my ($branch) = @_;
     my $builder  = get_builder('None', $branch, "trigger", "sgw");
     my $property = 'lastSuccessfulBuild';
     return_build_info($builder, $property);
@@ -277,26 +277,125 @@ sub last_good_sgw_trigger
    
 
 
-############                        last_done_ios_bld ( platform, branch )
+############                        last_done_ios_bld ( platform, branch, edition )
 #          
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_done_ios_bld
     {
-    ($platform, $branch) = @_;
-    my $builder  = get_builder($platform, $branch, "build", "ios");
-    my $property = 'lastCompletedBuild';
-    return_build_info($builder, $property);
+    my ($platform, $branch, $edition) = @_;
+    my $builder  = get_builder($platform, $branch, "build", "ios", $edition);
+    
+    if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
+    my $sumpage = jenkinsQuery::get_json($builder);
+    my $len = scalar keys %$sumpage;
+    if ($len < 1 )
+        {                   if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
+        $jobnum     =  0;
+        $bldnum     = -1;
+        $is_running =  0;    # 'TBD';
+        $bld_date   = 'no package yet';
+        $isgood     =  0;
+        return( $jobnum, $bldnum, $is_running, $bld_date, $isgood );
+        }
+    
+    if (! defined( $$sumpage{'builds'} ))
+        {
+        die "no such field: builds\n";
+        }
+    my $results_array = $$sumpage{'builds'};
+    $len = $#$results_array;
+    if ($len < 1)
+        {
+        if ($DEBUG)  { print STDERR "no build results for $builder\n"; }
+        $jobnum     =  0;
+        $bldnum     = -1;
+        $is_running =  0;    # 'TBD';
+        $bld_date   = 'no package yet';
+        $isgood     =  0;
+        return( $jobnum, $bldnum, $is_running, $bld_date, $isgood );
+        }
+    my @results_numbers;
+    my ($found_bldnum, $found_edition);
+    for my $item ( 0 .. $len)  { if ($DEBUG) { print STDERR "array[ $item ] is $$results_array[$item]{'number'}\n"; }
+                                               push @results_numbers, $$results_array[$item]{'number'};
+                                             }
+    if ($DEBUG)  { print STDERR "DEBUG: job_numbers: $#job_numbers\n";   print STDERR "@job_numbers\n";                      }
+    if ($DEBUG)  { for my $NN ( @job_numbers ) { print STDERR "$NN\n";}  print STDERR "DEBUG: job_numbers: $#job_numbers\n"; }
+
+    for my $jnum (@job_numbers)
+        {
+        undef($found_bldnum);    undef($found_edition);
+        if ($DEBUG) { print STDERR "...checkint $jnum\n"; }
+        $bldpage  = jenkinsQuery::get_json($builder.'/'.$jnum);
+        
+        if (! defined( $$bldpage{'actions'} ))
+            {
+            die "no such field: actions\n";
+            }
+        if (! defined( $$bldpage{'actions'}[0] ))
+            {
+            die "no such field: actions[0]\n";
+            }
+        if (! defined( $$bldpage{'actions'}[0]{'parameters'} ))
+            {
+            die "no such field: actions[0]{parameters}\n";
+            }
+        for my $pp (0 .. scalar $$bldpage{'actions'}[0]{'parameters'})
+            {
+            if ($DEBUG)  { print STDERR "pp is $pp\n"; }
+            if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'PARENT_BUILD_NUMBER')
+                {
+                $found_bldnum  = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)    { print STDERR "detected bldnum:   $found_bldnum\n";}
+                }
+            if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'EDITION')
+                {
+                $found_edition = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)    { print STDERR "detected edition:  $found_edition\n";}
+                }
+            last if ( defined($found_bldnum) && defined($found_edition) );
+            }
+        if ( $found_edition eq $edition )  { $jobnum = $jnum; last; }
+        }
+        
+    if (! defined ($jobnum))
+        {
+        if ($DEBUG)  { print STDERR "no $branch matching builds for $builder\n"; }
+        $jobnum     =  0;
+        $bldnum     = -1;
+        $is_running =  0;    # 'TBD';
+        $bld_date   = 'no package yet';
+        $isgood     =  0;
+        return( $builder, $jobnum, $bldnum, $is_running, $bld_date, $isgood );
+        }
+    if (! defined ($found_bldnum))
+        {
+        $found_bldnum = '<I>bld&nbsp;'.$bldnum.'</>';
+        }
+    if ($DEBUG)  { print STDERR "jobnum is: $jobnum\n"; }
+        
+    my $result  = jenkinsQuery::get_json($builder.'/'.$jobnum);
+    $is_running = 'unknown';
+    if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');        if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
+ 
+    $bld_date   = 'unknown';
+    if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'}, 'brief' ); if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }          }
+
+    $isgood     = 'unknown';
+    if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS');      if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
+ 
+    return( $builder, $jobnum, $is_running, $bld_date, $isgood );
     }
    
-############                        last_good_ios_bld ( platform, branch )
+############                        last_good_ios_bld ( platform, branch, edition )
 #          
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_good_ios_bld
     {
-    ($platform, $branch) = @_;
-    my $builder  = get_builder($platform, $branch, "build", "ios");
+    my ($platform, $branch, $edition) = @_;
+    my $builder  = get_builder($platform, $branch, "build", "ios", $edition);
     my $property = 'lastSuccessfulBuild';
-    return_build_info($builder, $property, 'brief');
+    return( $builder,  return_build_info($builder, $property, 'brief') );
     }
    
 
@@ -305,7 +404,7 @@ sub last_good_ios_bld
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_done_and_bld
     {
-    ($platform, $branch) = @_;
+    my ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastCompletedBuild';
     return_build_info($builder, $property);
@@ -316,7 +415,7 @@ sub last_done_and_bld
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_good_and_bld
     {
-    ($platform, $branch) = @_;
+    my ($platform, $branch) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastSuccessfulBuild';
     return_build_info($builder, $property, 'brief');
@@ -330,7 +429,7 @@ sub last_good_and_bld
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_done_repo
     {
-    ($branch) = @_;
+    my ($branch) = @_;
     my $builder  = get_builder($platform,$branch, "repo","repo");
     my $property = 'lastCompletedBuild';
     return_build_info($builder, $property);

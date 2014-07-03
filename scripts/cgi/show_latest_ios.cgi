@@ -36,10 +36,6 @@ my %release = ( 'master'   => '0.0.0',
                 '100'      => '1.0.0',
                 '101'      => '1.0.1',
               );
-my %edition = ( 'master'   => 'community',
-                '100',     => 'enterprise',
-                '101',     => 'enterprise',
-              );
 my $builder;
 
 my $timestamp = "";
@@ -67,28 +63,27 @@ sub print_HTML_Page
     print $query->end_html;
     }
 
-my $usage = "ERROR: must specify 'branch' and 'outcome'\n\n"
+my $usage = "ERROR: must specify 'branch', 'edition', and 'outcome'\n\n"
            ."<PRE>"
            ."For example:\n\n"
-           ."    $installed_URL?branch=master&outcome=good\n"
-           ."    $installed_URL?branch=100&outcome=done\n"
+           ."    $installed_URL?branch=master&edition=enterprise&outcome=good\n"
+           ."    $installed_URL?branch=100&edition=enterprise&outcome=done\n"
            ."</PRE><BR>"
            ."\n"
            ."\n";
 
 my  $platform = 'default';
-my ($branch, $job_type);
+my ($branch, $edition, $job_type);
 
-if ( $query->param('branch') && $query->param('outcome') )
+if ( $query->param('branch') && $query->param('edition') && $query->param('outcome') )
     {
     $branch   = $query->param('branch');
     $outcome  = $query->param('outcome');
-    $builder  = jenkinsReports::get_builder($platform, $branch, 'build', 'ios');
-    if ($DEBUG)  { print STDERR "\nready to start with ($builder, $branch)\n"; }
+    $edition  = $query->param('edition');
     }
 else
     {
-    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
+    print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', 'invalid call to show_latest_ios.cgi', $err_color );
     exit;
     }
 my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
@@ -98,14 +93,15 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 
 if ($outcome =~ 'good')
     {
-    ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_good_ios_bld($platform, $branch);
+    ($builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_good_ios_bld($platform, $branch, $edition);
     }
 if ($outcome =~ 'done')
     {
-    ($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_ios_bld($platform, $branch);
+    ($builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_ios_bld($platform, $branch, $edition);
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 
+if ($DEBUG)  { print STDERR "\nready to start with ($builder, $edition, $outcome)\n"; }
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
 
 if ($bldnum < 0)
@@ -120,8 +116,8 @@ elsif ($bldstatus)
     {
     my $made_color;    $made_color = $good_color;
     
-    print_HTML_Page( jenkinsQuery::html_OK_link( $builder,  $bldnum,   $rev_numb, $bld_date ),
-                     jenkinsReports::link_to_package('ios', $rev_numb, $platform, $edition{$branch}),
+    print_HTML_Page( jenkinsQuery::html_OK_link( $builder,  $bldnum,   $rev_numb, $bld_date),
+                     jenkinsReports::link_to_package('ios', $rev_numb, $platform, $edition ),
                      $builder,
                      $made_color );
     }

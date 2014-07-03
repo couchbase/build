@@ -92,14 +92,14 @@ if ( $query->param('branch') && $query->param('type') )
         if ( ! $query->param('platform') )
             {
             if ($DEBUG)  { print STDERR "platform required for job_type: $job_type\n"; }
-            print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
+            print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', 'invalid call to show_latest_sgw.cgi', $err_color );
             exit;
             }
         $platform = $query->param('platform');
         if ( ! $query->param('edition') )
             {
             if ($DEBUG)  { print STDERR "edition required for job_type: $job_type\n"; }
-            print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
+            print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', 'invalid call to show_latest_sgw.cgi', $err_color );
             exit;
             }
         $edition = $query->param('edition');
@@ -109,7 +109,7 @@ if ( $query->param('branch') && $query->param('type') )
     else
         {
         if ($DEBUG)  { print STDERR "illegal job_type: $job_type\n"; }
-        print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', $builder, $err_color );
+        print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', 'invalid call to show_latest_sgw.cgi', $err_color );
         exit;
         }
     if ($DEBUG)  { print STDERR "\nready to start with ($branch, $job_type, $platform, $edition)\n"; }
