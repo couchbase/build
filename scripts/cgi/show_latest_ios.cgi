@@ -80,6 +80,8 @@ if ( $query->param('branch') && $query->param('edition') && $query->param('outco
     $branch   = $query->param('branch');
     $outcome  = $query->param('outcome');
     $edition  = $query->param('edition');
+    if ($edition eq 'EE' )  { $edition = 'enterprise'; }
+    if ($edition eq 'CE' )  { $edition = 'community';  }
     }
 else
     {
