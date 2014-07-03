@@ -321,7 +321,7 @@ sub last_done_ios_bld
                                              }
     if ($DEBUG)  { print STDERR "DEBUG: job_numbers: $#job_numbers\n";   print STDERR "@job_numbers\n";                      }
     if ($DEBUG)  { for my $NN ( @job_numbers ) { print STDERR "$NN\n";}  print STDERR "DEBUG: job_numbers: $#job_numbers\n"; }
-
+    @job_numbers = reverse sort { $a <=> $b } @results_numbers;
     for my $jnum (@job_numbers)
         {
         undef($found_bldnum);    undef($found_edition);
