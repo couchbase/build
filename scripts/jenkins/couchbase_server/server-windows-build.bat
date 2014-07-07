@@ -1,10 +1,14 @@
 @echo on
 
 rem Parameters
-set BUILD_NUMBER=%1
-set VOLTRON_BRANCH=%2
-set MANIFEST=%3
-set LICENSE=%4
+
+set RELEASE=%1
+set BLD_NUM=%2
+set BUILD_NUMBER=%RELEASE%-%BLD_NUM%
+
+set VOLTRON_BRANCH=%3
+set MANIFEST=%4
+set LICENSE=%5
 
 rem Detect 32-bit or 64-bit OS
 set RegQry=HKLM\Hardware\Description\System\CentralProcessor\0
@@ -101,12 +105,7 @@ git pull origin %VOLTRON_BRANCH%
 :package_win
 ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase_server %BUILD_NUMBER% %LICENSE% %target_platform%
 
-
-if "%VOLTRON_BRANCH%" == "master" (
-    set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\0.0.0\%BUILD_NUMBER%
-) else (
-    set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\%VOLTRON_BRANCH%\%BUILD_NUMBER%
-)
+set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\%VOLTRON_BRANCH%\%RELEASE%\%BLD_NUM%
 set PKG_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
 copy %PKG_SRC%\%PKG_NAME% %WORKSPACE%
 
