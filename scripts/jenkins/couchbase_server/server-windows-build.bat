@@ -105,7 +105,7 @@ git pull origin %VOLTRON_BRANCH%
 :package_win
 ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase_server %BUILD_NUMBER% %LICENSE% %target_platform%
 
-set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\%VOLTRON_BRANCH%\%RELEASE%\%BLD_NUM%
+set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\%RELEASE%\%BLD_NUM%
 set PKG_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
 copy %PKG_SRC%\%PKG_NAME% %WORKSPACE%
 
