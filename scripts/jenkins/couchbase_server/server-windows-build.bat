@@ -10,6 +10,10 @@ set VOLTRON_BRANCH=%3
 set MANIFEST=%4
 set LICENSE=%5
 
+set PUT_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini put --no-progress
+set CHK_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini ls
+set PKGSTORE="s3://packages.northscale.com/latestbuilds/%RELEASE%/"
+
 rem Detect 32-bit or 64-bit OS
 set RegQry=HKLM\Hardware\Description\System\CentralProcessor\0
 REG.exe Query %RegQry% > checkOS.txt
@@ -108,5 +112,12 @@ ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" cou
 set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\%RELEASE%\%BLD_NUM%
 set PKG_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
 copy %PKG_SRC%\%PKG_NAME% %WORKSPACE%
+
+:upload_to_s3
+echo %PUT_CMD% %WORKSPACE%\%PKG_NAME% %PKGSTORE%/%PKG_NAME%
+     %PUT_CMD% %WORKSPACE%\%PKG_NAME% %PKGSTORE%/%PKG_NAME%
+
+echo %CHK_CMD% %PKGSTORE%/%PKG_NAME%
+     %CHK_CMD% %PKGSTORE%/%PKG_NAME%
 
 :eof
