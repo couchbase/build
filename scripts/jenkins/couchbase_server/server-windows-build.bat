@@ -24,6 +24,9 @@ if %ERRORLEVEL% == 0 (
     set target_platform=amd64
 )
 
+set
+echo ============================================== %DATE%
+
 if "%target_platform%" == "amd64" goto setup_amd64
 if "%target_platform%" == "x86"   goto setup_x86
 
@@ -63,6 +66,10 @@ set OBJDIR=
 SET MODULEPATH=
 cd %SOURCE_ROOT%
 if "%target_platform%" == "amd64" set PATH=%PATH%;%SOURCE_ROOT%\install\x86\bin
+
+echo ==============================================
+set
+echo ======== build ===============================
 
 rem Install third-party deps
 if exist %SOURCE_ROOT%\install rmdir /s /q %SOURCE_ROOT%\install
@@ -107,12 +114,14 @@ git checkout    %VOLTRON_BRANCH%
 git pull origin %VOLTRON_BRANCH%
 
 :package_win
+echo ======== package =============================
 ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase_server %BUILD_NUMBER% %LICENSE% %target_platform%
 
 set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\%RELEASE%\%BLD_NUM%
 set PKG_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
 copy %PKG_SRC%\%PKG_NAME% %WORKSPACE%
 
+echo ======== upload ==============================
 :upload_to_s3
 echo %PUT_CMD% %WORKSPACE%\%PKG_NAME% %PKGSTORE%/%PKG_NAME%
      %PUT_CMD% %WORKSPACE%\%PKG_NAME% %PKGSTORE%/%PKG_NAME%
@@ -120,4 +129,5 @@ echo %PUT_CMD% %WORKSPACE%\%PKG_NAME% %PKGSTORE%/%PKG_NAME%
 echo %CHK_CMD% %PKGSTORE%/%PKG_NAME%
      %CHK_CMD% %PKGSTORE%/%PKG_NAME%
 
+echo ============================================== %DATE%
 :eof
