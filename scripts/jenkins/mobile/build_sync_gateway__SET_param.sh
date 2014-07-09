@@ -59,8 +59,8 @@ echo ============================================== `date`
 
 if [[ ${PARNAME} == SYNCGATE_VERSION_UBUNTU_X64 ]]
     then
-    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}            -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
-         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}            -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+    echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}-${EDITION} -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+         ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}-${EDITION} -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
 fi
 if [[ ${PARNAME} == SYNCGATE_VERSION_CENTOS_X64 ]]
     then
