@@ -76,12 +76,8 @@ else
    pushd couchdb 2>&1 > /dev/null
 fi
 
-cpulimit -e 'beam.smp' -l 50 &
-
-CPULIMIT_PID=$!
 PATH=$PATH:${WORKSPACE}/couchstore make check
 
-kill $CPULIMIT_PID || true
 popd 2>&1 > /dev/null
 
 cat <<EOF
