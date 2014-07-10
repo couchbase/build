@@ -190,7 +190,7 @@ export CGO_ENABLED=1
 # 
 # RANDOM in 1..32767
 
-let STARTUP_DELAY=3+${RANDOM}/3277
+let STARTUP_DELAY=30+${RANDOM}/1000
 sleep ${STARTUP_DELAY}
 
 # ... caused by all builders running at once
