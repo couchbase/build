@@ -27,7 +27,7 @@ my $installed_URL = $URL_ROOT.'/cgi/refresh_web_page.cgi';
 use CGI qw(:standard);
 my  $query = new CGI;
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 

@@ -85,7 +85,7 @@ sub dir_list
     }
 
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
