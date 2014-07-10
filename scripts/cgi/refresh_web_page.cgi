@@ -20,6 +20,7 @@ BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
+my $DOC_ROOT      = '/data/www/build/scripts/html';
 my $URL_ROOT      = 'http://factory.hq.couchbase.com';
 my $installed_URL = $URL_ROOT.'/cgi/refresh_web_page.cgi';
 
@@ -39,6 +40,25 @@ sub get_timestamp
     $month =    1 + $month;
     $year  = 1900 + $yearOffset;
     $timestamp = "page generated $hour:$minute:$second  on $year-$month-$dayOfMonth";
+    }
+
+my $page_title = 'no title yet';
+sub get_page_title
+    {
+    my ($page) = @_;
+    my  $title;
+    
+    my $regex = '<TITLE>(.*)</TITLE>';
+    
+    open WWW, $page  or die "unable to open $page\n";
+    while(<WWW>)
+        {
+        if ($_ =~ $regex)
+            {
+            $title = $1;
+            last;
+        }   }
+    return($title);
     }
 
 my $ERROR_title   = 'ERROR';
@@ -62,8 +82,10 @@ sub print_HTML_Page
     my ($page, $seconds) = @_;
 
     print $query->header;
-    print $query->start_html( -head => meta( {-http_equiv => 'refresh',
-                                              -content    => $seconds} ));
+    print $query->start_html( -head  => meta( {-http_equiv => 'refresh',
+                                               -content    => $seconds} ),
+                              -title => $page_title,
+                            );
     
     print '<object type="text/html" data="'.$page.'" width="100%" height="2048">';
     
@@ -75,7 +97,7 @@ my ($web_page, $repeat);
 
 if ( $query->param('web_page') && $query->param('repeat') )
     {
-    $web_page = $URL_ROOT.'/'.$query->param('web_page');
+    $web_page = $query->param('web_page');
     $repeat   = $query->param('repeat');
     }
 else
@@ -89,7 +111,8 @@ if ($DEBUG)  { print STDERR "\nready to start with ($web_page, $repeat)\n"; }
 
 #### S T A R T  H E R E 
 
-print_HTML_Page( $web_page, $repeat ); 
+$page_title = get_page_title( $DOC_ROOT.'/'.$web_page);
+print_HTML_Page( $URL_ROOT.'/'.$web_page,   $repeat ); 
 
 
 # print "\n---------------------------\n";
