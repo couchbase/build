@@ -280,11 +280,14 @@ sub last_good_sgw_trigger
 
 ############                        last_done_ios_bld ( platform, branch, edition )
 #          
-#                                   returns ( build_num, is_build_running, build_date, status )
+#                                   returns ( builder, build_num, is_build_running, build_date, status )
 sub last_done_ios_bld
     {
     my ($platform, $branch, $edition) = @_;
-    my $builder  = get_builder($platform, $branch, "build", "ios", $edition);
+    my ($builder, $bld_num, $is_running, $bld_date, $isgood);
+    my ($jobnum);
+    
+    $builder  = get_builder($platform, $branch, "build", "ios", $edition);
     
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
     my $sumpage = jenkinsQuery::get_json($builder);
@@ -292,11 +295,11 @@ sub last_done_ios_bld
     if ($len < 1 )
         {                   if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
         $jobnum     =  0;
-        $bldnum     = -1;
+        $bld_num    = -1;
         $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
         $isgood     =  0;
-        return( $jobnum, $bldnum, $is_running, $bld_date, $isgood );
+        return( $jobnum, $bld_num, $is_running, $bld_date, $isgood );
         }
     
     if (! defined( $$sumpage{'builds'} ))
@@ -309,11 +312,11 @@ sub last_done_ios_bld
         {
         if ($DEBUG)  { print STDERR "no build results for $builder\n"; }
         $jobnum     =  0;
-        $bldnum     = -1;
+        $bld_num    = -1;
         $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
         $isgood     =  0;
-        return( $jobnum, $bldnum, $is_running, $bld_date, $isgood );
+        return( $jobnum, $bld_num, $is_running, $bld_date, $isgood );
         }
     my @results_numbers;
     my ($found_bldnum, $found_edition);
@@ -356,22 +359,22 @@ sub last_done_ios_bld
                 }
             last if ( defined($found_bldnum) && defined($found_edition) );
             }
-        if ( $found_edition eq $edition )  { $jobnum = $jnum; last; }
+        if ( $found_edition eq $edition )  { $jobnum = $jnum;  $bld_num = $found_bldnum;  last; }
         }
         
     if (! defined ($jobnum))
         {
         if ($DEBUG)  { print STDERR "no $branch matching builds for $builder\n"; }
         $jobnum     =  0;
-        $bldnum     = -1;
+        $bld_num    = -1;
         $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
         $isgood     =  0;
-        return( $builder, $jobnum, $bldnum, $is_running, $bld_date, $isgood );
+        return( $builder, $jobnum, $bld_num, $is_running, $bld_date, $isgood );
         }
     if (! defined ($found_bldnum))
         {
-        $found_bldnum = '<I>bld&nbsp;'.$bldnum.'</>';
+        $bld_num = '<I>bld&nbsp;'.$bld_num.'</>';
         }
     if ($DEBUG)  { print STDERR "jobnum is: $jobnum\n"; }
         
@@ -385,7 +388,7 @@ sub last_done_ios_bld
     $isgood     = 'unknown';
     if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS');      if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
  
-    return( $builder, $jobnum, $is_running, $bld_date, $isgood );
+    return( $builder, $bld_num, $is_running, $bld_date, $isgood );
     }
    
 ############                        last_good_ios_bld ( platform, branch, edition )
@@ -430,8 +433,8 @@ sub last_good_and_bld
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_done_repo
     {
-    my ($branch) = @_;
-    my $builder  = get_builder($platform,$branch, "repo","repo");
+    my ($branch) = @_;    my $platform = 'N/A';
+    my $builder  = get_builder($platform, $branch, "repo","repo");
     my $property = 'lastCompletedBuild';
     return_build_info($builder, $property);
     }
