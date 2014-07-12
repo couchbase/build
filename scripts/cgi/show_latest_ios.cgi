@@ -88,18 +88,18 @@ else
     print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', 'invalid call to show_latest_ios.cgi', $err_color );
     exit;
     }
-my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
+my ($bldstatus, $bldnum, $jobnum, $rev_numb, $bld_date, $is_running);
 
 
 #### S T A R T  H E R E 
 
 if ($outcome =~ 'good')
     {
-    ($builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_good_ios_bld($platform, $branch, $edition);
+    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_good_ios_bld($platform, $branch, $edition);
     }
 if ($outcome =~ 'done')
     {
-    ($builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_ios_bld($platform, $branch, $edition);
+    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_ios_bld($platform, $branch, $edition);
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 
@@ -118,7 +118,7 @@ elsif ($bldstatus)
     {
     my $made_color;    $made_color = $good_color;
     
-    print_HTML_Page( jenkinsQuery::html_OK_link( $builder,  $bldnum,   $rev_numb, $bld_date),
+    print_HTML_Page( jenkinsQuery::html_OK_link( $builder,  $jobnum,   $rev_numb, $bld_date),
                      jenkinsReports::link_to_package('ios', $rev_numb, $platform, $edition ),
                      $builder,
                      $made_color );
@@ -132,7 +132,7 @@ else
         $made_color = $warn_color;
         }
     print_HTML_Page( buildbotReports::is_running($is_running),
-                     jenkinsQuery::html_FAIL_link( $builder, $bldnum, $is_running, $bld_date),
+                     jenkinsQuery::html_FAIL_link( $builder, $jobnum, $is_running, $bld_date),
                      $builder,
                      $made_color );
     }

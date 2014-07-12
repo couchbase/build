@@ -219,7 +219,7 @@ sub html_RUN_link
 #                                   returns HTML of link to good build results
 sub html_OK_link
     {
-    my ($builder, $bnum, $rev, $date, $opt_link, $opt_link_text) = @_;
+    my ($builder, $jnum, $rev, $date, $opt_link, $opt_link_text) = @_;
     
     my $OPTURL = '';
     if (defined( $opt_link ))
@@ -227,18 +227,18 @@ sub html_OK_link
         if (! defined( $opt_link_text ))  { $opt_link_text = $opt_link; }
         $OPTURL = '&nbsp;&nbsp;<A href="'.$opt_link.'">'.$opt_link_text.'</A>'."\n";
         }
-    my $HTML='<a href="'. $URL_ROOT .'/job/'. $builder .'/'. $bnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)".'</a>'.$OPTURL;
+    my $HTML='<a href="'. $URL_ROOT .'/job/'. $builder .'/'. $jnum .'" target="_blank">'. "$rev".'&nbsp;'."($date)".'</a>'.$OPTURL;
     return($HTML);
     }
 
-############                        html_FAIL_link ( <builder>, <build_num>, <is_running>, <build_date> )
+############                        html_FAIL_link ( <builder>, <job_num>, <is_running>, <build_date> )
 #          
 #                                   HTML of link to FAILED build results
 sub html_FAIL_link
     {
-    my ($builder, $bnum, $is_running, $date) = @_;
+    my ($builder, $jnum, $is_running, $date) = @_;
     
-    my $HTML = '<font color="red"><a href="'.$URL_ROOT.'/job/'.$builder.'/'.$bnum.'" target="_blank">FAIL</a></font>&nbsp;&nbsp;'."($date)";
+    my $HTML = '<font color="red"><a href="'.$URL_ROOT.'/job/'.$builder.'/'.$jnum.'" target="_blank">FAIL</a></font>&nbsp;&nbsp;'."($date)";
     
     return($HTML);
     }

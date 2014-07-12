@@ -127,9 +127,6 @@ export GO_RELEASE ; export GOROOT ; export PATH
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
 
-pushd ${WORKSPACE} 2>&1 > /dev/null
-WORKSPACE=`pwd`
-popd               2>&1 > /dev/null
 LIC_DIR=${WORKSPACE}/build/license/sync_gateway
 AUT_DIR=${WORKSPACE}/app-under-test
 SGW_DIR=${AUT_DIR}/sync_gateway
