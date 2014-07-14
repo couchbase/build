@@ -189,6 +189,7 @@ export CGO_ENABLED=1
 
 let STARTUP_DELAY=30+${RANDOM}/1000
 sleep ${STARTUP_DELAY}
+echo ======== D O N E   S L E E P ================= `date`
 
 # ... caused by all builders running at once
 
@@ -227,9 +228,11 @@ cd                        ${SGW_DIR}
 md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
 echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
+echo ======== D O N E   S L E E P ================= `date`
 ${PUT_CMD}  ${NEW_PKG_NAME}                          ${PKGSTORE}/${NEW_PKG_NAME}
 ${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
+echo ======== D O N E   S L E E P ================= `date`
 ${PUT_CMD}  ${NEW_PKG_NAME}.md5                      ${PKGSTORE}/${NEW_PKG_NAME}.md5
 ${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}.md5
 
