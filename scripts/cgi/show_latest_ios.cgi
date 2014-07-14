@@ -99,7 +99,7 @@ if ($outcome =~ 'good')
     }
 if ($outcome =~ 'done')
     {
-    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_ios_bld($platform, $branch, $edition);
+    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_and_ios_bld('ios', platform, $branch, $edition);
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 

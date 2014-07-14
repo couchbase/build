@@ -13,13 +13,13 @@ our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( last_done_sgw_trigger  last_done_sgw_package  last_good_sgw_trigger  last_good_sgw_package \
-                       last_done_ios_bld      last_good_ios_bld      last_done_and_bld      last_good_and_bld     \
+                       last_done_and_ios_bld  last_good_ios_bld      last_done_and_bld      last_good_and_bld     \
                        get_builder            link_to_package                                                     \
                        last_done_repo         last_commit_valid      last_done_server                             \
                      );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_trigger  &last_done_sgw_package   &last_good_sgw_trigger  &last_good_sgw_package )],
-                     IOS_ANDROID  => [qw( &last_done_ios_bld      &last_good_ios_bld       &last_done_and_bld      &last_good_and_bld     )],
+                     IOS_ANDROID  => [qw( &last_done_and_ios_bld  &last_good_ios_bld       &last_done_and_bld      &last_good_and_bld     )],
                      DEFAULT      => [qw( &get_builder            &link_to_package         \
                                           &last_done_repo         &last_commit_valid       &last_done_server  )],
                    );
@@ -278,15 +278,15 @@ sub last_good_sgw_trigger
    
 
 
-############                        last_done_ios_bld ( platform, branch, edition )
+############                        last_done_and_ios_bld ( product ('and'/'ios'), platform, branch, edition )
 #          
 #                                   returns ( builder, build_num, job_number, is_build_running, build_date, status )
-sub last_done_ios_bld
+sub last_done_and_ios_bld
     {
-    my ($platform, $branch, $edition) = @_;
+    my ($product, $platform, $branch, $edition) = @_;
     my ($builder, $bld_num, $job_num, $is_running, $bld_date, $isgood);
     
-    $builder  = get_builder($platform, $branch, "build", "ios", $edition);
+    $builder  = get_builder($platform, $branch, "build", $product, $edition);
     
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
     my $sumpage = jenkinsQuery::get_json($builder);
@@ -418,10 +418,10 @@ sub last_done_and_bld
 #                                   returns ( build_num, is_build_running, build_date, status )
 sub last_good_and_bld
     {
-    my ($platform, $branch) = @_;
+    my ($platform, $branch, $edition) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
     my $property = 'lastSuccessfulBuild';
-    return_build_info($builder, $property, 'brief');
+    return( $builder,  return_build_info($builder, $property, 'brief') );
     }
    
 
