@@ -209,7 +209,7 @@ for TF in ${TEMPLATE_FILES}
     mv  ${TF}.orig ${TF}
 done
 
-echo ======== test ================================
+echo ======== test ================================ `date`
 echo ........................ running test.sh
                                 ./test.sh
 
