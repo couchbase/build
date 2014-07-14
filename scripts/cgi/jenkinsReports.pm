@@ -69,7 +69,7 @@ sub get_builder
     if ($type eq 'build')
         {
         if ($prod eq 'ios')  { $builder = "build_cblite_ios_".$branch.'-'.$edition; }
-        if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch;  }
+        if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch.'-'.$edition;;  }
         }
     if ($type eq 'package')
         {
