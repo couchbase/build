@@ -88,6 +88,8 @@ else
     print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', 'invalid call to show_latest_ios.cgi', $err_color );
     exit;
     }
+if ($DEBUG)  { print STDERR "\nready to start with ($builder, $edition, $outcome)\n"; }
+
 my ($bldstatus, $bldnum, $jobnum, $rev_numb, $bld_date, $is_running);
 
 
@@ -99,11 +101,10 @@ if ($outcome =~ 'good')
     }
 if ($outcome =~ 'done')
     {
-    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_and_ios_bld('ios', platform, $branch, $edition);
+    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_and_ios_bld('ios', $platform, $branch, $edition);
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 
-if ($DEBUG)  { print STDERR "\nready to start with ($builder, $edition, $outcome)\n"; }
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
 
 if ($bldnum < 0)
