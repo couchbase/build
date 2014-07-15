@@ -24,7 +24,7 @@ our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_trigger  &last_done_sgw
                                           &last_done_repo         &last_commit_valid       &last_done_server  )],
                    );
 
-my $DEBUG = 0;   # FALSE
+my $DEBUG = 1;   # FALSE
 
 ############ 
 

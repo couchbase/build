@@ -26,7 +26,7 @@ use buildbotReports  qw(:DEFAULT );
 use CGI qw(:standard);
 my  $query = new CGI;
 
-my $DEBUG = 0;
+my $DEBUG = 1;
 
 my $delay = 2 + int rand(5.3);    sleep $delay;
 
@@ -89,7 +89,6 @@ else
     print_HTML_Page( buildbotQuery::html_ERROR_msg($usage), '&nbsp;', 'invalid call to show_latest_and.cgi', $err_color );
     exit;
     }
-if ($DEBUG)  { print STDERR "\nready to start with ($builder, $edition, $outcome)\n"; }
 
 my ($bldstatus, $bldnum, $jobnum, $rev_numb, $bld_date, $is_running);
 
@@ -106,6 +105,7 @@ if ($outcome =~ 'done')
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 
+if ($DEBUG)  { print STDERR "\nready to start with ($builder, $edition, $outcome)\n"; }
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
 
 if ($bldnum < 0)

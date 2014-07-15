@@ -34,7 +34,7 @@ my $USERID='buildbot';
 my $PASSWD='buildbot';
 my $URL_ROOT='http://factory.hq.couchbase.com:8080';
 
-my $DEBUG = 0;
+my $DEBUG = 1;
 
 
 ############                        get_url_root ( )
