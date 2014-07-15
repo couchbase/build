@@ -20,13 +20,14 @@
 #          
 #          produces these log files, sampled in this script's output:
 #            
-#            BLD_LOG - 00_android_build.log
-#            ADB_LOG - 01_adb.log
-#            AUT_LOG - 02_android_unit_test.log
-#            UPL_LOG - 03_upload_android_artifacts.log
-#            PKG_LOG - 04_android_package.log
+#            SRC_LOG - 00_android_src_jarfile.log
+#            BLD_LOG - 01_android_build.log
+#            ADB_LOG - 02_adb.log
+#            AUT_LOG - 03_android_unit_test.log
+#            UPL_LOG - 04_upload_android_artifacts.log
 #            DOC_LOG - 05_javadocs.log
 #            ZIP_LOG - 06_package_javadocs.log
+#            PKG_LOG - 07_android_package.log
 #            
 ##############
 #            
@@ -110,6 +111,7 @@ GET_CMD="s3cmd get"
 export MAVEN_UPLOAD_VERSION=${REVISION}
 export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 
+SRC_JAR=couchbase-lite-android-source_${REVISION}.jar
 DOCS_ZIP=couchbase-lite-android-javadocs_${REVISION}.zip
 
 PLATFORM=linux-amd64
@@ -148,6 +150,15 @@ git pull  origin  ${GITSPEC}
 git submodule init
 git submodule update
 git show --stat
+
+( jar cvf ${WORKSPACE}/${SRC_JAR} * 2>&1 )   >> ${LOG_DIR}/00_android_src_jarfile.log
+if  [[ -e ${LOG_DIR}/00_android_src_jarfile.log ]]
+    then
+    echo
+    echo "===================================== ${LOG_DIR}/00_android_src_jarfile.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/00_android_src_jarfile.log
+fi
 
 JAVA_VER_FILE=${ANDR_LITESRV_DIR}/libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
 echo ============================================  instantiate tokens in source file
@@ -203,14 +214,14 @@ cd ${ANDR_LITESRV_DIR}
 cp extra/jenkins_build/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
-( ./build_android.sh   2>&1 )                >> ${LOG_DIR}/00_android_build.log
+( ./build_android.sh   2>&1 )                >> ${LOG_DIR}/01_android_build.log
 
-if  [[ -e ${LOG_DIR}/00_android_build.log ]]
+if  [[ -e ${LOG_DIR}/01_android_build.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/00_android_build.log"
+    echo "===================================== ${LOG_DIR}/01_android_build.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/00_android_build.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/01_android_build.log
 fi
 echo ============================================  UNDO instantiate tokens
 cp  ${JAVA_VER_FILE}.ORIG ${JAVA_VER_FILE}
@@ -244,15 +255,15 @@ while [[ ${OUT:0:7}  != 'stopped' ]]
 done
 
 
-echo "ADB log for build ${BLD_NUM}"           > ${LOG_DIR}/01_adb.log
-( adb logcat -v time   2>&1 )                >> ${LOG_DIR}/01_adb.log &
+echo "ADB log for build ${BLD_NUM}"           > ${LOG_DIR}/02_adb.log
+( adb logcat -v time   2>&1 )                >> ${LOG_DIR}/02_adb.log &
 
-if  [[ -e ${LOG_DIR}/01_adb.log ]]
+if  [[ -e ${LOG_DIR}/02_adb.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/01_adb.log"
+    echo "===================================== ${LOG_DIR}/02_adb.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/01_adb.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/02_adb.log
 fi
 
 echo ".......................................starting sync_gateway"
@@ -265,22 +276,22 @@ cd ${ANDR_LITESRV_DIR}
 echo ============================================  run unit tests
 echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 
-( ./run_android_unit_tests.sh  2>&1 )        >> ${LOG_DIR}/02_android_unit_test.log
+( ./run_android_unit_tests.sh  2>&1 )        >> ${LOG_DIR}/03_android_unit_test.log
 
-if  [[ -e ${LOG_DIR}/02_android_unit_test.log ]]
+if  [[ -e ${LOG_DIR}/03_android_unit_test.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/02_android_unit_test.log"
+    echo "===================================== ${LOG_DIR}/03_android_unit_test.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/02_android_unit_test.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/03_android_unit_test.log
 fi
 echo "http://factory.hq.couchbase.com:8080/job/build_cblite_android_master/ws/app-under-test/android/couchbase-lite-android-liteserv/libraries/couchbase-lite-android/build/reports/androidTests/connected/index.html"
 
-FAILS=`grep -i FAIL ${LOG_DIR}/02_android_unit_test.log | wc -l`
+FAILS=`grep -i FAIL ${LOG_DIR}/03_android_unit_test.log | wc -l`
 if [[ $((FAILS)) > 0 ]]
     then
     echo "---------------------------- ${FAILS} test FAILs -----------------------"
-       cat -n ${LOG_DIR}/02_android_unit_test.log | grep -i FAIL
+       cat -n ${LOG_DIR}/03_android_unit_test.log | grep -i FAIL
     echo "------------------------------------------------------------------------"
     exit ${FAILS}
 fi
@@ -294,54 +305,26 @@ fi
 #cp ${WORKSPACE}/couchbase-lite-android/CouchbaseLiteProject/CBLite/build/reports/instrumentTests/connected/*.html ${WORKSPACE}/build_cblite_android/
 
 
-echo "build started: ${BUILD_ID}"            >> ${LOG_DIR}/01_adb.log
+echo "build started: ${BUILD_ID}"            >> ${LOG_DIR}/02_adb.log
 
 kill_child_processes
 
 echo "********RUNNING: ./upload_android_artifacts.sh *******************"
-( ./upload_android_artifacts.sh 2>&1 )       >> ${LOG_DIR}/03_upload_android_artifacts.log
+( ./upload_android_artifacts.sh 2>&1 )       >> ${LOG_DIR}/04_upload_android_artifacts.log
 
-if  [[ -e ${LOG_DIR}/03_upload_android_artifacts.log ]]
+if  [[ -e ${LOG_DIR}/04_upload_android_artifacts.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/03_upload_android_artifacts.log"
+    echo "===================================== ${LOG_DIR}/04_upload_android_artifacts.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/03_upload_android_artifacts.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/04_upload_android_artifacts.log
 fi
-
-echo ============================================  build android zipfile
-
-if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
-
-cd ${ANDR_LITESRV_DIR}/release
-cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
-
-MVN_ZIP=couchbase-lite-${REVISION}-android.zip
-AND_ZIP=couchbase-lite-android-${EDITION}_${REVISION}.zip
-
-rm -f                                           ${LOG_DIR}/04_android_package.log
-                      ./zip_jars.sh ${REVISION} ${LOG_DIR}/04_android_package.log
-
-if  [[ -e ${LOG_DIR}/04_android_package.log ]]
-    then
-    echo "===================================== ${LOG_DIR}/04_android_package.log"
-    echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/04_android_package.log
-fi
-
-echo ============================================ upload ${PKGSTORE}/${AND_ZIP}
-echo  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}
-file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}  || exit 99
-cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}     ${WORKSPACE}/${AND_ZIP}
-echo        ${WORKSPACE}/${AND_ZIP}
-${PUT_CMD}  ${WORKSPACE}/${AND_ZIP}                      ${PKGSTORE}/${AND_ZIP}
-
 
 if [[ ${EDITION} =~ 'community' ]]
   then
     echo ============================================ SKIPPING javadocs
     echo ============================================ SKIPPING javadocs >> ${LOG_DIR}/05_javadocs.log
-    echo ============================================ SKIPPING javadocs >> ${LOG_DIR}/06_package_javadocs.log
+    echo ============================================ SKIPPING javadocs >> ${LOG_DIR}/05_package_javadocs.log
   else
     cd ${ANDR_LITESRV_DIR}
     echo ============================================  generate javadocs
@@ -371,6 +354,51 @@ if [[ ${EDITION} =~ 'community' ]]
     echo ============================================ upload  ${PKGSTORE}/${DOCS_ZIP}
     ${PUT_CMD}  ${WORKSPACE}/${DOCS_ZIP}                      ${PKGSTORE}/${DOCS_ZIP}
 fi
+
+echo ============================================  build android zipfile
+
+if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
+
+cd ${ANDR_LITESRV_DIR}/release
+cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
+
+MVN_ZIP=couchbase-lite-${REVISION}-android.zip
+AND_ZIP=couchbase-lite-android-${EDITION}_${REVISION}.zip
+
+rm -f                                           ${LOG_DIR}/07_android_package.log
+                      ./zip_jars.sh ${REVISION} ${LOG_DIR}/07_android_package.log
+
+if  [[ -e ${LOG_DIR}/07_android_package.log ]]
+    then
+    echo "===================================== ${LOG_DIR}/07_android_package.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/07_android_package.log
+fi
+
+echo ============================================ create ${WORKSPACE}/${AND_ZIP}
+echo  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}
+file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}  || exit 99
+cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}      ${WORKSPACE}/${AND_ZIP}
+
+echo "=====================================" >> ${LOG_DIR}/07_android_package.log" 
+( zip -g    ${WORKSPACE}/${AND_ZIP} \
+            LICENSE.txt              \
+            ${WORKSPACE}/${DOCS_ZIP}  \
+            ${WORKSPACE}/${SRC_JAR} 2>&1 )   >> ${LOG_DIR}/07_android_package.log"
+echo "=====================================" >> ${LOG_DIR}/07_android_package.log" 
+( unzip -l  ${WORKSPACE}/${AND_ZIP} 2>&1 )   >> ${LOG_DIR}/07_android_package.log"
+
+if  [[ -e ${LOG_DIR}/07_android_package.log ]]
+    then
+    echo "===================================== ${LOG_DIR}/07_android_package.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/07_android_package.log
+fi
+
+echo ============================================ upload ${PKGSTORE}/${AND_ZIP}
+echo        ${WORKSPACE}/${AND_ZIP}
+${PUT_CMD}  ${WORKSPACE}/${AND_ZIP}                      ${PKGSTORE}/${AND_ZIP}
+
 
 echo ============================================ upload logs ${PKGSTORE}/${LOG_DIR_NAME}
 ${PUT_CMD}  ${LOG_DIR}/*.log                                  ${PKGSTORE}/${LOG_DIR_NAME}/
