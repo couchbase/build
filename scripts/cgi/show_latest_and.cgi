@@ -26,7 +26,7 @@ use buildbotReports  qw(:DEFAULT );
 use CGI qw(:standard);
 my  $query = new CGI;
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 
 my $delay = 2 + int rand(5.3);    sleep $delay;
 
