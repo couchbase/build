@@ -31,6 +31,8 @@ my $done_icon = '&nbsp;';
 
 my ($builder, $branch);
 
+my $delay = 1 + int rand(3.3);    sleep $delay;
+
 sub release
     {
     my ($branch_name) = @_;
@@ -88,6 +90,7 @@ sub last_done_build
         $bldnum     = (reverse sort { 0+$a <=> 0+$b } keys %$all_builds)[0];
         $result     = buildbotQuery::get_json($builder, '/'.$bldnum);
         $isgood     = buildbotQuery::is_good_build($result);
+        sleep $delay;
         
         $rev_numb   = release($branch) .'-'. buildbotQuery::get_build_revision($result);
         $bld_date   = buildbotQuery::get_build_date($result);
