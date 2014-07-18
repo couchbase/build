@@ -381,10 +381,10 @@ file  ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}  || exit 99
 cp    ${ANDR_LITESRV_DIR}/release/target/${MVN_ZIP}      ${WORKSPACE}/${AND_ZIP}
 
 echo "=====================================" >> ${LOG_DIR}/07_android_package.log
-( zip -g    ${WORKSPACE}/${AND_ZIP} \
-            LICENSE.txt              \
-            ${WORKSPACE}/${DOCS_ZIP}  \
-            ${WORKSPACE}/${SRC_JAR} 2>&1 )   >> ${LOG_DIR}/07_android_package.log
+cd ${WORKSPACE}
+( zip -g ${AND_ZIP} LICENSE.txt  \
+                    ${DOCS_ZIP}   \
+                    ${SRC_JAR}      2>&1 )   >> ${LOG_DIR}/07_android_package.log
 echo "=====================================" >> ${LOG_DIR}/07_android_package.log
 ( unzip -l  ${WORKSPACE}/${AND_ZIP} 2>&1 )   >> ${LOG_DIR}/07_android_package.log
 
