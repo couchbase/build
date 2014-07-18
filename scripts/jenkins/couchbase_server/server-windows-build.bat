@@ -10,6 +10,12 @@ set VOLTRON_BRANCH=%3
 set MANIFEST=%4
 set LICENSE=%5
 
+if NOT "%MANIFEST:~0,3%" == "toy"  goto :production_manifest
+    rem                          # strip off "toy-" from beginning and ".xml" from end:
+    set OWNER=%MANIFEST:~4,-4%
+    set MANIFEST=toy/%MANIFEST%
+:production_manifest
+
 rem #### set PUT_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini put --no-progress
 rem #### set CHK_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini ls
 rem #### set PKGSTORE="s3://packages.northscale.com/latestbuilds/%RELEASE%/"
@@ -118,7 +124,12 @@ echo ======== package =============================
 ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase_server %BUILD_NUMBER% %LICENSE% %target_platform%
 
 set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\%RELEASE%\%BLD_NUM%
-set PKG_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
+
+if "%MANIFEST:~0,3%" == "toy" (
+    set PKG_NAME=couchbase_server-%OWNER%-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
+) else (
+    set PKG_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
+)
 copy %PKG_SRC%\%PKG_NAME% %WORKSPACE%
 
 rem #### echo ======== upload ==============================
