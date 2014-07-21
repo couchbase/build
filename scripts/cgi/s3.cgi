@@ -19,6 +19,8 @@ BEGIN
     }
 my $installed_URL='http://factory.hq.couchbase.com/cgi/s3.cgi';
 
+my $favicon   = 's3_favicon.png';
+
 $DEFAULT_REPO = 's3://packages.couchbase.com/builds/';
 $S3CMD        = 's3cmd --config=/var/www/.s3cfg';
 
@@ -114,6 +116,9 @@ sub print_HTML_Page
     
     print $query->header;
     print $query->start_html( -title   => $page_title,
+                              -head    => $query -> Link({ -rel  => 'shortcut icon',
+                                                           -href => $favicon,
+                                                           -type => 'image/x-icon'}),
                               -BGCOLOR => $color,
                             );
     print "\n".'<div style="overflow-x: hidden">'."\n".'<table border="0" cellpadding="0" cellspacing="0">'
