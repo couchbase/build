@@ -27,7 +27,7 @@ use buildbotReports  qw(:DEFAULT );
 use CGI qw(:standard);
 my  $cgi_query = new CGI;
 
-my $DEBUG = 0;
+my $DEBUG = 1;
 
 my $delay = 3 + int rand(3.3);    sleep $delay;
 
@@ -91,6 +91,7 @@ else
     }
 
 my ($bldstatus, $bldnum, $jobnum, $rev_numb, $bld_date, $is_running);
+my  $JRDEBUG;
 
 
 #### S T A R T  H E R E 
@@ -98,15 +99,18 @@ my ($bldstatus, $bldnum, $jobnum, $rev_numb, $bld_date, $is_running);
 if ($outcome =~ 'good')
     {
     ($builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_good_query_bld($platform, $branch, $edition);
+    $JRDEBUG = 'last_good_query_bld';
     }
 if ($outcome =~ 'done')
     {
     ($builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_query_bld($platform, $branch, $edition);
+    $JRDEBUG = 'last_done_query_bld';
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 
 if ($DEBUG)  { print STDERR "\nready to start with ($builder, $edition, $outcome)\n"; }
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
+if ($DEBUG)  { print STDERR $JRDEBUG." returns ( $builder, $bldnum, $is_running, $bld_date, $bldstatus )\n"; }
 
 if ($bldnum < 0)
     {
