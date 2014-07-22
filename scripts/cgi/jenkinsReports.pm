@@ -14,12 +14,14 @@ our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( last_done_sgw_trigger  last_done_sgw_package  last_good_sgw_trigger  last_good_sgw_package \
                        last_done_and_ios_bld  last_good_ios_bld      last_done_and_bld      last_good_and_bld     \
+                                                                     last_done_query_bld    last_good_query_bld   \
                        get_builder            link_to_package                                                     \
                        last_done_repo         last_commit_valid      last_done_server                             \
                      );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_trigger  &last_done_sgw_package   &last_good_sgw_trigger  &last_good_sgw_package )],
                      IOS_ANDROID  => [qw( &last_done_and_ios_bld  &last_good_ios_bld       &last_done_and_bld      &last_good_and_bld     )],
+                     QUERY        => [qw( &last_done_query_bld    &last_good_query_bld                                                    )],
                      DEFAULT      => [qw( &get_builder            &link_to_package         \
                                           &last_done_repo         &last_commit_valid       &last_done_server  )],
                    );
@@ -68,8 +70,9 @@ sub get_builder
         }
     if ($type eq 'build')
         {
-        if ($prod eq 'and')  { $builder = "build_cblite_android_".$branch.'-'.$edition; }
-        if ($prod eq 'ios')  { $builder = "build_cblite_ios_".$branch.'-'.$edition;     }
+        if ($prod eq 'and')    { $builder = "build_cblite_android_".$branch.'-'.$edition; }
+        if ($prod eq 'ios')    { $builder = "build_cblite_ios_".$branch.'-'.$edition;     }
+        if ($prod eq 'query')  { $builder = "build_tuqtng_".$branch;                      }
         }
     if ($type eq 'package')
         {
@@ -420,6 +423,29 @@ sub last_good_and_bld
     {
     my ($platform, $branch, $edition) = @_;
     my $builder  = get_builder($platform, $branch, "build", "and");
+    my $property = 'lastSuccessfulBuild';
+    return( $builder,  return_build_info($builder, $property, 'brief') );
+    }
+   
+
+############                        last_done_query_bld ( platform, branch, edition )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status )
+sub last_done_query_bld
+    {
+    my ($platform, $branch, $edition) = @_;
+    my $builder  = get_builder($platform, $branch, "build", "query");
+    my $property = 'lastCompletedBuild';
+    return_build_info($builder, $property);
+    }
+   
+############                        last_good_query_bld ( platform, branch, edition )
+#          
+#                                   returns ( build_num, is_build_running, build_date, status )
+sub last_good_query_bld
+    {
+    my ($platform, $branch, $edition) = @_;
+    my $builder  = get_builder($platform, $branch, "build", "query");
     my $property = 'lastSuccessfulBuild';
     return( $builder,  return_build_info($builder, $property, 'brief') );
     }
