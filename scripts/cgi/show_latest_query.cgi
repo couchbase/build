@@ -110,6 +110,10 @@ $rev_numb = $release{$branch}.'-'.$bldnum;
 
 if ($DEBUG)  { print STDERR "\nready to start with ($builder, $edition, $outcome)\n"; }
 if ($DEBUG)  { print STDERR "according to last_done_build, is_running = $is_running\n"; }
+if ($DEBUG)  { print STDERR $JRDEBUG." returns ( $builder, ...                                         )\n"; }
+if ($DEBUG)  { print STDERR $JRDEBUG." returns ( $builder, $bldnum, ...                                )\n"; }
+if ($DEBUG)  { print STDERR $JRDEBUG." returns ( $builder, $bldnum, $is_running, ...                   )\n"; }
+if ($DEBUG)  { print STDERR $JRDEBUG." returns ( $builder, $bldnum, $is_running, $bld_date, ...        )\n"; }
 if ($DEBUG)  { print STDERR $JRDEBUG." returns ( $builder, $bldnum, $is_running, $bld_date, $bldstatus )\n"; }
 
 if ($bldnum < 0)
