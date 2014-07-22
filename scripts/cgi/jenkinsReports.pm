@@ -436,7 +436,7 @@ sub last_done_query_bld
     my ($platform, $branch, $edition) = @_;
     my $builder  = get_builder($platform, $branch, "build", "query");
     my $property = 'lastCompletedBuild';
-    return_build_info($builder, $property);
+    return( $builder, return_build_info($builder, $property) );
     }
    
 ############                        last_good_query_bld ( platform, branch, edition )
