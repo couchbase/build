@@ -14,8 +14,8 @@ THIS_DIR=`dirname $0`
 function usage
     {
     echo -e "\nuse:  ${0}   platform  build_number\n\nwhere\n"
-    echo -e "   platform      is one of:       centos-6-64, ubuntu-6-64, ...\n"
-    echo -e "   build_number  is of the form:  3.0.0-920\n\n"
+    echo -e "   platform      is one of:       centos-6-x64, ubuntu-1204-x64, windows-x64, ...\n"
+    echo -e "   build_number  is of the form:  3.0.0-999\n\n"
     }
 
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
@@ -30,10 +30,12 @@ CONFIG_SRC=${THIS_DIR}
 AUT_DIR=${WORKSPACE}/testrunner
 CONFIG_DEST=${AUT_DIR}/b/resources/
 
-if [[ $OS_ARCH =~ centos-6-x64 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
-if [[ $OS_ARCH =~ centos-6-x86 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
-if [[ $OS_ARCH =~ ubuntu-6-x64 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
-if [[ $OS_ARCH =~ ubuntu-6-x86 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
+if [[ $OS_ARCH =~ centos-6-x64    ]] ; then CONFIG=${OS_ARCH}.ini ; fi
+if [[ $OS_ARCH =~ ubuntu-1204-x64 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
+if [[ $OS_ARCH =~ windows-x64     ]] ; then CONFIG=${OS_ARCH}.ini ; fi
+
+#if [[ $OS_ARCH =~ centos-6-x86 ]]       ; then CONFIG=${OS_ARCH}.ini ; fi
+#if [[ $OS_ARCH =~ ubuntu-1204-x86 ]] ; then CONFIG=${OS_ARCH}.ini ; fi
 
 if [[ !                  ${CONFIG} ]] ; then echo -e "\n\nUnsupported platform: ${OS_ARCH}\n"               ; usage ; exit 1 ; fi
 if [[ ! -e ${CONFIG_SRC}/${CONFIG} ]] ; then echo -e "\n\nMissing config file:  ${CONFIG_SRC}/${CONFIG}\n"  ; usage ; exit 2 ; fi
