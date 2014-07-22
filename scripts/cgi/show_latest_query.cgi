@@ -101,7 +101,7 @@ if ($outcome =~ 'good')
     }
 if ($outcome =~ 'done')
     {
-    ($builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_query_bld('query', $platform, $branch, $edition);
+    ($builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_query_bld($platform, $branch, $edition);
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 
