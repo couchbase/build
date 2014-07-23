@@ -86,7 +86,7 @@ echo ============================================  build java
 cp  ${JAVA_SRC}/release/*  ${JAVA_SRC}
 cd  ${JAVA_SRC}
 
-echo "********RUNNING: ${JAVA_SRC}/build_artifacts.sh **********************"
+echo "********RUNNING: ${JAVA_SRC}/build_artifacts.sh *******************"
 ( ./build_artifacts.sh 2>&1 )                >> ${LOG_DIR}/00_java_build.log
 
 if  [[ -e ${LOG_DIR}/00_java_build.log ]]
@@ -97,18 +97,16 @@ if  [[ -e ${LOG_DIR}/00_java_build.log ]]
     tail ${LOG_TAIL}                            ${LOG_DIR}/00_java_build.log
 fi
 
-exit 0
-
-echo "********NOT RUNNING: release/upload_artifacts.sh *******************"
-#( ./upload_artifacts.sh 2>&1 )               >> ${LOG_DIR}/02_upload_android_artifacts.log
-# 
-# if  [[ -e ${LOG_DIR}/02_upload_android_artifacts.log ]]
-#     then
-#     echo
-#     echo "===================================== ${LOG_DIR}/02_upload_android_artifacts.log"
-#     echo ". . ."
-#     tail ${LOG_TAIL}                            ${LOG_DIR}/02_upload_android_artifacts.log
-# fi
+echo "*******NOT RUNNING: release/upload_artifacts.sh *******************"
+( ./upload_artifacts.sh 2>&1 )               >> ${LOG_DIR}/02_upload_android_artifacts.log
+ 
+if  [[ -e ${LOG_DIR}/02_upload_android_artifacts.log ]]
+    then
+    echo
+    echo "===================================== ${LOG_DIR}/02_upload_android_artifacts.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/02_upload_android_artifacts.log
+fi
 
 echo ============================================  build java zipfile
 
@@ -116,6 +114,8 @@ if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 
 cd ${JAVA_SRC}/release
 cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
+
+exit 0
 
 MVN_ZIP=couchbase-lite-${REVISION}-java.zip
 JAV_ZIP=couchbase-lite-java-${EDITION}_${REVISION}.zip
