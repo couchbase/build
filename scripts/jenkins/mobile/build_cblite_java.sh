@@ -62,6 +62,7 @@ if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
 JAVA_DIR=${AUT_DIR}/java
 if [[ -e ${JAVA_DIR} ]] ; then rm -rf ${JAVA_DIR} ; fi
 mkdir -p ${JAVA_DIR}
+JAVA_SRC=${JAVA_DIR}/couchbase-lite-java
 
 export MAVEN_LOCAL_REPO=${JAVA_DIR}/release/m2
 
@@ -82,7 +83,7 @@ git show --stat
 
 
 echo ============================================  build java
-cd ${JAVA_DIR}
+cd ${JAVA_SRC}
 
 echo "********RUNNING: release/build_artifacts.sh ********************"
 ( release/build_artifacts.sh 2>&1 )          >> ${LOG_DIR}/00_java_build.log
@@ -112,14 +113,14 @@ echo ============================================  build java zipfile
 
 if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 
-cd ${JAVA_DIR}/release
+cd ${JAVA_SRC}/release
 cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
 
 MVN_ZIP=couchbase-lite-${REVISION}-java.zip
 JAV_ZIP=couchbase-lite-java-${EDITION}_${REVISION}.zip
 
 rm -f                                           ${LOG_DIR}/03_android_package.log
-    ${JAVA_DIR}/release/zip_jars.sh ${REVISION} ${LOG_DIR}/03_android_package.log
+    ${JAVA_SRC}/release/zip_jars.sh ${REVISION} ${LOG_DIR}/03_android_package.log
 
 if  [[ -e ${LOG_DIR}/03_android_package.log ]]
     then
@@ -129,9 +130,9 @@ if  [[ -e ${LOG_DIR}/03_android_package.log ]]
 fi
 
 echo ============================================ upload ${PKGSTORE}/${JAV_ZIP}
-echo  ${JAVA_DIR}/release/target/${MVN_ZIP}
-file  ${JAVA_DIR}/release/target/${MVN_ZIP}  || exit 99
-cp    ${JAVA_DIR}/release/target/${MVN_ZIP}             ${WORKSPACE}/${JAV_ZIP}
+echo  ${JAVA_SRC}/release/target/${MVN_ZIP}
+file  ${JAVA_SRC}/release/target/${MVN_ZIP}  || exit 99
+cp    ${JAVA_SRC}/release/target/${MVN_ZIP}             ${WORKSPACE}/${JAV_ZIP}
 echo        ${WORKSPACE}/${JAV_ZIP}
 ${PUT_CMD}  ${WORKSPACE}/${JAV_ZIP}                      ${PKGSTORE}/${JAV_ZIP}
 
