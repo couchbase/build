@@ -83,9 +83,10 @@ git show --stat
 
 
 echo ============================================  build java
-cd ${JAVA_SRC}/release
+cp  ${JAVA_SRC}/release/*  ${JAVA_SRC}
+cd  ${JAVA_SRC}
 
-echo "********RUNNING: ${JAVA_SRC}/release/build_artifacts.sh **************"
+echo "********RUNNING: ${JAVA_SRC}/build_artifacts.sh **********************"
 ( ./build_artifacts.sh 2>&1 )                >> ${LOG_DIR}/00_java_build.log
 
 if  [[ -e ${LOG_DIR}/00_java_build.log ]]
