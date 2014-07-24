@@ -188,12 +188,18 @@ my %cb_server  = ( "production" => { "windows" => { 32 => { "0.0.0"  =>  "cs_mst
                                                             "300"    =>  "cs_300_win6408",
                                                           },
                                    }              }
+                   "toy"        => { "windows" => { 64 => { "0.0.0"  =>  "toy_mst_win6408",
+                                                            "master" =>  "toy_mst_win6408", 
+                                                            "3.0.0"  =>  "toy_300_win6408",
+                                                            "300"    =>  "toy_300_win6408",
+                                                          },
+                                   },
                  );
 sub get_server_builder
     {
     my ($os, $arch, $branch, $toy) = @_;
     
-    my $type = 'production';             if (defined($toy))  { print STDERR "TOY builds not supported yet"; return(0); }
+    my $type = 'production';    if (defined($toy))  { $type = 'toy'; }
     
     if (! defined( $cb_server{$type}{$os}                 ))  { print STDERR "OS $os not supported by get_server_builder()\n"; return(0); }
     if (! defined( $cb_server{$type}{$os}{$arch}          ))  { print STDERR "$os $arch-bit is not supported by get_server_builder()\n"; return(0); }

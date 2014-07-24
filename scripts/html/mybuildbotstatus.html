@@ -20,9 +20,18 @@
       
       function showFram(platform, branch)
          {
-         document.write( "<iframe src='http://factory.hq.couchbase.com/cgi/show_latest_build.cgi?platform="
-                         + platform+'&branch='+branch+'&toy='+getParam("owner")+"'"+' height="35" width="100%" frameborder="1" scrolling="auto"></iframe>');
+         document.write( "<iframe src='http://factory.hq.couchbase.com/cgi/show_latest_build.cgi"
+                         +"?platform=" +platform+ '&branch=' +branch+ '&toy=' + getParam("owner")+"'"
+                         +' height="35" width="100%" frameborder="1" scrolling="auto"></iframe>');
          }
+      
+      function showJnks(os, arch, branch)
+         {
+         document.write( "<iframe src='http://factory.hq.couchbase.com/cgi/show_latest_server.cgi"
+                         +"?os=" +os+ '&arch=' +arch+ '&branch=3.0.0'+ '&toy=' + getParam("owner")+"'"
+                         +' height="35" width="100%" frameborder="1" scrolling="auto"></iframe>');
+         }
+      
       function called_with()
          {
          document.write( "&nbsp;&nbsp;<I>called with:&nbsp;&nbsp;</I>" );
@@ -78,8 +87,8 @@
     </tr>
     <tr><td>windows-64</td>
         <td>&nbsp;</td>
-        <td><script language="JavaScript">showFram("win64","master");</script></td>
-        <td><script language="JavaScript">showFram("win64", "3.0.0");</script></td>
+        <td><script language="JavaScript">showJnks("windows", "64","master");</script></td>
+        <td><script language="JavaScript">showJnks("windows", "64", "3.0.0");</script></td>
         <!--
         <td><script language="JavaScript">showFram("win64", "2.5.2");</script></td>
         -->

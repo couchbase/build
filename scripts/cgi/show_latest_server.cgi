@@ -12,7 +12,7 @@ use warnings;
 #use strict;
 $|++;
 
-my $DEBUG = 0;
+my $DEBUG = 1;
 
 
 use File::Basename;
@@ -54,16 +54,23 @@ my $usage = "ERROR: must specify 'os', 'arch', and 'branch' parameters\n\n"
            ."</PRE><BR>"
            ."\n\n";
 
-my ($jenkins_builder, $os, $arch, $branch);
+my ($jenkins_builder, $os, $arch, $branch, $owner);
 
 if ( $query->param('branch') && $query->param('os') && $query->param('arch')  )
     {
-    $os      = $query->param('os');
-    $arch    = $query->param('arch');
-    $branch  = $query->param('branch');
-    if ($DEBUG)                { print STDERR "called with ( $os, $arch, $branch)\n"; }
-    $jenkins_builder  =    jenkinsQuery::get_server_builder( $os, $arch, $branch );
-    if ($DEBUG)                { print STDERR "\nready to start with: $jenkins_builder\n"; }
+    $os      =   $query->param('os');
+    $arch    =   $query->param('arch');
+    $branch  =   $query->param('branch');
+    
+    if  (        $query->param('toy') )
+        {
+        $owner = $query->param('toy'); 
+        if ($DEBUG)  { print STDERR "called with ( $os, $arch, $branch, $owner)\n"; }
+        }
+    else
+        {
+        if ($DEBUG)  { print STDERR "called with ( $os, $arch, $branch)\n"; }
+        }
     }
 else
     {
@@ -82,9 +89,18 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 ########   S T A R T   H E R E 
 
 
-print STDERR "calling  jenkinsReports::last_done_server(".$os.", ".$arch.", ".$branch." )";
 
-($bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_server($os, $arch, $branch);
+if (defined($owner))
+    {
+    my $mfst = 'toy-' +$owner+ '.xml';
+    if ($DEBUG)  { print STDERR "calling  jenkinsReports::last_done_toy_server(".$os.", ".$arch.", ".$branch.", ".$mfst." )"; }
+    ($jenkins_builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_toy_server($os, $arch, $branch, $mfst); }
+else
+    {
+    if ($DEBUG)  { print STDERR "calling  jenkinsReports::last_done_server(".$os.", ".$arch.", ".$branch." )"; }
+    ($jenkins_builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_server(  $os, $arch, $branch );
+    }
+if ($DEBUG)                { print STDERR "\nready to start with: $jenkins_builder\n"; }
 print STDERR "according to last_done_build, is_running = $is_running\n";
 
 my ($jenkins_color, $jenkins_row);
