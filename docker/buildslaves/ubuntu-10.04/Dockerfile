@@ -8,17 +8,13 @@ MAINTAINER ceej@couchbase.com
 
 USER root
 
-# QQQ These really should be in the naked-ubuntu base image
-ADD sources.list /etc/apt/sources.list
-RUN mkdir /var/lib/apt/lists/partial; apt-get update
-
 # Install SSH server
 RUN apt-get install -y openssh-server; mkdir /var/run/sshd
 
 # Create user to login, and give access to /opt/couchbase
 RUN useradd buildbot -G sudo -m -s /bin/bash; \
     mkdir -p /opt/couchbase; chown -R buildbot:buildbot /opt/couchbase
-ADD .ssh /home/buildbot
+ADD .ssh /home/buildbot/.ssh
 RUN chown -R buildbot:buildbot /home/buildbot/.ssh; chmod 700 /home/buildbot/.ssh
 
 # Expose and start SSH daemon

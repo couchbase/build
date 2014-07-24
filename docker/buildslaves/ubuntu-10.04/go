@@ -1,8 +1,8 @@
 #!/bin/sh
 
-if ! test -e .ssh/id_rsa
+if ! test -e .ssh/id_dsa
 then
-    echo "Please copy buildbot's github SSH key to .ssh/id_rsa"
+    echo "Please copy buildbot's github SSH key to .ssh/id_dsa"
     exit 1
 fi
 docker build --rm -t couchbase/ubuntu1004_builder .
