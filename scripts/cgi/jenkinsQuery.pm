@@ -187,13 +187,13 @@ my %cb_server  = ( "production" => { "windows" => { 32 => { "0.0.0"  =>  "cs_mst
                                                             "3.0.0"  =>  "cs_300_win6408",
                                                             "300"    =>  "cs_300_win6408",
                                                           },
-                                   }              }
+                                   }              },
                    "toy"        => { "windows" => { 64 => { "0.0.0"  =>  "toy_mst_win6408",
                                                             "master" =>  "toy_mst_win6408", 
                                                             "3.0.0"  =>  "toy_300_win6408",
                                                             "300"    =>  "toy_300_win6408",
                                                           },
-                                   },
+                                   }              },
                  );
 sub get_server_builder
     {
