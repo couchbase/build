@@ -14,9 +14,9 @@ RUN apt-get install -y openssh-server; mkdir /var/run/sshd
 # Create buildbot user with password-less sudo privs, and give 
 # ownership of /opt/couchbase
 RUN useradd buildbot -G sudo -m -s /bin/bash; \
-    mkdir -p /opt/couchbase; chown -R buildbot:buildbot /opt/couchbase
-echo 'buildbot:buildbot' | chpasswd
-RUN sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
+    mkdir -p /opt/couchbase; chown -R buildbot:buildbot /opt/couchbase; \
+    echo 'buildbot:buildbot' | chpasswd; \
+    sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 ADD .ssh /home/buildbot/.ssh
 RUN chown -R buildbot:buildbot /home/buildbot/.ssh; chmod 700 /home/buildbot/.ssh
 
