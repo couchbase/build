@@ -36,6 +36,12 @@ my  $query = new CGI;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
+my %release = ( 'master'   => '0.0.0',
+                '000'      => '0.0.0',
+                '3.0.0'    => '3.0.0',
+                '300'      => '3.0.0',
+              );
+
 my $timestamp = "";
 sub get_timestamp
     {
@@ -100,6 +106,8 @@ else
     if ($DEBUG)  { print STDERR "calling  jenkinsReports::last_done_server(".$os.", ".$arch.", ".$branch." )"; }
     ($jenkins_builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_server(  $os, $arch, $branch );
     }
+$rev_numb = $release{$branch}.'-'.$bldnum;
+
 if ($DEBUG)                { print STDERR "\nready to start with: $jenkins_builder\n"; }
 print STDERR "according to last_done_build, is_running = $is_running\n";
 
