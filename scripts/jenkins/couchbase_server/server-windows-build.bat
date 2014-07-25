@@ -126,22 +126,23 @@ git pull origin %VOLTRON_BRANCH%
 echo ======== package =============================
 ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase_server %BUILD_NUMBER% %LICENSE% %target_platform%
 
-set PKG_SRC=%WORKSPACE%\voltron\couchbase_server\%RELEASE%\%BLD_NUM%
+set PKG_SRC_DIR=%WORKSPACE%\voltron\couchbase_server\%RELEASE%\%BLD_NUM%
+set PKG_SRC_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
 
 if "%MANIFEST:~0,3%" == "toy" (
-    set PKG_NAME=couchbase_server-%OWNER%-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
+    set PKG_DEST_NAME=couchbase_server-%OWNER%-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
 ) else (
-    set PKG_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
+    set PKG_DEST_NAME=%PKG_SRC_NAME%
 )
-copy %PKG_SRC%\%PKG_NAME% %WORKSPACE%
+copy %PKG_SRC_DIR%\%PKG_SRC_NAME% %WORKSPACE%\%PKG_DEST_NAME%
 
 rem #### echo ======== upload ==============================
 rem #### :upload_to_s3
-rem #### echo %PUT_CMD% %WORKSPACE%\%PKG_NAME% %PKGSTORE%/%PKG_NAME%
-rem ####      %PUT_CMD% %WORKSPACE%\%PKG_NAME% %PKGSTORE%/%PKG_NAME%
+rem #### echo %PUT_CMD% %WORKSPACE%\%PKG_DEST_NAME% %PKGSTORE%/%PKG_DEST_NAME%
+rem ####      %PUT_CMD% %WORKSPACE%\%PKG_DEST_NAME% %PKGSTORE%/%PKG_DEST_NAME%
 rem #### 
-rem #### echo %CHK_CMD% %PKGSTORE%/%PKG_NAME%
-rem ####      %CHK_CMD% %PKGSTORE%/%PKG_NAME%
+rem #### echo %CHK_CMD% %PKGSTORE%/%PKG_DEST_NAME%
+rem ####      %CHK_CMD% %PKGSTORE%/%PKG_DEST_NAME%
 
 echo ============================================== %DATE%
 :eof
