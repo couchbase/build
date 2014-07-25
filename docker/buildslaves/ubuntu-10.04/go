@@ -5,4 +5,9 @@ then
     echo "Please copy buildbot's github SSH key to .ssh/id_dsa"
     exit 1
 fi
-docker build --rm -t couchbase/ubuntu1004_builder .
+if ! test -e .s3cfg
+then
+    echo "Please copy buildbot's .s3cfg to .s3cfg"
+    exit 1
+fi
+docker build --rm -t ceejatec/ubuntu-1004-couchbase-builddocker .
