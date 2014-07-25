@@ -92,7 +92,7 @@ my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
 
 if (defined($owner))
     {
-    my $mfst = 'toy-' +$owner+ '.xml';
+    my $mfst = 'toy-'. $owner .'.xml';
     if ($DEBUG)  { print STDERR "calling  jenkinsReports::last_done_toy_server(".$os.", ".$arch.", ".$branch.", ".$mfst." )"; }
     ($jenkins_builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_toy_server($os, $arch, $branch, $mfst); }
 else
