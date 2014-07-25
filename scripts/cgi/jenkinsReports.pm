@@ -591,7 +591,7 @@ sub last_commit_valid
 
 ############                        last_done_server ( <os>, <arch>, <branch> )
 #          
-#                                   returns ( build_num, is_build_running, build_date, status )
+#                                   returns ( builder, build_num, is_build_running, build_date, status )
 #          
 sub last_done_server
     {
@@ -599,7 +599,7 @@ sub last_done_server
     
     my $builder  = jenkinsQuery::get_server_builder($os, $arch, $branch);
     my $property = 'lastCompletedBuild';
-    return_build_info($builder, $property);
+    return($builder, return_build_info($builder, $property) );
     }
 
 
