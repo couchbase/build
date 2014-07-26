@@ -9,7 +9,9 @@ MAINTAINER ceej@couchbase.com
 USER root
 
 # Install SSH server
-RUN apt-get install -y openssh-server; mkdir /var/run/sshd
+RUN apt-get install -y openssh-server; \
+    rm -f /var/cache/apt/archives/*.deb; \
+    mkdir /var/run/sshd
 
 # Create buildbot user with password-less sudo privs, and give 
 # ownership of /opt/couchbase
@@ -25,14 +27,17 @@ EXPOSE 22
 CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase build dependencies
-RUN apt-get install -y g++ git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386
+RUN apt-get install -y g++ ccache git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386; \
+    rm -f /var/cache/apt/archives/*.deb
+RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/buildbot/.profile
 RUN mkdir /tmp/deploy; \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh; \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local; \
     cd /tmp && rm -rf /tmp/deploy
 
 # Install third-party build dependencies
-RUN apt-get install -y m4
+RUN apt-get install -y m4; \
+    rm -f /var/cache/apt/archives/*.deb
 RUN mkdir /tmp/deploy; \
     curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz; \
     cd /tmp/deploy; tar -xzf autoconf-2.69.tar.gz; \
@@ -47,6 +52,7 @@ RUN mkdir /tmp/deploy; \
 
 # Install requirements for buildbot
 RUN apt-get install -y python-setuptools python-dateutil; \
+    rm -f /var/cache/apt/archives/*.deb; \
     easy_install buildbot_slave; \
     mkdir /home/buildbot/buildbot_slave; \
     buildslave create-slave /home/buildbot/buildbot_slave 10.1.1.210:9999 ubuntu-1004-builddocker-01 ubuntu-1004-builddocker-01; \
@@ -59,6 +65,7 @@ RUN mkdir /tmp/deploy; \
     python setup.py build && python setup.py install; \
     cd /tmp && rm -rf /tmp/deploy
 ADD .s3cfg /home/buildbot/.s3cfg
+RUN chown buildbot:buildbot /home/buildbot/.s3cfg
 
 # Override default command for buildbot purposes
 CMD su - buildbot -c "buildslave start /home/buildbot/buildbot_slave"; /usr/sbin/sshd -D
