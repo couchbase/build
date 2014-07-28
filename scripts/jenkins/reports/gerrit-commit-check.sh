@@ -49,7 +49,7 @@ do
 
         # See if commit's SHA1 is in log
         problem=0
-        git --git-dir="$project/.git" log -1 $sha || problem=1 > /dev/null
+        git --git-dir="$project/.git" log -1 $sha > /dev/null || problem=1
         if [ $problem != 0 ]
         then
             # See if we already know about this problem
