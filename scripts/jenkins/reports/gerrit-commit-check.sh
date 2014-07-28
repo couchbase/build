@@ -22,7 +22,8 @@ else
         (
             echo "Updating local $repo repo..."
             cd $repo
-            git pull
+            git fetch
+            git reset --hard origin/master
         )
     done
 fi
