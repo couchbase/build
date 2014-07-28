@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -ex
 
 # Grab details about changes from database
 # QQQ Should remove this id_Ceej stuff somehow...
