@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 # Grab details about changes from database
 # QQQ Should remove this id_Ceej stuff somehow...
@@ -48,12 +48,15 @@ do
         fi
 
         # See if commit's SHA1 is in log
-        git --git-dir="$project/.git" log -1 $sha > /dev/null
-        if [ $? != 0 ]
+        problem=0
+        git --git-dir="$project/.git" log -1 $sha || problem=1 > /dev/null
+        if [ $problem != 0 ]
         then
             # See if we already know about this problem
-            grep -q "$change" ../known_problems.txt
-            if [ $? != 0 ]
+            echo Potential problem with $sha...
+            known=0
+            grep -q "$change" ../known_problems.txt || known=1
+            if [ $known != 0 ]
             then
                 echo "<b>$owner</b>: <a href=\"http://review.couchbase.org/#/c/$change/\">change $change</a> -- <i>$project</i> is missing $sha !<br>" | tee --append ../missing_merges.html | tee --append ../new_missing_merges.html
                 echo "$change" >> ../known_problems.txt
