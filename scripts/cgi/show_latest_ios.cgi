@@ -21,6 +21,7 @@ my $installed_URL='http://factory.hq.couchbase.com/cgi/show_latest_ios.cgi';
 
 use jenkinsQuery     qw(:DEFAULT );
 use jenkinsReports   qw(:DEFAULT );
+use jenkinsReports   qw(:MOBILE  );
 use buildbotReports  qw(:DEFAULT );
 
 use CGI qw(:standard);
@@ -100,7 +101,7 @@ if ($outcome =~ 'good')
     }
 if ($outcome =~ 'done')
     {
-    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_and_ios_bld('ios', $platform, $branch, $edition);
+    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_mobile_bld('ios', $platform, $branch, $edition);
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 

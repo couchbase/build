@@ -19,10 +19,10 @@ BEGIN
     }
 my $installed_URL='http://factory.hq.couchbase.com/cgi/show_latest_java.cgi';
 
-use jenkinsQuery     qw(:DEFAULT     );
-use jenkinsReports   qw(:DEFAULT     );
-use jenkinsReports   qw(:MOBILE_JAVA );
-use buildbotReports  qw(:DEFAULT     );
+use jenkinsQuery     qw(:DEFAULT );
+use jenkinsReports   qw(:DEFAULT );
+use jenkinsReports   qw(:MOBILE  );
+use buildbotReports  qw(:DEFAULT );
 
 use CGI qw(:standard);
 my  $query = new CGI;
@@ -101,7 +101,7 @@ if ($outcome =~ 'good')
     }
 if ($outcome =~ 'done')
     {
-    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_java_bld($platform, $branch, $edition);
+    ($builder, $bldnum, $jobnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_mobile_bld('java', $platform, $branch, $edition);
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 

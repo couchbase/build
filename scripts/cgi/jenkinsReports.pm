@@ -13,14 +13,14 @@ our $VERSION     = 1.00;
 our @ISA         = qw(Exporter);
 our @EXPORT      = ();
 our @EXPORT_OK   = qw( last_done_sgw_trigger  last_done_sgw_package  last_good_sgw_trigger  last_good_sgw_package \
-                       last_done_and_ios_bld  last_good_ios_bld      last_done_and_bld      last_good_and_bld     \
+                       last_done_mobile_bld   last_good_ios_bld      last_done_and_bld      last_good_and_bld     \
                        last_done_query_bld    last_good_query_bld    last_done_java_bld     last_good_java_bld    \
                        get_builder            link_to_package                                                     \
                        last_done_repo         last_commit_valid      last_done_server       last_done_toy_server  \
                      );
 
 our %EXPORT_TAGS = ( SYNC_GATEWAY => [qw( &last_done_sgw_trigger  &last_done_sgw_package   &last_good_sgw_trigger  &last_good_sgw_package )],
-                     IOS_ANDROID  => [qw( &last_done_and_ios_bld  &last_good_ios_bld       &last_done_and_bld      &last_good_and_bld     )],
+                     MOBILE       => [qw( &last_done_mobile_bld   &last_good_ios_bld       &last_done_and_bld      &last_good_and_bld     )],
                      QUERY        => [qw( &last_done_query_bld    &last_good_query_bld                                                    )],
                      MOBILE_JAVA  => [qw( &last_done_java_bld     &last_good_java_bld                                                     )],
                      DEFAULT      => [qw( &get_builder            &link_to_package         \
@@ -288,10 +288,10 @@ sub last_good_sgw_trigger
    
 
 
-############                        last_done_and_ios_bld ( product ('and'/'ios'), platform, branch, edition )
+############                        last_done_mobile_bld ( product ('and'/'ios'/'java'), platform, branch, edition )
 #          
 #                                   returns ( builder, build_num, job_number, is_build_running, build_date, status )
-sub last_done_and_ios_bld
+sub last_done_mobile_bld
     {
     my ($product, $platform, $branch, $edition) = @_;
     my ($builder, $bld_num, $job_num, $is_running, $bld_date, $isgood);
