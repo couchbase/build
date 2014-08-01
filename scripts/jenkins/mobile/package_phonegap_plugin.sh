@@ -114,6 +114,7 @@ cd ${PHONE_DIR}
 echo ======== build ==========================================
 cp -r src  ${STAGE_DIR}/src
 cp -r www  ${STAGE_DIR}/www
+mv ${STAGE_DIR}/src/README.md ${STAGE_DIR}
 
 /usr/local/bin/node  prepare_plugin.js  ${STAGE_DIR}
 
