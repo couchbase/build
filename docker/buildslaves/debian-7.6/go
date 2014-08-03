@@ -10,4 +10,4 @@ then
     echo "Please copy buildbot's .s3cfg to .s3cfg"
     exit 1
 fi
-docker build --rm -t ceejatec/ubuntu-1004-couchbase-builddocker .
+docker build --rm -t ceejatec/debian-7-couchbase-builddocker .
