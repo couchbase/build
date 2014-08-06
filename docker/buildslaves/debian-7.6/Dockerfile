@@ -75,4 +75,4 @@ ADD .s3cfg /home/buildbot/.s3cfg
 RUN chown buildbot:buildbot /home/buildbot/.s3cfg
 
 # Override default command for buildbot purposes
-CMD su - buildbot -c "buildslave start /home/buildbot/buildbot_slave" && /usr/sbin/sshd -D
+CMD su - buildbot -c "buildslave start /home/buildbot/buildbot_slave"; /usr/sbin/sshd -D
