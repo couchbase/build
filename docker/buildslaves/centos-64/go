@@ -1,3 +1,13 @@
 #!/bin/sh
 
-docker build --rm -t couchbase/centos64_builder .
+if ! test -e .ssh/id_dsa
+then
+    echo "Please copy buildbot's github SSH key to .ssh/id_dsa"
+    exit 1
+fi
+if ! test -e .s3cfg
+then
+    echo "Please copy buildbot's .s3cfg to .s3cfg"
+    exit 1
+fi
+docker build --rm -t ceejatec/centos-64-couchbase-builddocker .
