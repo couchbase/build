@@ -156,7 +156,9 @@ git submodule init
 git submodule update
 git show --stat
 
-if [[ ! -d ${STAGING}/bin/ ]] ; then mkdir -p ${STAGING}/bin/ ; fi
+if [[ ! -d ${STAGING}/bin/      ]] ; then mkdir -p ${STAGING}/bin/      ; fi
+if [[ ! -d ${STAGING}/examples/ ]] ; then mkdir -p ${STAGING}/examples/ ; fi
+if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
 
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
@@ -214,10 +216,13 @@ echo ........................ running test.sh
                                 ./test.sh
 
 echo ======== package =============================
-cp ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
-cp ${BLD_DIR}/README.txt              ${STAGING}
-echo ${VERSION}                     > ${STAGING}/VERSION.txt
-cp ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
+cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
+cp    ${BLD_DIR}/README.txt              ${STAGING}
+echo  ${VERSION}                       > ${STAGING}/VERSION.txt
+cp    ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
+cp    ${SGW_DIR}/README.md               ${STAGING}
+cp -r ${SGW_DIR}/examples                ${STAGING}
+cp -r ${SGW_DIR}/service                 ${STAGING}
 
 echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PLATFORM} ${ARCHP}

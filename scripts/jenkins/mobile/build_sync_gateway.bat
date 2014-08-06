@@ -104,7 +104,9 @@ git submodule init
 git submodule update
 git show --stat
 
-if NOT EXIST %STAGING%\bin\  mkdir %STAGING%\bin\
+if NOT EXIST %STAGING%\bin       mkdir %STAGING%\bin
+if NOT EXIST %STAGING%\examples  mkdir %STAGING%\examples
+if NOT EXIST %STAGING%\service   mkdir %STAGING%\service
 
 set  REPO_FILE=%WORKSPACE%\revision.bat
 git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
@@ -162,11 +164,15 @@ echo ................... running tests from test.sh
     go test    ./...
 
 echo ======== package =============================
-copy %DEST_DIR%\%EXEC%                 %STAGING%\bin\
-copy %BLD_DIR%\README.txt              %STAGING%\README.txt
-echo %VERSION%                       > %STAGING%\VERSION.txt
-copy %LIC_DIR%\LICENSE_%EDITION%.txt   %STAGING%\LICENSE.txt
-copy %LIC_DIR%\LICENSE_%EDITION%.rtf   %STAGING%\LICENSE.rtf
+copy  %DEST_DIR%\%EXEC%                 %STAGING%\bin\
+copy  %BLD_DIR%\README.txt              %STAGING%\README.txt
+echo  %VERSION%                       > %STAGING%\VERSION.txt
+copy  %LIC_DIR%\LICENSE_%EDITION%.txt   %STAGING%\LICENSE.txt
+copy  %LIC_DIR%\LICENSE_%EDITION%.rtf   %STAGING%\LICENSE.rtf
+
+copy     %SGW_DIR%\README.md            %STAGING%\README.md
+xcopy /s %SGW_DIR%\examples             %STAGING%\examples
+xcopy /s %SGW_DIR%\service              %STAGING%\service
 
 unix2dos  %STAGING%\README.txt
 unix2dos  %STAGING%\VERSION.txt
