@@ -8,9 +8,6 @@ MAINTAINER ceej@couchbase.com
 
 USER root
 
-# QQQ Move to naked-debian
-RUN apt-get update
-
 # Install SSH server
 RUN apt-get install -y openssh-server sudo; \
     rm -f /var/cache/apt/archives/*.deb; \
