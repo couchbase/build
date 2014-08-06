@@ -29,8 +29,11 @@ RUN chown -R buildbot:buildbot /home/buildbot/.ssh; chmod 700 /home/buildbot/.ss
 EXPOSE 22
 CMD [ "/usr/sbin/sshd", "-D" ]
 
-# Install Couchbase build dependencies
-RUN apt-get install -y g++ ccache git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386; \
+# Install Couchbase build dependencies.
+# Note: lsb-release currently required for "cbdeps" third-party build
+# mechanism, but we hope to remove that requirement as it brings in
+# a lot of unnecessary packages.
+RUN apt-get install -y g++ ccache git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 lsb-release; \
     rm -f /var/cache/apt/archives/*.deb
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/buildbot/.profile
 RUN mkdir /tmp/deploy; \
@@ -38,9 +41,13 @@ RUN mkdir /tmp/deploy; \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local; \
     cd /tmp && rm -rf /tmp/deploy
 
-# Install third-party build dependencies
-RUN apt-get install -y m4; \
+# Install third-party build dependencies (python 2.6 can hopefully be removed
+# in future)
+RUN apt-get install -y m4 python2.6 python2.6-dev; \
     rm -f /var/cache/apt/archives/*.deb
+
+# Install autoconf and friends - necessary for building some third-party deps
+# from source, not for Couchbase.
 RUN mkdir /tmp/deploy; \
     curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz; \
     cd /tmp/deploy; tar -xzf autoconf-2.69.tar.gz; \
