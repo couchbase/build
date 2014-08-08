@@ -89,7 +89,7 @@ echo ============================================ [  3 ]  git pull voltron
 cd ${SVR_DIR}
 echo ============================================  sync voltron
 echo ============================================  to ${GITSPEC}
-if [[ ! -d ${VLT_DIR} ]] ; then git clone https://github.com/couchbase/voltron.git ${VLT_DIR}; fi
+if [[ ! -d ${VLT_DIR} ]] ; then git clone git://10.1.1.210/voltron.git ${VLT_DIR}; fi
 pushd      ${VLT_DIR} 2>&1 > /dev/null
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
