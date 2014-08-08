@@ -89,7 +89,7 @@ echo ============================================ [  3 ]  git pull voltron
 cd ${SVR_DIR}
 echo ============================================  sync voltron
 echo ============================================  to ${GITSPEC}
-if [[ ! -d ${VLT_DIR} ]] ; then git clone https://github.com/couchbase/voltron.git ${VLT_DIR}; fi
+if [[ ! -d ${VLT_DIR} ]] ; then git clone http://github.com/couchbase/voltron.git ${VLT_DIR}; fi
 pushd      ${VLT_DIR} 2>&1 > /dev/null
 git checkout      ${GITSPEC}
 git pull  origin  ${GITSPEC}
@@ -103,7 +103,7 @@ echo ============================================ [  5 ]  create grommit link
 if test ! -e ${GROMMIT_SYM} ; then ln -s ${GROMMIT_DIR} ${GROMMIT_SYM} ; fi
 
 echo ============================================ [  6 ]  manifest master fetch
-if [[ ! -d ${MFS_DIR} ]] ; then git clone https://github.com/couchbase/manifest.git ${MFS_DIR}; fi
+if [[ ! -d ${MFS_DIR} ]] ; then git clone http://github.com/couchbase/manifest.git ${MFS_DIR}; fi
 pushd      ${MFS_DIR} 2>&1 > /dev/null
 git checkout      master
 git pull  origin  master
