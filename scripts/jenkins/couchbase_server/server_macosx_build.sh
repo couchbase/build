@@ -146,7 +146,7 @@ make clean
 popd                  2>&1 > /dev/null
 
 echo ============================================ [ 12 ]  rm dep-* packages 
-pushd      ${BLD_DIR} 2>&1 > /dev/null
+pushd      ${SVR_DIR} 2>&1 > /dev/null
 rm -rf dep-*.tar.gz
 echo ============================================ [ 13 ]  rm -rf rpms and debs 
 popd                  2>&1 > /dev/null
