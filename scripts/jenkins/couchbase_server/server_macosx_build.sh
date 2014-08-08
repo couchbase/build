@@ -62,13 +62,11 @@ SVR_DIR=${AUT_DIR}/couchbase-server
 GRM_SYM=${SVR_DIR}/grommit
 MFS_DIR=${SVR_DIR}/manifest
 
-BLD_DIR=${SVR_DIR}/build
-VLT_DIR=${BLD_DIR}/build
+VLT_DIR=${SVR_DIR}/build
 TLM_DIR=${VLT_DIR}/build
 
 if [[ -e ${SVR_DIR} ]] ; then rm -rf ${SVR_DIR} ; fi
 mkdir -p ${SVR_DIR}
-mkdir -p ${BLD_DIR}
 
 CHANGES_LIST=CHANGES_couchbase-server-${REVISION}-rel.txt
 EMITTED_MFST=couchbase-server-${REVISION}-rel-manifest.xml
