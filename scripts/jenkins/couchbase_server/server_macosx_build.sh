@@ -52,8 +52,8 @@ PKGSTORE=s3://packages.northscale.com/latestbuilds/couchbase_server/${VERSION}/$
 PUT_CMD="s3cmd put -P"
 
 
-WORKSPACE=/Users/jenkins/jenkins/workspace
-GRM_DIR=${WORKSPACE}/grommit
+WS_PARENT=/Users/jenkins/jenkins/workspace
+GRM_DIR=${WS_PARENT}/grommit
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
