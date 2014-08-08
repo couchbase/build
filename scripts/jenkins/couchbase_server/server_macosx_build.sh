@@ -168,7 +168,8 @@ echo "********RUNNING: make package-mac  *******************"
            package-mac                      \
            PRODUCT_VERSION=${REVISION}-rel  \
            OPENSSL=0.9.8                    \
-      #    USER=buildbot            2>&1 )  >>  ${LOG_DIR}/00_make_package_mac.log
+      #    USER=buildbot                    \
+                                    2>&1 )  >>  ${LOG_DIR}/00_make_package_mac.log
 
 if  [[ -e ${LOG_DIR}/00_make_package_mac.log ]]
     then
