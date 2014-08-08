@@ -99,7 +99,7 @@ git show --stat
 popd                  2>&1 > /dev/null
 
 echo ============================================ [  5 ]  create grommit link
-if test ! -e ${GROMMIT_SYM} ; then ln -s ${GROMMIT_DIR} ${GROMMIT_SYM} ; fi
+if [[ ! -e ${GROMMIT_SYM} ]] ; then ln -s ${GROMMIT_DIR} ${GROMMIT_SYM} ; fi
 
 echo ============================================ [  6 ]  manifest master fetch
 if [[ ! -d ${MFS_DIR} ]] ; then git clone https://github.com/couchbase/manifest.git ${MFS_DIR}; fi
@@ -114,10 +114,14 @@ pushd      ${VLT_DIR} 2>&1 > /dev/null
 VOLTRON_SHA=`git log -1 | grep commit | awk '{print $2}' | head -1`
 popd                  2>&1 > /dev/null
 
-echo ============================================ [  8 ]  download
-pushd      ${MFS_DIR} 2>&1 > /dev/null
-${GET_CMD}/${MFSFILE} 
-popd                  2>&1 > /dev/null
+if [[ ${MFSFILE} == current.xml ]]
+    then
+    MFS_FILE=couchbase-server_${REVISION}.manifest.xml
+    echo ============================================ [  8 ]  download
+    pushd      ${MFS_DIR} 2>&1 > /dev/null
+    ${GET_CMD}/${VERSION}/${REVISION}/${MFSFILE} 
+    popd                  2>&1 > /dev/null
+fi
 
 echo ============================================ [  9 ]  manifest-fetch
 pushd      ${VLT_DIR} 2>&1 > /dev/null
