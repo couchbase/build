@@ -46,7 +46,7 @@ if [[ -e ${LOG_DIR} ]] ; then rm -rf ${LOG_DIR} ; fi
 mkdir -p ${LOG_DIR}
 
 LATEST=http://latestbuilds.hq.couchbase.com/
-GET_CMD="wget ${LATEST}"
+GET_CMD="curl ${LATEST}"
 
 PKGSTORE=s3://packages.northscale.com/latestbuilds/couchbase_server/${VERSION}/${REVISION}
 PUT_CMD="s3cmd put -P"
