@@ -52,8 +52,8 @@ PKGSTORE=s3://packages.northscale.com/latestbuilds/couchbase_server/${VERSION}/$
 PUT_CMD="s3cmd put -P"
 
 
-BLDBOT_HOME=/home/buildbot/buildbot_slave
-GRM_DIR=${BLDBOT_HOME}/grommit
+WORKSPACE=/Users/jenkins/jenkins/workspace
+GRM_DIR=${WORKSPACE}/grommit
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
