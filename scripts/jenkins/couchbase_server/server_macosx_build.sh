@@ -60,9 +60,11 @@ if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
 
 SVR_DIR=${AUT_DIR}/couchbase-server
 GRM_SYM=${SVR_DIR}/grommit
+MFS_DIR=${SVR_DIR}/manifest
+
 BLD_DIR=${SVR_DIR}/build
 VLT_DIR=${BLD_DIR}/build
-MFS_DIR=${SVR_DIR}/manifest
+TLM_DIR=${VLT_DIR}/build
 
 if [[ -e ${SVR_DIR} ]] ; then rm -rf ${SVR_DIR} ; fi
 mkdir -p ${SVR_DIR}
@@ -130,10 +132,10 @@ repo sync --jobs=4
 popd                  2>&1 > /dev/null
 
 echo ============================================ [ 10 ]  make clean 
-pushd      ${VLT_DIR} 2>&1 > /dev/null
+pushd      ${TLM_DIR} 2>&1 > /dev/null
 make clean-all
 echo ============================================ [ 11 ]  clean couchdbx-app
-cd         ${VLT_DIR}/couchdbx-app
+cd         ${TLM_DIR}/couchdbx-app
 git  clean -dfx
 make clean
 popd                  2>&1 > /dev/null
