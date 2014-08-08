@@ -67,7 +67,6 @@ MFS_DIR=${SVR_DIR}/manifest
 if [[ -e ${SVR_DIR} ]] ; then rm -rf ${SVR_DIR} ; fi
 mkdir -p ${SVR_DIR}
 mkdir -p ${BLD_DIR}
-mkdir -p ${MFS_DIR}
 
 CHANGES_LIST=CHANGES_couchbase-server-${REVISION}-rel.txt
 EMITTED_MFST=couchbase-server-${REVISION}-rel-manifest.xml
