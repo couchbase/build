@@ -99,7 +99,7 @@ git show --stat
 popd                  2>&1 > /dev/null
 
 echo ============================================ [  5 ]  create grommit link
-if [[ ! -e ${GROMMIT_SYM} ]] ; then ln -s ${GROMMIT_DIR} ${GROMMIT_SYM} ; fi
+if [[ ! -e ${GRM_SYM} ]] ; then ln -s ${GRM_DIR} ${GRM_SYM} ; fi
 
 echo ============================================ [  6 ]  manifest master fetch
 if [[ ! -d ${MFS_DIR} ]] ; then git clone https://github.com/couchbase/manifest.git ${MFS_DIR}; fi
