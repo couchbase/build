@@ -124,12 +124,19 @@ if [[ ${MFSFILE} == current.xml ]]
 fi
 
 echo ============================================ [  9 ]  manifest-fetch
-pushd      ${VLT_DIR} 2>&1 > /dev/null
-repo init -u git://github.com/couchbase/manifest -m ${MFS_DIR}/${MFSFILE}
-repo sync --jobs=4
+#  pushd      ${VLT_DIR} 2>&1 > /dev/null
+#  repo init -u git://github.com/couchbase/manifest -m ${MFS_DIR}/${MFSFILE}
+#  repo sync --jobs=4
+
+MFS_OVR=''
+MFS_OUT=current.xml
+GIT_CACHE=~/gitcache
+mkdir  -p  ${TLM_DIR}
+pushd      ${TLM_DIR} 2>&1 > /dev/null
+${VLT_DIR}/fetch-manifest.rb ${MFS_DIR}/${MFSFILE} "${MFS_OVR}"  ${SVR_DIR}/CHANGES.out ${MFS_OUT} ${VOLTRON_SHA} ${GIT_CACHE}
 popd                  2>&1 > /dev/null
 
-echo ============================================ [ 10 ]  make clean 
+echo ============================================ [ 10 ]  make clean : ${TLM_DIR}
 pushd      ${TLM_DIR} 2>&1 > /dev/null
 make clean-all
 echo ============================================ [ 11 ]  clean couchdbx-app
