@@ -118,7 +118,7 @@ PLATFORM=linux-amd64
 SGW_PKG=couchbase-sync-gateway-${EDITION}_${SYNCGATE_VERSION}_x86_64.deb
 
                 #  "android-19"
-AND_TARG=4
+AND_TARG=3
 EMULATOR=cblite
 
 AUT_DIR=${WORKSPACE}/app-under-test
