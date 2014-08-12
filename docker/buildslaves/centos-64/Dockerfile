@@ -35,7 +35,17 @@ RUN yum install -y gcc-c++ make git tar openssl-devel ruby rubygems rubygem-rake
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    cd /tmp && rm -rf /tmp/deploy
+    curl -L http://samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
+    cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
+    cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
+    cd /tmp && rm -rf /tmp/deploy && \
+    ln -s ccache /usr/local/bin/gcc && \
+    ln -s ccache /usr/local/bin/g++ && \
+    ln -s ccache /usr/local/bin/cc && \
+    ln -s ccache /usr/local/bin/c++ && \
+    ln -s ccache /usr/local/bin/x86_64-redhat-linux-c++ && \
+    ln -s ccache /usr/local/bin/x86_64-redhat-linux-g++ && \
+    ln -s ccache /usr/local/bin/x86_64-redhat-linux-gcc
 
 # Install third-party build dependencies
 RUN yum install -y m4 file
