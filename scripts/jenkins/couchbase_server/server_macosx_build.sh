@@ -162,13 +162,13 @@ echo "********RUNNING: make package-mac  *******************"
            PRODUCT_BASE=couchbase           \
            PRODUCT_KIND=server              \
            PREFIX=/opt/couchbase            \
-      #    MANIFEST_XML=${MFSFILE}                    \
-      #    OVERRIDE_XML=external-override-3.0.0.xml  \
+           MANIFEST_XML=${MFSFILE}                   \
+           OVERRIDE_XML=external-override-3.0.0.xml  \
            LICENSE=LICENSE-${EDITION}.txt   \
            package-mac                      \
            PRODUCT_VERSION=${REVISION}-rel  \
            OPENSSL=0.9.8                    \
-      #    USER=buildbot                    \
+           USER=buildbot                    \
                                     2>&1 )  >>  ${LOG_DIR}/00_make_package_mac.log
 
 if  [[ -e ${LOG_DIR}/00_make_package_mac.log ]]
