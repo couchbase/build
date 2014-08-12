@@ -51,7 +51,7 @@ RUN mkdir /tmp/deploy; \
     cd /tmp && rm -rf /tmp/deploy
 
 # Install requirements for buildbot
-RUN apt-get install -y python-setuptools python-dateutil; \
+RUN apt-get install -y python-setuptools python-dateutil libxml-simple-perl; \
     rm -f /var/cache/apt/archives/*.deb; \
     easy_install buildbot_slave; \
     mkdir /home/buildbot/buildbot_slave; \
