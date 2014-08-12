@@ -133,7 +133,23 @@ MFS_OUT=current.xml
 GIT_CACHE=~/gitcache
 mkdir  -p  ${TLM_DIR}
 pushd      ${TLM_DIR} 2>&1 > /dev/null
-${MFS_DIR}/fetch-manifest.rb ${MFS_DIR}/${MFSFILE} "${MFS_OVR}"  ${SVR_DIR}/CHANGES.out ${MFS_OUT} ${VOLTRON_SHA} ${GIT_CACHE}
+echo "********RUNNING: fetch-manifest.rb *******************"
+( ${MFS_DIR}/fetch-manifest.rb              \
+           ${MFS_DIR}/${MFSFILE}            \
+           "${MFS_OVR}"                     \
+           ${SVR_DIR}/CHANGES.out           \
+           ${MFS_OUT}                       \
+           ${VOLTRON_SHA}                   \
+           ${GIT_CACHE}                     \
+                                    2>&1 )  >>  ${LOG_DIR}/00_fetch_manifest.log
+
+if  [[ -e ${LOG_DIR}/00_fetch_manifest.log ]]
+    then
+    echo
+    echo "===================================== ${LOG_DIR}/00_fetch_manifest.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/00_fetch_manifest.log
+fi
 popd                  2>&1 > /dev/null
 
 echo ============================================ [ 10 ]  make clean : ${TLM_DIR}
@@ -169,14 +185,14 @@ echo "********RUNNING: make package-mac  *******************"
            PRODUCT_VERSION=${REVISION}-rel  \
            OPENSSL=0.9.8                    \
            USER=buildbot                    \
-                                    2>&1 )  >>  ${LOG_DIR}/00_make_package_mac.log
+                                    2>&1 )  >>  ${LOG_DIR}/01_make_package_mac.log
 
-if  [[ -e ${LOG_DIR}/00_make_package_mac.log ]]
+if  [[ -e ${LOG_DIR}/01_make_package_mac.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/00_make_package_mac.log"
+    echo "===================================== ${LOG_DIR}/01_make_package_mac.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/00_make_package_mac.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/01_make_package_mac.log
 fi
 popd                  2>&1 > /dev/null
 echo ============================================
