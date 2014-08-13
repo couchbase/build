@@ -200,8 +200,9 @@ popd                  2>&1 > /dev/null
 echo ============================================
 
 
+pushd      ${TLM_DIR} 2>&1 > /dev/null
 echo ============================================ [ 15 ]  move zip files
-cp build/couchdbx-app/build/Release/*.zip couchbase-server.zip
+cp couchdbx-app/build/Release/*.zip couchbase-server.zip
 echo ============================================ [ 16 ]  rename the installation package
 mv  couchbase-server.zip  ${WORKSPACE}/${BUILTPACKAGE}
 
@@ -210,6 +211,7 @@ cp  CHANGES.out           ${WORKSPACE}/${CHANGES_LIST}
 
 echo ============================================ [ 18 ]  rename build/current.xml to ${EMITTED_MFST}
 cp  build/current.xml     ${WORKSPACE}/${EMITTED_MFST}
+popd                  2>&1 > /dev/null
 
 echo ============================================ [ 19 ]  upload ${BUILTPACKAGE} file to buildbot master
 echo ============================================ [ 20 ]  upload ${CHANGES_LIST} file to buildbot master
