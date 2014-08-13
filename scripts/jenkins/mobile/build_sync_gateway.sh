@@ -64,6 +64,10 @@ if [[ $7 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$7 ; else DISTR
 if [[ $DISTRO =~ Darwin ]] ; then DISTRO="macosx"  ; fi
 if [[ $DISTRO =~ CYGWIN ]] ; then DISTRO="windows" ; fi
 
+                    echo "setting OS     to $OS"
+                    echo "setting ARCH   to $ARCH"
+                    echo "setting DISTRO to $DISTRO"
+
 export OS ; export ARCH ; export DISTRO
 
 if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; EXEC=sync_gateway     ; fi
