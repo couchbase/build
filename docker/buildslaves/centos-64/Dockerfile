@@ -16,7 +16,8 @@ RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
 
 # Create buildbot user with password-less sudo privs, and give 
 # ownership of /opt/couchbase
-RUN useradd buildbot -G wheel -m -s /bin/bash && \
+RUN groupadd -g1000 buildbot && \
+    useradd buildbot -g buildbot -u1000 -G wheel -m -s /bin/bash && \
     mkdir /opt/couchbase && chown -R buildbot:buildbot /opt/couchbase && \
     echo 'buildbot:buildbot' | chpasswd && \
     echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/wheel_group && \
