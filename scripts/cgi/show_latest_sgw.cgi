@@ -37,6 +37,7 @@ my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', 
 my %release = ( 'master'   => '0.0.0',
                 '100'      => '1.0.0',
                 '101'      => '1.0.1',
+                '102'      => '1.0.2',
               );
 my $builder;
 
@@ -70,7 +71,7 @@ my $usage = "ERROR: must specify 'platform', 'branch', 'type'\n\n"
            ."<PRE>"
            ."For example:\n\n"
            ."    $installed_URL?branch=master&type=trigger\n"
-           ."    $installed_URL?platform=ubuntu-x64&branch=100&edition=enterprise&type=package\n"
+           ."    $installed_URL?platform=ubuntu-x64&branch=102&edition=enterprise&type=package\n"
            ."    $installed_URL?platform=windows-x86&branch=101&edition=community&type=package\n"
            ."</PRE><BR>"
            ."\n"
