@@ -66,13 +66,9 @@ if [[ $DISTRO =~ CYGWIN ]] ; then DISTRO="windows" ; fi
 
 export OS ; export ARCH ; export DISTRO
 
-                    echo "setting OS     to $OS"
-                    echo "setting ARCH   to $ARCH"
-                    echo "setting DISTRO to $DISTRO"
-
-if [[ $OS =~ Linux  ]] ; then echo OS like Linux  ; GOOS=linux   ; EXEC=sync_gateway     ; fi
-if [[ $OS =~ Darwin ]] ; then echo OS like Darwin ; GOOS=darwin  ; EXEC=sync_gateway     ; fi
-if [[ $OS =~ CYGWIN ]] ; then echo OS like CYGWIN ; GOOS=windows ; EXEC=sync_gateway.exe ; fi
+if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; EXEC=sync_gateway     ; fi
+if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; EXEC=sync_gateway     ; fi
+if [[ $OS =~ CYGWIN ]] ; then GOOS=windows ; EXEC=sync_gateway.exe ; fi
 if [[ ! $GOOS ]] 
     then
     echo -e "\nunsupported operating system:  $OS\n"
