@@ -19,7 +19,8 @@ RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
 RUN useradd buildbot -G wheel -m -s /bin/bash && \
     mkdir /opt/couchbase && chown -R buildbot:buildbot /opt/couchbase && \
     echo 'buildbot:buildbot' | chpasswd && \
-    echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/wheel_group
+    echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/wheel_group && \
+    echo 'Defaults:%wheel !requiretty' >> /etc/sudoers.d/wheel_group
 ADD .ssh /home/buildbot/.ssh
 RUN chown -R buildbot:buildbot /home/buildbot/.ssh && chmod 700 /home/buildbot/.ssh
 
