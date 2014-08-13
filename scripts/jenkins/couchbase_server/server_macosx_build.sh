@@ -7,10 +7,10 @@
 #             
 #             PARENT_BUILD_NUMBER   e.g. 3.0.0-1234
 #             
-#          and called with paramters:     voltron_branch   release  bld_num    edition        manifest   
+#          and called with paramters:     voltron_branch   release  bld_num    edition        manifest     over-ride-manifest
 #          
-#            by server_macosx_build_master:       master   0.0.0    nnnn      community       current.xml
-#            by server_macosx_build_300:           3.0.0   3.0.0    mmmm      enterprise      current.xml
+#            by server_macosx_build_master:       master   0.0.0    nnnn      community       current.xml  external-override-master.xml
+#            by server_macosx_build_300:           3.0.0   3.0.0    mmmm      enterprise      current.xml  external-override-3.0.0.xml
 #          
 ##############
 
@@ -22,7 +22,7 @@ LOG_TAIL=-24
 
 function usage
     {
-    echo -e "\nuse:  ${0}   voltron_branch  release  build_number  edition  manifest\n\n"
+    echo -e "\nuse:  ${0}   voltron_branch  release  build_number  edition  manifest  override-manifest\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -39,6 +39,9 @@ EDITION=${4}
 
 if [[ ! ${5} ]] ; then usage ; exit 55 ; fi
 MFSFILE=${5}
+
+if [[ ! ${6} ]] ; then usage ; exit 44 ; fi
+OVR_XML=${6}
 
 LOG_DIR_NAME=${EDITION}_logs
 LOG_DIR=${WORKSPACE}/${LOG_DIR_NAME}
@@ -128,7 +131,6 @@ echo ============================================ [  9 ]  manifest-fetch
 #  repo init -u git://github.com/couchbase/manifest -m ${MFS_DIR}/${MFSFILE}
 #  repo sync --jobs=4
 
-MFS_OVR=''
 MFS_OUT=current.xml
 GIT_CACHE=~/gitcache
 mkdir  -p  ${TLM_DIR}
@@ -136,7 +138,7 @@ pushd      ${TLM_DIR} 2>&1 > /dev/null
 echo "********RUNNING: fetch-manifest.rb *******************"
 ( ${MFS_DIR}/fetch-manifest.rb              \
            ${MFS_DIR}/${MFSFILE}            \
-           "${MFS_OVR}"                     \
+           ${MFS_DIR}/${OVR_XML}            \
            ${SVR_DIR}/CHANGES.out           \
            ${MFS_OUT}                       \
            ${VOLTRON_SHA}                   \
@@ -178,8 +180,8 @@ echo "********RUNNING: make package-mac  *******************"
            PRODUCT_BASE=couchbase           \
            PRODUCT_KIND=server              \
            PREFIX=/opt/couchbase            \
-           MANIFEST_XML=${MFSFILE}                   \
-           OVERRIDE_XML=external-override-3.0.0.xml  \
+           MANIFEST_XML=${MFSFILE}          \
+           OVERRIDE_XML=${OVR_XML}          \
            LICENSE=LICENSE-${EDITION}.txt   \
            package-mac                      \
            PRODUCT_VERSION=${REVISION}-rel  \
