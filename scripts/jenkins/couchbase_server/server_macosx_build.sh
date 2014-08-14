@@ -133,6 +133,14 @@ if [[ ${MFSFILE} == current.xml ]]
     
     echo ============================================ [  9 ]  manifest-fetch
     echo "********RUNNING: fetch-manifest.rb *******************"
+    ( echo ${MFS_DIR}/fetch-manifest.rb         \
+               ${VLT_DIR}/${MFSFILE}            \
+               ${BLANKFILE}                     \
+               ${SVR_DIR}/CHANGES.out           \
+               ${MFS_OUT}                       \
+               ${VOLTRON_SHA}                   \
+               ${GIT_CACHE}                     \
+                                        2>&1 )  >>  ${LOG_DIR}/00_fetch_manifest.log
     ( ${MFS_DIR}/fetch-manifest.rb              \
                ${VLT_DIR}/${MFSFILE}            \
                ${BLANKFILE}                     \
