@@ -234,23 +234,23 @@ echo ============================================ [ 19 ]  upload ${BUILTPACKAGE}
 echo ============================================ [ 20 ]  upload ${CHANGES_LIST} file to buildbot master
 echo ============================================ [ 21 ]  upload ${EMITTED_MFST} file to buildbot master
 
-echo ============================================ [ 22 ]  upload-build-to-cbfs
+# echo ============================================ [ 22 ]  upload-build-to-cbfs
+# echo ============================================ [ 23 ]  create new /opt/couchbase
+# echo ============================================ [ 24 ]  couchbase-server make community
+# echo ============================================ [ 25 ]  move zip files_1
+# echo ============================================ [ 26 ]  rename the installation package_1
+# echo ============================================ [ 27 ]  rename changes.out_1
+# echo ============================================ [ 28 ]  rename build/current.xml to PRODUCT_VERSION-manifest.xml_1
+# echo ============================================ [ 29 ]  upload package to buildbot master_1
+# echo ============================================ [ 30 ]  upload changes file to buildbot master_1
+# echo ============================================ [ 31 ]  upload manifest file to buildbot master_1
+# echo ============================================ [ 32 ]  upload-build-to-cbfs_1
+
+echo ============================================ [ 33 ]  upload the installation package to s3
 ${PUT_CMD}                ${WORKSPACE}/${BUILTPACKAGE} ${PKGSTORE}/${BUILTPACKAGE}
 ${PUT_CMD}                ${WORKSPACE}/${CHANGES_LIST} ${PKGSTORE}/${CHANGES_LIST}
 ${PUT_CMD}                ${WORKSPACE}/${EMITTED_MFST} ${PKGSTORE}/${EMITTED_MFST}
 
-echo ============================================ [ 23 ]  create new /opt/couchbase
-echo ============================================ [ 24 ]  couchbase-server make community
-echo ============================================ [ 25 ]  move zip files_1
-echo ============================================ [ 26 ]  rename the installation package_1
-echo ============================================ [ 27 ]  rename changes.out_1
-echo ============================================ [ 28 ]  rename build/current.xml to PRODUCT_VERSION-manifest.xml_1
-echo ============================================ [ 29 ]  upload package to buildbot master_1
-echo ============================================ [ 30 ]  upload changes file to buildbot master_1
-echo ============================================ [ 31 ]  upload manifest file to buildbot master_1
-echo ============================================ [ 32 ]  upload-build-to-cbfs_1
-
-echo ============================================ [ 33 ]  upload the installation package to s3
 echo ============================================ [ 34 ]  pkg_index
 
 
