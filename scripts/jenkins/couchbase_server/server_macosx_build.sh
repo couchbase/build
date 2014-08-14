@@ -117,7 +117,7 @@ pushd      ${VLT_DIR} 2>&1 > /dev/null
 VOLTRON_SHA=`git log -1 | grep commit | awk '{print $2}' | head -1`
 popd                  2>&1 > /dev/null
 
-MFS_OUT=${VLT_DIR}/current.xml
+MFS_OUT=${TLM_DIR}/current.xml
 GIT_CACHE=~/gitcache
 BLANKFILE="''"
 
