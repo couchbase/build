@@ -131,7 +131,7 @@ echo ============================================ [  9 ]  manifest-fetch
 #  repo init -u git://github.com/couchbase/manifest -m ${MFS_DIR}/${MFSFILE}
 #  repo sync --jobs=4
 
-MFS_OUT=${SVR}/current.xml
+MFS_OUT=${TLM}/current.xml
 GIT_CACHE=~/gitcache
 mkdir  -p  ${TLM_DIR}
 pushd      ${TLM_DIR} 2>&1 > /dev/null
@@ -209,7 +209,6 @@ popd                  2>&1 > /dev/null
 
 pushd      ${SVR_DIR} 2>&1 > /dev/null
 echo ============================================ [ 17 ]  rename changes.out
-cp  CHANGES.out           ${WORKSPACE}/${CHANGES_LIST}
 cp  CHANGES.out           ${WORKSPACE}/${CHANGES_LIST}
 
 echo ============================================ [ 18 ]  rename build/current.xml to ${EMITTED_MFST}
