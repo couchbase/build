@@ -117,34 +117,43 @@ pushd      ${VLT_DIR} 2>&1 > /dev/null
 VOLTRON_SHA=`git log -1 | grep commit | awk '{print $2}' | head -1`
 popd                  2>&1 > /dev/null
 
-if [[ ${MFSFILE} == current.xml ]]
-    then
-    MFS_FILE=couchbase-server_${REVISION}.manifest.xml
-    echo ============================================ [  8 ]  download
-    pushd      ${MFS_DIR} 2>&1 > /dev/null
-    ${GET_CMD}/${VERSION}/${REVISION}/${MFSFILE} 
-    popd                  2>&1 > /dev/null
-fi
-
-echo ============================================ [  9 ]  manifest-fetch
-#  pushd      ${VLT_DIR} 2>&1 > /dev/null
-#  repo init -u git://github.com/couchbase/manifest -m ${MFS_DIR}/${MFSFILE}
-#  repo sync --jobs=4
-
-MFS_OUT=${TLM}/current.xml
+MFS_OUT=${VLT_DIR}/current.xml
 GIT_CACHE=~/gitcache
+BLANKFILE="''"
+
 mkdir  -p  ${TLM_DIR}
 pushd      ${TLM_DIR} 2>&1 > /dev/null
-echo "********RUNNING: fetch-manifest.rb *******************"
-( ${MFS_DIR}/fetch-manifest.rb              \
-           ${MFS_DIR}/${MFSFILE}            \
-           ${MFS_DIR}/${OVR_XML}            \
-           ${SVR_DIR}/CHANGES.out           \
-           ${MFS_OUT}                       \
-           ${VOLTRON_SHA}                   \
-           ${GIT_CACHE}                     \
-                                    2>&1 )  >>  ${LOG_DIR}/00_fetch_manifest.log
 
+if [[ ${MFSFILE} == current.xml ]]
+  then
+    MFS_SRC=couchbase-server_${REVISION}.manifest.xml
+    echo ============================================ [  8 ]  download
+    ${GET_CMD}/${VERSION}/${REVISION}/${MFS_SRC} --output ${VLT_DIR}/${MFSFILE}
+    
+    echo ============================================ [  9 ]  manifest-fetch
+    echo "********RUNNING: fetch-manifest.rb *******************"
+    ( ${MFS_DIR}/fetch-manifest.rb              \
+               ${VLT_DIR}/${MFSFILE}            \
+               ${BLANKFILE}                     \
+               ${SVR_DIR}/CHANGES.out           \
+               ${MFS_OUT}                       \
+               ${VOLTRON_SHA}                   \
+               ${GIT_CACHE}                     \
+                                        2>&1 )  >>  ${LOG_DIR}/00_fetch_manifest.log
+  else
+    cp ${MFS_DIR}/${MFSFILE}  ${VLT_DIR}
+    
+    echo ============================================ [  9 ]  manifest-fetch
+    echo "********RUNNING: fetch-manifest.rb *******************"
+    ( ${MFS_DIR}/fetch-manifest.rb              \
+               ${MFS_DIR}/${MFSFILE}            \
+               ${MFS_DIR}/${OVR_XML}            \
+               ${SVR_DIR}/CHANGES.out           \
+               ${MFS_OUT}                       \
+               ${VOLTRON_SHA}                   \
+               ${GIT_CACHE}                     \
+                                        2>&1 )  >>  ${LOG_DIR}/00_fetch_manifest.log
+fi
 if  [[ -e ${LOG_DIR}/00_fetch_manifest.log ]]
     then
     echo
@@ -153,6 +162,12 @@ if  [[ -e ${LOG_DIR}/00_fetch_manifest.log ]]
     tail ${LOG_TAIL}                            ${LOG_DIR}/00_fetch_manifest.log
 fi
 popd                  2>&1 > /dev/null
+
+
+#  echo ============================================ [  9 ]  manifest-fetch
+#  pushd      ${VLT_DIR} 2>&1 > /dev/null
+#  repo init -u git://github.com/couchbase/manifest -m ${MFS_DIR}/${MFSFILE}
+#  repo sync --jobs=4
 
 echo ============================================ [ 10 ]  make clean : ${TLM_DIR}
 pushd      ${TLM_DIR} 2>&1 > /dev/null
