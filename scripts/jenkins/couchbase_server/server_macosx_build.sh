@@ -119,7 +119,7 @@ popd                  2>&1 > /dev/null
 
 MFS_OUT=${TLM_DIR}/current.xml
 GIT_CACHE=~/gitcache
-BLANKFILE="''"
+BLANKFILE='""'
 
 mkdir  -p  ${TLM_DIR}
 pushd      ${TLM_DIR} 2>&1 > /dev/null
@@ -143,7 +143,6 @@ if [[ ${MFSFILE} == current.xml ]]
                                         2>&1 )  >>  ${LOG_DIR}/00_fetch_manifest.log
   else
     if [[ ! -e ${MFS_DIR}/${MFSFILE} ]] ; then echo "No such file: ${MFS_DIR}/${MFSFILE}" ; usage ; exit 55 ; fi
-    cp ${MFS_DIR}/${MFSFILE}  ${VLT_DIR}
     
     echo ============================================ [  9 ]  manifest-fetch
     echo "********RUNNING: fetch-manifest.rb *******************"
