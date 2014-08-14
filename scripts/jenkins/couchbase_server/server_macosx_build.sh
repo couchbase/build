@@ -129,6 +129,7 @@ if [[ ${MFSFILE} == current.xml ]]
     MFS_SRC=couchbase-server_${REVISION}.manifest.xml
     echo ============================================ [  8 ]  download
     ${GET_CMD}/${VERSION}/${REVISION}/${MFS_SRC} --output ${VLT_DIR}/${MFSFILE}
+    echo downloaded manifest file ${MFS_SRC} as:          ${VLT_DIR}/${MFSFILE}
     
     echo ============================================ [  9 ]  manifest-fetch
     echo "********RUNNING: fetch-manifest.rb *******************"
@@ -141,6 +142,7 @@ if [[ ${MFSFILE} == current.xml ]]
                ${GIT_CACHE}                     \
                                         2>&1 )  >>  ${LOG_DIR}/00_fetch_manifest.log
   else
+    if [[ ! -e ${MFS_DIR}/${MFSFILE} ]] ; then echo "No such file: ${MFS_DIR}/${MFSFILE}" ; usage ; exit 55 ; fi
     cp ${MFS_DIR}/${MFSFILE}  ${VLT_DIR}
     
     echo ============================================ [  9 ]  manifest-fetch
