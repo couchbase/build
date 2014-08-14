@@ -119,7 +119,7 @@ popd                  2>&1 > /dev/null
 
 MFS_OUT=${TLM_DIR}/current.xml
 GIT_CACHE=~/gitcache
-BLANKFILE='""'
+BLANKFILE=
 
 mkdir  -p  ${TLM_DIR}
 pushd      ${TLM_DIR} 2>&1 > /dev/null
@@ -135,7 +135,7 @@ if [[ ${MFSFILE} == current.xml ]]
     echo "********RUNNING: fetch-manifest.rb *******************"
     ( echo ${MFS_DIR}/fetch-manifest.rb         \
                ${VLT_DIR}/${MFSFILE}            \
-               ${BLANKFILE}                     \
+               "${BLANKFILE}"                   \
                ${SVR_DIR}/CHANGES.out           \
                ${MFS_OUT}                       \
                ${VOLTRON_SHA}                   \
@@ -143,7 +143,7 @@ if [[ ${MFSFILE} == current.xml ]]
                                         2>&1 )  >>  ${LOG_DIR}/00_fetch_manifest.log
     ( ${MFS_DIR}/fetch-manifest.rb              \
                ${VLT_DIR}/${MFSFILE}            \
-               ${BLANKFILE}                     \
+               "${BLANKFILE}"                   \
                ${SVR_DIR}/CHANGES.out           \
                ${MFS_OUT}                       \
                ${VOLTRON_SHA}                   \
