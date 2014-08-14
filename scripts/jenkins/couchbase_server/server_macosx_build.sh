@@ -48,7 +48,7 @@ LOG_DIR=${WORKSPACE}/${LOG_DIR_NAME}
 if [[ -e ${LOG_DIR} ]] ; then rm -rf ${LOG_DIR} ; fi
 mkdir -p ${LOG_DIR}
 
-LATEST=http://latestbuilds.hq.couchbase.com/
+LATEST=http://10.1.2.98
 GET_CMD="curl ${LATEST}"
 
 PKGSTORE=s3://packages.northscale.com/latestbuilds/couchbase_server/${VERSION}/${REVISION}
