@@ -112,7 +112,7 @@ export MAVEN_UPLOAD_VERSION=${REVISION}
 export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 
 SRC_JAR=couchbase-lite-android-source_${REVISION}.jar
-DOCS_ZIP=couchbase-lite-android-javadocs_${REVISION}.zip
+DOCS_ZIP=couchbase-lite-android-javadocs-${EDITION}_${REVISION}.zip
 
 PLATFORM=linux-amd64
 SGW_PKG=couchbase-sync-gateway-${EDITION}_${SYNCGATE_VERSION}_x86_64.deb
@@ -320,40 +320,33 @@ if  [[ -e ${LOG_DIR}/04_upload_android_artifacts.log ]]
     tail ${LOG_TAIL}                            ${LOG_DIR}/04_upload_android_artifacts.log
 fi
 
-if [[ ${EDITION} =~ 'community' ]]
-  then
-    echo ============================================ SKIPPING javadocs
-    echo ============================================ SKIPPING javadocs >> ${LOG_DIR}/05_javadocs.log
-    echo ============================================ SKIPPING javadocs >> ${LOG_DIR}/05_package_javadocs.log
-  else
-    cd ${ANDR_LITESRV_DIR}
-    echo ============================================  generate javadocs
-    JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:generateJavadocs'
-    
-    ( ${JAVADOC_CMD}  2>&1 )                     >> ${LOG_DIR}/05_javadocs.log
-    
-    if  [[ -e ${LOG_DIR}/05_javadocs.log ]]
-        then
-        echo
-        echo "===================================== ${LOG_DIR}/05_javadocs.log"
-        echo ". . ."
-        tail ${LOG_TAIL}                            ${LOG_DIR}/05_javadocs.log
-    fi
-    cd libraries/couchbase-lite-java-core/build/docs/javadoc
-    echo ============================================ zip up ${DOCS_ZIP}
-    ( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )   >> ${LOG_DIR}/06_package_javadocs.log
-    
-    if  [[ -e ${LOG_DIR}/06_package_javadocs.log ]]
-        then
-        echo
-        echo "===================================== ${LOG_DIR}/06_package_javadocs.log"
-        echo ". . ."
-        tail ${LOG_TAIL}                            ${LOG_DIR}/06_package_javadocs.log
-    fi
-    
-    echo ============================================ upload  ${PKGSTORE}/${DOCS_ZIP}
-    ${PUT_CMD}  ${WORKSPACE}/${DOCS_ZIP}                      ${PKGSTORE}/${DOCS_ZIP}
+cd ${ANDR_LITESRV_DIR}
+echo ============================================  generate javadocs
+JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:generateJavadocs'
+
+( ${JAVADOC_CMD}  2>&1 )                     >> ${LOG_DIR}/05_javadocs.log
+
+if  [[ -e ${LOG_DIR}/05_javadocs.log ]]
+    then
+    echo
+    echo "===================================== ${LOG_DIR}/05_javadocs.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/05_javadocs.log
 fi
+cd libraries/couchbase-lite-java-core/build/docs/javadoc
+echo ============================================ zip up ${DOCS_ZIP}
+( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )   >> ${LOG_DIR}/06_package_javadocs.log
+
+if  [[ -e ${LOG_DIR}/06_package_javadocs.log ]]
+    then
+    echo
+    echo "===================================== ${LOG_DIR}/06_package_javadocs.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/06_package_javadocs.log
+fi
+
+echo ============================================ upload  ${PKGSTORE}/${DOCS_ZIP}
+${PUT_CMD}  ${WORKSPACE}/${DOCS_ZIP}                      ${PKGSTORE}/${DOCS_ZIP}
 
 echo ============================================  build android zipfile
 
