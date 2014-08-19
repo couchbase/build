@@ -253,6 +253,7 @@ while [[ ${OUT:0:7}  != 'stopped' ]]
     echo 'Waiting for emulator to fully boot...'
     sleep 10
 done
+sleep 30
 
 
 echo "ADB log for build ${BLD_NUM}"           > ${LOG_DIR}/02_adb.log
@@ -268,6 +269,7 @@ fi
 
 echo ".......................................starting sync_gateway"
 killall sync_gateway || true
+sleep 30
 
 ${SYNCGATE_PATH} ${ANDR_DIR}/cblite-tests/config/admin_party.json &
 jobs
