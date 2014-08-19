@@ -72,7 +72,7 @@ RUN yum install -y python-setuptools python-dateutil && \
     mkdir /home/buildbot/buildbot_slave && \
     buildslave create-slave /home/buildbot/buildbot_slave 10.1.1.210:9999 centos-6-builddocker-01 centos-6-builddocker-01 && \
     echo "Couchbase Build Team <build-team@couchbase.com>" > /home/buildbot/buildbot_slave/info/admin && \
-    echo "Centos 6.4 x86_64 Couchbase Build Slave running in Docker" > /home/buildbot/buildbot_slave/info/host && \
+    echo "Centos 6.3 x86_64 Couchbase Build Slave running in Docker" > /home/buildbot/buildbot_slave/info/host && \
     chown -R buildbot:buildbot /home/buildbot/buildbot_slave
 RUN mkdir /tmp/deploy && \
     curl -L 'http://downloads.sourceforge.net/project/s3tools/s3cmd/1.5.0-rc1/s3cmd-1.5.0-rc1.tar.gz?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fs3tools%2Ffiles%2Fs3cmd%2F1.5.0-rc1%2F&ts=1406252479&use_mirror=superb-dca2' -o /tmp/deploy/s3cmd.tar.gz && \
