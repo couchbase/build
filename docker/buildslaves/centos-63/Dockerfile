@@ -1,9 +1,9 @@
-# Docker container for Centos 6.4
+# Docker container for Centos 6.3
 
 # See https://github.com/ceejatec/naked-docker/ for details about the
 # construction of the base image.
 
-FROM ceejatec/naked-centos:6.4
+FROM ceejatec/naked-centos:6.3
 MAINTAINER ceej@couchbase.com
 
 USER root
@@ -30,10 +30,10 @@ EXPOSE 22
 CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase build dependencies.
-# Note: redhat-lsb-core currently required for "cbdeps" third-party build
+# Note: redhat-lsb currently required for "cbdeps" third-party build
 # mechanism, but we hope to remove that requirement as it brings in a
 # LOT of unnecessary packages on Centos.
-RUN yum install -y gcc-c++ make git tar openssl-devel ruby rubygems rubygem-rake tar glibc.i686 ncurses-devel ed which man unzip python-devel rpm-build redhat-lsb-core
+RUN yum install -y gcc-c++ make git tar openssl-devel ruby rubygems rubygem-rake tar glibc.i686 ncurses-devel ed which man unzip python-devel rpm-build redhat-lsb
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
