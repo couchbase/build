@@ -11,7 +11,7 @@ BEGIN
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
 
-my $URL_ROOT='http://factory.hq.couchbase.com:8080';
+my $URL_ROOT='http://factory.couchbase.com';
 
 use Getopt::Std;
 
