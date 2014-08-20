@@ -590,17 +590,113 @@ sub last_commit_valid
     }
    
 
-############                        last_done_server ( <os>, <arch>, <branch> )
+############                        last_done_server ( <os>, <arch>, <branch>, <edition> )
 #          
-#                                   returns ( builder, build_num, is_build_running, build_date, status )
+#                                   returns ( builder, build_num, job_num, is_build_running, build_date, status )
 #          
 sub last_done_server
     {
-    my ($os, $arch, $branch) = @_;
+    my ($os, $arch, $branch, $edtion) = @_;
     
-    my $builder  = jenkinsQuery::get_server_builder($os, $arch, $branch);
-    my $property = 'lastCompletedBuild';
-    return($builder, return_build_info($builder, $property) );
+    my ($builder, $bld_numb, $job_num, $is_running, $bld_date, $isgood);
+    
+    $builder = jenkinsQuery::get_server_builder($os, $arch, $branch);
+    
+    if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
+    my $sumpage = jenkinsQuery::get_json($builder);
+    my $len = scalar keys %$sumpage;
+    if ($len < 1 )
+        {                   if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
+        $bld_num    =  0;
+        $job_num    = -1;
+        $is_running =  0;    # 'TBD';
+        $bld_date   = 'no package yet';
+        $isgood     =  0;
+        return( $builder, $bld_num, $job_num, $is_running, $bld_date, $isgood );
+        }
+    if (! defined( $$sumpage{'builds'} ))
+        {
+        die "no such field: builds\n";
+        }
+    my $results_array = $$sumpage{'builds'};
+    $len = $#$results_array;
+    if ($len < 1)
+        {
+        if ($DEBUG)  { print STDERR "no build results for $builder\n"; }
+        $bld_num    =  0;
+        $job_num    = -1;
+        $is_running =  0;    # 'TBD';
+        $bld_date   = 'no package yet';
+        $isgood     =  0;
+        return( $builder, $bld_num, $job_num, $is_running, $bld_date, $isgood );
+        }
+    my @results_numbers;
+    my ($found_bldnum, $found_edition);
+    for my $item ( 0 .. $len)  { if ($DEBUG) { print STDERR "array[ $item ] is $$results_array[$item]{'number'}\n"; }
+                                               push @results_numbers, $$results_array[$item]{'number'};
+                                             }
+    if ($DEBUG)  { print STDERR "DEBUG: job_numbers: $#results_numbers\n";  print STDERR "@job_numbers\n";                      }
+    if ($DEBUG)  { for my $NN ( @job_numbers ) { print STDERR "$NN\n";}     print STDERR "DEBUG: job_numbers: $#job_numbers\n"; }
+    @job_numbers = reverse sort { $a <=> $b } @results_numbers;
+    
+    for my $jnum (@job_numbers)
+        {
+        undef($found_manifest);
+        if ($DEBUG) { print STDERR "...checkint $jnum\n"; }
+        $bldpage  = jenkinsQuery::get_json($builder.'/'.$jnum);
+        
+        if (! defined( $$bldpage{'actions'} ))
+            {
+            die "no such field: actions\n";
+            }
+        if (! defined( $$bldpage{'actions'}[0] ))
+            {
+            die "no such field: actions[0]\n";
+            }
+        if (! defined( $$bldpage{'actions'}[0]{'parameters'} ))
+            {
+            die "no such field: actions[0]{parameters}\n";
+            }
+        for my $pp (0 .. scalar $$bldpage{'actions'}[0]{'parameters'})
+            {
+            if ($DEBUG)  { print STDERR "pp is $pp\n"; }
+            if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'BLD_NUM')
+                {
+                $found_bldnum = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)     { print STDERR "detected bldnum:   $found_bldnum\n";}
+                }
+            if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'EDITION')
+                {
+                $found_edition = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)     { print STDERR "detected edition:   $found_edition\n";}
+                }
+            last if ( defined($found_bldnum) && defined($found_edition) );
+            }
+        if ( $found_edition eq $edition )  { %bld_num = $found_bldnum;  $job_num = $jnum;  last; }
+        }
+    
+    if (! defined($job_num) )
+        {
+        if ($DEBUG)  { print STDERR "no builds of $edition by $builder\n"; }
+        $bld_num    =  0;
+        $job_num    = -1;
+        $is_running =  0;    # 'TBD';
+        $bld_date   = 'no package yet';
+        $isgood     =  0;
+        return( $builder, $bld_num, $job_num, $is_running, $bld_date, $isgood );
+        }
+    
+    my $result  = jenkinsQuery::get_json($builder.'/'.$job_num);
+    $is_running = 'unknown';
+    if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');        if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
+    
+    $bld_date   = 'unknown';
+    if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'}, 'brief' ); if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }          }
+    
+    $isgood     = 'unknown';
+    if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS');      if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
+    
+    return( $builder, $bld_num, $job_num, $is_running, $bld_date, $isgood );
     }
 
 
@@ -625,7 +721,6 @@ sub last_done_toy_server
         $isgood     =  0;
         return( $builder, $job_num, $is_running, $bld_date, $isgood );
         }
-
     if (! defined( $$sumpage{'builds'} ))
         {
         die "no such field: builds\n";
@@ -649,13 +744,13 @@ sub last_done_toy_server
     if ($DEBUG)  { print STDERR "DEBUG: job_numbers: $#results_numbers\n";  print STDERR "@job_numbers\n";                      }
     if ($DEBUG)  { for my $NN ( @job_numbers ) { print STDERR "$NN\n";}     print STDERR "DEBUG: job_numbers: $#job_numbers\n"; }
     @job_numbers = reverse sort { $a <=> $b } @results_numbers;
-
+    
     for my $jnum (@job_numbers)
         {
         undef($found_manifest);
         if ($DEBUG) { print STDERR "...checkint $jnum\n"; }
         $bldpage  = jenkinsQuery::get_json($builder.'/'.$jnum);
-
+        
         if (! defined( $$bldpage{'actions'} ))
             {
             die "no such field: actions\n";
@@ -689,14 +784,14 @@ sub last_done_toy_server
         $isgood     =  0;
         return( $builder, $job_num, $is_running, $bld_date, $isgood );
         }
-
+    
     my $result  = jenkinsQuery::get_json($builder.'/'.$job_num);
     $is_running = 'unknown';
     if (defined( $$result{'building'} ))  { $is_running = ($$result{'building'} ne 'false');        if ($DEBUG) {print STDERR "setting is_running to $$result{'building'}\n";}}
-
+    
     $bld_date   = 'unknown';
     if (defined( $$result{'id'}       ))  { $bld_date   =  date_from_id( $$result{'id'}, 'brief' ); if ($DEBUG) {print STDERR "setting bld_date   to $bld_date\n"; }          }
-
+    
     $isgood     = 'unknown';
     if (defined( $$result{'result'}   ))  { $isgood     = ($$result{'result'}   eq 'SUCCESS');      if ($DEBUG) {print STDERR "setting isgood     to :$$result{'result'}:\n";}}
     

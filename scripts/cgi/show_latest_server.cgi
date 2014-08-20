@@ -7,6 +7,7 @@
 #    OS              e.g. windows
 #    ARCH            32, 64
 #    BRANCH          e.g. master
+#    EDITION         enterprise or community
 #  
 use warnings;
 #use strict;
@@ -38,6 +39,8 @@ my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', 
 
 my %release = ( 'master'   => '0.0.0',
                 '000'      => '0.0.0',
+                '3.0.1'    => '3.0.1',
+                '301'      => '3.0.1',
                 '3.0.0'    => '3.0.0',
                 '300'      => '3.0.0',
               );
@@ -53,14 +56,14 @@ sub get_timestamp
     $timestamp = "page generated $hour:$minute:$second  on $year-$month-$dayOfMonth";
     }
 
-my $usage = "ERROR: must specify 'os', 'arch', and 'branch' parameters\n\n"
+my $usage = "ERROR: must specify 'os', 'arch', 'branch' and 'edition' parameters\n\n"
            ."<PRE>"
            ."For example:\n\n"
-           ."    $installed_URL?branch=master&os=windows&arch=32\n\n"
+           ."    $installed_URL?branch=master&os=windows&arch=32&edition=EE\n\n"
            ."</PRE><BR>"
            ."\n\n";
 
-my ($jenkins_builder, $os, $arch, $branch, $owner);
+my ($jenkins_builder, $os, $arch, $branch, $owner, $edition);
 
 if ( $query->param('branch') && $query->param('os') && $query->param('arch')  )
     {
@@ -70,12 +73,15 @@ if ( $query->param('branch') && $query->param('os') && $query->param('arch')  )
     
     if  (        $query->param('toy') )
         {
-        $owner = $query->param('toy'); 
+        $owner = $query->param('toy');
         if ($DEBUG)  { print STDERR "called with ( $os, $arch, $branch, $owner)\n"; }
         }
     else
         {
-        if ($DEBUG)  { print STDERR "called with ( $os, $arch, $branch)\n"; }
+        $edition = $query->param('edition');
+        if ($edition eq 'EE' )  { $edition = 'enterprise'; }
+        if ($edition eq 'CE' )  { $edition = 'community';  }
+        if ($DEBUG)  { print STDERR "called with ( $os, $arch, $branch, $edition)\n"; }
         }
     }
 else
@@ -89,7 +95,7 @@ else
 
 
 
-my ($bldstatus, $bldnum, $rev_numb, $bld_date, $is_running);
+my ($bldstatus, $bldnum, $job_num, $rev_numb, $bld_date, $is_running);
 
 
 ########   S T A R T   H E R E 
@@ -103,8 +109,8 @@ if (defined($owner))
     ($jenkins_builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_toy_server($os, $arch, $branch, $mfst); }
 else
     {
-    if ($DEBUG)  { print STDERR "calling  jenkinsReports::last_done_server(".$os.", ".$arch.", ".$branch." )"; }
-    ($jenkins_builder, $bldnum, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_server(  $os, $arch, $branch );
+    if ($DEBUG)  { print STDERR "calling  jenkinsReports::last_done_server(".$os.", ".$arch.", ".$branch.", ".$edition." )"; }
+    ($jenkins_builder, $bldnum, $job_num, $is_running, $bld_date, $bldstatus) = jenkinsReports::last_done_server( $os, $arch, $branch, $edition );
     }
 $rev_numb = $release{$branch}.'-'.$bldnum;
 
