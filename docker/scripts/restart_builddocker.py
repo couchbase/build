@@ -28,6 +28,7 @@ if result != 0:
     output = check_output(
         ["docker", "run", "--name={0}".format(volumect),
          "--volume=/home/couchbase/grommit:/home/buildbot/grommit",
+         "--volume=/etc/resolv.conf:/etc/resolv.conf",
          "ceejatec/naked-ubuntu:10.04"])
 
 # See if buildbot thinks the slave is connect
