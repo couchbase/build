@@ -85,7 +85,7 @@ sub get_builder
     return($builder);
     }
 
-############                        link_to_package( prod, revision, platform, edtion )
+############                        link_to_package( prod, revision, platform, edition )
 #          
 #                                   returns ( HTML )
 sub link_to_package
@@ -596,7 +596,7 @@ sub last_commit_valid
 #          
 sub last_done_server
     {
-    my ($os, $arch, $branch, $edtion) = @_;
+    my ($os, $arch, $branch, $edition) = @_;
     
     my ($builder, $bld_numb, $job_num, $is_running, $bld_date, $isgood);
     
