@@ -1,4 +1,4 @@
-	# Docker container for Centos 5.8
+# Docker container for Centos 5.8
 
 # See https://github.com/ceejatec/naked-docker/ for details about the
 # construction of the base image.
@@ -29,12 +29,17 @@ RUN chown -R buildbot:buildbot /home/buildbot/.ssh && chmod 700 /home/buildbot/.
 EXPOSE 22
 CMD [ "/usr/sbin/sshd", "-D" ]
 
-# Install Couchbase build dependencies.
+# Install Couchbase build dependencies. It appears we require gcc 4.4.
+# To achieve this, install the gcc44-c++ package (which brings in gcc44),
+# then create symlinks in /usr/bin for gcc and g++. This is probably
+# "not correct" but I didn't find a better way.
 # Note: redhat-lsb currently required for "cbdeps" third-party build
 # mechanism, but we hope to remove that requirement as it brings in a
 # LOT of unnecessary packages on Centos.
 RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm && \
-    yum install -y gcc-c++ make git openssl-devel ruby rubygems rubygem-rake glibc.i686 ncurses-devel ed which man unzip python-devel rpm-build redhat-lsb && \
+    yum install -y gcc44-c++ make git openssl-devel ruby rubygems rubygem-rake glibc.i686 ncurses-devel ed which man unzip python-devel rpm-build redhat-lsb && \
+    ln -s /usr/bin/gcc44 /usr/bin/gcc && \
+    ln -s /usr/bin/g++44 /usr/bin/g++ && \
     mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
@@ -51,8 +56,10 @@ RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noar
     ln -s ccache /usr/local/bin/x86_64-redhat-linux-gcc
 
 # Install autoconf and friends - necessary for building some third-party deps
-# from source, not for Couchbase.
-RUN mkdir /tmp/deploy && \
+# from source, not for Couchbase. python2.6 in particular is only required
+# for gyp, which is part of the v8 build.
+RUN yum install -y python26 && \
+    mkdir /tmp/deploy && \
     curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
     cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
     cd autoconf-2.69 && ./configure --prefix=/usr/local && make && make install && \
@@ -64,8 +71,10 @@ RUN mkdir /tmp/deploy && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make && make install && \
     rm -rf /tmp/deploy
 
-# Install requirements for buildbot
-RUN yum install -y python-setuptools python-dateutil && \
+# Install requirements for buildbot and buildbot tasks. Note that some of
+# the easy_install steps here output python SyntaxErrors, but that appears to
+# be OK.
+RUN yum install -y python-setuptools python-dateutil perl-libwww-perl && \
     easy_install zope.interface==3.8.0 && \
     easy_install http://twistedmatrix.com/Releases/Twisted/11.1/Twisted-11.1.0.tar.bz2 && \
     easy_install buildbot_slave && \

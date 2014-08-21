@@ -57,8 +57,8 @@ RUN mkdir /tmp/deploy && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make && make install && \
     cd /tmp && rm -rf /tmp/deploy
 
-# Install requirements for buildbot
-RUN apt-get install -y python-setuptools python-dateutil && \
+# Install requirements for buildbot and buildbot tasks
+RUN apt-get install -y python-setuptools python-dateutil libwww-perl && \
     rm -f /var/cache/apt/archives/*.deb && \
     easy_install buildbot_slave && \
     mkdir /home/buildbot/buildbot_slave && \

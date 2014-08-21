@@ -21,9 +21,12 @@ RUN groupadd -g1000 buildbot && \
     mkdir /opt/couchbase && chown -R buildbot:buildbot /opt/couchbase && \
     echo 'buildbot:buildbot' | chpasswd && \
     echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/wheel_group && \
-    echo 'Defaults:%wheel !requiretty' >> /etc/sudoers.d/wheel_group
+    echo 'Defaults:%wheel !requiretty' >> /etc/sudoers.d/wheel_group && \
+    chmod 440 /etc/sudoers.d/wheel_group
 ADD .ssh /home/buildbot/.ssh
-RUN chown -R buildbot:buildbot /home/buildbot/.ssh && chmod 700 /home/buildbot/.ssh
+RUN chown -R buildbot:buildbot /home/buildbot/.ssh && \
+    chmod 700 /home/buildbot/.ssh && \
+    chmod 600 /home/buildbot/.ssh/*
 
 # Expose and start SSH daemon
 EXPOSE 22
@@ -66,8 +69,8 @@ RUN mkdir /tmp/deploy && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make && make install && \
     rm -rf /tmp/deploy
 
-# Install requirements for buildbot
-RUN yum install -y python-setuptools python-dateutil && \
+# Install requirements for buildbot and buildbot tasks
+RUN yum install -y python-setuptools python-dateutil perl-libwww-perl && \
     easy_install buildbot_slave && \
     mkdir /home/buildbot/buildbot_slave && \
     buildslave create-slave /home/buildbot/buildbot_slave 10.1.1.210:9999 centos-6-builddocker-01 centos-6-builddocker-01 && \
