@@ -665,7 +665,7 @@ sub last_done_server
                 $found_bldnum = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
                 if ($DEBUG)     { print STDERR "detected bldnum:   $found_bldnum\n";}
                 }
-            if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'EDITION')
+            if ( ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'EDITION') || ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'LICENSE') )
                 {
                 $found_edition = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
                 if ($DEBUG)     { print STDERR "detected edition:   $found_edition\n";}
