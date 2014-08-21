@@ -38,8 +38,8 @@ CMD [ "/usr/sbin/sshd", "-D" ]
 # LOT of unnecessary packages on Centos.
 RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm && \
     yum install -y gcc44-c++ make git openssl-devel ruby rubygems rubygem-rake glibc.i686 ncurses-devel ed which man unzip python-devel rpm-build redhat-lsb && \
-    ln -s /usr/bin/gcc44 /usr/bin/gcc && \
-    ln -s /usr/bin/g++44 /usr/bin/g++ && \
+    ln -s gcc44 /usr/bin/gcc && \
+    ln -s g++44 /usr/bin/g++ && \
     mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
@@ -48,12 +48,7 @@ RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noar
     cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy && \
     ln -s ccache /usr/local/bin/gcc && \
-    ln -s ccache /usr/local/bin/g++ && \
-    ln -s ccache /usr/local/bin/cc && \
-    ln -s ccache /usr/local/bin/c++ && \
-    ln -s ccache /usr/local/bin/x86_64-redhat-linux-c++ && \
-    ln -s ccache /usr/local/bin/x86_64-redhat-linux-g++ && \
-    ln -s ccache /usr/local/bin/x86_64-redhat-linux-gcc
+    ln -s ccache /usr/local/bin/g++
 
 # Install autoconf and friends - necessary for building some third-party deps
 # from source, not for Couchbase. python2.6 in particular is only required
