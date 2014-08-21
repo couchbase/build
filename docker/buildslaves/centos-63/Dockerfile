@@ -70,7 +70,7 @@ RUN mkdir /tmp/deploy && \
     rm -rf /tmp/deploy
 
 # Install requirements for buildbot and buildbot tasks
-RUN yum install -y python-setuptools python-dateutil perl-libwww-perl && \
+RUN yum install -y python-setuptools python-dateutil perl-libwww-perl perl-XML-Simple && \
     easy_install buildbot_slave && \
     mkdir /home/buildbot/buildbot_slave && \
     buildslave create-slave /home/buildbot/buildbot_slave 10.1.1.210:9999 centos-6-builddocker-01 centos-6-builddocker-01 && \

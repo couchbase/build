@@ -69,7 +69,7 @@ RUN yum install -y python26 && \
 # Install requirements for buildbot and buildbot tasks. Note that some of
 # the easy_install steps here output python SyntaxErrors, but that appears to
 # be OK.
-RUN yum install -y python-setuptools python-dateutil perl-libwww-perl && \
+RUN yum install -y python-setuptools python-dateutil perl-libwww-perl perl-XML-Simple && \
     easy_install zope.interface==3.8.0 && \
     easy_install http://twistedmatrix.com/Releases/Twisted/11.1/Twisted-11.1.0.tar.bz2 && \
     easy_install buildbot_slave && \
