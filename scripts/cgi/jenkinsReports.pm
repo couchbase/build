@@ -212,7 +212,7 @@ sub last_done_sgw_package
             {
             die "no such field: actions[0]{parameters}\n";
             }
-        for my $pp (0 .. scalar $$bldpage{'actions'}[0]{'parameters'})
+        for my $pp (0 .. scalar keys $$bldpage{'actions'}[0]{'parameters'})
             {
             if ($DEBUG)  { print STDERR "pp is $pp\n"; }
             if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'REVISION')
@@ -354,7 +354,7 @@ sub last_done_mobile_bld
             {
             die "no such field: actions[0]{parameters}\n";
             }
-        for my $pp (0 .. scalar $$bldpage{'actions'}[0]{'parameters'})
+        for my $pp (0 .. scalar keys $$bldpage{'actions'}[0]{'parameters'})
             {
             if ($DEBUG)  { print STDERR "pp is $pp\n"; }
             if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'PARENT_BUILD_NUMBER')
@@ -570,7 +570,7 @@ sub last_commit_valid
         if ($DEBUG)  { print STDERR "-----------------------------aa is $aa\n"; }
         if ( defined( $$results{'actions'}[$aa]{'parameters'} ))
             {
-            for my $pp (0 .. scalar $$result{'actions'}[$aa]{'parameters'})
+            for my $pp (0 .. scalar keys $$result{'actions'}[$aa]{'parameters'})
                 {
                 if ($DEBUG)  { print STDERR "pp is $pp-----------------------------\n"; }
                 if ($$result{'actions'}[$aa]{'parameters'}[$pp]{'name'} eq 'GERRIT_CHANGE_NUMBER')
@@ -764,7 +764,7 @@ sub last_done_toy_server
             {
             die "no such field: actions[0]{parameters}\n";
             }
-        for my $pp (0 .. scalar $$bldpage{'actions'}[0]{'parameters'})
+        for my $pp (0 .. scalar keys $$bldpage{'actions'}[0]{'parameters'})
             {
             if ($DEBUG)  { print STDERR "pp is $pp\n"; }
             if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'MANIFEST')

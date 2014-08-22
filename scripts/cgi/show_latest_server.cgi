@@ -39,6 +39,7 @@ my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', 
 
 my %release = ( 'master'   => '0.0.0',
                 '000'      => '0.0.0',
+                '0.0.0'    => '0.0.0',
                 '3.0.1'    => '3.0.1',
                 '301'      => '3.0.1',
                 '3.0.0'    => '3.0.0',
@@ -153,8 +154,7 @@ else
     }
 
 
-
-htmlReports::print_HTML_Page(  $query, $jenkins_row,  "$branch Repo Builder Status",  $jenkins_color );
+htmlReports::print_HTML_Page(  $query, $jenkins_row,  "$branch Server Builder Status",  $jenkins_color );
 
 # print "\n---------------------------\n";
 __END__
