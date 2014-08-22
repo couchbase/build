@@ -641,7 +641,8 @@ sub last_done_server
     
     for my $jnum (@job_numbers)
         {
-        undef($found_manifest);
+        undef($found_bldnum);
+        undef($found_edition);
         if ($DEBUG) { print STDERR "...checkint $jnum\n"; }
         $bldpage  = jenkinsQuery::get_json($builder.'/'.$jnum);
         
@@ -657,7 +658,7 @@ sub last_done_server
             {
             die "no such field: actions[0]{parameters}\n";
             }
-        for my $pp (0 .. scalar $$bldpage{'actions'}[0]{'parameters'})
+        for my $pp (0 .. scalar keys $$bldpage{'actions'}[0]{'parameters'})
             {
             if ($DEBUG)  { print STDERR "pp is $pp\n"; }
             if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'BLD_NUM')
@@ -672,7 +673,7 @@ sub last_done_server
                 }
             last if ( defined($found_bldnum) && defined($found_edition) );
             }
-        if ( $found_edition eq $edition )  { %bld_num = $found_bldnum;  $job_num = $jnum;  last; }
+        if ( $found_edition eq $edition )  { $bld_num = $found_bldnum;  $job_num = $jnum;  last; }
         }
     
     if (! defined($job_num) )
