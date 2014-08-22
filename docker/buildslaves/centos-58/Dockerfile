@@ -31,13 +31,14 @@ CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase build dependencies. It appears we require gcc 4.4.
 # To achieve this, install the gcc44-c++ package (which brings in gcc44),
-# then create symlinks in /usr/bin for gcc and g++. This is probably
+# then create symlinks in /usr/bin for cc, gcc and g++. This is probably
 # "not correct" but I didn't find a better way.
 # Note: redhat-lsb currently required for "cbdeps" third-party build
 # mechanism, but we hope to remove that requirement as it brings in a
 # LOT of unnecessary packages on Centos.
 RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noarch.rpm && \
     yum install -y gcc44-c++ make git openssl-devel ruby rubygems rubygem-rake glibc.i686 ncurses-devel ed which man unzip python-devel rpm-build redhat-lsb && \
+    ln -s gcc44 /usr/bin/cc && \
     ln -s gcc44 /usr/bin/gcc && \
     ln -s g++44 /usr/bin/g++ && \
     mkdir /tmp/deploy && \
@@ -47,6 +48,7 @@ RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noar
     cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
     cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy && \
+    ln -s ccache /usr/local/bin/cc && \
     ln -s ccache /usr/local/bin/gcc && \
     ln -s ccache /usr/local/bin/g++
 
