@@ -3,14 +3,12 @@
 #          run by jenkins jobs: 'server_macosx_build_master'
 #                               'server_macosx_build_300'
 #          
-#          with job paramters used in this script:
-#             
-#             PARENT_BUILD_NUMBER   e.g. 3.0.0-1234
-#             
-#          and called with paramters:     voltron_branch   release  bld_num    edition        manifest     over-ride-manifest
+#          called with paramters:         voltron_branch   release  bld_num  edition     manifest     override-manifest
 #          
-#            by server_macosx_build_master:       master   0.0.0    nnnn      community       current.xml  external-override-master.xml
-#            by server_macosx_build_300:           3.0.0   3.0.0    mmmm      enterprise      current.xml  external-override-3.0.0.xml
+#            by server_macosx_build_master:       master   0.0.0    nnnn     community   current.xml  external-override-master.xml
+#            by server_macosx_build_300:           3.0.0   3.0.0    mmmm     enterprise  current.xml  external-override-3.0.0.xml
+#  
+#   once we switch to always using current.xml, the override-manifest will be skipped
 #          
 ##############
 
@@ -28,11 +26,11 @@ if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
-VERSION=${2}
+RELEASE=${2}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 BLD_NUM=${3}
-REVISION=${VERSION}-${BLD_NUM}
+REVISION=${RELEASE}-${BLD_NUM}
 
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
@@ -48,10 +46,12 @@ LOG_DIR=${WORKSPACE}/${LOG_DIR_NAME}
 if [[ -e ${LOG_DIR} ]] ; then rm -rf ${LOG_DIR} ; fi
 mkdir -p ${LOG_DIR}
 
-LATEST=http://10.1.2.98
+PRODUCT=couchbase-server
+
+LATEST=http://10.1.2.98/${PRODUCT}/${RELEASE}/${REVISION}
 GET_CMD="curl ${LATEST}"
 
-PKGSTORE=s3://packages.northscale.com/latestbuilds/couchbase_server/${VERSION}/${REVISION}
+PKGSTORE=s3://packages.northscale.com/latestbuilds/${PRODUCT}/${RELEASE}/${REVISION}
 PUT_CMD="s3cmd put -P"
 
 
@@ -61,7 +61,7 @@ GRM_DIR=${WS_PARENT}/grommit
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
 
-SVR_DIR=${AUT_DIR}/couchbase-server
+SVR_DIR=${AUT_DIR}/${PRODUCT}
 GRM_SYM=${SVR_DIR}/grommit
 MFS_DIR=${SVR_DIR}/manifest
 
@@ -71,9 +71,9 @@ TLM_DIR=${VLT_DIR}/build
 if [[ -e ${SVR_DIR} ]] ; then rm -rf ${SVR_DIR} ; fi
 mkdir -p ${SVR_DIR}
 
-CHANGES_LIST=CHANGES_couchbase-server-${REVISION}-rel.txt
-EMITTED_MFST=couchbase-server-${REVISION}-rel-manifest.xml
-BUILTPACKAGE=couchbase-server-${EDITION}_x86_64_${REVISION}-rel.zip
+CHANGES_LIST=CHANGES_${PRODUCT}-${REVISION}-rel.txt
+EMITTED_MFST=${PRODUCT}-${REVISION}-rel-manifest.xml
+BUILTPACKAGE=${PRODUCT}-${EDITION}_x86_64_${REVISION}-rel.zip
 
 PREFIX_DIR=/opt/couchbase
 
@@ -126,10 +126,10 @@ pushd      ${TLM_DIR} 2>&1 > /dev/null
 
 if [[ ${MFSFILE} == current.xml ]]
   then
-    MFS_SRC=couchbase-server_${REVISION}.manifest.xml
+    MFS_SRC=${PRODUCT}${REVISION}.manifest.xml
     echo ============================================ [  8 ]  download
-    ${GET_CMD}/${VERSION}/${REVISION}/${MFS_SRC} --output ${VLT_DIR}/${MFSFILE}
-    echo downloaded manifest file ${MFS_SRC} as:          ${VLT_DIR}/${MFSFILE}
+    ${GET_CMD}/${MFS_SRC} --output ${VLT_DIR}/${MFSFILE}
+    echo downloaded ${MFS_SRC} as: ${VLT_DIR}/${MFSFILE}
     
     echo ============================================ [  9 ]  manifest-fetch
     echo "********RUNNING: fetch-manifest.rb *******************"
@@ -200,7 +200,7 @@ echo "********RUNNING: make package-mac  *******************"
            PATH=/opt/couchbase/bin:$PATH    \
            make                             \
            COUCH_EXTRA=                     \
-           PRODUCT=couchbase-server         \
+           PRODUCT=${PRODUCT}               \
            PRODUCT_BASE=couchbase           \
            PRODUCT_KIND=server              \
            PREFIX=/opt/couchbase            \
@@ -226,9 +226,9 @@ echo ============================================
 
 pushd      ${TLM_DIR} 2>&1 > /dev/null
 echo ============================================ [ 15 ]  move zip files
-cp couchdbx-app/build/Release/*.zip couchbase-server.zip
+cp couchdbx-app/build/Release/*.zip ${PRODUCT}.zip
 echo ============================================ [ 16 ]  rename the installation package
-mv  couchbase-server.zip  ${WORKSPACE}/${BUILTPACKAGE}
+mv  ${PRODUCT}.zip  ${WORKSPACE}/${BUILTPACKAGE}
 popd                  2>&1 > /dev/null
 
 pushd      ${SVR_DIR} 2>&1 > /dev/null
