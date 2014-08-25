@@ -90,6 +90,7 @@ set PREFIX=\opt\couchbase-sync-gateway
 set PREFIXP=.\opt\couchbase-sync-gateway
 set STAGING=%BLD_DIR%\opt\couchbase-sync-gateway
 
+if EXIST %PREFIX%  del /s/f/q %PREFIX%
 if EXIST %STAGING% del /s/f/q %STAGING%
 
 if NOT EXIST %AUT_DIR%  mkdir %AUT_DIR%

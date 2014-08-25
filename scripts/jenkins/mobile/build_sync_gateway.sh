@@ -136,6 +136,7 @@ PREFIX=/opt/couchbase-sync-gateway
 PREFIXP=./opt/couchbase-sync-gateway
 STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
 
+if [[ -e ${PREFIX}  ]] ; then rm -rf ${PREFIX}  ; fi
 if [[ -e ${STAGING} ]] ; then rm -rf ${STAGING} ; fi
 
                                                 #  needed by ~/.rpmmacros 
