@@ -123,7 +123,7 @@ elsif ($bldstatus)
     my $made_color;    $made_color = $good_color;
     
     print_HTML_Page( jenkinsQuery::html_OK_link( $builder,  $jobnum,   $rev_numb, $bld_date),
-                     jenkinsReports::link_to_package('and', $rev_numb, $platform, $edition ),
+                     buildbotReports::is_running($is_running),
                      $builder,
                      $made_color );
     }
