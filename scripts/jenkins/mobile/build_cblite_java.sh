@@ -115,8 +115,6 @@ if [[ ! -d ${MAVEN_LOCAL_REPO} ]] ; then mkdir -p ${MAVEN_LOCAL_REPO} ; fi
 cd ${JAVA_SRC}/release
 cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
 
-exit 0
-
 MVN_ZIP=couchbase-lite-${REVISION}-java.zip
 JAV_ZIP=couchbase-lite-java-${EDITION}_${REVISION}.zip
 
