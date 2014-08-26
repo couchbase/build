@@ -130,7 +130,7 @@ if ($bldnum < 0)
 elsif ($bldstatus)
     {
     $jenkins_color = $good_color;
-    $jenkins_row   = htmlReports::HTML_pair_cell( jenkinsQuery::html_OK_link( $jenkins_builder, $bldnum, $rev_numb, $bld_date),
+    $jenkins_row   = htmlReports::HTML_pair_cell( jenkinsQuery::html_OK_link( $jenkins_builder, $job_num, $rev_numb, $bld_date),
                                      buildbotReports::is_running($is_running),
                                      $jenkins_color                                                     );
     print STDERR "GOOD: $bldnum\n"; 
@@ -149,7 +149,7 @@ else
         $jenkins_color = $err_color;
         }
     $jenkins_row = htmlReports::HTML_pair_cell( buildbotReports::is_running($is_running),
-                                   jenkinsQuery::html_FAIL_link( $jenkins_builder, $bldnum, $is_running, $bld_date),
+                                   jenkinsQuery::html_FAIL_link( $jenkins_builder, $job_num, $is_running, $bld_date),
                                    $jenkins_color                                                         );
     }
 
