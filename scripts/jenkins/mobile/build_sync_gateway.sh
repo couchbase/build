@@ -221,7 +221,6 @@ cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
 cp    ${BLD_DIR}/README.txt              ${STAGING}
 echo  ${VERSION}                       > ${STAGING}/VERSION.txt
 cp    ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
-cp    ${SGW_DIR}/README.md               ${STAGING}
 cp -r ${SGW_DIR}/examples                ${STAGING}
 cp -r ${SGW_DIR}/service                 ${STAGING}
 

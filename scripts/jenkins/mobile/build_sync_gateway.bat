@@ -171,7 +171,6 @@ echo  %VERSION%                       > %STAGING%\VERSION.txt
 copy  %LIC_DIR%\LICENSE_%EDITION%.txt   %STAGING%\LICENSE.txt
 copy  %LIC_DIR%\LICENSE_%EDITION%.rtf   %STAGING%\LICENSE.rtf
 
-copy     %SGW_DIR%\README.md            %STAGING%\README.md
 xcopy /s %SGW_DIR%\examples             %STAGING%\examples
 xcopy /s %SGW_DIR%\service              %STAGING%\service
 
