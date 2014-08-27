@@ -81,27 +81,6 @@ echo ==============================================
 set
 echo ======== build ===============================
 
-rem Install third-party deps
-if exist %SOURCE_ROOT%\install rmdir /s /q %SOURCE_ROOT%\install
-mkdir %SOURCE_ROOT%\install
-if exist %SOURCE_ROOT%\deps\Makefile goto maybe_build_deps
-
-mkdir %SOURCE_ROOT%\deps
-cd %SOURCE_ROOT%\deps
-cmake -D CMAKE_INSTALL_PREFIX=%SOURCE_ROOT%\install -G "NMake Makefiles" c:\depot\win_%target_platform%
-cd %SOURCE_ROOT%
-goto build_deps
-
-:maybe_build_deps
-if not exist %SOURCE_ROOT%\install\v8-rev.txt goto build_deps
-goto build_couchbase
-
-:build_deps
-cd %SOURCE_ROOT%\deps
-nmake
-cd %SOURCE_ROOT%
-
-:build_couchbase
 if "%LICENSE%" == "enterprise" (
    set BUILD_ENTERPRISE=True
 ) else (
@@ -124,7 +103,7 @@ git pull origin %VOLTRON_BRANCH%
 
 :package_win
 echo ======== package =============================
-ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 "C:\Program Files\erl5.10.4" couchbase_server %BUILD_NUMBER% %LICENSE% %target_platform%
+ruby server-win.rb %SOURCE_ROOT%\install 5.10.4 couchbase_server %BUILD_NUMBER% %LICENSE% %target_platform%
 
 set PKG_SRC_DIR=%WORKSPACE%\voltron\couchbase_server\%RELEASE%\%BLD_NUM%
 set PKG_SRC_NAME=couchbase_server-%LICENSE%-windows-%target_platform%-%BUILD_NUMBER%.exe
