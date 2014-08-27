@@ -31,7 +31,7 @@ CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase build dependencies. It appears we require gcc 4.4.
 # To achieve this, install the gcc44-c++ package (which brings in gcc44),
-# then create symlinks in /usr/bin for cc, gcc and g++. This is probably
+# then create symlinks in /usr/bin for cc, c++, gcc and g++. This is probably
 # "not correct" but I didn't find a better way.
 # Note: redhat-lsb currently required for "cbdeps" third-party build
 # mechanism, but we hope to remove that requirement as it brings in a
@@ -40,6 +40,7 @@ RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noar
     yum install -y gcc44-c++ make git openssl-devel ruby rubygems rubygem-rake glibc.i686 ncurses-devel ed which man unzip python-devel rpm-build redhat-lsb && \
     ln -s gcc44 /usr/bin/cc && \
     ln -s gcc44 /usr/bin/gcc && \
+    ln -s g++44 /usr/bin/c++ && \
     ln -s g++44 /usr/bin/g++ && \
     mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
@@ -50,6 +51,7 @@ RUN rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/x86_64/epel-release-5-4.noar
     cd /tmp && rm -rf /tmp/deploy && \
     ln -s ccache /usr/local/bin/cc && \
     ln -s ccache /usr/local/bin/gcc && \
+    ln -s ccache /usr/local/bin/c++ && \
     ln -s ccache /usr/local/bin/g++
 
 # Install autoconf and friends - necessary for building some third-party deps
