@@ -18,6 +18,13 @@
 #            MAVEN_UPLOAD_USERNAME
 #            MAVEN_UPLOAD_PASSWORD
 #            
+#     
+#   enterprise_logs/  or  community_logs/
+#     
+#        01_java_build.log
+#        02_upload_android_artifacts.log
+#        03_android_package.log
+#     
 ##############
 
 source ~jenkins/.bash_profile
@@ -85,19 +92,19 @@ git show --stat
 echo ============================================  build java
 cp  ${JAVA_SRC}/release/*  ${JAVA_SRC}
 cd  ${JAVA_SRC}
-
 echo "********RUNNING: ${JAVA_SRC}/build_artifacts.sh *******************"
-( ./build_artifacts.sh 2>&1 )                >> ${LOG_DIR}/00_java_build.log
+( ./build_artifacts.sh 2>&1 )                >> ${LOG_DIR}/01_java_build.log
 
-if  [[ -e ${LOG_DIR}/00_java_build.log ]]
+if  [[ -e ${LOG_DIR}/01_java_build.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/00_java_build.log"
+    echo "===================================== ${LOG_DIR}/01_java_build.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/00_java_build.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/01_java_build.log
 fi
 
-echo "*******NOT RUNNING: release/upload_artifacts.sh *******************"
+cd  ${JAVA_SRC}
+echo "********RUNNING: ${JAVA_SRC}/upload_artifacts.sh ******************"
 ( ./upload_artifacts.sh 2>&1 )               >> ${LOG_DIR}/02_upload_android_artifacts.log
  
 if  [[ -e ${LOG_DIR}/02_upload_android_artifacts.log ]]
@@ -118,8 +125,9 @@ cp ${WORKSPACE}/build/license/couchbase-lite/LICENSE_${EDITION}.txt  LICENSE.txt
 MVN_ZIP=couchbase-lite-${REVISION}-java.zip
 JAV_ZIP=couchbase-lite-java-${EDITION}_${REVISION}.zip
 
-rm -f                                           ${LOG_DIR}/03_android_package.log
-    ${JAVA_SRC}/release/zip_jars.sh ${REVISION} ${LOG_DIR}/03_android_package.log
+cd ${JAVA_SRC}/release
+echo "********RUNNING: ${JAVA_SRC}/release/zip_jars.sh ******************"
+( ./zip_jars.sh ${REVISION} 2>&1 )            > ${LOG_DIR}/03_android_package.log
 
 if  [[ -e ${LOG_DIR}/03_android_package.log ]]
     then
@@ -134,8 +142,6 @@ file  ${JAVA_SRC}/release/target/${MVN_ZIP}  || exit 99
 cp    ${JAVA_SRC}/release/target/${MVN_ZIP}             ${WORKSPACE}/${JAV_ZIP}
 echo        ${WORKSPACE}/${JAV_ZIP}
 ${PUT_CMD}  ${WORKSPACE}/${JAV_ZIP}                      ${PKGSTORE}/${JAV_ZIP}
-
-
 
 
 ############## EXIT function finish
