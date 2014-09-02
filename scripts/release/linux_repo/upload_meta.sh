@@ -11,7 +11,8 @@
 # 
 #  ==>  upload keys, sources.list.d, and yum.repos.d
 #  
-if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
+if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server                        ; fi
+if [[ ! ${S3_PACKAGE_ROOT} ]] ; then  S3_PACKAGE_ROOT=s3://packages.couchbase.com/releases/couchbase-server ; fi
 
 function usage
     {
@@ -28,7 +29,7 @@ function usage
     }
 
 
-S3ROOT=s3://packages.couchbase.com/releases/couchbase-server
+S3ROOT=${S3_PACKAGE_ROOT}
 
 echo "Uploading local repo metadata at ${REPO} to ${S3ROOT}"
 

@@ -9,7 +9,8 @@
 #   5.  upload local repo to shared repository
 #   6.  upload keys and yum.repos.d
 #  
-if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
+if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server                        ; fi
+if [[ ! ${S3_PACKAGE_ROOT} ]] ; then  S3_PACKAGE_ROOT=s3://packages.couchbase.com/releases/couchbase-server ; fi
 
 function usage
     {
@@ -31,7 +32,7 @@ if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "
 if [[ $1 == "--init" ]]
     then
     REPO=${LOCAL_REPO_ROOT}/${EDITION}
-    S3ROOT=s3://packages.couchbase.com/releases/couchbase-server/${EDITION}
+    S3ROOT=${S3_PACKAGE_ROOT}/${EDITION}
     echo "Uploading local ${EDITION} repo at ${REPO}/rpm to ${S3ROOT}/rpm"
     
     pushd ${REPO}                                  2>&1 >> /dev/null
@@ -41,7 +42,7 @@ if [[ $1 == "--init" ]]
 else if [[ $1 == "--update" ]]
     then
         REPO=${LOCAL_REPO_ROOT}/${EDITION}/rpm
-        S3ROOT=s3://packages.couchbase.com/releases/couchbase-server/${EDITION}/rpm
+        S3ROOT=${S3_PACKAGE_ROOT}/${EDITION}/rpm
         echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
         
       # s3cmd sync -P --no-delete-removed --no-check-md5 --progress --verbose  ${REPO}  ${S3ROOT}/
