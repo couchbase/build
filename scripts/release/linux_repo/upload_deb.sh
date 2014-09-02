@@ -1,11 +1,12 @@
 #!/bin/bash
 #  
-#  Upload local debian repo to shared repo.  Step 4 of four:
+#  Upload local debian repo to shared repo.  Step 4 of five:
 #  
 #   1.  prepare repo meta-files
 #   2.  seed new repo
 #   3.  import packages
 #   4.  upload to shared repository
+#   5.  upload keys and sources files
 #  
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
 
