@@ -20,7 +20,10 @@ fi
 function quit  {  if [[ ${DO_EXIT} == 1 ]] ; then exit 0 ; fi }
 
 
-if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
+if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server                        ; fi
+if [[ ! ${S3_PACKAGE_ROOT} ]] ; then  S3_PACKAGE_ROOT=s3://packages.couchbase.com/releases/couchbase-server ; fi
+
+HTTP_PACKAGE_ROOT=`echo ${S3_PACKAGE_ROOT} | sed 's/s3:/http:/'`
 
 function usage
     {
@@ -59,7 +62,7 @@ function write_keys
 function write_sources
     {
     SSL_ROOT=http://packages.couchbase.com/releases/openssl098
-    URL_ROOT=http://packages.couchbase.com/releases/couchbase-server
+    URL_ROOT=${HTTP_PACKAGE_ROOT}
     for EDITION in enterprise community
       do
         for CENTOS in 5 6

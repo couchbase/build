@@ -19,7 +19,11 @@ fi
 function quit  {  if [[ ${DO_EXIT} == 1 ]] ; then exit 0 ; fi }
 
 
-if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
+if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server                        ; fi
+if [[ ! ${S3_PACKAGE_ROOT} ]] ; then  S3_PACKAGE_ROOT=s3://packages.couchbase.com/releases/couchbase-server ; fi
+
+HTTP_PACKAGE_ROOT=`echo ${S3_PACKAGE_ROOT} | sed 's/s3:/http:/'`
+
 
 function usage
     {
@@ -64,13 +68,13 @@ function write_sources
             LISTFILE=${SRCL_DIR}/couchbase-server.list
             echo "# `date`"                                                                                                 > ${LISTFILE}
             echo '# '                                                                                                      >> ${LISTFILE}
-            echo '# wget http://packages.couchbase.com/releases/couchbase-server/keys/couchbase-server-public-key'         >> ${LISTFILE}
+            echo '# wget ${HTTP_PACKAGE_ROOT}/keys/couchbase-server-public-key'                                            >> ${LISTFILE}
             echo '# gpg --import  couchbase-server-public-key'                                                             >> ${LISTFILE}
             echo '# cat couchbase-server-public-key  | sudo apt-key add -'                                                 >> ${LISTFILE}
             echo '# sudo apt-get update'                                                                                   >> ${LISTFILE}
             echo '# '                                                                                                      >> ${LISTFILE}
-            echo "deb  http://packages.couchbase.com/releases/couchbase-server/${EDITION}/deb/  ${UBUNTU}/${UBUNTU} main"  >> ${LISTFILE}
-            echo "deb  http://security.ubuntu.com/ubuntu  ${UBUNTU}-security  main"                                        >> ${LISTFILE}
+            echo "deb  ${HTTP_PACKAGE_ROOT}/${EDITION}/deb/  ${UBUNTU}/${UBUNTU} main"                                     >> ${LISTFILE}
+            echo "deb  http://security.ubuntu.com/ubuntu     ${UBUNTU}-security  main"                                     >> ${LISTFILE}
         done
     done
     }
