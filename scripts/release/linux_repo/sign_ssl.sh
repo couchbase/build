@@ -21,7 +21,7 @@ function usage
     }
 
 RPM_GPG_KEY_V4=805A4A3A
-RPM_GPG_KEY_V3=EC0B64C2
+RPM_GPG_KEY_V3=8A8E1353
 
 echo ""
 echo "Signing local openssl098 repo at ${RPM_REPO}"
