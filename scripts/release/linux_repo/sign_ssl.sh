@@ -20,7 +20,7 @@ function usage
     echo "signs the RPM packages in local openssl098 repo: ${RPM_REPO}"
     }
 
-RPM_GPG_KEY_V4=D6A0C30E
+RPM_GPG_KEY_V4=805A4A3A
 RPM_GPG_KEY_V3=EC0B64C2
 
 echo ""

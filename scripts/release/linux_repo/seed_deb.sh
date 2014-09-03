@@ -31,7 +31,7 @@ REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb
 
 echo "Creating local ${EDITION} repo at ${REPO}"
 
-KEY=D6A0C30E
+KEY=805A4A3A
 
 mkdir -p ${REPO}/conf
 

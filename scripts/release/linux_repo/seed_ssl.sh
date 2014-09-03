@@ -18,7 +18,7 @@ echo "creating new DEB openssl098 repo at:  ${DEB_REPO}"
 rm    -rf                                   ${DEB_REPO}
 mkdir  -p                                   ${DEB_REPO}/conf
 
-KEY=D6A0C30E
+KEY=805A4A3A
 OUTFILE=${DEB_REPO}/conf/distributions
 
 echo "writing ${OUTFILE}"
