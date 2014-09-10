@@ -224,7 +224,7 @@ diff ${MANIFEST_FILE} ${MANIFEST_FILE}.ORIG || true
 
 echo ============================================  build android
 cd ${ANDR_LITESRV_DIR}
-cp /release/* .
+cp release/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
 ( ./build_android.sh   2>&1 )                >> ${LOG_DIR}/01_android_build.log
