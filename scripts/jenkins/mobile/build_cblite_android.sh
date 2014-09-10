@@ -351,7 +351,7 @@ if  [[ -e ${LOG_DIR}/05_javadocs.log ]]
 fi
 cd libraries/couchbase-lite-java-core/build/docs/javadoc
 echo ============================================ jar up ${DOCS_JAR}
-( jar ${WORKSPACE}/${DOCS_JAR} * 2>&1 )      >> ${LOG_DIR}/06_package_javadocs.log
+( jar cvf ${WORKSPACE}/${DOCS_JAR} * 2>&1 )  >> ${LOG_DIR}/06_package_javadocs.log
 
 if  [[ -e ${LOG_DIR}/06_package_javadocs.log ]]
     then
