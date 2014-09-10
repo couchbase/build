@@ -63,6 +63,8 @@ EDITION=${3}
 
 AND_ZIP_SRC=couchbase-lite-android-${EDITION}_${BLD_NUM}.zip
 AND_ZIP_DST=couchbase-lite-android-${EDITION}_${REL_NUM}.zip
+DOC_JAR_SRC=couchbase-lite-android-javadocs-${EDITION}_${BLD_NUM}.jar
+DOC_JAR_DST=couchbase-lite-android-javadocs-${EDITION}_${REL_NUM}.jar
 SRC_ROOTDIR=couchbase-lite-${BLD_NUM}
 DST_ROOTDIR=couchbase-lite-${REL_NUM}
 
@@ -141,6 +143,8 @@ change_jar_version  couchbase-lite-java-javascript  jar  ${BLD_NUM}  ${REL_NUM}
 change_jar_version  couchbase-lite-java-listener    jar  ${BLD_NUM}  ${REL_NUM}
 change_jar_version  cbl_collator_so                 jar  ${BLD_NUM}  ${REL_NUM}  NO_POM
 
+mv  ${DOC_JAR_SRC} ${DOC_JAR_DST}
+
 cd                 ${ANDROID_JAR_DIR}
 zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
 
@@ -155,7 +159,6 @@ cd ${ANDROID_JAR_DIR}
 echo ============================================  upload to maven repository
 
 upload_new_package  couchbase-lite-android          aar  ${REL_NUM}
-#upload_new_package  couchbase-lite-android          jar  ${REL_NUM}
 upload_new_package  couchbase-lite-java-core        jar  ${REL_NUM}
 upload_new_package  couchbase-lite-java-javascript  jar  ${REL_NUM}
 upload_new_package  couchbase-lite-java-listener    jar  ${REL_NUM}

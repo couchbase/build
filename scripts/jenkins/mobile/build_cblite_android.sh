@@ -1,7 +1,9 @@
 #!/bin/bash
 #          
-#          run by jenkins jobs: 'build_cblite_android_master'
-#                               'build_cblite_android_100'
+#          run by jenkins jobs: 'build_cblite_android_master-community', 'build_cblite_android_master-enterprise'
+#                               'build_cblite_android_100-community',    'build_cblite_android_100-enterprise'
+#                               'build_cblite_android_101-community',    'build_cblite_android_101-enterprise'
+#                               'build_cblite_android_102-community',    'build_cblite_android_102-enterprise'
 #          
 #          with job paramters used in this script:
 #             
@@ -10,15 +12,26 @@
 #             
 #          and called with paramters:         branch_name  release_number  build_number  edition
 #          
-#            by build_cblite_android_master:     master           0.0.0       1234      community
-#            by build_cblite_android_100:        release/1.0.0    1.0.0       1234      enterprise
-#          
+#            by build_cblite_android_master-*     master           0.0.0       1234      community/enterprise
+#            by build_cblite_android_100-*        release/1.0.0    1.0.0       1234      community/enterprise
+#            by build_cblite_android_101-*        release/1.0.1    1.0.1       1234      community/enterprise
+#            by build_cblite_android_102-*        release/1.0.2    1.0.2       1234      community/enterprise
+#            
 #          in an environment with these variables set:
 #          
 #            MAVEN_UPLOAD_USERNAME
 #            MAVEN_UPLOAD_PASSWORD
 #          
-#          produces these log files, sampled in this script's output:
+#                    'build_number' is the jenkins build number of the parent job.  For example,
+#              
+#            build_cblite_android_master calls: build_cblite_android_master-community
+#                                               build_cblite_android_master-enterprise
+#               . . .
+#            build_cblite_android_102    calls: build_cblite_android_102-community
+#                                               build_cblite_android_102-enterprise
+#              
+#          
+#          Produces these log files, sampled in this script's output:
 #            
 #            SRC_LOG - 00_android_src_jarfile.log
 #            BLD_LOG - 01_android_build.log
@@ -112,7 +125,7 @@ export MAVEN_UPLOAD_VERSION=${REVISION}
 export MAVEN_UPLOAD_REPO_URL=http://files.couchbase.com/maven2/
 
 SRC_JAR=couchbase-lite-android-source_${REVISION}.jar
-DOCS_ZIP=couchbase-lite-android-javadocs-${EDITION}_${REVISION}.zip
+DOCS_JAR=couchbase-lite-android-javadocs-${EDITION}_${REVISION}.jar
 
 PLATFORM=linux-amd64
 SGW_PKG=couchbase-sync-gateway-${EDITION}_${SYNCGATE_VERSION}_x86_64.deb
@@ -211,7 +224,7 @@ diff ${MANIFEST_FILE} ${MANIFEST_FILE}.ORIG || true
 
 echo ============================================  build android
 cd ${ANDR_LITESRV_DIR}
-cp extra/jenkins_build/* .
+cp /release/* .
 
 echo "********RUNNING: ./build_android.sh *******************"
 ( ./build_android.sh   2>&1 )                >> ${LOG_DIR}/01_android_build.log
@@ -224,12 +237,13 @@ if  [[ -e ${LOG_DIR}/01_android_build.log ]]
     tail ${LOG_TAIL}                            ${LOG_DIR}/01_android_build.log
 fi
 echo ============================================  UNDO instantiate tokens
+cd  ${ANDR_LITESRV_DIR}
 cp  ${JAVA_VER_FILE}.ORIG ${JAVA_VER_FILE}
 rm  ${JAVA_VER_FILE}.ORIG
 cp  ${MANIFEST_FILE}.ORIG ${MANIFEST_FILE}
 rm  ${MANIFEST_FILE}.ORIG
 
-cd ${ANDR_LITESRV_DIR}
+cd  ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
 echo ".......................................creating avd"
 echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --force
@@ -336,8 +350,8 @@ if  [[ -e ${LOG_DIR}/05_javadocs.log ]]
     tail ${LOG_TAIL}                            ${LOG_DIR}/05_javadocs.log
 fi
 cd libraries/couchbase-lite-java-core/build/docs/javadoc
-echo ============================================ zip up ${DOCS_ZIP}
-( zip -r ${WORKSPACE}/${DOCS_ZIP} * 2>&1 )   >> ${LOG_DIR}/06_package_javadocs.log
+echo ============================================ jar up ${DOCS_JAR}
+( jar ${WORKSPACE}/${DOCS_JAR} * 2>&1 )      >> ${LOG_DIR}/06_package_javadocs.log
 
 if  [[ -e ${LOG_DIR}/06_package_javadocs.log ]]
     then
@@ -347,8 +361,8 @@ if  [[ -e ${LOG_DIR}/06_package_javadocs.log ]]
     tail ${LOG_TAIL}                            ${LOG_DIR}/06_package_javadocs.log
 fi
 
-echo ============================================ upload  ${PKGSTORE}/${DOCS_ZIP}
-${PUT_CMD}  ${WORKSPACE}/${DOCS_ZIP}                      ${PKGSTORE}/${DOCS_ZIP}
+echo ============================================ upload  ${PKGSTORE}/${DOCS_JAR}
+${PUT_CMD}  ${WORKSPACE}/${DOCS_JAR}                      ${PKGSTORE}/${DOCS_JAR}
 
 echo ============================================  build android zipfile
 
@@ -380,7 +394,7 @@ echo "=====================================" >> ${LOG_DIR}/07_android_package.lo
                     LICENSE.txt     2>&1 )   >> ${LOG_DIR}/07_android_package.log
 echo "=====================================" >> ${LOG_DIR}/07_android_package.log
 cd ${WORKSPACE}
-( zip -g ${AND_ZIP} ${DOCS_ZIP}  \
+( zip -g ${AND_ZIP} ${DOCS_JAR}  \
                     ${SRC_JAR}      2>&1 )   >> ${LOG_DIR}/07_android_package.log
 echo "=====================================" >> ${LOG_DIR}/07_android_package.log
 ( unzip -l  ${WORKSPACE}/${AND_ZIP} 2>&1 )   >> ${LOG_DIR}/07_android_package.log
