@@ -168,7 +168,7 @@ git show --stat
 if  [[ -e ${LOG_DIR}/00_android_src_jarfile.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/00_android_src_jarfile.log"
+    echo "================================================ 00_android_src_jarfile.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/00_android_src_jarfile.log
 fi
@@ -232,7 +232,7 @@ echo "********RUNNING: ./build_android.sh *******************"
 if  [[ -e ${LOG_DIR}/01_android_build.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/01_android_build.log"
+    echo "================================================ 01_android_build.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/01_android_build.log
 fi
@@ -276,7 +276,7 @@ echo "ADB log for build ${BLD_NUM}"           > ${LOG_DIR}/02_adb.log
 if  [[ -e ${LOG_DIR}/02_adb.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/02_adb.log"
+    echo "================================================ 02_adb.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/02_adb.log
 fi
@@ -297,7 +297,7 @@ echo "********RUNNING: ./run_android_unit_tests.sh  *************"
 if  [[ -e ${LOG_DIR}/03_android_unit_test.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/03_android_unit_test.log"
+    echo "================================================ 03_android_unit_test.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/03_android_unit_test.log
 fi
@@ -331,7 +331,7 @@ echo "********RUNNING: ./upload_android_artifacts.sh *******************"
 if  [[ -e ${LOG_DIR}/04_upload_android_artifacts.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/04_upload_android_artifacts.log"
+    echo "================================================ 04_upload_android_artifacts.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/04_upload_android_artifacts.log
 fi
@@ -345,7 +345,7 @@ JAVADOC_CMD='./gradlew :libraries:couchbase-lite-java-core:generateJavadocs'
 if  [[ -e ${LOG_DIR}/05_javadocs.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/05_javadocs.log"
+    echo "================================================ 05_javadocs.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/05_javadocs.log
 fi
@@ -356,7 +356,7 @@ echo ============================================ jar up ${DOCS_JAR}
 if  [[ -e ${LOG_DIR}/06_package_javadocs.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/06_package_javadocs.log"
+    echo "================================================ 06_package_javadocs.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/06_package_javadocs.log
 fi
@@ -379,7 +379,7 @@ rm -f                                           ${LOG_DIR}/07_android_package.lo
 
 if  [[ -e ${LOG_DIR}/07_android_package.log ]]
     then
-    echo "===================================== ${LOG_DIR}/07_android_package.log"
+    echo "================================================ 07_android_package.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/07_android_package.log
 fi
@@ -401,7 +401,7 @@ echo "=====================================" >> ${LOG_DIR}/07_android_package.lo
 
 if  [[ -e ${LOG_DIR}/07_android_package.log ]]
     then
-    echo "===================================== ${LOG_DIR}/07_android_package.log"
+    echo "================================================ 07_android_package.log"
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/07_android_package.log
 fi
