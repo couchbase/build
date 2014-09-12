@@ -169,6 +169,9 @@ case $project in
     buildbot-internal)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    gometa)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
