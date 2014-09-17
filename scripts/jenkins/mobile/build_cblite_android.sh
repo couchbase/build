@@ -4,18 +4,20 @@
 #                               'build_cblite_android_100-community',    'build_cblite_android_100-enterprise'
 #                               'build_cblite_android_101-community',    'build_cblite_android_101-enterprise'
 #                               'build_cblite_android_102-community',    'build_cblite_android_102-enterprise'
+#                               'build_cblite_android_dev-branch'
 #          
 #          with job paramters used in this script:
 #             
 #             SYNCGATE_VERSION  ( hard-coded to run on ubuntu-x64 )
 #                                 now of the form n.n-mmmm
 #             
-#          and called with paramters:         branch_name  release_number  build_number  edition
+#          and called with paramters:         branch_name  release_number  build_number  edition              [ NO_PKG ]
 #          
 #            by build_cblite_android_master-*     master           0.0.0       1234      community/enterprise
 #            by build_cblite_android_100-*        release/1.0.0    1.0.0       1234      community/enterprise
 #            by build_cblite_android_101-*        release/1.0.1    1.0.1       1234      community/enterprise
 #            by build_cblite_android_102-*        release/1.0.2    1.0.2       1234      community/enterprise
+#            by build_cblite_android_dev-branch   <dev_branch>     0.0.0       1234      community              True
 #            
 #          in an environment with these variables set:
 #          
@@ -83,7 +85,7 @@ LOG_TAIL=-24
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  release_number  build_number  edition (community or enterprise)\n\n"
+    echo -e "\nuse:  ${0}   branch_name  release_number  build_number  edition (community or enterprise)  [ no-package ]\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -110,6 +112,8 @@ REVISION=${VERSION}-${BLD_NUM}
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
 EDN_PRFX=`echo ${EDITION} | tr '[a-z]' '[A-Z]'`
+
+if [[   ${5} ]] ; then NO_PKG=${5} ; fi
 
 LOG_DIR_NAME=${EDITION}_logs
 LOG_DIR=${WORKSPACE}/${LOG_DIR_NAME}
@@ -311,6 +315,7 @@ if [[ $((FAILS)) > 0 ]]
     echo "------------------------------------------------------------------------"
     exit ${FAILS}
 fi
+if [[ ${NO_PKG} ]] ; then exit ${FAILS} ; fi
 
 #
 #                     # generates tap.out result file

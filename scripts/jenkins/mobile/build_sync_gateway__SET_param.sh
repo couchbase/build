@@ -61,6 +61,11 @@ if [[ ${PARNAME} == SYNCGATE_VERSION_UBUNTU_X64 ]]
     then
     echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}-${EDITION} -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
          ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_${RELEASE}-${EDITION} -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+    if [[ ${RELEASE} == master && ${EDITION} == community ]]
+        then
+         echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_dev-branch -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+              ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j build_cblite_android_dev-branch -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+    fi
 fi
 if [[ ${PARNAME} == SYNCGATE_VERSION_CENTOS_X64 ]]
     then
