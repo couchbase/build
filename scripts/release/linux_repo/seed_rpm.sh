@@ -24,15 +24,10 @@ echo ""
 rm   -rf ${REPO}
 mkdir -p ${REPO}
 mkdir -p ${REPO}/5/x86_64
-mkdir -p ${REPO}/5/i386
 mkdir -p ${REPO}/6/x86_64
-mkdir -p ${REPO}/6/i386
 
 createrepo --verbose  ${REPO}/5/x86_64
 createrepo --verbose  ${REPO}/6/x86_64
-
-createrepo --verbose  ${REPO}/5/i386
-createrepo --verbose  ${REPO}/6/i386
 
 echo ""
 echo "RPM repo ready for import: ${REPO}"
