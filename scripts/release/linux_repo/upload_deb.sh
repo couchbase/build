@@ -40,7 +40,7 @@ if [[ $1 == "--init" ]]
 
 else if [[ $1 == "--update" ]]
     then
-        REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb
+        REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb/*
         S3ROOT=${S3_PACKAGE_ROOT}/${EDITION}/deb
         echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
         

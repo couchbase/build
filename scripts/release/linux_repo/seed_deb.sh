@@ -46,7 +46,7 @@ echo "Suite: precise"                                               >> ${OUTFILE
 echo "Codename: precise"                                            >> ${OUTFILE}
 echo "Version: 12.04"                                               >> ${OUTFILE}
 echo "Components: precise/main"                                     >> ${OUTFILE}
-echo "Architectures: amd64 i386 source"                             >> ${OUTFILE}
+echo "Architectures: amd64 source"                                  >> ${OUTFILE}
 echo "Description: Couchbase ${EDITION_NAME} Repository"            >> ${OUTFILE}
 echo ""                                                             >> ${OUTFILE}
 echo "Origin: couchbase"                                            >> ${OUTFILE}
@@ -55,7 +55,7 @@ echo "Suite: lucid"                                                 >> ${OUTFILE
 echo "Codename: lucid"                                              >> ${OUTFILE}
 echo "Version: 10.04"                                               >> ${OUTFILE}
 echo "Components: lucid/main"                                       >> ${OUTFILE}
-echo "Architectures: amd64 i386 source"                             >> ${OUTFILE}
+echo "Architectures: amd64 source"                                  >> ${OUTFILE}
 echo "Description: Couchbase ${EDITION_NAME} Repository "           >> ${OUTFILE}
 
 echo "" 

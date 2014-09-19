@@ -41,7 +41,7 @@ if [[ $1 == "--init" ]]
 
 else if [[ $1 == "--update" ]]
     then
-        REPO=${LOCAL_REPO_ROOT}/${EDITION}/rpm
+        REPO=${LOCAL_REPO_ROOT}/${EDITION}/rpm/*
         S3ROOT=${S3_PACKAGE_ROOT}/${EDITION}/rpm
         echo "Uploading local ${EDITION} repo at ${REPO} to ${S3ROOT}"
         
