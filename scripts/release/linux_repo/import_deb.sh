@@ -48,6 +48,9 @@ fetch_deb                                                                       
 reprepro -T deb -V --ignore=wrongdistribution --basedir ${REPO}  includedeb  precise couchbase-server-${EDITION}_x86_64_${VERSION}-rel.deb
 reprepro -T deb -V --ignore=wrongdistribution --basedir ${REPO}  includedeb  lucid   couchbase-server-${EDITION}_x86_64_${VERSION}-rel.deb
 
+fetch_deb                                                                            couchbase-server-${EDITION}_debian7_x86_64_${VERSION}-rel.deb
+reprepro -T deb -V --ignore=wrongdistribution --basedir ${REPO}  includedeb  wheezy  couchbase-server-${EDITION}_debian7_x86_64_${VERSION}-rel.deb
+
 echo ""
 echo "local repo ready at ${REPO}"
 echo ""

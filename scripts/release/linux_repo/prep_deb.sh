@@ -68,13 +68,28 @@ function write_sources
             LISTFILE=${SRCL_DIR}/couchbase-server.list
             echo "# `date`"                                                                                                 > ${LISTFILE}
             echo '# '                                                                                                      >> ${LISTFILE}
-            echo '# wget ${HTTP_PACKAGE_ROOT}/keys/couchbase-server-public-key'                                            >> ${LISTFILE}
+            echo "# wget ${HTTP_PACKAGE_ROOT}/keys/couchbase-server-public-key"                                            >> ${LISTFILE}
             echo '# gpg --import  couchbase-server-public-key'                                                             >> ${LISTFILE}
             echo '# cat couchbase-server-public-key  | sudo apt-key add -'                                                 >> ${LISTFILE}
             echo '# sudo apt-get update'                                                                                   >> ${LISTFILE}
             echo '# '                                                                                                      >> ${LISTFILE}
             echo "deb  ${HTTP_PACKAGE_ROOT}/${EDITION}/deb/  ${UBUNTU}/${UBUNTU} main"                                     >> ${LISTFILE}
             echo "deb  http://security.ubuntu.com/ubuntu     ${UBUNTU}-security  main"                                     >> ${LISTFILE}
+        done
+        for DEBIAN in wheezy
+          do
+            SRCL_DIR=${LOCAL_REPO_ROOT}/sources.list.d/${DEBIAN}/${EDITION}
+            mkdir -p ${SRCL_DIR}
+            LISTFILE=${SRCL_DIR}/couchbase-server.list
+            echo "# `date`"                                                                                                 > ${LISTFILE}
+            echo '# '                                                                                                      >> ${LISTFILE}
+            echo "# wget ${HTTP_PACKAGE_ROOT}/keys/couchbase-server-public-key"                                            >> ${LISTFILE}
+            echo '# gpg --import  couchbase-server-public-key'                                                             >> ${LISTFILE}
+            echo '# cat couchbase-server-public-key  | sudo apt-key add -'                                                 >> ${LISTFILE}
+            echo '# sudo apt-get update'                                                                                   >> ${LISTFILE}
+            echo '# '                                                                                                      >> ${LISTFILE}
+            echo "deb  ${HTTP_PACKAGE_ROOT}/${EDITION}/deb/  ${DEBIAN}/${DEBIAN} main"                                     >> ${LISTFILE}
+            echo "deb  http://security.debian.org            ${DEBIAN}/updates   main"                                     >> ${LISTFILE}
         done
     done
     }
