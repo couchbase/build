@@ -10,12 +10,9 @@ BEGIN
     {
     $THIS_DIR = dirname( abs_path($0));    unshift( @INC, $THIS_DIR );
     }
-
-my $URL_ROOT='http://factory.couchbase.com';
-
 use Getopt::Std;
 
-my $usage = "\nuse:  $0 -j job_name -p param -v new_value\n\n";
+my $usage = "\nuse:  $0  -j job_name     -p param  -v new_value\n                                    [ -H jenkins_host -U userid -A api_token ]\n";
 
 use LWP::UserAgent;
 my $ua = LWP::UserAgent->new;
@@ -30,8 +27,12 @@ my ($job_name, $param, $new_val);
 my $DEBUG = 0;
 use Data::Dumper;
 
+my $default_jenkins_host      = 'factory.couchbase.com';
+my $default_jenkins_user      = 'self.jenkins';
+my $default_jenkins_api_token = '871e176226f645f2011fd50c5cb1a1eb';
 
-my ($jenkins_user, $jenkins_api_token) = ('self.jenkins', '871e176226f645f2011fd50c5cb1a1eb');
+my ($jenkins_host, $jenkins_user, $jenkins_tokn);
+
 my $myProperties = 'fake_root_for_XMLin';
 
 ############                        get_config ( <job_name> )
@@ -46,10 +47,10 @@ sub get_config
     my ($begin_str_parms, $endof_str_parms) = (0,0);
     my ($before_string_params, $string_params, $after_string_params) = ("", "", "");
     
-    my $request_url  = $URL_ROOT .'/job/'. $job .'/config.xml';
+    my $request_url  = 'http://'. $jenkins_host .'/job/'. $job .'/config.xml';
     if ($DEBUG)  { print STDERR "\nrequest: $request_url\n\n"; }
     $request = HTTP::Request->new(GET => $request_url);
-    $request->authorization_basic($jenkins_user, $jenkins_api_token);
+    $request->authorization_basic($jenkins_user, $jenkins_tokn);
     my $response = $ua->request($request);
     if ($DEBUG)  { print STDERR "respons: ".Dumper($response)."\n\n";  }
  
@@ -81,10 +82,10 @@ sub put_config
     {
     my ($job, $config) = @_;    if ($DEBUG)  { print STDERR "putting config:\n$config\n"; }
 
-    my $request_url  = $URL_ROOT .'/job/'. $job .'/config.xml';
+    my $request_url  = 'http://'. $jenkins_host .'/job/'. $job .'/config.xml';
     if ($DEBUG)  { print STDERR "\nrequest: $request_url\n\n"; }
     $request = HTTP::Request->new(POST => $request_url);
-    $request->authorization_basic($jenkins_user, $jenkins_api_token);
+    $request->authorization_basic($jenkins_user, $jenkins_tokn);
   # $request->content_type('text/plain');
     $request->content($config);
     my $response = $ua->request($request);
@@ -105,7 +106,7 @@ sub put_config
 ########################            S T A R T   H E R E
 
 my %options=();
-getopts("j:p:v:",\%options);
+getopts("j:p:v:H:U:A:",\%options);
 
 if  ( defined $options{j} && defined $options{p} && defined $options{v} )
     {
@@ -118,6 +119,19 @@ else
     print STDERR "$usage\n";
     exit  99;
     }
+if  ( defined $option{H}  && defined $option{U} && defined $option{A} )
+    {
+    $jenkins_host = $option{H};
+    $jenkins_user = $option{U};
+    $jenkins_tokn = $option{A};
+    }
+else
+    {
+    $jenkins_host = $default_jenkins_host;
+    $jenkins_user = $default_jenkins_user;
+    $jenkins_tokn = $default_jenkins_api_token;
+    }
+
 my $delay = 2 + int rand(5.3);
 sleep $delay;
 

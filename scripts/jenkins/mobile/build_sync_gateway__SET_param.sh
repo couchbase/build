@@ -35,6 +35,8 @@
 source ~/.bash_profile
 set -e
 
+CISC_AUTH=2133883ece6175aee8a0cad79c6550d5
+
 function usage
     {
     echo -e "\nuse:  ${0}   SYNCGATE-version-param  revision  branch\n\n"
@@ -71,6 +73,12 @@ if [[ ${PARNAME} == SYNCGATE_VERSION_CENTOS_X64 ]]
     then
     echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
          ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${RELEASE} -p ${EDN_PRFX}_SYNCGATE_VERSION -v ${REVISION}
+    
+    if [[ ${RELEASE} == 102 && ${EDITION} == community ]]
+        then
+        echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -H ci.sc.couchbase.com -U jenkins@factory -A ${CISC_AUTH} -j sgw-dashboard -p version_sgw -v ${REVISION}
+             ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -H ci.sc.couchbase.com -U jenkins@factory -A ${CISC_AUTH} -j sgw-dashboard -p version_sgw -v ${REVISION}
+    fi
 fi
 if [[ ${PARNAME} == SYNCGATE_VERSION_MACOSX_X64 ]]
     then
