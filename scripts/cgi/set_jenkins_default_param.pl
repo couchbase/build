@@ -119,11 +119,11 @@ else
     print STDERR "$usage\n";
     exit  99;
     }
-if  ( defined $option{H}  && defined $option{U} && defined $option{A} )
+if  ( defined $options{H}  && defined $options{U} && defined $options{A} )
     {
-    $jenkins_host = $option{H};
-    $jenkins_user = $option{U};
-    $jenkins_tokn = $option{A};
+    $jenkins_host = $options{H};
+    $jenkins_user = $options{U};
+    $jenkins_tokn = $options{A};
     }
 else
     {
@@ -131,6 +131,9 @@ else
     $jenkins_user = $default_jenkins_user;
     $jenkins_tokn = $default_jenkins_api_token;
     }
+if ($DEBUG)  { print "\n-------- jenkins_host = $jenkins_host"; }
+if ($DEBUG)  { print "\n-------- jenkins_user = $jenkins_user"; }
+if ($DEBUG)  { print "\n-------- jenkins_tokn = $jenkins_tokn"; }
 
 my $delay = 2 + int rand(5.3);
 sleep $delay;

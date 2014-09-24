@@ -36,6 +36,8 @@ source ~/.bash_profile
 set -e
 
 CISC_AUTH=2133883ece6175aee8a0cad79c6550d5
+CISC_HOST=ci.sc.couchbase.com
+CISC_USER=jenkins@factory
 
 function usage
     {
@@ -76,8 +78,8 @@ if [[ ${PARNAME} == SYNCGATE_VERSION_CENTOS_X64 ]]
     
     if [[ ${RELEASE} == 102 && ${EDITION} == community ]]
         then
-        echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -H ci.sc.couchbase.com -U jenkins@factory -A ${CISC_AUTH} -j sgw-dashboard -p version_sgw -v ${REVISION}
-             ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -H ci.sc.couchbase.com -U jenkins@factory -A ${CISC_AUTH} -j sgw-dashboard -p version_sgw -v ${REVISION}
+        echo ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -H ${CISC_HOST} -U ${CISC_USER} -A ${CISC_AUTH} -j sgw-dashboard -p version_sgw -v ${REVISION}
+             ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -H ${CISC_HOST} -U ${CISC_USER} -A ${CISC_AUTH} -j sgw-dashboard -p version_sgw -v ${REVISION}
     fi
 fi
 if [[ ${PARNAME} == SYNCGATE_VERSION_MACOSX_X64 ]]
