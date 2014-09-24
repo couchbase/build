@@ -43,6 +43,11 @@
 #            DOC_LOG - 05_javadocs.log
 #            ZIP_LOG - 06_package_javadocs.log
 #            PKG_LOG - 07_android_package.log
+#        
+#        
+#    NOTE:  If any value is supplied for the optional 5th param ( NO_PKG ), then the downstream tasks,
+#           such as building javadocs, uploading a zip file, and setting default values for downstream
+#           jenkins jobs, are all skipped.
 #            
 ##############
 #            
@@ -113,7 +118,7 @@ if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
 EDN_PRFX=`echo ${EDITION} | tr '[a-z]' '[A-Z]'`
 
-if [[   ${5} ]] ; then NO_PKG=${5} ; fi
+if [[   ${5} ]] ; then NO_PKG=${5} ; NO_DOWNSTREAM=skip_it ; fi
 
 LOG_DIR_NAME=${EDITION}_logs
 LOG_DIR=${WORKSPACE}/${LOG_DIR_NAME}
@@ -340,6 +345,7 @@ if  [[ -e ${LOG_DIR}/04_upload_android_artifacts.log ]]
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/04_upload_android_artifacts.log
 fi
+if [[ ${NO_DOWNSTREAM} ]] ; then exit ${FAILS} ; fi
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  generate javadocs
