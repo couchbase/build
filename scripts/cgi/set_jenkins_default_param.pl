@@ -24,7 +24,7 @@ my $xml = XML::Simple->new();
 
 my ($job_name, $param, $new_val);
 
-my $DEBUG = 0;
+my $DEBUG = 1;
 use Data::Dumper;
 
 my $default_jenkins_host      = 'factory.couchbase.com';
@@ -127,6 +127,7 @@ if  ( defined $options{H}  && defined $options{U} && defined $options{A} )
     }
 else
     {
+    if ($DEBUG)  { print "\n-------- using defaults -------- "; }
     $jenkins_host = $default_jenkins_host;
     $jenkins_user = $default_jenkins_user;
     $jenkins_tokn = $default_jenkins_api_token;
@@ -134,6 +135,7 @@ else
 if ($DEBUG)  { print "\n-------- jenkins_host = $jenkins_host"; }
 if ($DEBUG)  { print "\n-------- jenkins_user = $jenkins_user"; }
 if ($DEBUG)  { print "\n-------- jenkins_tokn = $jenkins_tokn"; }
+
 
 my $delay = 2 + int rand(5.3);
 sleep $delay;
