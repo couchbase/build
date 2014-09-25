@@ -8,6 +8,7 @@ set VOLTRON_BRANCH=%3
 set MANIFEST=%4
 set LICENSE=%5
 set ARCHITECTURE=%6
+set SRC_DIR_PREFIX=%7
 
 rem Name directory "v" to save a few vital characters - otherwise some
 rem InstallShield merge module unpacks to a directory with too long a name
@@ -25,7 +26,7 @@ git pull origin %VOLTRON_BRANCH% || goto error
 
 :package_win
 echo ======== package =============================
-ruby server-win.rb %WORKSPACE%\couchbase\install 5.10.4 couchbase_server %BUILD_NUMBER% %LICENSE% %ARCHITECTURE% || goto error
+ruby server-win.rb %WORKSPACE%\couchbase\install 5.10.4 couchbase_server %BUILD_NUMBER% %LICENSE% %ARCHITECTURE% %SRC_DIR_PREFIX%  || goto error
 
 set PKG_SRC_DIR=%WORKSPACE%\v\couchbase_server\%RELEASE%\%BLD_NUM%
 set PKG_SRC_NAME=couchbase_server-%LICENSE%-windows-%ARCHITECTURE%-%BUILD_NUMBER%.exe
