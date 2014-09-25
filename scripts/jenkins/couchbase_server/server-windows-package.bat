@@ -14,7 +14,7 @@ rem Name directory "v" to save a few vital characters - otherwise some
 rem InstallShield merge module unpacks to a directory with too long a name
 
 if exist v goto voltron_exists
-    git clone --branch %VOLTRON_BRANCH% git@github.com/couchbase/voltron.git v || goto error
+    git clone --branch %VOLTRON_BRANCH% git@github.com:couchbase/voltron.git v || goto error
 :voltron_exists
 
 cd v
