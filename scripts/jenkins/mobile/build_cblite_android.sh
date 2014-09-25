@@ -345,7 +345,6 @@ if  [[ -e ${LOG_DIR}/04_upload_android_artifacts.log ]]
     echo ". . ."
     tail ${LOG_TAIL}                            ${LOG_DIR}/04_upload_android_artifacts.log
 fi
-if [[ ${NO_DOWNSTREAM} ]] ; then exit ${FAILS} ; fi
 
 cd ${ANDR_LITESRV_DIR}
 echo ============================================  generate javadocs
@@ -417,6 +416,7 @@ if  [[ -e ${LOG_DIR}/07_android_package.log ]]
     tail ${LOG_TAIL}                            ${LOG_DIR}/07_android_package.log
 fi
 
+if [[ ${NO_DOWNSTREAM} ]] ; then exit ${FAILS} ; fi
 echo ============================================ upload ${PKGSTORE}/${AND_ZIP}
 echo        ${WORKSPACE}/${AND_ZIP}
 ${PUT_CMD}  ${WORKSPACE}/${AND_ZIP}                      ${PKGSTORE}/${AND_ZIP}
