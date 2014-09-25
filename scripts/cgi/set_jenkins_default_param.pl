@@ -24,7 +24,7 @@ my $xml = XML::Simple->new();
 
 my ($job_name, $param, $new_val);
 
-my $DEBUG = 1;
+my $DEBUG = 0;
 use Data::Dumper;
 
 my $default_jenkins_host      = 'factory.couchbase.com';
