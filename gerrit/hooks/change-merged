@@ -172,6 +172,12 @@ case $project in
     gometa)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    ptrace)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    couchbase-hadoop-plugin)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
