@@ -142,7 +142,7 @@ SGW_PKG=couchbase-sync-gateway-${EDITION}_${SYNCGATE_VERSION}_x86_64.deb
                 #  "android-19"
 AND_TARG=3
 EMULATOR=cblite
-SDCARD=16384M
+SDCARD=10240M
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
