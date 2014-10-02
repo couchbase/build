@@ -650,16 +650,19 @@ sub last_done_server
             {
             die "no such field: actions\n";
             }
-        my $act;
-        foreach $act ( 0 .. scalar keys $$bldpage{'actions'} )
+        my ($find_act, $act);
+        foreach $find_act ( 0 .. scalar keys $$bldpage{'actions'} )
             {
-            if (! defined( $$bldpage{'actions'}[$act] ))
+            if (! defined( $$bldpage{'actions'}[$find_act] ))
                 {
-                die "no such field: actions[$act]\n";
+                die "no such field: actions[$find_act]\n";
                 }
-            next if (! defined( $$bldpage{'actions'}[$act]{'parameters'} ))
-            if ($DEBUG)        { print STDERR "parameters are under 'actions'[ ".$act." ]\n"; }
-            }
+            if (defined( $$bldpage{'actions'}[$find_act]{'parameters'} ))
+                {
+                $act = $find_act;
+                if ($DEBUG)    { print STDERR "parameters are under 'actions'[ ".$act." ]\n"; }
+                last;
+            }   }
         if (! defined($act) )  { print STDERR "parameters NOT FOUND under 'actions'\n";
                                  die "no parameters found under 'actions'\n";           }
         
