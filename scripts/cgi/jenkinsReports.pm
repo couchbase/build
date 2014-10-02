@@ -631,7 +631,7 @@ sub last_done_server
         return( $builder, $bld_num, $job_num, $is_running, $bld_date, $isgood );
         }
     my @results_numbers;
-    my ($found_bldnum, $found_edition, $found_arch);    if ($arch eq 'x86' || $arch eq 'amd64')  { $found_arch = $arch; }
+    my ($found_bldnum, $found_edition, $found_arch);    if ($arch eq '32' || $arch eq '64')  { $found_arch = $arch; }
     for my $item ( 0 .. $len)  { if ($DEBUG) { print STDERR "array[ $item ] is $$results_array[$item]{'number'}\n"; }
                                                push @results_numbers, $$results_array[$item]{'number'};
                                              }
