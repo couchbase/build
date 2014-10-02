@@ -142,7 +142,6 @@ SGW_PKG=couchbase-sync-gateway-${EDITION}_${SYNCGATE_VERSION}_x86_64.deb
                 #  "android-19"
 AND_TARG=3
 EMULATOR=cblite
-SDCARD=10240M
 
 AUT_DIR=${WORKSPACE}/app-under-test
 if [[ -e ${AUT_DIR}  ]] ; then rm -rf ${AUT_DIR}  ; fi
@@ -256,7 +255,7 @@ rm  ${MANIFEST_FILE}.ORIG
 cd  ${ANDR_LITESRV_DIR}
 echo ============================================  run tests
 echo ".......................................creating avd"
-echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --sdcard ${SDCARD} --force
+echo no | android create avd -n ${EMULATOR} -t ${AND_TARG} --abi armeabi-v7a --force
 
 echo ".......................................stopping emulator"
 ./stop_android_emulator.sh  || true
