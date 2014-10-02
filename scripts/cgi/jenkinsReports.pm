@@ -682,7 +682,7 @@ sub last_done_server
                 }
             if ($$bldpage{'actions'}[$act]{'parameters'}[$pp]{'name'} eq 'ARCHITECTURE')
                 {
-                $found_bldnum = $$bldpage{'actions'}[$act]{'parameters'}[$pp]{'value'};
+                $found_arch   = $$bldpage{'actions'}[$act]{'parameters'}[$pp]{'value'};
                 if ($DEBUG)     { print STDERR "detected architecture: $found_arch\n";}
                 }
             last if ( defined($found_bldnum) && defined($found_edition) && defined($found_arch) );
