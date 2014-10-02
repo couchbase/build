@@ -650,30 +650,36 @@ sub last_done_server
             {
             die "no such field: actions\n";
             }
-        if (! defined( $$bldpage{'actions'}[0] ))
+        my $act;
+        foreach $act ( 0 .. scalar keys $$bldpage{'actions'} )
             {
-            die "no such field: actions[0]\n";
+            if (! defined( $$bldpage{'actions'}[$act] ))
+                {
+                die "no such field: actions[$act]\n";
+                }
+            next if (! defined( $$bldpage{'actions'}[$act]{'parameters'} ))
+            if ($DEBUG)        { print STDERR "parameters are under 'actions'[ ".$act." ]\n"; }
             }
-        if (! defined( $$bldpage{'actions'}[0]{'parameters'} ))
-            {
-            die "no such field: actions[0]{parameters}\n";
-            }
-        for my $pp (0 .. scalar keys $$bldpage{'actions'}[0]{'parameters'})
+        if (! defined($act) )  { print STDERR "parameters NOT FOUND under 'actions'\n";
+                                 die "no parameters found under 'actions'\n";           }
+        
+        for my $pp (0 .. scalar keys $$bldpage{'actions'}[$act]{'parameters'})
             {
             if ($DEBUG)  { print STDERR "pp is $pp\n"; }
-            if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'BLD_NUM')
+            if ($$bldpage{'actions'}[$act]{'parameters'}[$pp]{'name'} eq 'BLD_NUM')
                 {
-                $found_bldnum = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                $found_bldnum = $$bldpage{'actions'}[$act]{'parameters'}[$pp]{'value'};
                 if ($DEBUG)     { print STDERR "detected bldnum:       $found_bldnum\n";}
                 }
-            if ( ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'EDITION') || ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'LICENSE') )
+            if ( ($$bldpage{'actions'}[$act]{'parameters'}[$pp]{'name'} eq 'EDITION') ||
+                 ($$bldpage{'actions'}[$act]{'parameters'}[$pp]{'name'} eq 'LICENSE')  )
                 {
-                $found_edition = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                $found_edition = $$bldpage{'actions'}[$act]{'parameters'}[$pp]{'value'};
                 if ($DEBUG)     { print STDERR "detected edition:      $found_edition\n";}
                 }
-            if ($$bldpage{'actions'}[0]{'parameters'}[$pp]{'name'} eq 'ARCHITECTURE')
+            if ($$bldpage{'actions'}[$act]{'parameters'}[$pp]{'name'} eq 'ARCHITECTURE')
                 {
-                $found_bldnum = $$bldpage{'actions'}[0]{'parameters'}[$pp]{'value'};
+                $found_bldnum = $$bldpage{'actions'}[$act]{'parameters'}[$pp]{'value'};
                 if ($DEBUG)     { print STDERR "detected architecture: $found_arch\n";}
                 }
             last if ( defined($found_bldnum) && defined($found_edition) && defined($found_arch) );
