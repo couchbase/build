@@ -631,7 +631,8 @@ sub last_done_server
         return( $builder, $bld_num, $job_num, $is_running, $bld_date, $isgood );
         }
     my @results_numbers;
-    my ($found_bldnum, $found_edition, $found_arch);    if ($arch eq '32' || $arch eq '64')  { $found_arch = $arch; }
+    my ($found_bldnum, $found_edition, $found_branch, $found_arch);
+    if ($arch eq '32' || $arch eq '64')  { $found_arch = $arch; }
     for my $item ( 0 .. $len)  { if ($DEBUG) { print STDERR "array[ $item ] is $$results_array[$item]{'number'}\n"; }
                                                push @results_numbers, $$results_array[$item]{'number'};
                                              }
@@ -674,6 +675,11 @@ sub last_done_server
                 $found_bldnum = $$bldpage{'actions'}[$act]{'parameters'}[$pp]{'value'};
                 if ($DEBUG)     { print STDERR "detected bldnum:       $found_bldnum\n";}
                 }
+            if ($$bldpage{'actions'}[$act]{'parameters'}[$pp]{'name'} eq 'RELEASE')
+                {
+                $found_branch = $$bldpage{'actions'}[$act]{'parameters'}[$pp]{'value'};
+                if ($DEBUG)     { print STDERR "detected branch:       $found_branch\n";}
+                }
             if ( ($$bldpage{'actions'}[$act]{'parameters'}[$pp]{'name'} eq 'EDITION') ||
                  ($$bldpage{'actions'}[$act]{'parameters'}[$pp]{'name'} eq 'LICENSE')  )
                 {
@@ -685,9 +691,9 @@ sub last_done_server
                 $found_arch   = $$bldpage{'actions'}[$act]{'parameters'}[$pp]{'value'};
                 if ($DEBUG)     { print STDERR "detected architecture: $found_arch\n";}
                 }
-            last if ( defined($found_bldnum) && defined($found_edition) && defined($found_arch) );
+            last if ( defined($found_bldnum) && defined($found_edition) && defined($found_branch) && defined($found_arch) );
             }
-        if ( $found_edition eq $edition && $found_arch eq $arch )  { $bld_num = $found_bldnum;  $job_num = $jnum;  last; }
+        if ( $found_edition eq $edition && $found_arch eq $arch && $found_branch eq $branch )  { $bld_num = $found_bldnum;  $job_num = $jnum;  last; }
         }
     
     if (! defined($job_num) )
