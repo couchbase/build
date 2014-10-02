@@ -642,8 +642,8 @@ sub last_done_server
     
     for my $jnum (@job_numbers)
         {
-        undef($found_bldnum);
-        undef($found_edition);
+        undef($found_bldnum);    undef($found_edition);
+        undef($found_branch);    undef($found_arch);
         if ($DEBUG) { print STDERR "...checkint $jnum\n"; }
         $bldpage  = jenkinsQuery::get_json($builder.'/'.$jnum);
         
