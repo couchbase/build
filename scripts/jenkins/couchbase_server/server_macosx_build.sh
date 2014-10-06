@@ -1,12 +1,15 @@
 #!/bin/bash
 #          
-#          run by jenkins jobs: 'server_macosx_build_master'
-#                               'server_macosx_build_300'
+#          run by jenkins job 'macosx-x64_cs_build'
 #          
-#          called with paramters:         voltron_branch   release  bld_num  edition     manifest     override-manifest
+#          called with paramters:
 #          
-#            by server_macosx_build_master:       master   0.0.0    nnnn     community   current.xml  external-override-master.xml
-#            by server_macosx_build_300:           3.0.0   3.0.0    mmmm     enterprise  current.xml  external-override-3.0.0.xml
+#             RELEASE           e.g. 3.0.0beta
+#             BUILD_NUMBER           1209
+#             VOLTRON_BRANCH    passed to packaging scripts
+#             MANIFEST          to fetch source code
+#             EDITION           community/enterprise
+#             OVERRIDE          external dependencies manifest
 #  
 #   once we switch to always using current.xml, the override-manifest will be skipped
 #          
@@ -20,23 +23,23 @@ LOG_TAIL=-24
 
 function usage
     {
-    echo -e "\nuse:  ${0}   voltron_branch  release  build_number  edition  manifest  override-manifest\n\n"
+    echo -e "\nuse:  ${0}   release  build_number  voltron_branch  manifest  edition  override-manifest\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-GITSPEC=${1}
+RELEASE=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
-RELEASE=${2}
-
-if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
-BLD_NUM=${3}
+BLD_NUM=${2}
 REVISION=${RELEASE}-${BLD_NUM}
 
+if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
+GITSPEC=${3}
+
 if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
-EDITION=${4}
+MFSFILE=${4}
 
 if [[ ! ${5} ]] ; then usage ; exit 55 ; fi
-MFSFILE=${5}
+EDITION=${5}
 
 if [[ ! ${6} ]] ; then usage ; exit 44 ; fi
 OVR_XML=${6}
