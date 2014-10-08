@@ -605,10 +605,11 @@ sub last_done_server
     if ($DEBUG)  { print STDERR 'DEBUG: running jenkinsQuery::get_json('.$builder.")\n";    }
     my $sumpage = jenkinsQuery::get_json($builder);
     my $len = scalar keys %$sumpage;
-    if ($len < 1 )
-        {                   if ($DEBUG)  { print STDERR "DEBUG: no builds yet!\n"; }
-        $bld_num    =  0;
-        $job_num    = -1;
+    if ($len < 1)
+        {
+        if ($DEBUG)  { print STDERR "no build results for $builder\n"; }
+        $job_num    =  0;
+        $bld_num    = -1;
         $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
         $isgood     =  0;
@@ -623,8 +624,8 @@ sub last_done_server
     if ($len < 1)
         {
         if ($DEBUG)  { print STDERR "no build results for $builder\n"; }
-        $bld_num    =  0;
-        $job_num    = -1;
+        $job_num    =  0;
+        $bld_num    = -1;
         $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
         $isgood     =  0;
