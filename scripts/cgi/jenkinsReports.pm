@@ -700,8 +700,8 @@ sub last_done_server
     if (! defined($job_num) )
         {
         if ($DEBUG)  { print STDERR "no builds of $edition by $builder\n"; }
-        $bld_num    =  0;
-        $job_num    = -1;
+        $job_num    =  0;
+        $bld_num    = -1;
         $is_running =  0;    # 'TBD';
         $bld_date   = 'no package yet';
         $isgood     =  0;
