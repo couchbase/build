@@ -22,8 +22,9 @@
 #   enterprise_logs/  or  community_logs/
 #     
 #        01_java_build.log
-#        02_upload_android_artifacts.log
-#        03_android_package.log
+#        02_java_test.log
+#        03_upload_android_artifacts.log
+#        04_android_package.log
 #     
 ##############
 
@@ -103,16 +104,37 @@ if  [[ -e ${LOG_DIR}/01_java_build.log ]]
     tail ${LOG_TAIL}                            ${LOG_DIR}/01_java_build.log
 fi
 
+echo ============================================  test java
 cd  ${JAVA_SRC}
-echo "********RUNNING: ${JAVA_SRC}/upload_artifacts.sh ******************"
-( ./upload_artifacts.sh 2>&1 )               >> ${LOG_DIR}/02_upload_android_artifacts.log
- 
-if  [[ -e ${LOG_DIR}/02_upload_android_artifacts.log ]]
+echo "********RUNNING: ${JAVA_SRC}/build_artifacts.sh *******************"
+( ./unit_test.sh 2>&1 )                      >> ${LOG_DIR}/02_java_test.log
+
+FAILS=`grep -i FAIL ${LOG_DIR}/02_java_test.log | wc -l`
+if [[ $((FAILS)) > 0 ]]
+    then
+    echo "---------------------------- ${FAILS} test FAILs -----------------------"
+       cat -n ${LOG_DIR}/02_java_test.log | grep -i FAIL
+    echo "------------------------------------------------------------------------"
+    exit ${FAILS}
+fi
+if  [[ -e ${LOG_DIR}/02_java_test.log ]]
     then
     echo
-    echo "===================================== ${LOG_DIR}/02_upload_android_artifacts.log"
+    echo "===================================== ${LOG_DIR}/02_java_test.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/02_upload_android_artifacts.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/02_java_test.log
+fi
+
+cd  ${JAVA_SRC}
+echo "********RUNNING: ${JAVA_SRC}/upload_artifacts.sh ******************"
+( ./upload_artifacts.sh 2>&1 )               >> ${LOG_DIR}/03_upload_android_artifacts.log
+ 
+if  [[ -e ${LOG_DIR}/03_upload_android_artifacts.log ]]
+    then
+    echo
+    echo "===================================== ${LOG_DIR}/03_upload_android_artifacts.log"
+    echo ". . ."
+    tail ${LOG_TAIL}                            ${LOG_DIR}/03_upload_android_artifacts.log
 fi
 
 echo ============================================  build java zipfile
@@ -127,13 +149,13 @@ JAV_ZIP=couchbase-lite-java-native-${EDITION}_${REVISION}.zip
 
 cd ${JAVA_SRC}/release
 echo "********RUNNING: ${JAVA_SRC}/release/zip_jars.sh ******************"
-( ./zip_jars.sh ${REVISION} 2>&1 )            > ${LOG_DIR}/03_android_package.log
+( ./zip_jars.sh ${REVISION} 2>&1 )            > ${LOG_DIR}/04_android_package.log
 
-if  [[ -e ${LOG_DIR}/03_android_package.log ]]
+if  [[ -e ${LOG_DIR}/04_android_package.log ]]
     then
-    echo "===================================== ${LOG_DIR}/03_android_package.log"
+    echo "===================================== ${LOG_DIR}/04_android_package.log"
     echo ". . ."
-    tail ${LOG_TAIL}                            ${LOG_DIR}/03_android_package.log
+    tail ${LOG_TAIL}                            ${LOG_DIR}/04_android_package.log
 fi
 
 echo ============================================ upload ${PKGSTORE}/${JAV_ZIP}
