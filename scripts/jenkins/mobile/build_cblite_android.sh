@@ -125,7 +125,13 @@ LOG_DIR=${WORKSPACE}/${LOG_DIR_NAME}
 if [[ -e ${LOG_DIR} ]] ; then rm -rf ${LOG_DIR} ; fi
 mkdir -p ${LOG_DIR}
 
-PKG_SRCD=s3://packages.couchbase.com/builds/mobile/sync_gateway/${VERSION}/${SYNCGATE_VERSION}
+#  sometimes android source is branched before sync_gateway, so until the sync_gateway builds can
+#  set the SYNCGATE_VERSION we may have to use an old one
+sgw_rex='([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})'
+SGW_VER=${VERSION}
+if [[ ${SYNCGATE_VERSION} =~ $sgw_rex ]] ; then SGW_VER=${BASH_REMATCH[1]} ; fi
+
+PKG_SRCD=s3://packages.couchbase.com/builds/mobile/sync_gateway/${SGW_VER}/${SYNCGATE_VERSION}
 PKGSTORE=s3://packages.couchbase.com/builds/mobile/android/${VERSION}/${REVISION}
 PUT_CMD="s3cmd put -P"
 GET_CMD="s3cmd get"
