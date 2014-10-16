@@ -24,7 +24,6 @@ PUT_CMD="s3cmd put -P"
 GET_CMD="s3cmd get"
 
 LIST_OF_JARS="                \
-              couchbase-lite-android-liteserv \
               couchbase-lite-android          \
               couchbase-lite-java-core        \
               couchbase-lite-java-javascript  \
@@ -137,7 +136,6 @@ echo ============================================  renumber to ${AND_ZIP_DST}
 mv ${SRC_ROOTDIR}  ${DST_ROOTDIR}
 cd                 ${DST_ROOTDIR}
 
-change_jar_version  couchbase-lite-android-liteserv  jar  ${BLD_NUM}  ${REL_NUM}
 change_jar_version  couchbase-lite-android           aar  ${BLD_NUM}  ${REL_NUM}  NO_POM
 change_jar_version  couchbase-lite-android           jar  ${BLD_NUM}  ${REL_NUM}
 change_jar_version  couchbase-lite-java-core         jar  ${BLD_NUM}  ${REL_NUM}
@@ -160,7 +158,6 @@ for J in ${LIST_OF_JARS} ; do prepare_bucket ${REPOURL}/${GRP_URL}/${J} ; prepar
 cd ${ANDROID_JAR_DIR}
 echo ============================================  upload to maven repository
 
-upload_new_package  couchbase-lite-android-liteserv  jar  ${REL_NUM}
 upload_new_package  couchbase-lite-android           aar  ${REL_NUM}
 upload_new_package  couchbase-lite-java-core         jar  ${REL_NUM}
 upload_new_package  couchbase-lite-java-javascript   jar  ${REL_NUM}
