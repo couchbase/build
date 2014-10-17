@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 #          
 #          run from manual jobs:   prepare_release_android_master
 #                                  prepare_release_android_100
@@ -63,8 +63,6 @@ EDITION=${3}
 
 AND_ZIP_SRC=couchbase-lite-android-${EDITION}_${BLD_NUM}.zip
 AND_ZIP_DST=couchbase-lite-android-${EDITION}_${REL_NUM}.zip
-DOC_JAR_SRC=couchbase-lite-android-javadocs-${EDITION}_${BLD_NUM}.jar
-DOC_JAR_DST=couchbase-lite-android-javadocs-${EDITION}_${REL_NUM}.jar
 SRC_ROOTDIR=couchbase-lite-${BLD_NUM}
 DST_ROOTDIR=couchbase-lite-${REL_NUM}
 
@@ -78,15 +76,21 @@ function change_jar_version
     local OLDV=$3
     local NEWV=$4
     local NOPOM=$5
+    local HYPHEN=$6
+
+    if [[ "${HYPHEN}" = "" ]]; then
+        HYPHEN=-
+    fi
+
     echo +++++++++++++++++++++++++  changing version on ${PROD} from ${OLDV} to ${NEWV}
-    echo ::::::::: ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.${EXTN}
+    echo ::::::::: ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}${HYPHEN}${OLDV}.${EXTN}
     if [[ ${NOPOM} = "" ]]; then
-	echo ::::::::: ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom
+	echo ::::::::: ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}${HYPHEN}${OLDV}.pom
     fi
     
-    mv  ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.${EXTN}                                                                    ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${NEWV}.${EXTN} 
+    mv  ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}${HYPHEN}${OLDV}.${EXTN}                                                                    ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${NEWV}.${EXTN} 
     if [[ ${NOPOM} = "" ]]; then
-	cat ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom | sed -e "s,<version>${OLDV}</version>,<version>${NEWV}</version>,g" > ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${NEWV}.pom
+	cat ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}${HYPHEN}${OLDV}.pom | sed -e "s,<version>${OLDV}</version>,<version>${NEWV}</version>,g" > ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${NEWV}.pom
 	rm  ${ANDROID_JAR_DIR}/${DST_ROOTDIR}/${PROD}-${OLDV}.pom
     fi
     echo +++++++++++++++++++++++++  created new artifact:  ${PROD}-${NEWV}.${EXTN}
@@ -132,9 +136,13 @@ ${GET_CMD}  ${PKG_SRC}/${AND_ZIP_SRC}
 pwd
 unzip ${AND_ZIP_SRC}
 
+# Move javadocs and source into dest_dir so they can be renamed.
+# Probably the build_cblite_android step should put them there.
+echo ============================================  move javadoc and source to same dir
+mv couchbase-lite-android-*.jar ${SRC_ROOTDIR}
+
 echo ============================================  renumber to ${AND_ZIP_DST}
 mv ${SRC_ROOTDIR}  ${DST_ROOTDIR}
-cd                 ${DST_ROOTDIR}
 
 change_jar_version  couchbase-lite-android           aar  ${BLD_NUM}  ${REL_NUM}  NO_POM
 change_jar_version  couchbase-lite-android           jar  ${BLD_NUM}  ${REL_NUM}
@@ -142,10 +150,9 @@ change_jar_version  couchbase-lite-java-core         jar  ${BLD_NUM}  ${REL_NUM}
 change_jar_version  couchbase-lite-java-javascript   jar  ${BLD_NUM}  ${REL_NUM}
 change_jar_version  couchbase-lite-java-listener     jar  ${BLD_NUM}  ${REL_NUM}
 change_jar_version  cbl_collator_so                  jar  ${BLD_NUM}  ${REL_NUM}  NO_POM
+change_jar_version  couchbase-lite-android-javadocs-${EDITION}  jar  ${BLD_NUM}  ${REL_NUM}  NO_POM  "_"
+change_jar_version  couchbase-lite-android-source    jar  ${BLD_NUM}  ${REL_NUM}  NO_POM  "_"
 
-mv  ${DOC_JAR_SRC} ${DOC_JAR_DST}
-
-cd                 ${ANDROID_JAR_DIR}
 zip  -r            ${AND_ZIP_DST}     ${DST_ROOTDIR}
 
 echo ============================================  uploading ${PKG_DEST}/${AND_ZIP_DST}
