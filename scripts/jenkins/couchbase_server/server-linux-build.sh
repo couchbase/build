@@ -90,8 +90,8 @@ repo manifest -r > current.xml
 
 cd ${WORKSPACE}/voltron
 make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-enterprise.txt \
-     GROMMIT=/home/buildbot/root/grommit BUILD_DIR=/home/buildbot/root \
-     TOPDIR=/home/buildbot/root/voltron overlay
+     GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
+     TOPDIR=${WORKSPACE}/voltron overlay
 cp -R server-overlay-rpm/* /opt/couchbase
 PRODUCT_VERSION=${PRODUCT_VERSION} ./server-rpm.rb /opt/couchbase \
    couchbase-server couchbase server 1.0.0
