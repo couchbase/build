@@ -28,7 +28,7 @@ echo
 # Voltron's Makefile do a "git pull" in grommit, so we have to ensure
 # that works. This depends on the remote name in the manifest. All ugly.
 cd ${WORKSPACE}/grommit
-git checkout -b master membase-priv/master
+git checkout -B master membase-priv/master
 
 cd ${WORKSPACE}/voltron
 make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
