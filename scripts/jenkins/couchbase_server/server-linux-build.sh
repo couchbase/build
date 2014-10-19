@@ -55,7 +55,7 @@ echo =============== 2. Build Couchbase Server using CMake
 echo =============== `date`
 echo
 cd ${WORKSPACE}
-mkdir build
+mkdir -p build
 cd build
 if [ "${EDITION}" = "enterprise" ]
 then
