@@ -24,7 +24,7 @@ function usage
 
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 BLD_NUM=${1}
-                     vrs_rex='([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})'
+                     vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)$'
 if [[ ${BLD_NUM} =~ $vrs_rex  ]]
   then
     VERSION=${BASH_REMATCH[1]}

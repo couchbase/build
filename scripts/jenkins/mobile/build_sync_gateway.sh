@@ -37,7 +37,7 @@ GITSPEC=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
-                     vrs_rex='([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,})'
+                     vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)$'
 if [[ ${VERSION} =~ $vrs_rex ]]
   then
     RELEASE=${BASH_REMATCH[1]}
