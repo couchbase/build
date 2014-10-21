@@ -21,7 +21,7 @@ if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
 JOB_SUFX=${GITSPEC}
-                      vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)$'
+                      vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
 if [[ ${JOB_SUFX} =~ $vrs_rex ]]
     then
     JOB_SUFX=""

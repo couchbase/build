@@ -96,7 +96,7 @@ if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
 JOB_SUFX=${GITSPEC}
-                      vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)$'
+                      vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
 if [[ ${JOB_SUFX} =~ $vrs_rex ]]
     then
     JOB_SUFX=""
@@ -127,7 +127,7 @@ mkdir -p ${LOG_DIR}
 
 #  sometimes android source is branched before sync_gateway, so until the sync_gateway builds can
 #  set the SYNCGATE_VERSION we may have to use an old one
-sgw_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)$'
+sgw_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
 SGW_VER=${VERSION}
 if [[ ${SYNCGATE_VERSION} =~ $sgw_rex ]] ; then SGW_VER=${BASH_REMATCH[1]} ; fi
 
