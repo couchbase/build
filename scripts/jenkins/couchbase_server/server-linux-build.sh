@@ -13,6 +13,7 @@
 
 # Step 0: Derived values and cleanup.
 PRODUCT_VERSION=${RELEASE}-${BLD_NUM}-rel
+rm -f *.rpm
 rm -rf ~/rpmbuild
 rm -rf /opt/couchbase/*
 
