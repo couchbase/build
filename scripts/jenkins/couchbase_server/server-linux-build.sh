@@ -72,7 +72,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CB_DOWNLOAD_DEPS=1 \
       -D SNAPPY_OPTION=Disable \
       ..
-make
+make -j8
 make install
 
 # Step 3: Create installer, using Voltron.
