@@ -21,14 +21,15 @@ if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
 JOB_SUFX=${GITSPEC}
-                      vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
+                      vrs_rex='([0-9]{1,})\.([0-9]{1,})\.([0-9]{1,})(\.([0-9]{1,}))?'
 if [[ ${JOB_SUFX} =~ $vrs_rex ]]
     then
     JOB_SUFX=""
-    for N in 1 2 3 ; do
+    for N in 1 2 3 5; do
         if [[ $N -eq 1 ]] ; then            JOB_SUFX=${BASH_REMATCH[$N]} ; fi
         if [[ $N -eq 2 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
         if [[ $N -eq 3 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+        if [[ $N -eq 5 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
     done
 fi
 
@@ -207,7 +208,7 @@ echo  ============================================== update default value of tes
   SET_SCRIPT=${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl
 
 ${SET_SCRIPT}  -j prepare_release_ios_${JOB_SUFX}              -p ${EDN_PRFX}_BLD_TO_RELEASE    -v ${REVISION}
-${SET_SCRIPT}  -j mobile_functional_tests_ios_${JOB_SUFX}      -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
+#${SET_SCRIPT}  -j mobile_functional_tests_ios_${JOB_SUFX}      -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
 
 echo  ============================================== test
 

@@ -96,14 +96,15 @@ if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
 JOB_SUFX=${GITSPEC}
-                      vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
+                      vrs_rex='([0-9]{1,})\.([0-9]{1,})\.([0-9]{1,})(\.([0-9]{1,}))?'
 if [[ ${JOB_SUFX} =~ $vrs_rex ]]
     then
     JOB_SUFX=""
-    for N in 1 2 3 ; do
+    for N in 1 2 3 5; do
         if [[ $N -eq 1 ]] ; then            JOB_SUFX=${BASH_REMATCH[$N]} ; fi
         if [[ $N -eq 2 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
         if [[ $N -eq 3 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+        if [[ $N -eq 5 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
     done
 fi
 
@@ -435,7 +436,7 @@ echo ============================================ removing couchbase-sync-gatewa
 sudo dpkg --remove   couchbase-sync-gateway     || true
 
 echo  ============================================== update default value of release jobs
-${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${JOB_SUFX}  -p ${EDN_PRFX}_ANDROID_VERSION -v ${REVISION}
+#${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j mobile_functional_tests_android_${JOB_SUFX}  -p ${EDN_PRFX}_ANDROID_VERSION -v ${REVISION}
 ${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl -j prepare_release_android_${JOB_SUFX}          -p ${EDN_PRFX}_BLD_TO_RELEASE  -v ${REVISION}
 
 
