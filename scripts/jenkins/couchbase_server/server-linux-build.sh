@@ -96,7 +96,7 @@ make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-enterprise.txt \
 cp -R server-overlay-rpm/* /opt/couchbase
 PRODUCT_VERSION=${PRODUCT_VERSION} ./server-rpm.rb /opt/couchbase \
    couchbase-server couchbase server 1.0.0
-cp ~/rpmbuild/RPMS/x86_64/*.rpm ${WORKSPACE}
+cp ~/rpmbuild/RPMS/x86_64/*.rpm ${WORKSPACE}/couchbase-server-${EDITION}-${RELEASE}-${BLD_NUM}-centos6.x86_64.rpm
 
 echo
 echo =============== DONE!
