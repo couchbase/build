@@ -178,6 +178,9 @@ case $project in
     couchbase-hadoop-plugin)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    cbauditd)
+        repo="git@github.com:membase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
