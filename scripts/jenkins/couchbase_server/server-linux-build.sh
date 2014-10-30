@@ -16,7 +16,7 @@ PRODUCT_VERSION=${RELEASE}-${BLD_NUM}-rel
 rm -f *.rpm
 rm -rf ~/rpmbuild
 rm -rf /opt/couchbase/*
-find . -name \*.a -print0 | xargs -0 rm -f
+find goproj godeps -name \*.a -print0 | xargs -0 rm -f
 
 # Step 1: Building prerequisites.
 # This step will hopefully be obsoleted by moving all prereqs to cbdeps.
