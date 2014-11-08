@@ -184,6 +184,9 @@ case $project in
     cbagent)
         repo="git@github.com:couchbaselabs/$project.git"
         ;;
+    goxdcr)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
