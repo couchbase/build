@@ -23,7 +23,7 @@ my $DEBUG = 0;   # FALSE
 my $usage="\n".'use:  buildbotMapping::get_builder( platform, bits, branch)'."\n\n"
               .'      plaform   : centos, macosx, windows, ubuntu'."\n"
               .'      bits      : 32, 64'."\n"
-              .'      branch    : 2.0.0, 2.0.1, 2.0.2, 2.1.0, 2.1.1, 3.0.0, 3.0.1, master'."\n";
+              .'      branch    : 2.0.0, 2.0.1, 2.0.2, 2.1.0, 2.1.1, 3.0.0, 3.0.1, 3.0.2, master'."\n";
 
 
 my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "centos-x86-181-builder",
@@ -39,6 +39,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                               "2.5.2"  =>  "centos-5-x86-252-builder",
                                                               "3.0.0"  =>  "centos-5-x86-300-builder",
                                                               "3.0.1"  =>  "centos-5-x86-301-builder",
+                                                              "3.0.2"  =>  "centos-5-x86-302-builder",
                                                               "master" =>  "centos-5-x86-master-builder",
                                                             },
                                                       64 => { "1.8.1"  =>  "centos-x64-181-builder",
@@ -54,10 +55,12 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                               "2.5.2"  =>  "centos-5-x64-252-builder",
                                                               "3.0.0"  =>  "centos-5-x64-300-builder",
                                                               "3.0.1"  =>  "centos-5-x64-301-builder",
+                                                              "3.0.2"  =>  "centos-5-x64-302-builder",
                                                               "master" =>  "centos-5-x64-master-builder",
                                                             },
                                                     },
                                      "centos-6"  => { 32 => { "master" =>  "centos-6-x86-master-builder",
+                                                              "3.0.2"  =>  "centos-6-x86-302-builder",
                                                               "3.0.1"  =>  "centos-6-x86-301-builder",
                                                               "3.0.0"  =>  "centos-6-x86-300-builder",
                                                               "2.5.0"  =>  "centos-6-x86-250-builder",
@@ -67,6 +70,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                               "2.2.0"  =>  "centos-6-x86-220-builder",
                                                             },
                                                       64 => { "master" =>  "centos-6-x64-master-builder",
+                                                              "3.0.2"  =>  "centos-6-x64-302-builder",
                                                               "3.0.1"  =>  "centos-6-x64-301-builder",
                                                               "3.0.0"  =>  "centos-6-x64-300-builder",
                                                               "2.5.0"  =>  "centos-6-x64-250-builder",
@@ -79,6 +83,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                      "debian-7"  => { 64 => { "master" =>  "debian-7-x64-master-builder",
                                                               "3.0.0"  =>  "debian-7-x64-300-builder",
                                                               "3.0.1"  =>  "debian-7-x64-301-builder",
+                                                              "3.0.2"  =>  "debian-7-x64-302-builder",
                                                             },
                                                     },
                                      "macosx"  => { 64 => { "2.0.0"  =>  "mac-x64-20-builder",
@@ -93,6 +98,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                             "2.5.2"  =>  "mac-x64-252-builder",
                                                             "3.0.0"  =>  "mac-x64-300-builder",
                                                             "3.0.1"  =>  "mac-x64-301-builder",
+                                                            "3.0.2"  =>  "mac-x64-302-builder",
                                                             "master" =>  "mac-x64-master-bldr",
                                                           },
                                                   },
@@ -109,6 +115,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                                  "2.5.2"  =>  "ubuntu-1004-x86-252-builder",
                                                                  "3.0.0"  =>  "ubuntu-1004-x86-300-builder",
                                                                  "3.0.1"  =>  "ubuntu-1004-x86-301-builder",
+                                                                 "3.0.2"  =>  "ubuntu-1004-x86-302-builder",
                                                                  "master" =>  "ubuntu-1004-x86-master-builder",
                                                                },
                                                          64 => { "1.8.1"  =>  "ubuntu-x64-181-builder",
@@ -124,6 +131,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                                  "2.5.2"  =>  "ubuntu-1004-x64-252-builder",
                                                                  "3.0.0"  =>  "ubuntu-1004-x64-300-builder",
                                                                  "3.0.1"  =>  "ubuntu-1004-x64-301-builder",
+                                                                 "3.0.2"  =>  "ubuntu-1004-x64-302-builder",
                                                                  "master" =>  "ubuntu-1004-x64-master-builder",
                                                                },
                                                        },
@@ -135,6 +143,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                                  "2.5.2"  =>  "ubuntu-1204-x86-252-builder",
                                                                  "3.0.0"  =>  "ubuntu-1204-x86-300-builder",
                                                                  "3.0.1"  =>  "ubuntu-1204-x86-301-builder",
+                                                                 "3.0.2"  =>  "ubuntu-1204-x86-302-builder",
                                                                },
                                                          64 => { "master" =>  "ubuntu-1204-x64-master-builder",
                                                                  "2.2.0"  =>  "ubuntu-1204-x64-220-builder",
@@ -144,6 +153,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                                                                  "2.5.2"  =>  "ubuntu-1204-x64-252-builder",
                                                                  "3.0.0"  =>  "ubuntu-1204-x64-300-builder",
                                                                  "3.0.1"  =>  "ubuntu-1204-x64-301-builder",
+                                                                 "3.0.2"  =>  "ubuntu-1204-x64-302-builder",
                                                                },
                                                        },
                                      "windows" => { 32 => { "2.0.0"  =>  "cs-win2008-x86-20-builder",
@@ -184,6 +194,7 @@ my %buildbots = ( "production" => { "centos-5"   => { 32 => { "1.8.1"  =>  "cent
                             "3.0.0"   =>  "repo-couchbase-300-builder",
                             "301"     =>  "repo-couchbase-301-builder",
                             "3.0.1"   =>  "repo-couchbase-301-builder",
+                            "3.0.2"   =>  "repo-couchbase-302-builder",
                             "000"     =>  "repo-couchbase-master-builder",
                             "0.0.0"   =>  "repo-couchbase-master-builder",
                             "master"  =>  "repo-couchbase-master-builder",
@@ -249,7 +260,7 @@ sub get_toy_builder
     if ($DEBUG)  { print STDERR "\n".'...checking builder >>'.$toy_name.'<<'."\n"; }
     if (($platform eq 'cent54') || ($platform eq 'cent58') || ($platform eq 'cent64') || ($platform eq 'ubunt12')|| ($platform eq 'win32') || ($platform eq 'win64') )
         {
-        if ( ($branch eq 'master') || ($branch eq '3.0.0') || ($branch eq '3.0.1')  || \
+        if ( ($branch eq 'master') || ($branch eq '3.0.0') || ($branch eq '3.0.1')  || ($branch eq '3.0.2')  || \
              ($branch eq '2.5.2')  || ($branch eq '2.5.1') || ($branch eq '2.5.0')  || \
              ($branch eq '2.2.0')  || ($branch eq '2.1.1') )
             {

@@ -118,7 +118,7 @@ sub print_HTML_Page
     print $query->start_html( -title   => $page_title,
                               -head    => Link({ -rel  => 'shortcut icon',
                                                  -href => $favicon,
-                                                 -type => 'image/png' }),
+                                                 -type => 'image/x-icon' }),
                               -BGCOLOR => $color,
                             );
     print "\n".'<div style="overflow-x: hidden">'."\n".'<table border="0" cellpadding="0" cellspacing="0">'

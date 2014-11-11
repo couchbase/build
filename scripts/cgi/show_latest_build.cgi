@@ -28,7 +28,7 @@ use jenkinsQuery    qw(:DEFAULT );
 use CGI qw(:standard);
 my  $query = new CGI;
 
-my $delay = 2 + int rand(9.3);    sleep $delay;
+my $delay = 0 + int rand(3.3);    sleep $delay;
 
 my ($good_color, $warn_color, $err_color, $note_color) = ('#CCFFDD', '#FFFFCC', '#FFAAAA', '#CCFFFF');
 
@@ -115,7 +115,6 @@ if ($bldnum < 0)
     }
 elsif ($bldstatus)
     {
-    sleep $delay;
     my ($test_job_url, $test_build_num) = buildbotQuery::trigger_jenkins_url($builder, $bldnum);
     print STDERR "DEBUG: got ($test_job_url, $test_build_num)\n";
 
