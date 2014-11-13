@@ -9,7 +9,7 @@
 
 # New hotness Jenkins docker containers
 ./restart_jenkinsdocker.py ceejatec/centos-63-couchbase-jenkinsdocker:latest sherlocker 2222
-./restart_jenkinsdocker.py ceejatec/centos-63-couchbase-jenkinsdocker:latest lightweight 2223
+./restart_jenkinsdocker.py ceejatec/centos-63-couchbase-jenkinsdocker:latest zz-lightweight 2223
 
 # Clean up abandoned images
 echo "Done!"
