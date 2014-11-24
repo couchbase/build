@@ -196,10 +196,10 @@ echo ${JAVA_VER_FILE}
 cp ${JAVA_VER_FILE} ${JAVA_VER_FILE}.ORIG
 
 sed -i  -e 's,\${VERSION_NAME},'${VERSION}','  ${JAVA_VER_FILE}
-sed -i       -e 's,\${VERSION_CODE},'${BLD_NUM}','  ${JAVA_VER_FILE}
+sed -i  -e 's,\${VERSION_CODE},'${BLD_NUM}','  ${JAVA_VER_FILE}
 
 diff ${JAVA_VER_FILE} ${JAVA_VER_FILE}.ORIG || true
-rm -rf ${JAVA_VER_FILE}.ORIG
+
 
 
 cd ${ANDR_DIR}
