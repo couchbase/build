@@ -47,6 +47,8 @@ if not exist couchbase mkdir couchbase
 cd couchbase
 repo init -u git://github.com/couchbase/manifest -m %MANIFEST% || goto error
 repo sync --jobs=4 || goto error
+if not exist install mkdir install
+repo manifest -r > install/manifest.txt
 set SOURCE_ROOT=%CD%
 
 rem Unfortunately we need to have all of the directories
