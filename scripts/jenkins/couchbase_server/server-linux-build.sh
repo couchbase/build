@@ -10,11 +10,33 @@
 # BLD_NUM - xxxx
 #
 # (At some point these will instead be read from the manifest.)
+#
+# Required script command-line parameter:
+#
+#   Linux Distribution name (eg., "ubuntu12.04", "debian7", "centos6")
+#
+# This will be used to determine the pacakging format (.deb or .rpm).
 
-# Step 0: Derived values and cleanup.
+DISTRO=$1
+case "$DISTRO" in
+    centos*)
+        PKG=rpm
+        ;;
+    debian*|ubuntu*)
+        PKG=deb
+        ;;
+    *)
+        echo "Usage: $0 [ ubuntu12.04 | debian7 | centos6 | ... ]"
+        exit 2
+        ;;
+esac
+
+# Step 0: Derived values and cleanup. (Some of these are RPM- or
+# DEB-specific, but will safely do nothing on other systems.)
 PRODUCT_VERSION=${RELEASE}-${BLD_NUM}-rel
 rm -f *.rpm
 rm -rf ~/rpmbuild
+rm -rf ${WORKSPACE}/voltron/build/deb
 rm -rf /opt/couchbase/*
 find goproj godeps -name \*.a -print0 | xargs -0 rm -f
 
@@ -78,12 +100,13 @@ make -j8 || (
     echo make -j8 failed - re-running with no -j8 to hopefully get better debug output
     echo -------------; echo; echo
     make
+    exit 2
 )
 make install
 
-# Step 3: Create installer, using Voltron.
-# Goal is to incorporate the "overlay" steps here into server-rpm.rb,
-# so we can completely drop voltron's Makefile.
+# Step 3: Create installer, using Voltron.  Goal is to incorporate the
+# "build-filter" and "overlay" steps here into server-rpm/deb.rb, so
+# we can completely drop voltron's Makefile.
 
 echo
 echo =============== 3. Building installation package
@@ -98,11 +121,18 @@ repo manifest -r > current.xml
 cd ${WORKSPACE}/voltron
 make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-enterprise.txt \
      GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
-     TOPDIR=${WORKSPACE}/voltron overlay
-cp -R server-overlay-rpm/* /opt/couchbase
-PRODUCT_VERSION=${PRODUCT_VERSION} ./server-rpm.rb /opt/couchbase \
+     TOPDIR=${WORKSPACE}/voltron build-filter overlay
+cp -R server-overlay-${PKG}/* /opt/couchbase
+PRODUCT_VERSION=${PRODUCT_VERSION} ./server-${PKG}.rb /opt/couchbase \
    couchbase-server couchbase server 1.0.0
-cp ~/rpmbuild/RPMS/x86_64/*.rpm ${WORKSPACE}/couchbase-server-${EDITION}-${RELEASE}-${BLD_NUM}-centos6.x86_64.rpm
+if [ "${PKG}" = "rpm" ]
+then
+    cp ~/rpmbuild/RPMS/x86_64/*.rpm \
+        ${WORKSPACE}/couchbase-server-${EDITION}-${RELEASE}-${BLD_NUM}-${DISTRO}.x86_64.rpm
+else
+    cp build/deb/*.deb \
+        ${WORKSPACE}/couchbase-server-${EDITION}_${RELEASE}-${BLD_NUM}-${DISTRO}_amd64.deb
+fi
 
 echo
 echo =============== DONE!
