@@ -8,8 +8,9 @@
     <artifactId>couchbase-lite</artifactId>
     <version>${REVISION}</version>
     <packaging>jar</packaging>
-    
+
     <properties>
+
         <local-m2dir>${basedir}/m2</local-m2dir>
 
         <jackson.version>     1.9.2 </jackson.version>
@@ -17,11 +18,12 @@
         <rhino.version>       1.7R3 </rhino.version>
         <servlet.version>     2-3   </servlet.version>
 
-        <LICENSE_DIR>${basedir}</LICENSE_DIR>
-        <LICENSE_FILE>LICENSE.TXT</LICENSE_FILE>
+        <LICENSE_DIR>${basedir}/../../../../license/couchbase-lite</LICENSE_DIR>
+        <LICENSE_FILE>LICENSE_${EDITION}.txt</LICENSE_FILE>
 
         <TARGET_DIR>${local-m2dir}/com/couchbase/lite</TARGET_DIR>
         <ZIP_HOME>${basedir}/zip</ZIP_HOME>
+        <EDITION>${EDITION}</EDITION>
 
         <AND_CLASS_AAR> couchbase-lite-android-${REVISION}.aar          </AND_CLASS_AAR>
         <JAR_JAVA_CORE> couchbase-lite-java-core-${REVISION}.jar        </JAR_JAVA_CORE>
@@ -249,6 +251,7 @@
                                          <include name="${LICENSE_FILE}"                              />
                                      </fileset>
                                  </copy>
+                                 <move file="${ZIP_HOME}/${LICENSE_FILE}" tofile="${ZIP_HOME}/LICENSE.TXT"/>
                                  
                                  <!-- locally built  -->
                                  <echo message="DEBUG:::   locally built couchbase-lite JARs" />
