@@ -69,7 +69,12 @@ RUN mkdir /tmp/deploy && \
     curl https://www.kernel.org/pub/software/scm/git/git-1.9.4.tar.gz -o /tmp/deploy/git.tar.gz && \
     cd /tmp/deploy && tar xzf git.tar.gz && \
     cd git-1.9.4 && ./configure && make -j && make install && \
-    cd /tmp && rm -rf /tmp/deploy && yum erase -y curl-devel autoconf automake libidn-devel
+    cd /tmp && rm -rf /tmp/deploy && yum erase -y curl-devel autoconf automake libidn-devel && \
+    cd /usr/local/libexec/git-core && \
+    find . -samefile git -name 'git-*' -exec ln -sf git {} \; && \
+    find . -samefile git-remote-ftp -name 'git-*' -exec ln -sf git-remote-ftp {} \; && \
+    (strip * || true)
+
 
 # Install third-party build dependencies
 RUN yum install -y m4 file && yum clean packages
