@@ -31,9 +31,15 @@ if(NOT DEFINED ENV{WORKSPACE})
   set(ENV{WORKSPACE} ${CMAKE_BINARY_DIR})
 endif(NOT DEFINED ENV{WORKSPACE})
 
-execute_process(COMMAND uname -m
-                COMMAND tr -d '\n'
-                OUTPUT_VARIABLE HOST_ARCH)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+   execute_process(COMMAND isainfo -k
+                   COMMAND tr -d '\n'
+                   OUTPUT_VARIABLE HOST_ARCH)
+else(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+   execute_process(COMMAND uname -m
+                   COMMAND tr -d '\n'
+                   OUTPUT_VARIABLE HOST_ARCH)
+endif(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
 
 
 ### Determine OS version. Stolen from tlm/deps. ################################
@@ -85,6 +91,8 @@ MACRO (_DETERMINE_PLATFORM var)
     SET (_plat ${CMAKE_SYSTEM_NAME})
     IF (_plat STREQUAL "Windows")
       SET (_plat "windows_msvc")
+    ELSEIF (_plat STREQUAL "SunOS")
+      SET (_plat "sunos")
     ELSEIF (_plat STREQUAL "Darwin")
       SET (_plat "macosx")
     ELSEIF (_plat STREQUAL "Linux")
