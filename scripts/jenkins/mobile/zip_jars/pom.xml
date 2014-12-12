@@ -17,6 +17,7 @@
         <commons-io.version>  2.0.1 </commons-io.version>
         <rhino.version>       1.7R3 </rhino.version>
         <servlet.version>     2-3   </servlet.version>
+        <stateless4j.version> 2.4.0 </stateless4j.version>
 
         <LICENSE_DIR>${basedir}/../../../../license/couchbase-lite</LICENSE_DIR>
         <LICENSE_FILE>LICENSE_${EDITION}.txt</LICENSE_FILE>
@@ -117,7 +118,14 @@
             <version>${rhino.version}</version>
             <scope>compile</scope>
         </dependency>
-        
+
+        <dependency>
+            <groupId>com.github.oxo42</groupId>
+            <artifactId>stateless4j</artifactId>
+            <version>${stateless4j.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
@@ -283,7 +291,7 @@
                                          <include name="**/commons-io-${commons-io.version}.jar"      />
                                          <include name="**/jackson-core-asl-${jackson.version}.jar"   />
                                          <include name="**/jackson-mapper-asl-${jackson.version}.jar" />
-                                         
+                                         <include name="**/stateless4j-${stateless4j.version}.jar"    />
                                          <include name="**/servlet-${servlet.version}.jar"            />
                                          <include name="**/webserver-${servlet.version}.jar"          />
                                      </fileset>
