@@ -34,7 +34,7 @@ esac
 # Step 0: Derived values and cleanup. (Some of these are RPM- or
 # DEB-specific, but will safely do nothing on other systems.)
 PRODUCT_VERSION=${RELEASE}-${BLD_NUM}-rel
-rm -f *.rpm
+rm -f *.rpm *.deb
 rm -rf ~/rpmbuild
 rm -rf ${WORKSPACE}/voltron/build/deb
 rm -rf /opt/couchbase/*
