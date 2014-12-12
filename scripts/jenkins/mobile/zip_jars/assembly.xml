@@ -17,11 +17,11 @@
             <outputDirectory>/</outputDirectory>
             <filtered>false</filtered>
         </file>
-<!--        <file>
+        <file>
             <source> ${ZIP_HOME}/${JAR_AND_CLASS} </source>
             <outputDirectory>/</outputDirectory>
             <filtered>false</filtered>
-        </file>-->
+        </file>
         <file>
             <source> ${ZIP_HOME}/${AND_CLASS_AAR} </source>
             <outputDirectory>/</outputDirectory>
@@ -60,7 +60,7 @@
         </file>
         
                                  <!-- locally packaged  -->
-<!--        <file>
+        <file>
             <source> ${ZIP_HOME}/${JAR_AND_CLASS} </source>
             <outputDirectory>/</outputDirectory>
             <filtered>false</filtered>
@@ -69,7 +69,7 @@
             <source> ${ZIP_HOME}/${JAR_COLLATORS} </source>
             <outputDirectory>/</outputDirectory>
             <filtered>false</filtered>
-        </file>-->
+        </file>
         
                                  <!-- third-party    -->
         <file>
