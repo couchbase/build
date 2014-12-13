@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # Expects to be run from the latestbuilds directory.
 
@@ -30,6 +30,13 @@ upload()
     cp $build $RELEASE_DIR/$target
     cp /tmp/$build.md5 $RELEASE_DIR/$target.md5
 }
+
+if [ ! -e couchbase-server_$RELEASE-src.tgz ]
+then
+    echo 'Create the source tarball with create_tarball.sh!'
+    exit 1
+fi
+upload couchbase-server_$RELEASE-src.tgz couchbase-server_$RELEASE-src.tgz
 
 upload couchbase-server-community_centos6_x86_64_$RELEASE-$BUILD-rel.rpm \
   couchbase-server-community-$RELEASE-centos6.x86_64.rpm
@@ -71,4 +78,3 @@ upload couchbase_server-community-windows-x86-$RELEASE-$BUILD.exe \
 upload couchbase_server-enterprise-windows-x86-$RELEASE-$BUILD.exe \
   couchbase-server-enterprise_$RELEASE-windows_x86.exe
 
-#upload couchbase-server_$RELEASE-src.tgz couchbase-server_$RELEASE-src.tgz
