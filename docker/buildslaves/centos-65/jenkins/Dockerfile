@@ -33,11 +33,8 @@ EXPOSE 22
 CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase build dependencies.
-# Note: redhat-lsb currently required for "cbdeps" third-party build
-# mechanism, but we hope to remove that requirement as it brings in a
-# LOT of unnecessary packages on Centos.
 RUN yum install -y gcc-c++ make tar openssl-devel ruby rubygems rubygem-rake tar glibc.i686 \
-    ncurses-devel ed which man unzip python-devel rpm-build openssh-clients redhat-lsb && \
+    ncurses-devel ed which man unzip python-devel rpm-build openssh-clients redhat-lsb-core && \
     yum clean packages
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
@@ -65,11 +62,12 @@ RUN mkdir /tmp/deploy && \
 # from source. Theoretically there are several build pre-requisites to
 # install, but in practice they don't seem necessary other than curl-dev.
 RUN mkdir /tmp/deploy && \
-    yum install -y curl-devel && \
+    yum install -y curl-devel gettext perl-ExtUtils-MakeMaker && \
     curl https://www.kernel.org/pub/software/scm/git/git-1.9.4.tar.gz -o /tmp/deploy/git.tar.gz && \
     cd /tmp/deploy && tar xzf git.tar.gz && \
     cd git-1.9.4 && ./configure && make -j8 && make install && \
-    cd /tmp && rm -rf /tmp/deploy && yum erase -y curl-devel autoconf automake libidn-devel && \
+    cd /tmp && rm -rf /tmp/deploy && yum erase -y curl-devel autoconf automake \
+       gettext perl-ExtUtils-MakeMaker libidn-devel && \
     cd /usr/local/libexec/git-core && \
     find . -samefile git -name 'git-*' -exec ln -sf git {} \; && \
     find . -samefile git-remote-ftp -name 'git-*' -exec ln -sf git-remote-ftp {} \; && \
