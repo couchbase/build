@@ -32,13 +32,43 @@ RUN chown -R buildbot:buildbot /home/buildbot/.ssh && \
 EXPOSE 22
 CMD [ "/usr/sbin/sshd", "-D" ]
 
-# Install Couchbase build dependencies.
-RUN yum install -y gcc-c++ make tar openssl-devel ruby rubygems rubygem-rake tar glibc.i686 \
-    ncurses-devel ed which man unzip python-devel rpm-build openssh-clients redhat-lsb-core && \
-    yum clean packages
+### Install Couchbase build dependencies ######################################
+# * Packages from the base CentOS repository
+RUN yum install --setopt=keepcache=0 -y \
+                ed \
+                glibc.i686 \
+                make \
+                man \
+                ncurses-devel \
+                openssh-clients openssl-devel \
+                python-devel \
+                redhat-lsb-core \
+                rpm-build \
+                ruby rubygems rubygem-rake \
+                tar \
+                unzip \
+                which
+# * C++11 compliant compiler and related tools from CentOS's port of RHEL's
+#    devtools (http://people.centos.org/tru/devtools-2/)
+RUN curl http://people.centos.org/tru/devtools-2/devtools-2.repo > \
+         /etc/yum.repos.d/devtools-2.repo && \
+    yum install --setopt=keepcache=0 -y \
+                devtoolset-2-gcc-c++ \
+                devtoolset-2-binutils && \
+    ln -s /opt/rh/devtoolset-2/root/usr/bin/as /usr/local/bin/as && \
+    ln -s /opt/rh/devtoolset-2/root/usr/bin/gcc /usr/bin/gcc && \
+    ln -s /opt/rh/devtoolset-2/root/usr/bin/cc /usr/bin/cc && \
+    ln -s /opt/rh/devtoolset-2/root/usr/bin/g++ /usr/bin/g++ && \
+    ln -s /opt/rh/devtoolset-2/root/usr/bin/c++ /usr/bin/c++
+
+# * CMake (from cmake.org)
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
+    rm -fr /tmp/deploy
+
+# * ccache (from source)
+RUN mkdir /tmp/deploy && \
     curl -L http://samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
     cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
     cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
@@ -46,15 +76,18 @@ RUN mkdir /tmp/deploy && \
     ln -s ccache /usr/local/bin/g++ && \
     ln -s ccache /usr/local/bin/cc && \
     ln -s ccache /usr/local/bin/c++ && \
-    ln -s ccache /usr/local/bin/x86_64-redhat-linux-c++ && \
-    ln -s ccache /usr/local/bin/x86_64-redhat-linux-g++ && \
-    ln -s ccache /usr/local/bin/x86_64-redhat-linux-gcc && \
+    rm -fr /tmp/deploy
+
+# * golang
+RUN mkdir /tmp/deploy && \
     curl https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
     cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
-    curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
-    chmod a+x /usr/local/bin/repo && \
-    rm -rf /tmp/deploy
+    rm -fr /tmp/deploy
+
+# * repo
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
+    chmod a+x /usr/local/bin/repo
 
 # Centos 6 only includes git 1.7.1. Recent versions of repo require
 # 1.7.2.  It's like they planned to be evil. EPEL has no newer
@@ -75,7 +108,7 @@ RUN mkdir /tmp/deploy && \
 
 
 # Install third-party build dependencies
-RUN yum install -y m4 file && yum clean packages
+RUN yum install -y --setopt=keepcache=0 m4 file
 
 # Install autoconf and friends - necessary for building some third-party deps
 # from source, not for Couchbase.
