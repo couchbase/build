@@ -44,7 +44,7 @@ RUN mkdir /tmp/deploy && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
     curl -L http://samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
     cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
-    cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j && make install && \
+    cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
     ln -s ccache /usr/local/bin/gcc && \
     ln -s ccache /usr/local/bin/g++ && \
     ln -s ccache /usr/local/bin/cc && \
@@ -68,7 +68,7 @@ RUN mkdir /tmp/deploy && \
     yum install -y curl-devel && \
     curl https://www.kernel.org/pub/software/scm/git/git-1.9.4.tar.gz -o /tmp/deploy/git.tar.gz && \
     cd /tmp/deploy && tar xzf git.tar.gz && \
-    cd git-1.9.4 && ./configure && make -j && make install && \
+    cd git-1.9.4 && ./configure && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy && yum erase -y curl-devel autoconf automake libidn-devel && \
     cd /usr/local/libexec/git-core && \
     find . -samefile git -name 'git-*' -exec ln -sf git {} \; && \
@@ -84,13 +84,13 @@ RUN yum install -y m4 file && yum clean packages
 RUN mkdir /tmp/deploy && \
     curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
     cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
-    cd autoconf-2.69 && ./configure --prefix=/usr/local && make -j && make install && \
+    cd autoconf-2.69 && ./configure --prefix=/usr/local && make -j8 && make install && \
     curl -L http://ftpmirror.gnu.org/automake/automake-1.11.1.tar.gz -o /tmp/deploy/automake-1.11.1.tar.gz && \
     cd /tmp/deploy && tar -xzf automake-1.11.1.tar.gz && \
-    cd automake-1.11.1 && ./configure --prefix=/usr/local && make -j && make install && \
+    cd automake-1.11.1 && ./configure --prefix=/usr/local && make -j8 && make install && \
     curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
     cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
-    cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j && make install && \
+    cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy
 
 # JDK for Jenkins.

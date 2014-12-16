@@ -57,13 +57,13 @@ RUN apt-get install -y m4 python2.6 python2.6-dev && \
 RUN mkdir /tmp/deploy && \
     curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
     cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
-    cd autoconf-2.69 && ./configure --prefix=/usr/local && make -j && make install && \
+    cd autoconf-2.69 && ./configure --prefix=/usr/local && make -j8 && make install && \
     curl -L http://ftpmirror.gnu.org/automake/automake-1.11.1.tar.gz -o /tmp/deploy/automake-1.11.1.tar.gz && \
     cd /tmp/deploy && tar -xzf automake-1.11.1.tar.gz && \
-    cd automake-1.11.1 && ./configure --prefix=/usr/local && make -j && make install && \
+    cd automake-1.11.1 && ./configure --prefix=/usr/local && make -j8 && make install && \
     curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
     cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
-    cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j && make install && \
+    cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy
 
 # JDK for Jenkins.
