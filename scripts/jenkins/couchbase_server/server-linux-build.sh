@@ -50,11 +50,11 @@ echo =============== `date`
 echo
 
 # Voltron's Makefile do a "git pull" in grommit, so we have to ensure
-# that works. Create a "master" branch tracking the m/master branch
-# that repo creates.
+# that works. Create a "master" branch tracking the upstream repository.
 cd ${WORKSPACE}/grommit
-git branch -t master remotes/m/master || true
-git checkout master
+git checkout -B master
+git config branch.master.remote membase-priv
+git branch --set-upstream-to=membase-priv/master
 
 cd ${WORKSPACE}/voltron
 make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
