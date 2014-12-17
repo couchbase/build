@@ -1,3 +1,4 @@
+#!/bin/bash -ex
 # Launched by the job "repo-sherlock" when a change to the sherlock.xml
 # manifest is detected.
 
@@ -6,6 +7,8 @@
 if [ ! -d build-team-manifests ]
 then
     git clone ssh://git@github.com/couchbase/build-team-manifests
+else
+    (cd build-team-manifests; git pull)
 fi
 
 # Save the build manifest.
