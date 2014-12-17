@@ -50,9 +50,11 @@ echo =============== `date`
 echo
 
 # Voltron's Makefile do a "git pull" in grommit, so we have to ensure
-# that works. This depends on the remote name in the manifest. All ugly.
+# that works. Create a "master" branch tracking the m/master branch
+# that repo creates.
 cd ${WORKSPACE}/grommit
-git checkout -B master membase-priv/master
+git branch -t master remotes/m/master || true
+git checkout master
 
 cd ${WORKSPACE}/voltron
 make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
