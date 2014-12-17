@@ -89,23 +89,9 @@ RUN mkdir /tmp/deploy && \
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo
 
-# Centos 6 only includes git 1.7.1. Recent versions of repo require
-# 1.7.2.  It's like they planned to be evil. EPEL has no newer
-# version, and Repoforge didn't seem to work. So, we have to build
-# from source. Theoretically there are several build pre-requisites to
-# install, but in practice they don't seem necessary other than curl-dev.
-RUN mkdir /tmp/deploy && \
-    yum install -y curl-devel gettext perl-ExtUtils-MakeMaker && \
-    curl https://www.kernel.org/pub/software/scm/git/git-1.9.4.tar.gz -o /tmp/deploy/git.tar.gz && \
-    cd /tmp/deploy && tar xzf git.tar.gz && \
-    cd git-1.9.4 && ./configure && make -j8 && make install && \
-    cd /tmp && rm -rf /tmp/deploy && yum erase -y curl-devel autoconf automake \
-       gettext perl-ExtUtils-MakeMaker libidn-devel && \
-    cd /usr/local/libexec/git-core && \
-    find . -samefile git -name 'git-*' -exec ln -sf git {} \; && \
-    find . -samefile git-remote-ftp -name 'git-*' -exec ln -sf git-remote-ftp {} \; && \
-    (strip * || true)
-
+# * git
+RUN yum install -y --setopt=keepcache=0 devtoolset-2-git && \
+    ln -s /opt/rh/devtoolset-2/root/usr/bin/git /usr/local/bin/git
 
 # Install third-party build dependencies
 RUN yum install -y --setopt=keepcache=0 m4 file
