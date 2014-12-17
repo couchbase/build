@@ -54,7 +54,7 @@ echo
 cd ${WORKSPACE}/grommit
 git checkout -B master
 git config branch.master.remote membase-priv
-git branch --set-upstream-to=membase-priv/master
+git config branch.master.merge refs/heads/master
 
 cd ${WORKSPACE}/voltron
 make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
