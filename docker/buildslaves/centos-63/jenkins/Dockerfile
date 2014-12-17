@@ -98,6 +98,7 @@ RUN yum -y install java-1.7.0-openjdk && yum clean packages
 
 # Configure user "buildbot" for git.
 USER buildbot
-RUN git config --global user.email "build-team@couchase.com" && \
+RUN export HOME=/home/buildbot && \
+    git config --global user.email "build-team@couchase.com" && \
     git config --global user.name "Couchbase Build Team" && \
     git config --global color.ui false
