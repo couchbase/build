@@ -13,8 +13,8 @@ repo manifest -r > build-team-manifests/sherlock.xml
 cd build-team-manifests
 git add sherlock.xml
 msg="Sherlock build ${BUILD_NUMBER} at "`date`
-git commit -m $msg
-git push
+git commit -m "$msg"
+git push origin HEAD:master
 
 # If this script is executing, a change was detected. Time to update the mirror!
 cd /home/buildbot/reporef
