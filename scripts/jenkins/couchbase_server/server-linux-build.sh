@@ -46,7 +46,6 @@ find goproj godeps -name \*.a -print0 | xargs -0 rm -f
 
 echo
 echo =============== 1. Build prerequisites using voltron
-echo =============== `date`
 echo
 
 # Voltron's Makefile do a "git pull" in grommit, so we have to ensure
@@ -78,7 +77,6 @@ make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
 
 echo
 echo =============== 2. Build Couchbase Server using CMake
-echo =============== `date`
 echo
 cd ${WORKSPACE}
 mkdir -p build
@@ -106,13 +104,24 @@ make -j8 || (
 )
 make install
 
-# Step 3: Create installer, using Voltron.  Goal is to incorporate the
+# Step 3: simple-test.
+
+echo
+echo =============== 3. Run simple-test
+echo
+cd ${WORKSPACE}/testrunner
+export COUCHBASE_REPL_TYPE=upr
+make simple-test
+sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+zip cluster_run_log cluster_run.log
+
+
+# Step 4: Create installer, using Voltron.  Goal is to incorporate the
 # "build-filter" and "overlay" steps here into server-rpm/deb.rb, so
 # we can completely drop voltron's Makefile.
 
 echo
-echo =============== 3. Building installation package
-echo =============== `date`
+echo =============== 4. Building installation package
 echo
 
 # First we need to create the current.xml manifest. This will eventually be
@@ -138,5 +147,4 @@ fi
 
 echo
 echo =============== DONE!
-echo =============== `date`
 echo
