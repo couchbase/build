@@ -111,8 +111,14 @@ echo =============== 3. Run simple-test
 echo
 cd ${WORKSPACE}/testrunner
 export COUCHBASE_REPL_TYPE=upr
-make simple-test
+failed=0
+make simple-test || failed=1
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+if [ $failed = 1 ]
+then
+    echo Tests failed - aborting run
+    exit 3
+fi
 zip cluster_run_log cluster_run.log
 
 
