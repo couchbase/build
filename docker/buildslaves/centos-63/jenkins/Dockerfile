@@ -37,7 +37,7 @@ CMD [ "/usr/sbin/sshd", "-D" ]
 # mechanism, but we hope to remove that requirement as it brings in a
 # LOT of unnecessary packages on Centos.
 RUN yum install -y gcc-c++ make tar openssl-devel ruby rubygems rubygem-rake tar glibc.i686 \
-    ncurses-devel ed which man unzip python-devel rpm-build openssh-clients redhat-lsb && \
+    ncurses-devel ed which man zip unzip python-devel rpm-build openssh-clients redhat-lsb && \
     yum clean packages
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
@@ -102,3 +102,7 @@ RUN export HOME=/home/buildbot && \
     git config --global user.email "build-team@couchase.com" && \
     git config --global user.name "Couchbase Build Team" && \
     git config --global color.ui false
+
+# Reset USER so the CMD will run properly
+USER root
+
