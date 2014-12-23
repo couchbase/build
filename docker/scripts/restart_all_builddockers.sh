@@ -11,6 +11,7 @@
 ./restart_jenkinsdocker.py ceejatec/centos-63-couchbase-jenkinsdocker:latest sherlocker-centos6 2222
 ./restart_jenkinsdocker.py ceejatec/debian-7-couchbase-jenkinsdocker:latest sherlocker-debian7 2224
 ./restart_jenkinsdocker.py ceejatec/centos-63-couchbase-jenkinsdocker:latest zz-lightweight 2223
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-jenkinsdocker:latest sherlocker-ubuntu1204 2225
 
 # Clean up abandoned images
 echo "Done!"
