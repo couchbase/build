@@ -109,18 +109,22 @@ make install
 echo
 echo =============== 3. Run simple-test
 echo
-cd ${WORKSPACE}/testrunner
-export COUCHBASE_REPL_TYPE=upr
-failed=0
-make simple-test || failed=1
-sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-if [ $failed = 1 ]
+if [ -z "${RUN_SIMPLE_TEST}" ]
 then
-    echo Tests failed - aborting run
-    exit 3
+    echo Skipping simple-test
+else
+    cd ${WORKSPACE}/testrunner
+    export COUCHBASE_REPL_TYPE=upr
+    failed=0
+    make simple-test || failed=1
+    sudo killall -9 beam.smp epmd memcached python >/dev/null || true
+    if [ $failed = 1 ]
+    then
+        echo Tests failed - aborting run
+        exit 3
+    fi
+    zip cluster_run_log cluster_run.log
 fi
-zip cluster_run_log cluster_run.log
-
 
 # Step 4: Create installer, using Voltron.  Goal is to incorporate the
 # "build-filter" and "overlay" steps here into server-rpm/deb.rb, so
