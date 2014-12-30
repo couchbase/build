@@ -28,9 +28,23 @@ EXPOSE 22
 CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase build dependencies
-RUN apt-get install -y g++ git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
+RUN apt-get install -y git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
     rm -f /var/cache/apt/archives/*.deb
+
+# Install updated C++11 compiler.
+# Note: python-software-properties required for `add-apt-repository`.
+RUN apt-get install --yes python-software-properties && \
+    add-apt-repository --yes ppa:ubuntu-toolchain-r/test && \
+    apt-get update && \
+    apt-get install --yes g++-4.8 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50 \
+                        --slave /usr/bin/g++ g++ /usr/bin/g++-4.8 && \
+    apt-get clean
+
+# Enable ccache.
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/buildbot/.profile
+
+# CMake, Go and Repo.
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
