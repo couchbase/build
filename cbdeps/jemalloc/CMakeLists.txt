@@ -19,6 +19,9 @@ include(ExternalProject)
 
 find_package(Git REQUIRED)
 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+  set(EXTRA_CONFIGURE_OPTIONS "--disable-tls")
+endif(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
 
 ### Download, configure and build jemalloc ####################################
 ExternalProject_Add(jemalloc
@@ -28,6 +31,7 @@ ExternalProject_Add(jemalloc
   CONFIGURE_COMMAND autoconf <SOURCE_DIR>/configure.ac > <SOURCE_DIR>/configure
                     COMMAND chmod u+x <SOURCE_DIR>/configure
                     COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> --with-jemalloc-prefix=je_
+                                                   ${EXTRA_CONFIGURE_OPTIONS}
 
   # Build in source so jemalloc correctly detects it git version.
   BUILD_IN_SOURCE 1
