@@ -24,5 +24,8 @@ git push origin HEAD:master
 
 # If this script is executing, a change was detected. Time to update the mirror!
 cd /home/buildbot/reporef
-repo init -u git://github.com/couchbase/manifest -g all -m sherlock.xml --mirror
+if [ ! -d .repo ]
+then
+  repo init -u git://github.com/couchbase/manifest -g all -m sherlock.xml --mirror
+fi
 repo sync --jobs=6
