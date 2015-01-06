@@ -3,7 +3,7 @@
 # See https://github.com/ceejatec/naked-docker/ for details about the
 # construction of the base image.
 
-FROM daverigby/naked-centos:6.5
+FROM ceejatec/naked-centos:6.5
 MAINTAINER ceej@couchbase.com
 
 USER root
@@ -69,7 +69,7 @@ RUN mkdir /tmp/deploy && \
 
 # * ccache (from source)
 RUN mkdir /tmp/deploy && \
-    curl -L http://samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
+    curl -L https://www.samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
     cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
     cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
     ln -s ccache /usr/local/bin/gcc && \
