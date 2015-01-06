@@ -4,6 +4,9 @@
 
 # Checkout out the build-team-manifests project to save the build manifest
 # for downstream builds.
+git config --global user.name "Couchbase Build Team"
+git config --global user.email "build-team@couchbase.com"
+git config --global color.ui false
 if [ ! -d build-team-manifests ]
 then
     git clone ssh://git@github.com/couchbase/build-team-manifests
