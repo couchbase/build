@@ -36,9 +36,9 @@ RUN apt-get install -y git-core tar libssl-dev rubygems rake ncurses-dev python-
 RUN apt-get install --yes python-software-properties && \
     add-apt-repository --yes ppa:ubuntu-toolchain-r/test && \
     apt-get update && \
-    apt-get install --yes g++-4.8 && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50 \
-                        --slave /usr/bin/g++ g++ /usr/bin/g++-4.8 && \
+    apt-get install --yes g++-4.9 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50 \
+                        --slave /usr/bin/g++ g++ /usr/bin/g++-4.9 && \
     apt-get clean
 
 # Enable ccache.
