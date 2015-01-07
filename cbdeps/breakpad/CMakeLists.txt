@@ -21,7 +21,7 @@ find_package(Git REQUIRED)
 
 ### Download, configure and build breakpad ####################################
 ExternalProject_Add(breakpad
-  GIT_REPOSITORY https://github.com/dhaikney/breakpad.git
+  GIT_REPOSITORY https://github.com/couchbaselabs/breakpad.git
   GIT_TAG ${GIT_TAG}
 
   CONFIGURE_COMMAND autoreconf -i
