@@ -34,6 +34,7 @@ ExternalProject_Add(breakpad
   INSTALL_DIR ${CMAKE_BINARY_DIR}/install
   INSTALL_COMMAND make install
   COMMAND ${CMAKE_COMMAND} -E echo FILE "(COPY lib include DESTINATION \"\${CMAKE_INSTALL_PREFIX}\")" > <INSTALL_DIR>/CMakeLists.txt
+  COMMAND ${CMAKE_COMMAND} -E echo FILE "(COPY bin/minidump-2-core DESTINATION \"\${CMAKE_INSTALL_PREFIX}/bin\")" >> <INSTALL_DIR>/CMakeLists.txt
 )
 
 # Custom packaging step to actually create a tar.gz
