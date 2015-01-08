@@ -74,6 +74,13 @@ echo ==============================================
 set
 echo ======== build ===============================
 
+rem Delete previous run go artifacts - the go compiler doesn't always
+rem rebuild the right stuff. We could run 'nmake clean' here, but that
+rem deletes the whole build directory too, which slows things down.
+rmdir /s /q godeps\pkg
+rmdir /s /q goproj\pkg
+rmdir /s /q goproj\bin
+
 if "%LICENSE%" == "enterprise" (
    set BUILD_ENTERPRISE=True
 ) else (
