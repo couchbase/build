@@ -14,18 +14,12 @@ RUN apt-get update && \
     rm -f /var/cache/apt/archives/*.deb && \
     mkdir /var/run/sshd
 
-# Create buildbot user with password-less sudo privs, and give
+# Create couchbase user with password-less sudo privs, and give
 # ownership of /opt/couchbase
-RUN useradd buildbot -G sudo -m -s /bin/bash && \
-    mkdir -p /opt/couchbase && chown -R buildbot:buildbot /opt/couchbase && \
-    echo 'buildbot:buildbot' | chpasswd && \
+RUN useradd couchbase -G sudo -m -s /bin/bash && \
+    mkdir -p /opt/couchbase && chown -R couchbase:couchbase /opt/couchbase && \
+    echo 'couchbase:couchbase' | chpasswd && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
-ADD .ssh /home/buildbot/.ssh
-RUN chown -R buildbot:buildbot /home/buildbot/.ssh && chmod 700 /home/buildbot/.ssh
-
-# Expose and start SSH daemon
-EXPOSE 22
-CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase build dependencies.
 # Note: lsb-release currently required for "cbdeps" third-party build
@@ -36,7 +30,7 @@ RUN apt-get install -y g++ ccache git-core tar libssl-dev rubygems \
     rake ncurses-dev python-dev devscripts debhelper ed man curl \
     libc6-i386 lsb-release && \
     rm -f /var/cache/apt/archives/*.deb
-RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/buildbot/.profile
+RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
@@ -69,3 +63,9 @@ RUN mkdir /tmp/deploy && \
 # JDK for Jenkins.
 RUN apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
+
+# Expose SSH daemon and run our builder startup script
+EXPOSE 22
+ADD .ssh /home/couchbase/.ssh
+COPY build/couchbuilder_start.sh /usr/sbin/
+ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]

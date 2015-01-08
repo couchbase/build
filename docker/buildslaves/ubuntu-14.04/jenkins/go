@@ -1,8 +1,5 @@
 #!/bin/sh
 
-if ! test -e .ssh/id_rsa
-then
-    echo "Please copy buildbot's github SSH key to .ssh/id_rsa"
-    exit 1
-fi
+mkdir -p build
+cp -a ../../util/couchbuilder_start.sh build
 docker build -t ceejatec/ubuntu-1404-couchbase-jenkinsdocker .

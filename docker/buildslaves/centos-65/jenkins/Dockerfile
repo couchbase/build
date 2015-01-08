@@ -14,23 +14,15 @@ RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
     sed -ri 's/#UsePAM no/UsePAM no/g' /etc/ssh/sshd_config && \
     /etc/init.d/sshd start
 
-# Create buildbot user with password-less sudo privs, and give
+# Create couchbase user with password-less sudo privs, and give
 # ownership of /opt/couchbase
-RUN groupadd -g1000 buildbot && \
-    useradd buildbot -g buildbot -u1000 -G wheel -m -s /bin/bash && \
-    mkdir /opt/couchbase && chown -R buildbot:buildbot /opt/couchbase && \
-    echo 'buildbot:buildbot' | chpasswd && \
+RUN groupadd -g1000 couchbase && \
+    useradd couchbase -g couchbase -u1000 -G wheel -m -s /bin/bash && \
+    mkdir /opt/couchbase && chown -R couchbase:couchbase /opt/couchbase && \
+    echo 'couchbase:couchbase' | chpasswd && \
     echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/wheel_group && \
     echo 'Defaults:%wheel !requiretty' >> /etc/sudoers.d/wheel_group && \
     chmod 440 /etc/sudoers.d/wheel_group
-ADD .ssh /home/buildbot/.ssh
-RUN chown -R buildbot:buildbot /home/buildbot/.ssh && \
-    chmod 700 /home/buildbot/.ssh && \
-    chmod 600 /home/buildbot/.ssh/*
-
-# Expose and start SSH daemon
-EXPOSE 22
-CMD [ "/usr/sbin/sshd", "-D" ]
 
 ### Install Couchbase build dependencies ######################################
 # * Packages from the base CentOS repository
@@ -110,3 +102,9 @@ RUN mkdir /tmp/deploy && \
 
 # JDK for Jenkins.
 RUN yum -y install java-1.7.0-openjdk && yum clean packages
+
+# Expose SSH daemon and run our builder startup script
+EXPOSE 22
+ADD .ssh /home/couchbase/.ssh
+COPY build/couchbuilder_start.sh /usr/sbin/
+ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]

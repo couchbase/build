@@ -9,6 +9,7 @@ then
     cp -a /ssh/* /home/couchbase/.ssh
 fi
 chown -R couchbase:couchbase /home/couchbase/.ssh
+chmod 600 /home/couchbase/.ssh/*
 
 # Start sshd (as new, long-running, foreground process)
 exec /usr/sbin/sshd -D
