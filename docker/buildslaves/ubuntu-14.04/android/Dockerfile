@@ -1,0 +1,66 @@
+# Docker container for Ubuntu 14.04
+
+# See https://github.com/ceejatec/naked-docker/ for details about the
+# construction of the base image.
+
+FROM ceejatec/naked-ubuntu:14.04
+MAINTAINER ceej@couchbase.com
+
+USER root
+
+# Install SSH server
+RUN apt-get update && \
+    apt-get install -y openssh-server && \
+    rm -f /var/cache/apt/archives/*.deb && \
+    mkdir /var/run/sshd
+
+# Create couchbase user with password-less sudo privs, and give 
+# ownership of /opt/couchbase
+RUN useradd couchbase -G sudo -m -s /bin/bash && \
+    mkdir -p /opt/couchbase && chown -R couchbase:couchbase /opt/couchbase && \
+    echo 'couchbase:couchbase' | chpasswd && \
+    sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
+
+# Expose and start SSH daemon
+EXPOSE 22
+CMD [ "/usr/sbin/sshd", "-D" ]
+
+# Install Couchbase Mobile build dependencies. We don't need "go" or "repo"
+# yet, but we probably will.
+RUN apt-get install -y ccache git-core ed man curl ccache gcc-multilib lib32z1 lib32stdc++6 && \
+    rm -f /var/cache/apt/archives/*.deb
+RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
+RUN mkdir /tmp/deploy && \
+    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
+    curl https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
+    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
+    curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
+    chmod a+x /usr/local/bin/repo && \
+    cd /tmp && rm -rf /tmp/deploy
+
+# JDK for Jenkins.
+RUN apt-get install -y openjdk-7-jdk unzip && \
+    rm -f /var/cache/apt/archives/*.deb
+
+# Android SDK
+RUN mkdir -p /var/lib/jenkins/tools && \
+    chown couchbase:couchbase /var/lib/jenkins/tools && \
+    echo 'export ANDROID_HOME="/var/lib/jenkins/tools/android-sdk"\nexport PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
+USER couchbase
+RUN cd /var/lib/jenkins/tools && \
+    curl -L http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz -o android-sdk.tgz && \
+    tar xzf android-sdk.tgz && \
+    mv android-sdk-linux android-sdk && \
+    chown -R couchbase:couchbase android-sdk && \
+    chmod 755 android-sdk
+RUN . /etc/profile && \
+    echo yes | android update sdk --filter platform-tools,android-19 --no-ui --force --all && \
+    filter=`android list sdk --all | grep Build-tools | grep 19.1 | awk '{ print $1 }' | tr -d -` && \
+    echo yes | android update sdk --filter $filter --no-ui --force --all && \
+    echo yes | android update sdk --filter sys-img-armeabi-v7a-android-19 --no-ui --force --all
+
+# Revert so CMD will run as root.
+USER root
+
