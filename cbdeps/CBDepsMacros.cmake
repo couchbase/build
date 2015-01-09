@@ -100,6 +100,11 @@ MACRO (_GENERATE_MD5_FILE sourcefile md5file)
     add_custom_command(TARGET ${DEP_NAME}
       POST_BUILD
     COMMAND md5 -q ${sourcefile} > ${md5file})
+  elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    # No "md5sum" on Windows - use cmake's builtin and strip the filename off it.
+    add_custom_command(TARGET ${DEP_NAME}
+      POST_BUILD
+    COMMAND FOR /F "usebackq" %i IN (`cmake -E md5sum ${sourcefile}`) DO echo %i> ${md5file})
   else(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     add_custom_command(TARGET ${DEP_NAME}
       POST_BUILD
@@ -115,6 +120,12 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
   execute_process(COMMAND isainfo -k
     COMMAND tr -d '\n'
   OUTPUT_VARIABLE HOST_ARCH)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+  if (DEFINED ENV{PROCESSOR_ARCHITEW6432})
+    string(TOLOWER "$ENV{PROCESSOR_ARCHITEW6432}" HOST_ARCH)
+   else()
+    string(TOLOWER "$ENV{PROCESSOR_ARCHITECTURE}" HOST_ARCH)
+  endif()
 else(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
   execute_process(COMMAND uname -m
     COMMAND tr -d '\n'
