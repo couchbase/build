@@ -12,7 +12,7 @@ USER root
 RUN apt-get update && \
     apt-get install -y openssh-server && \
     rm -f /var/cache/apt/archives/*.deb && \
-    mkdir /var/run/sshd
+    mkdir /var/run/sshd # update
 
 # Create couchbase user with password-less sudo privs, and give 
 # ownership of /opt/couchbase
@@ -41,15 +41,14 @@ RUN mkdir /tmp/deploy && \
     cd /tmp && rm -rf /tmp/deploy
 
 # JDK for Jenkins.
-RUN apt-get install -y openjdk-7-jdk unzip && \
+RUN apt-get install -y openjdk-7-jdk maven unzip && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Android SDK
-RUN mkdir -p /var/lib/jenkins/tools && \
-    chown couchbase:couchbase /var/lib/jenkins/tools && \
-    echo 'export ANDROID_HOME="/var/lib/jenkins/tools/android-sdk"\nexport PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
+RUN echo 'export ANDROID_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
 USER couchbase
-RUN cd /var/lib/jenkins/tools && \
+RUN mkdir -p /home/couchbase/jenkins/tools && \
+    cd /home/couchbase/jenkins/tools && \
     curl -L http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz -o android-sdk.tgz && \
     tar xzf android-sdk.tgz && \
     mv android-sdk-linux android-sdk && \
