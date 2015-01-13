@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>create zip file for https://github.com/couchbase/couchbase-lite-android/</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>20</daysToKeep>
+    <numToKeep>20</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>branch</name>
+          <description>Branch/commit(a branch or a commit hash)</description>
+          <defaultValue>master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>VERSION</name>
+          <description></description>
+          <defaultValue>1.0.3</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BLD_NUM</name>
+          <description></description>
+          <defaultValue>1000</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>MAVEN_UPLOAD_USERNAME</name>
+          <description></description>
+          <defaultValue>tleyden</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>MAVEN_UPLOAD_PASSWORD</name>
+          <description></description>
+          <defaultValue>KFpcEk/fgDZ/HIBSrrYJzDZbd7k2ebOBbqO5XO6Bb4wY2YUL6cdAufrC/XGPXxIIHDA5vpTQOgkxSg/zwhrBzQ==</defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>android</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>if [ ${run_downstream_job} = true ]
+then
+ echo &quot;will use fresh git clone...&quot;
+ rm -rf *
+ rm -rf .g*
+ ls -la
+
+  export MAVEN_UPLOAD_REPO_URL=&quot;http://files.couchbase.com/maven2/&quot;
+  export MAVEN_UPLOAD_VERSION=${VERSION}-${BLD_NUM}
+ if [ -z &quot;$BLD_NUM&quot; ]
+  then
+   export MAVEN_UPLOAD_VERSION=${VERSION}
+ fi
+ 
+export buildAndroidWithArtifacts=True
+export ANDROID_HOME=&quot;/home/couchbase/jenkins/tools/android-sdk&quot;
+
+ echo &quot;will use fresh git clone...&quot;
+ rm -rf *
+ rm -rf .g*
+ ls -la
+
+ git clone https://github.com/couchbase/build.git
+ cd build/scripts/jenkins/mobile/zip_jars
+
+
+
+ git clone https://github.com/couchbase/couchbase-lite-android.git
+ cd couchbase-lite-android
+ git checkout ${branch}
+ git pull
+ git submodule init
+ git submodule update
+ git log -3
+ git status
+ git submodule init &amp;&amp; git submodule update
+ cp settings.gradle.example settings.gradle
+
+ # set correct version 
+ sed -i -e &quot;s/%VERSION_NAME%/${VERSION}/&quot; libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
+ sed -i -e &quot;s/%VERSION_CODE%/${BLD_NUM}/&quot; libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
+ git status
+
+ ./gradlew build
+
+ cd ..
+ mkdir ${WORKSPACE}/artifacts
+ for edition in community enterprise
+ do
+   ./zip_jars.sh ${MAVEN_UPLOAD_VERSION} ${edition}
+   cp target/couchbase-lite-${MAVEN_UPLOAD_VERSION}-android_${edition}.zip  ${WORKSPACE}/artifacts/
+   cp target/couchbase-lite-${MAVEN_UPLOAD_VERSION}.jar  ${WORKSPACE}/artifacts/
+ done
+
+
+else
+ mkdir ${WORKSPACE}/artifacts
+ touch ${WORKSPACE}/artifacts/empty.txt
+fi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>artifacts/*</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>

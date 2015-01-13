@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>build https://github.com/couchbase/couchbase-lite-java project</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>20</daysToKeep>
+    <numToKeep>20</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>branch</name>
+          <description>Branch/commit(a branch or a commit hash)</description>
+          <defaultValue>master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>VERSION</name>
+          <description></description>
+          <defaultValue>1.0.3</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BLD_NUM</name>
+          <description></description>
+          <defaultValue>1000</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>MAVEN_UPLOAD_USERNAME</name>
+          <description></description>
+          <defaultValue>tleyden</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>MAVEN_UPLOAD_PASSWORD</name>
+          <description></description>
+          <defaultValue>KFpcEk/fgDZ/HIBSrrYJzDZbd7k2ebOBbqO5XO6Bb4wY2YUL6cdAufrC/XGPXxIIHDA5vpTQOgkxSg/zwhrBzQ==</defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+        <hudson.model.BooleanParameterDefinition>
+          <name>run_downstream_job</name>
+          <description>run couchbase-lite-java-create-zip</description>
+          <defaultValue>false</defaultValue>
+        </hudson.model.BooleanParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>android</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command> export MAVEN_UPLOAD_REPO_URL=&quot;http://files.couchbase.com/maven2/&quot;
+ export MAVEN_UPLOAD_VERSION=${VERSION}-${BLD_NUM}
+ export buildJavaWithArtifacts=True
+
+ echo &quot;will use fresh git clone...&quot;
+ rm -rf *
+ rm -rf .g*
+ ls -la
+
+ git clone https://github.com/couchbase/couchbase-lite-java.git
+ cd couchbase-lite-java
+ git checkout ${branch}
+ git pull
+ git submodule init
+ git submodule update
+ git log -3
+
+# set correct version 
+sed -i -e &quot;s/%VERSION_NAME%/${VERSION}/&quot; libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
+sed -i -e &quot;s/%VERSION_CODE%/${BLD_NUM}/&quot; libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
+git status
+
+ cd ..
+ git clone https://github.com/couchbase/couchbase-lite-android.git
+ cd couchbase-lite-android
+ #!!!!!!!!!!!!!git checkout ${branch}
+ git checkout release/1.0.4
+ git pull
+ git submodule init
+ git submodule update
+ git log -3
+ git status
+
+
+
+#cd ../couchbase-lite-java
+#./gradlew clean &amp;&amp; ./gradlew test
+
+
+cd ../couchbase-lite-java
+./gradlew assemble &amp;&amp; ./gradlew uploadArchivesWrapper
+  wget http://files.couchbase.com/maven2/com/couchbase/lite/couchbase-lite-java/${MAVEN_UPLOAD_VERSION}/couchbase-lite-java-${MAVEN_UPLOAD_VERSION}.pom
+  sed -i -e &quot;s/couchbase-lite-java.libraries/com.couchbase.lite/&quot; couchbase-lite-java-${MAVEN_UPLOAD_VERSION}.pom
+  curl -v -u ${MAVEN_UPLOAD_USERNAME}:${MAVEN_UPLOAD_PASSWORD} --upload-file couchbase-lite-java-${MAVEN_UPLOAD_VERSION}.pom ${MAVEN_UPLOAD_REPO_URL}/com/couchbase/lite/couchbase-lite-java/${MAVEN_UPLOAD_VERSION}/couchbase-lite-java-${MAVEN_UPLOAD_VERSION}.pom
+
+./gradlew clean &amp;&amp; ./gradlew test
+
+
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.25">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+          </configs>
+          <projects>couchbase-lite-java-create-zip</projects>
+          <condition>SUCCESS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
+  </publishers>
+  <buildWrappers/>
+</project>

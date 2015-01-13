@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>build couchbase-lite-java-javascript &amp; couchbase-lite-java-listener</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>20</daysToKeep>
+    <numToKeep>20</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>branch</name>
+          <description>Branch/commit(a branch or a commit hash)</description>
+          <defaultValue>master</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>VERSION</name>
+          <description></description>
+          <defaultValue>1.0.3</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>BLD_NUM</name>
+          <description></description>
+          <defaultValue>1000</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>MAVEN_UPLOAD_USERNAME</name>
+          <description></description>
+          <defaultValue>tleyden</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.PasswordParameterDefinition>
+          <name>MAVEN_UPLOAD_PASSWORD</name>
+          <description></description>
+          <defaultValue>KFpcEk/fgDZ/HIBSrrYJzDZbd7k2ebOBbqO5XO6Bb4wY2YUL6cdAufrC/XGPXxIIHDA5vpTQOgkxSg/zwhrBzQ==</defaultValue>
+        </hudson.model.PasswordParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <assignedNode>android</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>if [ ${run_downstream_job} = true ]
+then
+
+ export MAVEN_UPLOAD_REPO_URL=&quot;http://files.couchbase.com/maven2/&quot;
+ export MAVEN_UPLOAD_VERSION=${VERSION}-${BLD_NUM}
+ if [ -z &quot;$BLD_NUM&quot; ]
+  then
+   export MAVEN_UPLOAD_VERSION=${VERSION}
+ fi
+ export buildJavascriptWithArtifacts=true
+ export buildListenerWithArtifacts=true
+ export
+
+ echo &quot;will use fresh git clone...&quot;
+ rm -rf *
+ rm -rf .g*
+ ls -la
+
+ git clone https://github.com/couchbase/couchbase-lite-java-javascript.git
+ cd couchbase-lite-java-javascript
+ git checkout ${branch}
+ git pull
+ git submodule init
+ git submodule update
+ cp settings.gradle.example settings.gradle
+ git log -3
+
+ # set correct version 
+ sed -i -e &quot;s/%VERSION_NAME%/${VERSION}/&quot; libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
+ sed -i -e &quot;s/%VERSION_CODE%/${BLD_NUM}/&quot; libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
+ git status
+
+ cp release/* .
+ ./upload_android_artifacts.sh
+
+
+ cd ..
+ git clone https://github.com/couchbase/couchbase-lite-java-listener.git
+ cd couchbase-lite-java-listener
+ git checkout ${branch}
+ git pull
+ git submodule init
+ git submodule update
+ cp settings.gradle.example settings.gradle
+ git log -3
+
+ # set correct version 
+ sed -i -e &quot;s/%VERSION_NAME%/${VERSION}/&quot; libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
+ sed -i -e &quot;s/%VERSION_CODE%/${BLD_NUM}/&quot; libraries/couchbase-lite-java-core/src/main/java/com/couchbase/lite/support/Version.java
+ git status
+
+ cp release/* .
+ ./upload_android_artifacts.sh
+
+fi
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.parameterizedtrigger.BuildTrigger plugin="parameterized-trigger@2.25">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.CurrentBuildParameters/>
+          </configs>
+          <projects>couchbase-lite-android-create-zip</projects>
+          <condition>SUCCESS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+        </hudson.plugins.parameterizedtrigger.BuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.BuildTrigger>
+  </publishers>
+  <buildWrappers/>
+</project>
