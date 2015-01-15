@@ -24,9 +24,9 @@ git push origin HEAD:master
 
 # Save the new commit SHA and the build number for downstream jobs in
 # "trigger.properties".
-echo -n "MANIFEST_SHA=" > trigger.properties
-git rev-parse HEAD >> trigger.properties
-echo "BLD_NUM=${BUILD_NUMBER}" >> trigger.properties
+echo -n "MANIFEST_SHA=" > ${WORKSPACE}/trigger.properties
+git rev-parse HEAD >> ${WORKSPACE}/trigger.properties
+echo "BLD_NUM=${BUILD_NUMBER}" >> ${WORKSPACE}/trigger.properties
 
 # If this script is executing, a change was detected. Time to update the mirror!
 cd /home/buildbot/reporef
