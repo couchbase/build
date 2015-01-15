@@ -29,13 +29,9 @@ echo ======== package =============================
 ruby server-win.rb %WORKSPACE%\couchbase\install 5.10.4 couchbase_server %BUILD_NUMBER% %LICENSE% %ARCHITECTURE% %SRC_DIR_PREFIX%  || goto error
 
 set PKG_SRC_DIR=%WORKSPACE%\v\couchbase_server\%VERSION%\%BLD_NUM%
-set PKG_SRC_NAME=couchbase-server-%LICENSE%_%BUILD_NUMBER%-windows_%ARCHITECTURE%.exe
+set PKG_SRC_NAME=couchbase_server-%LICENSE%-windows-%ARCHITECTURE%-%BUILD_NUMBER%.exe
+set PKG_DEST_NAME=couchbase-server-%LICENSE%_%BUILD_NUMBER%-windows_%ARCHITECTURE%.exe
 
-if "%MANIFEST:~0,3%" == "toy" (
-    set PKG_DEST_NAME=couchbase_server-%OWNER%-%LICENSE%-%BUILD_NUMBER%.exe
-) else (
-    set PKG_DEST_NAME=%PKG_SRC_NAME%
-)
 copy %PKG_SRC_DIR%\%PKG_SRC_NAME% %WORKSPACE%\%PKG_DEST_NAME%
 
 echo ========== creating trigger.properties ==============
