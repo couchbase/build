@@ -158,6 +158,7 @@ else
 fi
 
 echo Creating trigger.properties...
+cd ${WORKSPACE}
 cat <<EOF > trigger.properties
 ARCHITECTURE=${ARCHITECTURE}
 PLATFORM=${DISTRO}
