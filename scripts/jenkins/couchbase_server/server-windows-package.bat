@@ -40,5 +40,5 @@ copy %PKG_SRC_DIR%\%PKG_SRC_NAME% %WORKSPACE%\%PKG_DEST_NAME%
 
 echo ========== creating trigger.properties ==============
 cd %WORKSPACE%
-echo "PLATFORM=windows" > trigger.properties
-echo "INSTALLER_FILENAME=%PKG_DEST_NAME%" >> trigger.properties
+echo PLATFORM=windows > trigger.properties
+echo INSTALLER_FILENAME=%PKG_DEST_NAME% >> trigger.properties
