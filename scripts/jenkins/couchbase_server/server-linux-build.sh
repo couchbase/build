@@ -158,7 +158,7 @@ else
 fi
 
 echo Creating trigger.properties...
-cat <"EOF" > trigger.properties
+cat <<EOF > trigger.properties
 ARCHITECTURE=${ARCHITECTURE}
 PLATFORM=${DISTRO}
 INSTALLER_FILENAME=${INSTALLER_FILENAME}
