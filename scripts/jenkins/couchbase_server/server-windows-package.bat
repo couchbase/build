@@ -1,8 +1,8 @@
 rem Parameters
 
-set RELEASE=%1
+set VERSION=%1
 set BLD_NUM=%2
-set BUILD_NUMBER=%RELEASE%-%BLD_NUM%
+set BUILD_NUMBER=%VERSION%-%BLD_NUM%
 
 set VOLTRON_BRANCH=%3
 set MANIFEST=%4
@@ -28,13 +28,17 @@ git pull origin %VOLTRON_BRANCH% || goto error
 echo ======== package =============================
 ruby server-win.rb %WORKSPACE%\couchbase\install 5.10.4 couchbase_server %BUILD_NUMBER% %LICENSE% %ARCHITECTURE% %SRC_DIR_PREFIX%  || goto error
 
-set PKG_SRC_DIR=%WORKSPACE%\v\couchbase_server\%RELEASE%\%BLD_NUM%
-set PKG_SRC_NAME=couchbase_server-%LICENSE%-windows-%ARCHITECTURE%-%BUILD_NUMBER%.exe
+set PKG_SRC_DIR=%WORKSPACE%\v\couchbase_server\%VERSION%\%BLD_NUM%
+set PKG_SRC_NAME=couchbase-server-%LICENSE%_%BUILD_NUMBER%-windows_%ARCHITECTURE%.exe
 
 if "%MANIFEST:~0,3%" == "toy" (
-    set PKG_DEST_NAME=couchbase_server-%OWNER%-%LICENSE%-windows-%ARCHITECTURE%-%BUILD_NUMBER%.exe
+    set PKG_DEST_NAME=couchbase_server-%OWNER%-%LICENSE%-%BUILD_NUMBER%.exe
 ) else (
     set PKG_DEST_NAME=%PKG_SRC_NAME%
 )
 copy %PKG_SRC_DIR%\%PKG_SRC_NAME% %WORKSPACE%\%PKG_DEST_NAME%
 
+echo ========== creating trigger.properties ==============
+cd %WORKSPACE%
+echo "PLATFORM=windows" > trigger.properties
+echo "INSTALLER_FILENAME=%PKG_DEST_NAME%" >> trigger.properties

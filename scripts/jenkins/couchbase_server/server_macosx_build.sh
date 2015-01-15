@@ -4,7 +4,7 @@
 #          
 #          called with paramters:
 #          
-#             RELEASE           e.g. 3.0.0beta
+#             VERSION           e.g. 3.0.0beta
 #             BUILD_NUMBER           1209
 #             VOLTRON_BRANCH    passed to packaging scripts
 #             MANIFEST          to fetch source code
@@ -26,11 +26,11 @@ function usage
     echo -e "\nuse:  ${0}   release  build_number  voltron_branch  manifest  edition  override-manifest\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
-RELEASE=${1}
+VERSION=${1}
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 BLD_NUM=${2}
-REVISION=${RELEASE}-${BLD_NUM}
+REVISION=${VERSION}-${BLD_NUM}
 
 if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 GITSPEC=${3}
@@ -51,10 +51,10 @@ mkdir -p ${LOG_DIR}
 
 PRODUCT=couchbase-server
 
-LATEST=http://10.1.2.98/${PRODUCT}/${RELEASE}/${REVISION}
+LATEST=http://10.1.2.98/${PRODUCT}/${VERSION}/${REVISION}
 GET_CMD="curl ${LATEST}"
 
-PKGSTORE=s3://packages.northscale.com/latestbuilds/${PRODUCT}/${RELEASE}/${REVISION}
+PKGSTORE=s3://packages.northscale.com/latestbuilds/${PRODUCT}/${VERSION}/${REVISION}
 PUT_CMD="s3cmd put -P"
 
 

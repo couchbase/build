@@ -22,6 +22,12 @@ msg="Sherlock build ${BUILD_NUMBER} at "`date`
 git commit --allow-empty -m "$msg"
 git push origin HEAD:master
 
+# Save the new commit SHA and the build number for downstream jobs in
+# "trigger.properties".
+echo -n "MANIFEST_SHA=" > trigger.properties
+git rev-parse HEAD >> trigger.properties
+echo "BLD_NUM=${BUILD_NUMBER}" >> trigger.properties
+
 # If this script is executing, a change was detected. Time to update the mirror!
 cd /home/buildbot/reporef
 if [ ! -d .repo ]

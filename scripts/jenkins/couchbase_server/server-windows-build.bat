@@ -2,9 +2,9 @@
 
 rem Parameters
 
-set RELEASE=%1
+set VERSION=%1
 set BLD_NUM=%2
-set BUILD_NUMBER=%RELEASE%-%BLD_NUM%
+set BUILD_NUMBER=%VERSION%-%BLD_NUM%
 
 set VOLTRON_BRANCH=%3
 set MANIFEST=%4
@@ -23,7 +23,7 @@ if "%MANIFEST:~0,3%" == "toy" (
 
 rem #### set PUT_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini put --no-progress
 rem #### set CHK_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini ls
-rem #### set PKGSTORE="s3://packages.northscale.com/latestbuilds/%RELEASE%/"
+rem #### set PKGSTORE="s3://packages.northscale.com/latestbuilds/%VERSION%/"
 
 set
 echo ============================================== %DATE%

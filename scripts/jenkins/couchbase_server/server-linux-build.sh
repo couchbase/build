@@ -5,7 +5,7 @@
 #
 # Required job parameters (expected to be in environment):
 #
-# RELEASE - in the form x.x.x
+# VERSION - in the form x.x.x
 # EDITION - "enterprise" or "community"
 # BLD_NUM - xxxx
 #
@@ -33,7 +33,7 @@ esac
 
 # Step 0: Derived values and cleanup. (Some of these are RPM- or
 # DEB-specific, but will safely do nothing on other systems.)
-PRODUCT_VERSION=${RELEASE}-${BLD_NUM}-rel
+PRODUCT_VERSION=${VERSION}-${BLD_NUM}-rel
 rm -f *.rpm *.deb
 rm -rf ~/rpmbuild
 rm -rf ${WORKSPACE}/voltron/build/deb
@@ -148,12 +148,21 @@ PRODUCT_VERSION=${PRODUCT_VERSION} ./server-${PKG}.rb /opt/couchbase \
    couchbase-server couchbase server 1.0.0
 if [ "${PKG}" = "rpm" ]
 then
-    cp ~/rpmbuild/RPMS/x86_64/*.rpm \
-        ${WORKSPACE}/couchbase-server-${EDITION}-${RELEASE}-${BLD_NUM}-${DISTRO}.x86_64.rpm
+    ARCHITECTURE=x86_64
+    INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
+    cp ~/rpmbuild/RPMS/x86_64/*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
 else
-    cp build/deb/*.deb \
-        ${WORKSPACE}/couchbase-server-${EDITION}_${RELEASE}-${BLD_NUM}-${DISTRO}_amd64.deb
+    ARCHITECTURE=amd64
+    INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
+    cp build/deb/*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
 fi
+
+echo Creating trigger.properties...
+cat <"EOF" > trigger.properties
+ARCHITECTURE=${ARCHITECTURE}
+PLATFORM=${DISTRO}
+INSTALLER_FILENAME=${INSTALLER_FILENAME}
+EOF
 
 echo
 echo =============== DONE!
