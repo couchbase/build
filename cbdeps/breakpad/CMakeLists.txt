@@ -21,6 +21,15 @@ find_package(Git REQUIRED)
 
 ### Download, configure and build breakpad ####################################
 if(WIN32)
+  # msbuild uses a different names for architecture (compared to HOST_ARCH)
+  if(HOST_ARCH STREQUAL "amd64")
+    SET(MSBUILD_ARCH "x64")
+  elseif(HOST_ARCH STREQUAL "x86")
+    SET(MSBUILD_ARCH "Win32")
+  else(HOST_ARCH STREQUAL "amd64")
+    SET(MSBUILD_ARCH ${HOST_ARCH})
+  endif(HOST_ARCH STREQUAL "amd64")
+
   ExternalProject_Add(breakpad
     GIT_REPOSITORY https://github.com/couchbaselabs/breakpad.git
     GIT_TAG ${GIT_TAG}
@@ -36,9 +45,9 @@ if(WIN32)
 
     # Build in source required for msbuild.
     BUILD_IN_SOURCE 1
-    BUILD_COMMAND msbuild /p:Configuration=Debug /p:Platform=x64 /maxcpucount
+    BUILD_COMMAND msbuild /p:Configuration=Debug /p:Platform=${MSBUILD_ARCH} /maxcpucount
                           src/client/windows/breakpad_client.sln
-          COMMAND msbuild /p:Configuration=Release /p:Platform=x64 /maxcpucount
+          COMMAND msbuild /p:Configuration=Release /p:Platform=${MSBUILD_ARCH} /maxcpucount
                           src/client/windows/breakpad_client.sln
 
     INSTALL_DIR ${CMAKE_BINARY_DIR}/install
