@@ -116,21 +116,23 @@ ENDMACRO (_GENERATE_MD5_FILE)
 #
 # Standard code run on include to perform common checks and setup useful vars
 #
-if (${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
-  execute_process(COMMAND isainfo -k
-    COMMAND tr -d '\n'
-  OUTPUT_VARIABLE HOST_ARCH)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
-  if (DEFINED ENV{PROCESSOR_ARCHITEW6432})
-    string(TOLOWER "$ENV{PROCESSOR_ARCHITEW6432}" HOST_ARCH)
-   else()
-    string(TOLOWER "$ENV{PROCESSOR_ARCHITECTURE}" HOST_ARCH)
-  endif()
-else(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
-  execute_process(COMMAND uname -m
-    COMMAND tr -d '\n'
-  OUTPUT_VARIABLE HOST_ARCH)
-endif(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+if(NOT DEFINED HOST_ARCH)
+  if (${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+    execute_process(COMMAND isainfo -k
+      COMMAND tr -d '\n'
+    OUTPUT_VARIABLE HOST_ARCH)
+  elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+    if (DEFINED ENV{PROCESSOR_ARCHITEW6432})
+      string(TOLOWER "$ENV{PROCESSOR_ARCHITEW6432}" HOST_ARCH)
+     else()
+      string(TOLOWER "$ENV{PROCESSOR_ARCHITECTURE}" HOST_ARCH)
+    endif()
+  else(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+    execute_process(COMMAND uname -m
+      COMMAND tr -d '\n'
+    OUTPUT_VARIABLE HOST_ARCH)
+  endif(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+endif(NOT DEFINED HOST_ARCH)
 
 _CHECK_FOR_DEP_VERSION()
 
