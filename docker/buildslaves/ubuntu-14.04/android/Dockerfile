@@ -27,7 +27,7 @@ CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase Mobile build dependencies. We don't need "go" or "repo"
 # yet, but we probably will.
-RUN apt-get install -y ccache git-core ed man curl ccache gcc-multilib g++-multilib lib32z1 lib32stdc++6 && \
+RUN apt-get install -y ccache git-core ed man curl ccache gcc-multilib g++-multilib lib32z1 lib32stdc++6 nodejs npm && \
     rm -f /var/cache/apt/archives/*.deb
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 RUN mkdir /tmp/deploy && \
