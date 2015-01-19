@@ -25,6 +25,9 @@ case "$DISTRO" in
     debian*|ubuntu*)
         PKG=deb
         ;;
+    nopkg)
+        echo "Skipping packaging step"
+        ;;
     *)
         echo "Usage: $0 [ ubuntu12.04 | debian7 | centos6 | ... ]"
         exit 2
@@ -138,6 +141,12 @@ echo
 # passed into the job, but for now we use what repo knows.
 cd ${WORKSPACE}
 repo manifest -r > current.xml
+
+if [ "${DISTRO}" = "nopkg" ]
+then
+    echo "Skipping packaging as requested; all done!"
+    exit 0
+fi
 
 cd ${WORKSPACE}/voltron
 make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-enterprise.txt \
