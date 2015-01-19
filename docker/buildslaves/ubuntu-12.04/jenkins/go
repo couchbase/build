@@ -2,4 +2,4 @@
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
-docker build -t ceejatec/ubuntu-1204-couchbase-jenkinsdocker .
+docker build -t ceejatec/ubuntu-1204-couchbase-build .
