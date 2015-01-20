@@ -40,79 +40,25 @@ set -e
 
 mkdir -p output
 
-if [ -d jemalloc ]
-then
-   echo "Skipping jemalloc"
-else
-   mkdir jemalloc
-   cd jemalloc
-   cmake -D DEP_VERSION=${JEMALLOC_VERSION} ${root}/jemalloc
-   make
-   cp output/jemalloc/${JEMALLOC_VERSION}/jemalloc-*-${JEMALLOC_VERSION}.* ../output/
-   cd ..
-fi
+build() {
+    name=$1
+    version=$2
+    if [ -d ${name} ]
+    then
+        echo "Skipping ${name} (already built)"
+    else
+        mkdir ${name}
+        pushd ${name}
+        cmake -D DEP_VERSION=${version} ${root}/${name}
+        make
+        cp output/${name}/${version}/${name}-*-${version}.* ../output/
+        popd
+    fi
+}
 
-if [ "${platform}" = "Linux" ]
-then
-   if [ -d breakpad ]
-   then
-      echo "Skipping breakpad"
-   else
-      mkdir breakpad
-      cd breakpad
-      cmake -D DEP_VERSION=${BREAKPAD_VERSION} ${root}/breakpad
-      make
-      cp output/breakpad/${BREAKPAD_VERSION}/breakpad-*-${BREAKPAD_VERSION}.* ../output/
-      cd ..
-   fi
-else
-   echo "Skipping breakpad"
-fi
-
-if [ -d libevent ]
-then
-   echo "Skipping libevent"
-else
-   mkdir libevent
-   cd libevent
-   cmake -D DEP_VERSION=${LIBEVENT_VERSION} ${root}/libevent
-   make
-   cp output/libevent/${LIBEVENT_VERSION}/libevent-*-${LIBEVENT_VERSION}.* ../output/
-   cd ..
-fi
-
-if [ -d curl ]
-then
-   echo "Skipping cURL"
-else
-   mkdir curl
-   cd curl
-   cmake -D DEP_VERSION=${CURL_VERSION} ${root}/curl
-   make
-   cp output/curl/${CURL_VERSION}/curl-*-${CURL_VERSION}.* ../output/
-   cd ..
-fi
-
-if [ -d snappy ]
-then
-   echo "Skipping snappy"
-else
-   mkdir snappy
-   cd snappy
-   cmake -D DEP_VERSION=${SNAPPY_VERSION} ${root}/snappy
-   make
-   cp output/snappy/${SNAPPY_VERSION}/snappy-*-${SNAPPY_VERSION}.* ../output/
-   cd ..
-fi
-
-if [ -d v8 ]
-then
-   echo "Skipping V8"
-else
-   mkdir v8
-   cd v8
-   cmake -D DEP_VERSION=${V8_VERSION} ${root}/v8
-   make
-   cp output/v8/${V8_VERSION}/v8-*-${V8_VERSION}.* ../output/
-   cd ..
-fi
+build jemalloc ${JEMALLOC_VERSION}
+build breakpad ${BREAKPAD_VERSION}
+build libevent ${LIBEVENT_VERSION}
+build curl ${CURL_VERSION}
+build snappy ${SNAPPY_VERSION}
+build v8 {V8_VERSION}
