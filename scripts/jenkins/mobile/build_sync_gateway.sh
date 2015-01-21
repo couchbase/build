@@ -118,7 +118,11 @@ fi
 export GOOS ; export EXEC
 
 GO_RELEASE=1.2
-GOROOT=/usr/local/go/${GO_RELEASE}
+if [ -d /usr/local/go/${GO_RELEASE} ]
+then
+    GOROOT=/usr/local/go/${GO_RELEASE}
+    # Otherwise, don't set GOROOT - not necessary on new builders
+fi
 
 PATH=${PATH}:${GOROOT}/bin 
 
