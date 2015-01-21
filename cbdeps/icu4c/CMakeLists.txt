@@ -19,11 +19,13 @@ include(ExternalProject)
 
 ### Download, configure and build icu4c ####################################
 
+SET(ICU_LDFLAGS -Wl,-rpath=\\$$ORIGIN)
 ExternalProject_Add(icu4c
   GIT_REPOSITORY https://github.com/couchbase/icu4c.git
   GIT_TAG ${GIT_TAG}
 
-  CONFIGURE_COMMAND <SOURCE_DIR>/source/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND <SOURCE_DIR>/source/configure LDFLAGS=${ICU_LDFLAGS}
+                                                  --prefix=<INSTALL_DIR>
                                                   --disable-extras
                                                   --disable-layout
                                                   --disable-tests
