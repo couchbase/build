@@ -66,3 +66,11 @@ build snappy ${SNAPPY_VERSION}
 build v8 ${V8_VERSION}
 build icu4c ${ICU4C_VERSION}
 build erlang ${ERLANG_VERSION}
+
+pushd output > /dev/zero
+for f in *md5
+do
+   echo $f | sed -e s,.md5,, | awk -F - '{ printf("DECLARE_DEP(%s VERSION %s-%s PLATFORMS %s)\n", $1, $4, $5, $2);}'
+done > manifest.cmake
+popd > /dev/zero
+echo "Created manifest at output/manifest.cmake"
