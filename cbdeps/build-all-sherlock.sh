@@ -14,7 +14,7 @@ CURL_VERSION=7.39.0-cb1
 SNAPPY_VERSION=1.1.1-cb1
 V8_VERSION=e24973a-cb1
 ICU4C_VERSION=263593-cb3
-ERLANG_VERSION=mb11917-cb3
+ERLANG_VERSION=mb11917-cb5
 
 # In order to use this script you should just create a "build" directory,
 # and start building the dependencies like:
