@@ -63,6 +63,6 @@ build breakpad ${BREAKPAD_VERSION}
 build libevent ${LIBEVENT_VERSION}
 build curl ${CURL_VERSION}
 build snappy ${SNAPPY_VERSION}
-build v8 {V8_VERSION}
+build v8 ${V8_VERSION}
 build icu4c ${ICU4C_VERSION}
 build erlang ${ERLANG_VERSION}
