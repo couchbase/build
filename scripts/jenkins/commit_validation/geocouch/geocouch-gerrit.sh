@@ -30,13 +30,12 @@ make clean-xfd-hard
 
 cat <<EOF
 ============================================
-===            update geocouch           ===
+===       update all projects with       ===
+===          the same Change-Id          ===
 ============================================
 EOF
-cd geocouch
-git fetch ssh://review.couchbase.org:29418/geocouch $GERRIT_REFSPEC && \
-git checkout FETCH_HEAD
-cd ..
+./build-scripts/scripts/jenkins/commit_validation/allcommits.py $GERRIT_CHANGE_ID|\
+    xargs -n 3 ./build-scripts/scripts/jenkins/commit_validation/fetch_project.sh
 
 cat <<EOF
 ============================================
