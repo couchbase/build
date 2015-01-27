@@ -29,7 +29,7 @@ git rev-parse HEAD >> ${WORKSPACE}/trigger.properties
 echo "BLD_NUM=${BUILD_NUMBER}" >> ${WORKSPACE}/trigger.properties
 
 # If this script is executing, a change was detected. Time to update the mirror!
-cd /home/buildbot/reporef
+cd /home/couchbase/reporef
 if [ ! -d .repo ]
 then
   repo init -u git://github.com/couchbase/manifest -g all -m sherlock.xml --mirror
