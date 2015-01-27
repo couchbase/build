@@ -6,29 +6,50 @@
 
 source ~jenkins/.bash_profile
 set -e
-ulimit -a
+set -x
 
-echo ============================================ `date --iso-8601=seconds`
+# CCACHE is good - use it if available.
+export PATH=/usr/lib/ccache:$PATH
+
+
+cat <<EOF
+============================================
+===              environment             ===
+============================================
+EOF
+ulimit -a
 env | grep -iv password | grep -iv passwd | sort
 
-echo ============================================ clean \
-`date --iso-8601=seconds`
+cat <<EOF
+============================================
+===                 clean                ===
+============================================
+EOF
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
 
-echo ============================================ update geocouch \
-`date --iso-8601=seconds`
+cat <<EOF
+============================================
+===            update geocouch           ===
+============================================
+EOF
 cd geocouch
 git fetch ssh://review.couchbase.org:29418/geocouch $GERRIT_REFSPEC && \
 git checkout FETCH_HEAD
 cd ..
 
-echo ============================================ make \
-`date --iso-8601=seconds`
+cat <<EOF
+============================================
+===                 build                ===
+============================================
+EOF
 make -j4
 
-echo ============================================ run dialyzer \
-`date --iso-8601=seconds`
+cat <<EOF
+============================================
+===             run dialyzer             ===
+============================================
+EOF
 # Copy geocouch.plt from /tmp to ${WORKSPACE}/build/geocouch to gain build time
 if [ -f /tmp/geocouch.plt ]
 then
@@ -46,17 +67,21 @@ then
     cp ${WORKSPACE}/build/geocouch/geocouch.plt /tmp/
 fi
 
-echo ============================================ run geocouch unit tests \
-`date --iso-8601=seconds`
+cat <<EOF
+============================================
+===        run geocouch unit tests       ===
+============================================
+EOF
 make geocouch-build-for-testing -j4
 cd build/geocouch-for-tests
 make test
 cd ../../
 
-echo ============================================ make simple-test \
-`date --iso-8601=seconds`
+cat <<EOF
+============================================
+===           make simple-test           ===
+============================================
+EOF
 cd testrunner
 make simple-test
 cd ..
-
-echo ============================================ `date --iso-8601=seconds`
