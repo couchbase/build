@@ -27,7 +27,6 @@ ExternalProject_Add(erlang
 
   CONFIGURE_COMMAND ./otp_build autoconf
             COMMAND touch <SOURCE_DIR>/lib/debugger/SKIP
-                          <SOURCE_DIR>/lib/dialyzer/SKIP
                           <SOURCE_DIR>/lib/megaco/SKIP
                           <SOURCE_DIR>/lib/observer/SKIP
                           <SOURCE_DIR>/lib/wx/SKIP
