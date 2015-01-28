@@ -194,7 +194,7 @@ case "$PKG" in
         INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.zip
         cp couchdbx-app/build/Release/*.zip ${WORKSPACE}/${INSTALLER_FILENAME}
         ;;
-fi
+esac
 
 echo Creating trigger.properties...
 cd ${WORKSPACE}
