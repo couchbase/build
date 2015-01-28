@@ -113,7 +113,7 @@ make -j8 install || (
 )
 
 # couchdbx-app on MacOS depends on this:
-ln -s /opt/couchbase install
+ln -s /opt/couchbase ${WORKSPACE}/install
 
 # Step 3: simple-test.
 
