@@ -11,11 +11,15 @@
 #
 # (At some point these will instead be read from the manifest.)
 #
+# Optional job parameters (expected to be in environment):
+#
+# RUN_SIMPLE_TEST - if non-empty, will run "make simple-test" after build
+#
 # Required script command-line parameter:
 #
-#   Linux Distribution name (eg., "ubuntu12.04", "debian7", "centos6")
+#   Distribution name (eg., "ubuntu12.04", "debian7", "centos6", "macos")
 #
-# This will be used to determine the pacakging format (.deb or .rpm).
+# This will be used to determine the pacakging format (.deb, .rpm, or .zip).
 
 DISTRO=$1
 case "$DISTRO" in
@@ -24,6 +28,9 @@ case "$DISTRO" in
         ;;
     debian*|ubuntu*)
         PKG=deb
+        ;;
+    macos)
+        PKG=mac
         ;;
     nopkg)
         echo "Skipping packaging step"
@@ -37,7 +44,7 @@ esac
 # Step 0: Derived values and cleanup. (Some of these are RPM- or
 # DEB-specific, but will safely do nothing on other systems.)
 PRODUCT_VERSION=${VERSION}-${BLD_NUM}-rel
-rm -f *.rpm *.deb
+rm -f *.rpm *.deb *.zip
 rm -rf ~/rpmbuild
 rm -rf ${WORKSPACE}/voltron/build/deb
 rm -rf /opt/couchbase/*
@@ -73,8 +80,7 @@ rm -rf /opt/couchbase/sbin
 # re-create it here before building the pystuff.
 mkdir -p /opt/couchbase/lib/python
 make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
-     TOPDIR=${WORKSPACE}/voltron pysqlite2 pysnappy2
-
+    TOPDIR=${WORKSPACE}/voltron pysqlite2 pysnappy2
 
 # Step 2: Build Couchbase Server itself, using CMake.
 
@@ -98,14 +104,16 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CB_DOWNLOAD_DEPS=1 \
       -D SNAPPY_OPTION=Disable \
       ..
-make -j8 || (
+make -j8 install || (
     echo; echo; echo -------------
     echo make -j8 failed - re-running with no -j8 to hopefully get better debug output
     echo -------------; echo; echo
     make
     exit 2
 )
-make install
+
+# couchdbx-app on MacOS depends on this:
+ln -s /opt/couchbase install
 
 # Step 3: simple-test.
 
@@ -137,8 +145,7 @@ echo
 echo =============== 4. Building installation package
 echo
 
-# First we need to create the current.xml manifest. This will eventually be
-# passed into the job, but for now we use what repo knows.
+# We still need to create this for voltron's "overlay" step.
 cd ${WORKSPACE}
 repo manifest -r > current.xml
 
@@ -148,22 +155,45 @@ then
     exit 0
 fi
 
+# Tweak install directory in Voltron-magic fashion
 cd ${WORKSPACE}/voltron
 make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-enterprise.txt \
      GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
      TOPDIR=${WORKSPACE}/voltron build-filter overlay
-cp -R server-overlay-${PKG}/* /opt/couchbase
+if [ -d "server-overlay-${PKG}" ]
+then
+    cp -R server-overlay-${PKG}/* /opt/couchbase
+fi
+
+# Execute platform-specific packaging step
 PRODUCT_VERSION=${PRODUCT_VERSION} ./server-${PKG}.rb /opt/couchbase \
    couchbase-server couchbase server 1.0.0
-if [ "${PKG}" = "rpm" ]
+if [ "${PKG}" = "mac" ]
 then
-    ARCHITECTURE=x86_64
-    INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-    cp ~/rpmbuild/RPMS/x86_64/*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
-else
-    ARCHITECTURE=amd64
-    INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
-    cp build/deb/*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
+    cd ${WORKSPACE}/couchdbx-app
+    LICENSE=LICENSE-${EDITION}.txt make license
+    make couchbase-server-zip
+    cd ${WORKSPACE}
+fi
+
+# Move final installation package to top of workspace, and set up
+# trigger.properties for downstream jobs
+case "$PKG" in
+    rpm)
+        ARCHITECTURE=x86_64
+        INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
+        cp ~/rpmbuild/RPMS/x86_64/*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
+        ;;
+    deb)
+        ARCHITECTURE=amd64
+        INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
+        cp build/deb/*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
+        ;;
+    mac)
+        ARCHITECTURE=x86_64
+        INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.zip
+        cp couchdbx-app/build/Release/*.zip ${WORKSPACE}/${INSTALLER_FILENAME}
+        ;;
 fi
 
 echo Creating trigger.properties...
