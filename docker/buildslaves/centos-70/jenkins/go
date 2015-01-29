@@ -1,0 +1,5 @@
+#!/bin/sh
+
+mkdir -p build
+cp -a ../../util/couchbuilder_start.sh build
+docker build -t ceejatec/centos-70-couchbase-build .

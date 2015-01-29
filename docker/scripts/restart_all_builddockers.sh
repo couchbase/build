@@ -9,6 +9,7 @@
 
 # New hotness Jenkins docker containers
 ./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:latest sherlocker-centos6 2222
+./restart_jenkinsdocker.py ceejatec/centos-70-couchbase-build:latest sherlocker-centos7 2227
 ./restart_jenkinsdocker.py ceejatec/debian-7-couchbase-build:latest sherlocker-debian7 2224
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest zz-lightweight 2223
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest sherlocker-ubuntu12.04 2225
