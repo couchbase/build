@@ -29,7 +29,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-./build-scripts/scripts/jenkins/commit_validation/allcommits.py $GERRIT_CHANGE_ID|\
+./build-scripts/scripts/jenkins/commit_validation/alldependencies.py $GERRIT_PATCHSET_REVISION|\
     xargs -n 3 ./build-scripts/scripts/jenkins/commit_validation/fetch_project.sh
 
 cat <<EOF

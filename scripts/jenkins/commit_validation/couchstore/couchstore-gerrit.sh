@@ -30,11 +30,13 @@ make clean-xfd-hard
 
 cat <<EOF
 ============================================
-===         update couchstore            ===
+===       update all projects with       ===
+===          the same Change-Id          ===
 ============================================
 EOF
 pushd couchstore  2>&1 > /dev/null
-git fetch ssh://review.couchbase.org:29418/couchstore $GERRIT_REFSPEC && git checkout FETCH_HEAD
+./build-scripts/scripts/jenkins/commit_validation/alldependencies.py $GERRIT_PATCHSET_REVISION|\
+    xargs -n 3 ./build-scripts/scripts/jenkins/commit_validation/fetch_project.sh
 
 popd 2>&1 > /dev/null
 
