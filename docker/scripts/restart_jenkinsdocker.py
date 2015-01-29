@@ -24,10 +24,10 @@ if result != 0:
     print "Creating volume container..."
     output = check_output(
         ["docker", "run", "--name={0}".format(volumect),
-         "--volume=/home/couchbase/reporef:/home/buildbot/reporef",
+         "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
          "--volume=/etc/resolv.conf:/etc/resolv.conf",
          "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
-         "ceejatec/naked-ubuntu:10.04"])
+         "ceejatec/naked-ubuntu:14.04"])
 
 # See if Jenkins thinks the slave is connected
 print "Seeing if {0} is connected to buildbot master...".format(slave)
