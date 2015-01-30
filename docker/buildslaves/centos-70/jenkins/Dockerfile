@@ -4,11 +4,13 @@ FROM centos:7.0.1406
 MAINTAINER ceej@couchbase.com
 
 USER root
-RUN yum install -y openssh-server sudo && yum clean packages
+RUN yum install --setopt=keepcache=0 -y openssh-server sudo deltarpm
 
 # Set up for SSH daemon
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
-    sed -ri 's/#UsePAM no/UsePAM no/g' /etc/ssh/sshd_config
+    sed -ri 's/#UsePAM no/UsePAM no/g' /etc/ssh/sshd_config && \
+    ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa && \
+    ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
 
 # Create couchbase user with password-less sudo privs, and give
 # ownership of /opt/couchbase
@@ -26,7 +28,7 @@ RUN yum install --setopt=keepcache=0 -y \
                 cmake \
                 ed \
                 gcc \
-                g++ \
+                gcc-c++ \
                 git \
                 glibc.i686 \
                 make \
@@ -39,7 +41,8 @@ RUN yum install --setopt=keepcache=0 -y \
                 ruby rubygems rubygem-rake \
                 tar \
                 unzip \
-                which
+                which && \
+    ln -s /usr/bin/python2.7 /usr/bin/python2.6
 
 # * ccache (from source)
 RUN mkdir /tmp/deploy && \
@@ -81,7 +84,7 @@ RUN mkdir /tmp/deploy && \
     cd /tmp && rm -rf /tmp/deploy && ccache --clear
 
 # JDK for Jenkins.
-RUN yum -y install java-1.7.0-openjdk && yum clean packages
+RUN yum --setopt=keepcache=0 -y install java-1.7.0-openjdk
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
