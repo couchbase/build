@@ -41,7 +41,11 @@ VERSION=${2}
 if [[ ${VERSION} =~ $vrs_rex ]]
   then
     RELEASE=${BASH_REMATCH[1]}
-    PKGSTORE=s3://packages.couchbase.com/builds/mobile/sync_gateway/${RELEASE}/${VERSION}
+    PKGSTORE=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${RELEASE}
+elif [[ ${VERSION} =~ ([[:alpha:]]*)-([0-9]{1,}) ]]
+  then
+    RELEASE=${BASH_REMATCH[1]}
+    PKGSTORE=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${RELEASE}
 else
     echo "illegal value for VERSION: ${VERSION}"
     exit 88
@@ -240,8 +244,8 @@ sleep ${STARTUP_DELAY}
 echo ======== D O N E   S L E E P ================= `date`
 #${PUT_CMD}  ${NEW_PKG_NAME}                          ${PKGSTORE}/${NEW_PKG_NAME}
 #${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}
-sleep ${STARTUP_DELAY}
-echo ======== D O N E   S L E E P ================= `date`
+#sleep ${STARTUP_DELAY}
+#echo ======== D O N E   S L E E P ================= `date`
 #${PUT_CMD}  ${NEW_PKG_NAME}.md5                      ${PKGSTORE}/${NEW_PKG_NAME}.md5
 #${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}.md5
 
