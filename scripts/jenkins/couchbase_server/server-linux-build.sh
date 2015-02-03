@@ -11,9 +11,6 @@
 #
 # (At some point these will instead be read from the manifest.)
 #
-# Optional job parameters (expected to be in environment):
-#
-# RUN_SIMPLE_TEST - if non-empty, will run "make simple-test" after build
 #
 # Required script command-line parameter:
 #
@@ -115,34 +112,13 @@ make -j8 install || (
 # couchdbx-app on MacOS depends on this:
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
 
-# Step 3: simple-test.
 
-echo
-echo =============== 3. Run simple-test
-echo
-if [ -z "${RUN_SIMPLE_TEST}" ]
-then
-    echo Skipping simple-test
-else
-    cd ${WORKSPACE}/testrunner
-    export COUCHBASE_REPL_TYPE=upr
-    failed=0
-    make simple-test || failed=1
-    sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-    if [ $failed = 1 ]
-    then
-        echo Tests failed - aborting run
-        exit 3
-    fi
-    zip cluster_run_log cluster_run.log
-fi
-
-# Step 4: Create installer, using Voltron.  Goal is to incorporate the
+# Step 3: Create installer, using Voltron.  Goal is to incorporate the
 # "build-filter" and "overlay" steps here into server-rpm/deb.rb, so
 # we can completely drop voltron's Makefile.
 
 echo
-echo =============== 4. Building installation package
+echo =============== 3. Building installation package
 echo
 
 # We still need to create this for voltron's "overlay" step.
