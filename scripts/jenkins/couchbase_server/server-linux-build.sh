@@ -77,7 +77,7 @@ rm -rf /opt/couchbase/sbin
 # re-create it here before building the pystuff.
 mkdir -p /opt/couchbase/lib/python
 make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
-    TOPDIR=${WORKSPACE}/voltron pysqlite2 pysnappy2
+    TOPDIR=${WORKSPACE}/voltron pysqlite2
 
 # Step 2: Build Couchbase Server itself, using CMake.
 
