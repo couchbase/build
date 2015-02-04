@@ -81,9 +81,9 @@ RUN mkdir /tmp/deploy && \
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo
 
-# * git
+# * git - needs to exist as /usr/bin/git for Git SCM Jenkins plugin
 RUN yum install -y --setopt=keepcache=0 devtoolset-2-git && \
-    ln -s /opt/rh/devtoolset-2/root/usr/bin/git /usr/local/bin/git
+    ln -s /opt/rh/devtoolset-2/root/usr/bin/git /usr/bin/git
 
 # Install third-party build dependencies
 RUN yum install -y --setopt=keepcache=0 m4 file
@@ -94,7 +94,9 @@ RUN mkdir /tmp/deploy && \
     curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
     cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
     cd autoconf-2.69 && ./configure --prefix=/usr/local && make -j8 && make install && \
-    yum install -y --setopt=keepcache=0 automake-1.11.1 && \
+    curl -L http://ftpmirror.gnu.org/automake/automake-1.14.tar.gz -o /tmp/deploy/automake-1.14.tar.gz && \
+    cd /tmp/deploy && tar -xzf automake-1.14.tar.gz && \
+    cd automake-1.14 && ./configure --prefix=/usr/local && make && make install && \
     curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
     cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \

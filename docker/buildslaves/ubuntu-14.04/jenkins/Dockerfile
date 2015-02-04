@@ -12,7 +12,7 @@ USER root
 RUN apt-get update && \
     apt-get install -y openssh-server && \
     rm -f /var/cache/apt/archives/*.deb && \
-    mkdir /var/run/sshd
+    mkdir /var/run/sshd # update
 
 # Create couchbase user with password-less sudo privs, and give
 # ownership of /opt/couchbase
@@ -49,9 +49,9 @@ RUN mkdir /tmp/deploy && \
     curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
     cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
     cd autoconf-2.69 && ./configure --prefix=/usr/local && make && make install && \
-    curl -L http://ftpmirror.gnu.org/automake/automake-1.11.1.tar.gz -o /tmp/deploy/automake-1.11.1.tar.gz && \
-    cd /tmp/deploy && tar -xzf automake-1.11.1.tar.gz && \
-    cd automake-1.11.1 && ./configure --prefix=/usr/local && make && make install && \
+    curl -L http://ftpmirror.gnu.org/automake/automake-1.14.tar.gz -o /tmp/deploy/automake-1.14.tar.gz && \
+    cd /tmp/deploy && tar -xzf automake-1.14.tar.gz && \
+    cd automake-1.14 && ./configure --prefix=/usr/local && make && make install && \
     curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
     cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make && make install && \
