@@ -142,8 +142,8 @@ then
 fi
 
 # Execute platform-specific packaging step
-PRODUCT_VERSION=${PRODUCT_VERSION} ./server-${PKG}.rb /opt/couchbase \
-   couchbase-server couchbase server 1.0.0
+PRODUCT_VERSION=${PRODUCT_VERSION} LD_LIBRARY_PATH=/opt/couchbase/lib \
+   ./server-${PKG}.rb /opt/couchbase couchbase-server couchbase server 1.0.0
 if [ "${PKG}" = "mac" ]
 then
     cd ${WORKSPACE}/couchdbx-app
