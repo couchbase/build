@@ -8,6 +8,12 @@
 # WORKSPACE - from Jenkins
 # PLATFORM - from upstream job (to name archived logs)
 
+if [ "${EDITION}" = "community" ]
+then
+    echo Skipping simple-test for community build
+    exit 0
+fi
+
 echo
 echo =============== Run simple-test
 echo

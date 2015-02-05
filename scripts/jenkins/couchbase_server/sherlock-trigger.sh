@@ -1,6 +1,5 @@
 #!/bin/bash -ex
-# Launched by the job "repo-sherlock" when a change to the sherlock.xml
-# manifest is detected.
+# Launched by the job "sherlock-build" to start a new build.
 
 # Checkout out the build-team-manifests project to save the build manifest
 # for downstream builds.
@@ -28,7 +27,7 @@ echo -n "MANIFEST_SHA=" > ${WORKSPACE}/trigger.properties
 git rev-parse HEAD >> ${WORKSPACE}/trigger.properties
 echo "BLD_NUM=${BUILD_NUMBER}" >> ${WORKSPACE}/trigger.properties
 
-# If this script is executing, a change was detected. Time to update the mirror!
+# Update the reporef mirror for downstream jobs that can share it.
 cd /home/couchbase/reporef
 if [ ! -d .repo ]
 then
