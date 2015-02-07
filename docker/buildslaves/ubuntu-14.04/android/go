@@ -2,4 +2,4 @@
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
-docker build -t ceejatec/mobile-android-jenkinsdocker .
+docker build -t ceejatec/ubuntu1404-mobile-android-docker:3a1d2.feb04 .
