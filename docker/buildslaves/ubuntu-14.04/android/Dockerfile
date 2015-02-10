@@ -57,7 +57,7 @@ RUN mkdir -p /home/couchbase/jenkins/tools && \
     chown -R couchbase:couchbase android-sdk && \
     chmod 755 android-sdk
 RUN . /etc/profile && \
-    echo yes | android update sdk --filter platform-tools,android-19 --no-ui --force --all && \
+    echo yes | android update sdk --filter platform-tools,android-19,extra --no-ui --force --all && \
     filter=`android list sdk --all | grep Build-tools | grep 19.1 | awk '{ print $1 }' | tr -d -` && \
     echo yes | android update sdk --filter $filter --no-ui --force --all && \
     echo yes | android update sdk --filter sys-img-armeabi-v7a-android-19 --no-ui --force --all
