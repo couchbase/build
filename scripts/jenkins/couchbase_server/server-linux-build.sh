@@ -47,42 +47,10 @@ rm -rf ${WORKSPACE}/voltron/build/deb
 rm -rf /opt/couchbase/*
 find goproj godeps -name \*.a -print0 | xargs -0 rm -f
 
-# Step 1: Building prerequisites.
-# This step will hopefully be obsoleted by moving all prereqs to cbdeps.
-# For now this still uses Voltron's Makefile.
+# Step 1: Build Couchbase Server itself, using CMake.
 
 echo
-echo =============== 1. Build prerequisites using voltron
-echo
-
-# Voltron's Makefile do a "git pull" in grommit, so we have to ensure
-# that works. Create a "master" branch tracking the upstream repository.
-cd ${WORKSPACE}/grommit
-git checkout -B master
-git config branch.master.remote membase-priv
-git config branch.master.merge refs/heads/master
-
-cd ${WORKSPACE}/voltron
-make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
-     TOPDIR=${WORKSPACE}/voltron dep-couchbase.tar.gz
-
-# I don't know why this doesn't cause problems for the normal build, but
-# ICU sticks stuff in /opt/couchbase/sbin that the RPM template file
-# doesn't want.
-rm -rf /opt/couchbase/sbin
-
-# Voltron's Makefile also assumes /opt/couchbase/lib/python is a directory.
-# I don't actually know where this is supposed to come from. It also appears
-# to be deleted by something in the dep-couchbase.tar.gz build, so I need to
-# re-create it here before building the pystuff.
-mkdir -p /opt/couchbase/lib/python
-make GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
-    TOPDIR=${WORKSPACE}/voltron pysqlite2
-
-# Step 2: Build Couchbase Server itself, using CMake.
-
-echo
-echo =============== 2. Build Couchbase Server using CMake
+echo =============== 1. Build Couchbase Server using CMake
 echo
 cd ${WORKSPACE}
 mkdir -p build
@@ -113,12 +81,12 @@ make -j8 install || (
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
 
 
-# Step 3: Create installer, using Voltron.  Goal is to incorporate the
+# Step 2: Create installer, using Voltron.  Goal is to incorporate the
 # "build-filter" and "overlay" steps here into server-rpm/deb.rb, so
 # we can completely drop voltron's Makefile.
 
 echo
-echo =============== 3. Building installation package
+echo =============== 2. Building installation package
 echo
 
 # We still need to create this for voltron's "overlay" step.
@@ -134,7 +102,7 @@ fi
 # Tweak install directory in Voltron-magic fashion
 cd ${WORKSPACE}/voltron
 make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-enterprise.txt \
-     GROMMIT=${WORKSPACE}/grommit BUILD_DIR=${WORKSPACE} \
+     BUILD_DIR=${WORKSPACE} \
      TOPDIR=${WORKSPACE}/voltron build-filter overlay
 if [ -d "server-overlay-${PKG}" ]
 then
