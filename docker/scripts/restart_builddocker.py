@@ -18,20 +18,7 @@ if len(sys.argv) > 3:
 else:
     port = "2201"
 
-# First ensure that volume-container is created
-print "Checking for volume container..."
-volumect = "buildslave-volume-container"
-devnull = open(os.devnull, "w")
-result = call(["docker", "inspect", volumect], stdout=devnull, stderr=devnull)
-if result != 0:
-    print "Creating volume container..."
-    output = check_output(
-        ["docker", "run", "--name={0}".format(volumect),
-         "--volume=/home/couchbase/grommit:/home/buildbot/grommit",
-         "--volume=/etc/resolv.conf:/etc/resolv.conf",
-         "ceejatec/naked-ubuntu:10.04"])
-
-# See if buildbot thinks the slave is connect
+# See if buildbot thinks the slave is connected
 print "Seeing if {0} is connected to buildbot master...".format(slave)
 slaveurl = 'http://builds.hq.northscale.net:8010/json/slaves/{0}'
 while True:
@@ -58,7 +45,9 @@ if result == 0:
 print "Creating new {0} container...".format(slave)
 output = check_output(
     ["docker", "run", "--name={0}".format(slave), "--detach=true",
-     "--publish={0}:22".format(port), "--volumes-from={0}".format(volumect),
+     "--publish={0}:22".format(port),
+     "--volume=/home/couchbase/grommit:/home/buildbot/grommit",
+     "--volume=/etc/resolv.conf:/etc/resolv.conf",
      image])
 print "Result: {0}".format(output)
 

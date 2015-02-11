@@ -15,20 +15,6 @@ image = sys.argv[1]
 slave = sys.argv[2]
 port = sys.argv[3]
 
-# First ensure that volume-container is created
-print "Checking for Jenkins volume container..."
-volumect = "jenkins-volume-container"
-devnull = open(os.devnull, "w")
-result = call(["docker", "inspect", volumect], stdout=devnull, stderr=devnull)
-if result != 0:
-    print "Creating volume container..."
-    output = check_output(
-        ["docker", "run", "--name={0}".format(volumect),
-         "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
-         "--volume=/etc/resolv.conf:/etc/resolv.conf",
-         "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
-         "ceejatec/naked-ubuntu:14.04"])
-
 # See if Jenkins thinks the slave is connected
 print "Seeing if {0} is connected to buildbot master...".format(slave)
 slaveurl = 'http://factory.couchbase.com/computer/{0}/api/json?tree=offline,executors[idle]'
@@ -59,7 +45,10 @@ if result == 0:
 print "Creating new {0} container...".format(slave)
 output = check_output(
     ["docker", "run", "--name={0}".format(slave), "--detach=true",
-     "--publish={0}:22".format(port), "--volumes-from={0}".format(volumect),
+     "--publish={0}:22".format(port),
+     "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
+     "--volume=/etc/resolv.conf:/etc/resolv.conf",
+     "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
      image])
 print "Result: {0}".format(output)
 
