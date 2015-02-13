@@ -18,6 +18,8 @@ if len(sys.argv) > 3:
 else:
     port = "2201"
 
+devnull = open(os.devnull, "w")
+
 # See if buildbot thinks the slave is connected
 print "Seeing if {0} is connected to buildbot master...".format(slave)
 slaveurl = 'http://builds.hq.northscale.net:8010/json/slaves/{0}'

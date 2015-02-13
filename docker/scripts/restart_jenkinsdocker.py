@@ -15,6 +15,8 @@ image = sys.argv[1]
 slave = sys.argv[2]
 port = sys.argv[3]
 
+devnull = open(os.devnull, "w")
+
 # See if Jenkins thinks the slave is connected
 print "Seeing if {0} is connected to buildbot master...".format(slave)
 slaveurl = 'http://factory.couchbase.com/computer/{0}/api/json?tree=offline,executors[idle]'
