@@ -4,25 +4,15 @@ set VERSION=%1
 set BLD_NUM=%2
 set BUILD_NUMBER=%VERSION%-%BLD_NUM%
 
-set VOLTRON_BRANCH=%3
-set MANIFEST=%4
-set LICENSE=%5
-set ARCHITECTURE=%6
-set SRC_DIR_PREFIX=%7
+set MANIFEST=%3
+set LICENSE=%4
+set ARCHITECTURE=%5
+set SRC_DIR_PREFIX=%6
 
-rem Name directory "v" to save a few vital characters - otherwise some
-rem InstallShield merge module unpacks to a directory with too long a name
-
-if exist v goto voltron_exists
-    git clone --branch %VOLTRON_BRANCH% git@github.com:couchbase/voltron.git v || goto error
-:voltron_exists
-
+# This path is just ever so slightly too long for Windows to deal with.
+# So, move the directory.
+move couchbase\voltron v
 cd v
-git reset --hard
-git clean -dfx
-git fetch
-git checkout    %VOLTRON_BRANCH% || goto error
-git pull origin %VOLTRON_BRANCH% || goto error
 
 :package_win
 echo ======== package =============================
