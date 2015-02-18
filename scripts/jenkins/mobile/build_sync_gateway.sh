@@ -40,12 +40,8 @@ VERSION=${2}
                      vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
 if [[ ${VERSION} =~ $vrs_rex ]]
   then
-    RELEASE=${BASH_REMATCH[1]}
-    PKGSTORE=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${RELEASE}
-elif [[ ${VERSION} =~ ([[:alpha:]]*)-([0-9]{1,}) ]]
-  then
-    RELEASE=${BASH_REMATCH[1]}
-    PKGSTORE=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${RELEASE}
+    REL_VER=${BASH_REMATCH[1]}
+    PKGSTORE=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${REL_VER}/${VERSION}
 else
     echo "illegal value for VERSION: ${VERSION}"
     exit 88
