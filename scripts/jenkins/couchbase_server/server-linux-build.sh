@@ -4,19 +4,24 @@
 # ${WORKSPACE}/cbbuild and voltron as ${WORKSPACE}/voltron.
 #
 # Required job parameters (expected to be in environment):
-#
+# DISTRO  - Distribution name (eg., "ubuntu12.04", "debian7", "centos6", "macos")
+#     This will be used to determine the pacakging format (.deb, .rpm, or .zip).
 # VERSION - in the form x.x.x
 # EDITION - "enterprise" or "community"
 # BLD_NUM - xxxx
 #
 # (At some point these will instead be read from the manifest.)
 #
-#
-# Required script command-line parameter:
-#
-#   Distribution name (eg., "ubuntu12.04", "debian7", "centos6", "macos")
-#
-# This will be used to determine the pacakging format (.deb, .rpm, or .zip).
+
+usage() {
+    echo "Usage: $0 [ ubuntu12.04 | debian7 | centos6 | ... ] <VERSION> <EDITION> <BLD_NUM>"
+    exit 5
+}
+
+if [ "$#" -ne 4 ]
+then
+    usage
+fi
 
 DISTRO=$1
 case "$DISTRO" in
@@ -33,10 +38,19 @@ case "$DISTRO" in
         echo "Skipping packaging step"
         ;;
     *)
-        echo "Usage: $0 [ ubuntu12.04 | debian7 | centos6 | ... ]"
-        exit 2
+        usage
         ;;
 esac
+
+export VERSION=$2
+export EDITION=$3
+export BLD_NUM=$4
+
+# Compute WORKSPACE, if not in environment
+if [ -z "${WORKSPACE}" ]
+then
+    WORKSPACE="$( cd "$(dirname "$0")"/../../../.. ; pwd -P )"
+fi
 
 # Step 0: Derived values and cleanup. (Some of these are RPM- or
 # DEB-specific, but will safely do nothing on other systems.)
