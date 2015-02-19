@@ -1,8 +1,8 @@
 rem Parameters
-set target_platform=%1
+set target_arch=%1
 
-if "%target_platform%" == "AMD64" goto setup_amd64
-if "%target_platform%" == "x86"   goto setup_x86
+if "%target_arch%" == "AMD64" goto setup_amd64
+if "%target_arch%" == "x86"   goto setup_x86
 
 :setup_x86
 echo Setting up Visual Studio environment for x86

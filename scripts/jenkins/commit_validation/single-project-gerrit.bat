@@ -25,8 +25,8 @@
     @echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
     @exit /b
 )
-@IF NOT DEFINED target_platform (
-    @echo "Error: Required environment variable 'target_platform' not set."
+@IF NOT DEFINED target_arch (
+    @echo "Error: Required environment variable 'target_arch' not set."
     @exit /b
 )
 
@@ -74,7 +74,7 @@ popd
 @echo ===               Build                  ===
 @echo ============================================
 
-nmake EXTRA_CMAKE_OPTIONS="-DCB_DOWNLOAD_DEPS_ARCH=%target_platform%"
+nmake EXTRA_CMAKE_OPTIONS=""
 
 @echo.
 @IF NOT DEFINED SKIP_UNIT_TESTS (
