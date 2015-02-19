@@ -8,22 +8,22 @@
 
 @IF NOT DEFINED GERRIT_HOST (
     @echo "Error: Required environment variable 'GERRIT_HOST' not set."
-    @exit /b
+    @exit /b 1
 )
 
 @IF NOT DEFINED GERRIT_PORT (
     @echo "Error: Required environment variable 'GERRIT_PORT' not set."
-    @exit /b
+    @exit /b 2
 )
 
 @IF NOT DEFINED GERRIT_PROJECT (
     @echo "Error: Required environment variable 'GERRIT_PROJECT' not set."
-    @exit /b
+    @exit /b 3
 )
 
 @IF NOT DEFINED GERRIT_REFSPEC (
     @echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
-    @exit /b
+    @exit /b 4
 )
 @IF NOT DEFINED target_arch (
     set target_arch=amd64
