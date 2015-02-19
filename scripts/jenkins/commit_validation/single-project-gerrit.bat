@@ -26,8 +26,8 @@
     @exit /b
 )
 @IF NOT DEFINED target_arch (
-    @echo "Error: Required environment variable 'target_arch' not set."
-    @exit /b
+    set target_arch=amd64
+    @echo Notice: environment variable 'target_arch' not set. Defaulting to 'amd64'.
 )
 
 @REM How many jobs to run in parallel by default?
