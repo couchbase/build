@@ -22,6 +22,9 @@ do
 	--change-url)
 	    change_url=$1
 	    ;;
+	--change-owner)
+	    change_owner=$1
+	    ;;
 	--project)
 	    project=$1
 	    ;;
@@ -33,6 +36,12 @@ do
 	    ;;
 	--commit)
 	    commit=$1
+	    ;;
+	--topic)
+	    topic=$1
+            ;;
+	--kind)
+	    change_kind=$1
 	    ;;
 	*)
 	    echo "Unexpected arg:  $arg"
@@ -188,6 +197,9 @@ case $project in
         repo="git@github.com:couchbase/$project.git"
         ;;
     cbauth)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    query)
         repo="git@github.com:couchbase/$project.git"
         ;;
     *)
