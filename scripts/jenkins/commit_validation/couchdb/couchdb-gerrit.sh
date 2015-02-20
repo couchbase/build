@@ -1,27 +1,23 @@
-#!/bin/bash
-#
-#          run by jenkins job:  couchdb-gerrit-master
-#                               couchdb-gerrit-251
-#
-#          use "--legacy" parameter for couchdb-gerrit-251
-#
-#
-#          triggered on Patchset Creation of repo: couchdb
+#!/bin/sh
 
-source ~jenkins/.bash_profile
 set -e
-ulimit -a
+set -x
+
+# CCACHE is good - use it if available.
+export PATH=/usr/lib/ccache:$PATH
+
 
 cat <<EOF
 ============================================
-===                `date "+%H:%M:%S"`              ===
+===              environment             ===
 ============================================
 EOF
+ulimit -a
 env | grep -iv password | grep -iv passwd | sort
 
 cat <<EOF
 ============================================
-===               clean                  ===
+===                 clean                ===
 ============================================
 EOF
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
@@ -29,77 +25,47 @@ make clean-xfd-hard
 
 cat <<EOF
 ============================================
-===            update CouchDB            ===
+===       update all projects with       ===
+===          the same Change-Id          ===
 ============================================
 EOF
-
-pushd couchdb 2>&1 > /dev/null
-git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
-popd              2>&1 > /dev/null
+./build-scripts/scripts/jenkins/commit_validation/allcommits.py $GERRIT_CHANGE_ID|\
+    xargs -n 3 ./build-scripts/scripts/jenkins/commit_validation/fetch_project.sh
 
 cat <<EOF
 ============================================
-===               Build                  ===
+===                 build                ===
 ============================================
 EOF
+make -j4
 
-# Copy couchdb.plt from ${WORKSPACE} (where it was copied from Jenkins master)
-# to ${WORKSPACE}/build/couchdb to gain build time
-
-mkdir -p ${WORKSPACE}/build/couchdb
-
-if [ -f ${WORKSPACE}/couchdb.plt ]
+cat <<EOF
+============================================
+===  run dialyzer and couchdb unit tests ===
+============================================
+EOF
+# Copy couchdb.plt from /tmp to ${WORKSPACE}/build/couchdb to gain build time
+if [ -f /tmp/couchdb.plt ]
 then
-  cp ${WORKSPACE}/couchdb.plt ${WORKSPACE}/build/couchdb/
+    cp /tmp/couchdb.plt ${WORKSPACE}/build/couchdb/
 fi
 
-make -j4 all install || (make -j1 && false)
+cd build/couchdb
+make check
+cd ../..
 
-# Copy couchdb.plt from ${WORKSPACE}/build/couchdb back to ${WORKSPACE} so it
-# can be stored back on Jenkins master
-
+# Copy couchdb.plt from ${WORKSPACE}/build/couchdb back to /tmp so it
+# can be restored
 if [ -f ${WORKSPACE}/build/couchdb/couchdb.plt ]
 then
-  cp ${WORKSPACE}/build/couchdb/couchdb.plt ${WORKSPACE}/
+    cp ${WORKSPACE}/build/couchdb/couchdb.plt /tmp/
 fi
 
 cat <<EOF
 ============================================
-===          Run unit tests              ===
+===           make simple-test           ===
 ============================================
 EOF
-
-if [ -d build/couchdb ]
-then
-   pushd build/couchdb 2>&1 > /dev/null
-else
-   pushd couchdb 2>&1 > /dev/null
-fi
-
-PATH=$PATH:${WORKSPACE}/couchstore make check
-
-popd 2>&1 > /dev/null
-
-cat <<EOF
-============================================
-===         Run end to end tests         ===
-============================================
-EOF
-pushd testrunner 2>&1 > /dev/null
+cd testrunner
 make simple-test
-popd 2>&1 > /dev/null
-
-
-cat <<EOF
-============================================
-===                `date "+%H:%M:%S"`              ===
-============================================
-EOF
-sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-
-## Cleanup .repo directory
-
-if [ -d ${WORKSPACE}/.repo ]
-then
-  rm -rf ${WORKSPACE}/.repo
-fi
+cd ..

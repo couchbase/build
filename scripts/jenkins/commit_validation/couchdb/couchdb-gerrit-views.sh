@@ -1,69 +1,49 @@
-#!/bin/bash
-#
-#          run by jenkins job 'couchdb-gerrit-views-master'
-#
-#          with no paramters
-#
-#          triggered on Patchset Creation of repo: couchdb branch: master
+#!/bin/sh
 
-source ~jenkins/.bash_profile
 set -e
-ulimit -a
+set -x
+
+# CCACHE is good - use it if available.
+export PATH=/usr/lib/ccache:$PATH
+
 
 cat <<EOF
 ============================================
-===                `date "+%H:%M:%S"`              ===
+===              environment             ===
 ============================================
 EOF
+ulimit -a
 env | grep -iv password | grep -iv passwd | sort
 
 cat <<EOF
 ============================================
-===               clean                  ===
+===                 clean                ===
 ============================================
 EOF
-sudo killall -9 beam.smp epmd memcached python >/dev/null || true
 make clean-xfd-hard
-repo forall -c "git clean -xfd"
 
 cat <<EOF
 ============================================
-===            update CouchDB            ===
+===       update all projects with       ===
+===          the same Change-Id          ===
 ============================================
 EOF
-pushd couchdb 2>&1 > /dev/null
-git fetch ssh://review.couchbase.org:29418/couchdb $GERRIT_REFSPEC && git checkout FETCH_HEAD
-popd 2>&1 > /dev/null
+./build-scripts/scripts/jenkins/commit_validation/allcommits.py $GERRIT_CHANGE_ID|\
+    xargs -n 3 ./build-scripts/scripts/jenkins/commit_validation/fetch_project.sh
 
 cat <<EOF
 ============================================
-===               Build                  ===
+===                 build                ===
 ============================================
 EOF
-make -j4 all install
+make -j4
 
 cat <<EOF
 ============================================
-===         Run end to end tests         ===
+===       run viewmerge.conf tests       ===
 ============================================
 EOF
 cd testrunner
 scripts/start_cluster_and_run_tests.sh b/resources/dev-single-node.ini conf/view-conf/py-viewmerge.conf
-sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-sleep 30
 scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/view-conf/py-viewmerge.conf
-#make test-viewmerge SLEEP_TIME=30
-
-cat <<EOF
-============================================
-===                `date "+%H:%M:%S"`              ===
-============================================
-EOF
-
-## Cleanup .repo directory
-
-if [ -d ${WORKSPACE}/.repo ]
-then
-  rm -rf ${WORKSPACE}/.repo
-fi
-
+cd ..
