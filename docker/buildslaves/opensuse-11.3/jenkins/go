@@ -1,0 +1,14 @@
+#!/bin/sh
+
+mkdir -p build
+cp -a -u ../../util/couchbuilder_start.sh build
+
+# Only copy this if it doesn't exist. Prevents re-running steps in
+# this Dockerfile. This does mean that if you need to update the
+# gcc, you need to manually delete this directory and rebuild.
+if [ ! -d build/gcc-4.9.1 ]
+then
+    mkdir build/local
+    docker run -v $(pwd)/build:/output ceejatec/opensuse-gcc-build:latest cp -a /opt/gcc-4.9.1 /output
+fi
+docker build -t ceejatec/opensuse-113-couchbase-build .
