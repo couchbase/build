@@ -27,6 +27,11 @@ DISTRO=$1
 case "$DISTRO" in
     centos*)
         PKG=rpm
+        FLAVOR=redhat
+        ;;
+    *suse*)
+        PKG=rpm
+        FLAVOR=suse
         ;;
     debian*|ubuntu*)
         PKG=deb
@@ -120,7 +125,15 @@ make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-enterprise.txt \
      TOPDIR=${WORKSPACE}/voltron build-filter overlay
 if [ -d "server-overlay-${PKG}" ]
 then
-    cp -R server-overlay-${PKG}/* /opt/couchbase
+    # common to all distros
+    cp -R server-overlay-${PKG}/common/* /opt/couchbase
+
+    if [ "${PKG}" = "rpm" ]
+    then
+        cp -R server-overlay-${PKG}/${FLAVOR}/* /opt/couchbase
+        cp server-rpm.${FLAVOR}.spec.tmpl server-rpm.spec.tmpl
+        cp moxi-rpm.${FLAVOR}.spec.tmpl moxi-rpm.spec.tmpl
+    fi
 fi
 
 # Execute platform-specific packaging step
