@@ -167,7 +167,7 @@ if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
 
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
-TEMPLATE_FILES="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
+TEMPLATE_FILES="src/github.com/couchbase/sync_gateway/rest/api.go"
 
 echo ======== insert build meta-data ==============
 for TF in ${TEMPLATE_FILES}
@@ -201,7 +201,7 @@ echo ======== D O N E   S L E E P ================= `date`
 # ... caused by all builders running at once
 
 
-GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbaselabs/sync_gateway
+GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway
 if [[ -e ${SGW_DIR}/${EXEC} ]]
   then
     mv   ${SGW_DIR}/${EXEC} ${DEST_DIR}

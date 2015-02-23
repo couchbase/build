@@ -113,7 +113,7 @@ set  REPO_FILE=%WORKSPACE%\revision.bat
 git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
 call %REPO_FILE%
 
-set  TEMPLATE_FILE="src\github.com\couchbaselabs\sync_gateway\rest\api.go"
+set  TEMPLATE_FILE="src\github.com\couchbase\sync_gateway\rest\api.go"
 del %TEMPLATE_FILE%.orig
 del %TEMPLATE_FILE%.new
 
@@ -145,7 +145,7 @@ mkdir %DEST_DIR%
 set GOPATH=%SGW_DIR%;%SGW_DIR%\vendor
 set CGO_ENABLED=1
 echo GOOS=%GOOS% GOARCH=%GOARCH%
-go build -v github.com\couchbaselabs\sync_gateway
+go build -v github.com\couchbase\sync_gateway
 
 if NOT EXIST %SGW_DIR%\%EXEC% (
     echo "############################# FAIL! no such file: %SGW_DIR%\%EXEC%"
@@ -159,7 +159,7 @@ move  %TEMPLATE_FILE%.orig  %TEMPLATE_FILE%
 
 echo ======== test ================================
 echo ................... running tests from test.sh
-    cd src\github.com\couchbaselabs\sync_gateway
+    cd src\github.com\couchbase\sync_gateway
     go vet     ./...
     go test -i ./...
     go test    ./...
