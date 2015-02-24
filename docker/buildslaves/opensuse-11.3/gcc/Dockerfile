@@ -30,7 +30,7 @@ RUN mkdir /tmp/deploy && cd /tmp/deploy && \
     mv mpc-1.0.2 gcc-4.9.1/mpc && \
     mv mpfr-3.1.2 gcc-4.9.1/mpfr && \
     cd gcc-4.9.1 && \
-    ./configure  --prefix=/opt/gcc-4.9.1 --disable-multiarch --disable-multilib --enable-languages=c,c++ && \
+    ./configure  --prefix=/usr/local --disable-multiarch --disable-multilib --enable-languages=c,c++ && \
     gmake BOOT_CFLAGS='-O' bootstrap && \
     gmake install && \
     cd /tmp && rm -rf deploy
