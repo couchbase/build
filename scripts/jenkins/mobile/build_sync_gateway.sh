@@ -21,7 +21,7 @@
 #        ARCH      -- `uname -m`
 #        DISTRO    -- `uname -a`
 #          
-source ~/.bash_profile
+# source ~/.bash_profile
 set -e
 
 #PUT_CMD="s3cmd put -P"
@@ -30,14 +30,19 @@ set -e
 
 function usage
     {
+    echo "Missing build parameters..."
     echo -e "\nuse:  ${0}   branch_name  version  platform  edition  [ OS ]  [ ARCH ]  [ DISTRO ]\n\n"
     }
-if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
+
+if [[ "#$" -ne 4 ]] ; then usage ; exit 99 ; fi
+
+# enable nocasematch
+shopt -s nocasematch
+
 GITSPEC=${1}
 
-if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
-                     vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
+vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
 if [[ ${VERSION} =~ $vrs_rex ]]
   then
     REL_VER=${BASH_REMATCH[1]}
@@ -47,15 +52,13 @@ else
     exit 88
 fi
 
-if [[ ! ${3} ]] ; then usage ; exit 77 ; fi
 PLATFRM=${3}
 
-if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
 
 export GITSPEC ; export VERSION ; export PLATFRM ; export EDITION
 
-LAST_GOOD_PARAM=SYNCGATE_VERSION_`echo ${PLATFRM} | tr '-' '_' | tr [a-z] [A-Z]`
+#LAST_GOOD_PARAM=SYNCGATE_VERSION_`echo ${PLATFRM} | tr '-' '_' | tr [a-z] [A-Z]`
 
 if [[ $5 ]] ; then  echo "setting OS     to $OS"        ; OS=$5     ; else OS=`uname -s`     ; fi
 if [[ $6 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$6   ; else ARCH=`uname -m`   ; fi
@@ -83,6 +86,7 @@ if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; f
 ARCHP=${ARCH}
 PARCH=${ARCHP}
 
+
 if [[ $DISTRO =~ centos  ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
 fi
@@ -90,6 +94,10 @@ if [[ $DISTRO =~ ubuntu  ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
                               else ARCHP=i386  ; fi
 fi
+
+# disable nocasematch
+shopt -u nocasematch
+
 if [[ $GOOS =~ windows   ]] ; then PKGR=package-win.rb ; PKGTYPE=exe
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=x86   ; fi
 fi
@@ -117,16 +125,16 @@ fi
 
 export GOOS ; export EXEC
 
-GO_RELEASE=1.2
-if [ -d /usr/local/go/${GO_RELEASE} ]
-then
-    GOROOT=/usr/local/go/${GO_RELEASE}
+#GO_RELEASE=1.2
+#if [ -d /usr/local/go/${GO_RELEASE} ]
+#then
+#    GOROOT=/usr/local/go/${GO_RELEASE}
     # Otherwise, don't set GOROOT - not necessary on new builders
-fi
+#fi
 
-PATH=${PATH}:${GOROOT}/bin 
+#PATH=${PATH}:${GOROOT}/bin 
 
-export GO_RELEASE ; export GOROOT ; export PATH
+#export GO_RELEASE ; export GOROOT ; export PATH
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
