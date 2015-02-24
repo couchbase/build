@@ -50,7 +50,8 @@ RUN mkdir /tmp/deploy && \
 
 # * repo
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
-    chmod a+x /usr/local/bin/repo
+    chmod a+x /usr/local/bin/repo && \
+    zypper install -y python-xml && zypper clean
 
 # JDK for Jenkins.
 RUN zypper install -y java-1_6_0-openjdk && zypper clean
@@ -58,7 +59,8 @@ RUN zypper install -y java-1_6_0-openjdk && zypper clean
 # GCC (from ceejatec/opensuse-gcc-build)
 COPY build/local /usr/local
 RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
-     mv /tmp/ld.so.conf /etc && ldconfig
+     mv /tmp/ld.so.conf /etc && ldconfig && \
+     ln -s gcc /usr/local/bin/cc
 
 # * CMake (from cmake.org)
 RUN mkdir /tmp/deploy && cd /tmp/deploy && \
@@ -108,6 +110,8 @@ RUN mkdir /tmp/deploy && \
     make install && rm -rf /home/couchbase/share && \
     ln -s ccache /home/couchbase/bin/gcc && \
     ln -s ccache /home/couchbase/bin/g++ && \
+    ln -s ccache /home/couchbase/bin/cc && \
+    ln -s ccache /home/couchbase/bin/c++ && \
     rm -fr /tmp/deploy
 
 # Expose SSH daemon and run our builder startup script
