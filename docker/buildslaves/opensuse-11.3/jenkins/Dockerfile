@@ -12,6 +12,7 @@ RUN zypper install -y openssh sudo && zypper clean
 # Set up for SSH daemon
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
     sed -ri 's/#UsePAM no/UsePAM no/g' /etc/ssh/sshd_config && \
+    sed -ri 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config && \
     ssh-keygen -f /etc/ssh/ssh_host_rsa_key -N '' -t rsa && \
     ssh-keygen -f /etc/ssh/ssh_host_dsa_key -N '' -t dsa
 
@@ -40,12 +41,6 @@ RUN zypper install -y \
                 unzip && \
                 zypper clean
 
-# * CMake (from cmake.org)
-RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
-    (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    rm -fr /tmp/deploy
-
 # * golang
 RUN mkdir /tmp/deploy && \
     curl https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
@@ -61,17 +56,17 @@ RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bi
 RUN zypper install -y java-1_6_0-openjdk && zypper clean
 
 # GCC (from ceejatec/opensuse-gcc-build)
-COPY build/gcc-4.9.1 /opt/gcc-4.9.1
-ENV  PATH=$PATH:/opt/gcc-4.9.1/bin
+COPY build/local /usr/local
+RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
+     mv /tmp/ld.so.conf /etc && ldconfig
 
-# * ccache (from source)
-RUN mkdir /tmp/deploy && \
-    curl -L https://www.samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
-    cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
-    cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
-    ln -s ccache /usr/local/bin/gcc && \
-    ln -s ccache /usr/local/bin/g++ && \
-    rm -fr /tmp/deploy
+# * CMake (from cmake.org)
+RUN mkdir /tmp/deploy && cd /tmp/deploy && \
+    curl -O http://www.cmake.org/files/v3.1/cmake-3.1.3.tar.gz && \
+    tar xzf cmake-3.1.3.tar.gz && \
+    cd cmake-3.1.3 && ./configure --prefix=/usr/local --no-system-libs && \
+    make -j8 all && make install && \
+    cd /tmp && rm -rf /tmp/deploy
 
 # * git
 RUN mkdir /tmp/deploy && \
@@ -80,15 +75,15 @@ RUN mkdir /tmp/deploy && \
     cd /tmp/deploy && tar xzf git.tar.gz && \
     cd git-1.9.4 && ./configure && make -j8 NO_PERL=YesPlease && make NO_PERL=YesPlease install && \
     cd /tmp && rm -rf /tmp/deploy && zypper remove -y -u curl-devel gettext-devel && zypper clean && \
-    ccache --clear && \
     cd /usr/local/libexec/git-core && \
     find . -samefile git -name 'git-*' -exec ln -sf git {} \; && \
     find . -samefile git-remote-ftp -name 'git-*' -exec ln -sf git-remote-ftp {} \; && \
-    (strip * || true)
-
+    (strip * || true) && \
+    ln -s /usr/local/bin/git /usr/bin/git
 
 # Install autoconf and friends - necessary for building some third-party deps
-# from source, not for Couchbase.
+# from source, not for Couchbase. (The "full" version of perl is also required
+# for some third-party builds, so don't remove that after building libtool.)
 RUN zypper install -y perl && \
     mkdir /tmp/deploy && \
     curl -L http://ftp.gnu.org/gnu/m4/m4-1.4.17.tar.bz2 -o /tmp/deploy/m4-1.4.17.tar.bz2 && \
@@ -103,10 +98,22 @@ RUN zypper install -y perl && \
     curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
     cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \
-    cd /tmp && rm -rf /tmp/deploy && ccache --clear && zypper remove -y -u perl && zypper clean
+    cd /tmp && rm -rf /tmp/deploy && zypper clean
+
+# * ccache (from source)
+RUN mkdir /tmp/deploy && \
+    curl -L https://www.samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
+    cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
+    cd ccache-3.1.9 && ./configure --prefix=/home/couchbase && make -j8 && \
+    make install && rm -rf /home/couchbase/share && \
+    ln -s ccache /home/couchbase/bin/gcc && \
+    ln -s ccache /home/couchbase/bin/g++ && \
+    rm -fr /tmp/deploy
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh
 COPY build/couchbuilder_start.sh /usr/sbin/
 ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
+
+

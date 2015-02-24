@@ -14,6 +14,7 @@
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest zz-lightweight 2223
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest sherlocker-ubuntu12.04 2225
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1404-couchbase-build:latest sherlocker-ubuntu14.04 2226
+./restart_jenkinsdocker.py ceejatec/opensuse-113-couchbase-build:latest sherlocker-opensuse11.3 2228
 
 # Clean up abandoned images
 echo "Done!"
