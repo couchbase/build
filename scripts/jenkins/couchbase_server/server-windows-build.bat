@@ -20,7 +20,7 @@ echo ============================================== %DATE%
 if not exist couchbase mkdir couchbase
 cd couchbase
 repo init -u %MANIFEST_REPO% -b %MANIFEST_SHA% -m %MANIFEST_FILE% -g all,-grommit --reference=C:/reporef || goto error
-repo sync --jobs=4 || goto error
+repo sync || goto error
 if not exist install mkdir install
 repo manifest -r > install/manifest.txt
 
