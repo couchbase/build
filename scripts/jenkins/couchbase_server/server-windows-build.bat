@@ -1,7 +1,5 @@
 @echo on
 
-rem Parameters
-
 set VERSION=%1
 set BLD_NUM=%2
 
@@ -9,7 +7,6 @@ set MANIFEST_FILE=%3
 set LICENSE=%4
 set ARCHITECTURE=%5
 
-rem Optional arguments, from Jenkins job
 if "%MANIFEST_SHA%=="" set MANIFEST_SHA=master
 if "%MANIFEST_REPO%"=="" set MANIFEST_REPO=git://github.com/couchbase/manifest
 if "%WORKSPACE%"=="" set WORKSPACE=%CD%
@@ -33,9 +30,6 @@ echo ==============================================
 set
 echo ======== build ===============================
 
-rem Delete previous run go artifacts - the go compiler doesn't always
-rem rebuild the right stuff. We could run 'nmake clean' here, but that
-rem deletes the whole build directory too, which slows things down.
 rmdir /s /q godeps\pkg goproj\pkg goproj\bin
 
 if "%LICENSE%" == "enterprise" (
