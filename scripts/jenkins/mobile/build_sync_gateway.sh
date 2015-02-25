@@ -21,7 +21,6 @@
 #        ARCH      -- `uname -m`
 #        DISTRO    -- `uname -a`
 #          
-# source ~/.bash_profile
 set -e
 
 #PUT_CMD="s3cmd put -P"
@@ -30,11 +29,11 @@ set -e
 
 function usage
     {
-    echo "Missing build parameters..."
-    echo -e "\nuse:  ${0}   branch_name  version  platform  edition  [ OS ]  [ ARCH ]  [ DISTRO ]\n\n"
+    echo "Incorrect parameters..."
+    echo -e "\nUsage:  ${0}   branch_name  version  platform  edition  [ OS ]  [ ARCH ]  [ DISTRO ] [ GO_REL ]\n\n"
     }
 
-if [[ "#$" -ne 4 ]] ; then usage ; exit 99 ; fi
+if [[ "$#" < 4 ]] ; then usage ; exit 99 ; fi
 
 # enable nocasematch
 shopt -s nocasematch
@@ -49,7 +48,7 @@ if [[ ${VERSION} =~ $vrs_rex ]]
     PKGSTORE=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${REL_VER}/${VERSION}
 else
     echo "illegal value for VERSION: ${VERSION}"
-    exit 88
+    exit 99
 fi
 
 PLATFRM=${3}
@@ -63,78 +62,92 @@ export GITSPEC ; export VERSION ; export PLATFRM ; export EDITION
 if [[ $5 ]] ; then  echo "setting OS     to $OS"        ; OS=$5     ; else OS=`uname -s`     ; fi
 if [[ $6 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$6   ; else ARCH=`uname -m`   ; fi
 if [[ $7 ]] ; then  echo "setting DISTRO to $DISTRO"    ; DISTRO=$7 ; else DISTRO=`uname -a` ; fi
-
-if [[ $DISTRO =~ Darwin ]] ; then DISTRO="macosx"  ; fi
-if [[ $DISTRO =~ CYGWIN ]] ; then DISTRO="windows" ; fi
-
-export OS ; export ARCH ; export DISTRO
-
-if [[ $OS =~ Linux  ]] ; then GOOS=linux   ; EXEC=sync_gateway     ; fi
-if [[ $OS =~ Darwin ]] ; then GOOS=darwin  ; EXEC=sync_gateway     ; fi
-if [[ $OS =~ CYGWIN ]] ; then GOOS=windows ; EXEC=sync_gateway.exe ; fi
-if [[ ! $GOOS ]] 
-    then
-    echo -e "\nunsupported operating system:  $OS\n"
-    exit 666
-fi
-if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
-                        else GOARCH=386   ; fi
-
-if [[ $GOOS =~ linux   ]] ; then EXEC=sync_gateway     ;                       fi
-if [[ $GOOS =~ darwin  ]] ; then EXEC=sync_gateway     ; PKGR=package-mac.rb ; fi
+if [[ $8 ]] ; then  echo "setting GO_REL to $GO_REL"    ; GO_REL=$8 ; else GO_REL=1.2        ; fi
 
 ARCHP=${ARCH}
 PARCH=${ARCHP}
 
-
-if [[ $DISTRO =~ centos  ]] ; then PKGR=package-rpm.rb ; PKGTYPE=rpm
+if [[ $DISTRO =~ centos  ]]
+then
+    DISTRO="centos"
+    PKGR=package-rpm.rb
+    PKGTYPE=rpm
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
-fi
-if [[ $DISTRO =~ ubuntu  ]] ; then PKGR=package-deb.rb ; PKGTYPE=deb
+elif [[ $DISTRO =~ ubuntu  ]]
+then
+    DISTRO="ubuntu"
+    PKGR=package-deb.rb
+    PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
-                              else ARCHP=i386  ; fi
+                              else ARCHP=i386 ; fi
+elif [[ $DISTRO =~ Darwin ]]
+then
+    DISTRO="macosx"
+elif [[ $DISTRO =~ CYGWIN ]]
+then
+    DISTRO="windows"
+else
+   echo -e "\nunsupported DISTRO:  $DISTRO\n"
+    exit 77
 fi
+
+export OS ; export ARCH ; export DISTRO
+
+if [[ $OS =~ Linux  ]]
+then
+    GOOS=linux
+    EXEC=sync_gateway
+elif [[ $OS =~ Darwin ]]
+then
+    GOOS=darwin
+    EXEC=sync_gateway
+    PKGR=package-mac.rb
+elif [[ $OS =~ CYGWIN ]]
+then
+    GOOS=windows
+    EXEC=sync_gateway.exe
+    PKGR=package-win.rb
+    PKGTYPE=exe
+    if [[ $ARCHP =~ i686 ]] ; then ARCHP=x86   ; fi
+else
+    echo -e "\nunsupported operating system:  $OS\n"
+    exit 666
+fi
+
+if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
+                        else GOARCH=386   ; fi
 
 # disable nocasematch
 shopt -u nocasematch
 
-if [[ $GOOS =~ windows   ]] ; then PKGR=package-win.rb ; PKGTYPE=exe
-    if [[ $ARCHP =~ i686 ]] ; then ARCHP=x86   ; fi
-fi
-if [[ ! $PKGR ]] 
-    then
-    echo -e "\nunsupported platform:  $DISTRO\n"
-    exit 666
-fi
-
-if [[ $ARCHP =~ i386  ]] ; then PARCH=x86    ; fi
-if [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
+if [[ $ARCHP =~ i386  ]] ; then PARCH=x86
+elif [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
 
 GOPLAT=${GOOS}-${GOARCH}
 PLATFORM=${OS}-${ARCH}
 
-        PKG_NAME=couchbase-sync-gateway_${VERSION}_${ARCHP}.${PKGTYPE}
-    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}_${PARCH}.${PKGTYPE}
+PKG_NAME=couchbase-sync-gateway_${VERSION}_${ARCHP}.${PKGTYPE}
+NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}_${PARCH}.${PKGTYPE}
 
 if [[ $DISTRO =~ macosx ]]
-    then
+then
     PLATFORM=${DISTRO}-${ARCH}
-        PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}.tar.gz
+    PKG_NAME=couchbase-sync-gateway_${VERSION}_${DISTRO}-${ARCH}.tar.gz
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}_${PARCH}.tar.gz
 fi
 
 export GOOS ; export EXEC
 
-#GO_RELEASE=1.2
-#if [ -d /usr/local/go/${GO_RELEASE} ]
-#then
-#    GOROOT=/usr/local/go/${GO_RELEASE}
-    # Otherwise, don't set GOROOT - not necessary on new builders
-#fi
+# Require for builds not using Docker
+GO_RELEASE=${GO_REL}
+if [ -d /usr/local/go/${GO_RELEASE} ]
+then
+    GOROOT=/usr/local/go/${GO_RELEASE}
+fi
 
-#PATH=${PATH}:${GOROOT}/bin 
+PATH=${PATH}:${GOROOT}/bin
 
-#export GO_RELEASE ; export GOROOT ; export PATH
+export GO_RELEASE ; export GOROOT ; export PATH
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
