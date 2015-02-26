@@ -256,10 +256,10 @@ echo  ======= upload ==============================
 cp ${STAGING}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
 cd                        ${SGW_DIR}
 if [[ $DISTRO =~ macosx ]]
-    md5 ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
 then
-    md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+    md5 ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
 else
+    md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
 fi
 echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
