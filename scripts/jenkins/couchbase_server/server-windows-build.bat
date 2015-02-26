@@ -9,25 +9,17 @@ set MANIFEST_FILE=%3
 set LICENSE=%4
 set ARCHITECTURE=%5
 
-rem Optional arguments, from Jenkins job
-if "%MANIFEST_SHA%"=="" set MANIFEST_SHA=master
-if "%MANIFEST_REPO%"=="" set MANIFEST_REPO=git://github.com/couchbase/manifest
-if "%WORKSPACE%"=="" set WORKSPACE=%CD%
-
+rem In addition to the above arguments, this scripts expects
+rem to be launched from the top level of a sherlock repo directory.
 set
-echo ============================================== %DATE%
+echo ======== %DATE% =============================
 
-if not exist couchbase mkdir couchbase
-cd couchbase
-repo init -u %MANIFEST_REPO% -b %MANIFEST_SHA% -m %MANIFEST_FILE% -g all,-grommit --reference=C:/reporef || goto error
-repo sync || goto error
 if not exist install mkdir install
 repo manifest -r > install/manifest.txt
 
 set target_arch=%ARCHITECTURE%
-set source_root=%WORKSPACE%\couchbase
+set source_root=%CD%
 call %source_root%\tlm\win32\environment.bat
-
 
 echo ==============================================
 set
