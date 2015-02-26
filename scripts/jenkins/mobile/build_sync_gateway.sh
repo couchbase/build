@@ -255,7 +255,12 @@ cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION} ${REPO_SHA} ${PL
 echo  ======= upload ==============================
 cp ${STAGING}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
 cd                        ${SGW_DIR}
-md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+if [[ $DISTRO =~ macosx ]]
+    md5 ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+then
+    md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+else
+fi
 echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
 echo ======== D O N E   S L E E P ================= `date`
