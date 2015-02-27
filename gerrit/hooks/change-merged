@@ -158,7 +158,7 @@ case $project in
         repo="git@github.com:couchbase/$project.git"
         ;;
     forestdb)
-        repo="git@github.com:couchbaselabs/$project.git"
+        repo="git@github.com:couchbase/$project.git"
         ;;
     indexing)
         repo="git@github.com:couchbase/$project.git"
