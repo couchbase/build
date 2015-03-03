@@ -237,7 +237,7 @@ echo ======== D O N E   S L E E P ================= `date`
 #
 if [[ (${REL_VER} > 0.0.0) && (${REL_VER} < 1.0.5) ]]
 then
-    GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbaselab/sync_gateway
+    GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbaselabs/sync_gateway
 else
     GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway
 fi
