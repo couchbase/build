@@ -23,8 +23,8 @@
 #          
 set -e
 
-#PUT_CMD="s3cmd put -P"
-#CHK_CMD="s3cmd ls"
+PUT_CMD="s3cmd put -P"
+CHK_CMD="s3cmd ls"
 
 
 function usage
@@ -45,7 +45,7 @@ vrs_rex='^([0-9]{1,}\.[0-9]{1,}\.[0-9]{1,}(\.[0-9]{1,})?)'
 if [[ ${VERSION} =~ $vrs_rex ]]
   then
     REL_VER=${BASH_REMATCH[1]}
-    PKGSTORE=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${REL_VER}/${VERSION}
+    LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${REL_VER}/${VERSION}
 else
     echo "illegal value for VERSION: ${VERSION}"
     exit 99
@@ -188,7 +188,16 @@ if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
 
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
-TEMPLATE_FILES="src/github.com/couchbase/sync_gateway/rest/api.go"
+#
+# Adding support for releases from 1.0.4 and older for now
+# Try to come up with a better solution in new Jenkins
+#
+if [[ $REL_VER < 1.0.5 ]]
+then
+    TEMPLATE_FILES="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
+else 
+    TEMPLATE_FILES="src/github.com/couchbase/sync_gateway/rest/api.go"
+fi
 
 echo ======== insert build meta-data ==============
 for TF in ${TEMPLATE_FILES}
@@ -222,7 +231,16 @@ echo ======== D O N E   S L E E P ================= `date`
 # ... caused by all builders running at once
 
 
-GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway
+#
+# Adding support for releases from 1.0.4 and older for now
+# Try to come up with a better solution in new Jenkins
+#
+if [[ $REL_VER < 1.0.5 ]]
+then
+    GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbaselab/sync_gateway
+else
+    GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway
+fi
 if [[ -e ${SGW_DIR}/${EXEC} ]]
   then
     mv   ${SGW_DIR}/${EXEC} ${DEST_DIR}
@@ -261,14 +279,24 @@ then
 else
     md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
 fi
-echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}
 sleep ${STARTUP_DELAY}
 echo ======== D O N E   S L E E P ================= `date`
-#${PUT_CMD}  ${NEW_PKG_NAME}                          ${PKGSTORE}/${NEW_PKG_NAME}
-#${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}
-#sleep ${STARTUP_DELAY}
-#echo ======== D O N E   S L E E P ================= `date`
-#${PUT_CMD}  ${NEW_PKG_NAME}.md5                      ${PKGSTORE}/${NEW_PKG_NAME}.md5
-#${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}.md5
+#
+# Manually upload release builds to S3 due to permission issue on the build server 
+# Will break up into postbuild process in new Jenkins so that it can be used by other builds
+#
+#if [[ $REL_VER < 1.0.5 ]]
+#then
+#    PKGSTORE=s3://packages.couchbase.com/builds/mobile/sync_gateway/${REL_VER}/${VERSION}
+#    echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}
+#    ${PUT_CMD}  ${NEW_PKG_NAME}                          ${PKGSTORE}/${NEW_PKG_NAME}
+#    ${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}
+#    echo ======== U P L O A D I N G ================= `date`
+#    sleep ${STARTUP_DELAY}
+#    ${PUT_CMD}  ${NEW_PKG_NAME}.md5                      ${PKGSTORE}/${NEW_PKG_NAME}.md5
+#    ${CHK_CMD}                                           ${PKGSTORE}/${NEW_PKG_NAME}.md5
+#fi
+
+echo        ........................... uploading internally to ${LATESTBUILDS_SGW}/${NEW_PKG_NAME}
 
 echo ============================================== `date`
