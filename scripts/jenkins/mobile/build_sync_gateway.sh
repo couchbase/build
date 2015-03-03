@@ -192,10 +192,10 @@ REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 # Adding support for releases from 1.0.4 and older for now
 # Try to come up with a better solution in new Jenkins
 #
-if [[ $REL_VER < 1.0.5 ]]
+if [[ (${REL_VER} > 0.0.0) && (${REL_VER} < 1.0.5) ]]
 then
     TEMPLATE_FILES="src/github.com/couchbaselabs/sync_gateway/rest/api.go"
-else 
+else
     TEMPLATE_FILES="src/github.com/couchbase/sync_gateway/rest/api.go"
 fi
 
@@ -235,7 +235,7 @@ echo ======== D O N E   S L E E P ================= `date`
 # Adding support for releases from 1.0.4 and older for now
 # Try to come up with a better solution in new Jenkins
 #
-if [[ $REL_VER < 1.0.5 ]]
+if [[ (${REL_VER} > 0.0.0) && (${REL_VER} < 1.0.5) ]]
 then
     GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbaselab/sync_gateway
 else
@@ -285,7 +285,7 @@ echo ======== D O N E   S L E E P ================= `date`
 # Manually upload release builds to S3 due to permission issue on the build server 
 # Will break up into postbuild process in new Jenkins so that it can be used by other builds
 #
-#if [[ $REL_VER < 1.0.5 ]]
+#if [[ ${REL_VER} < 1.0.5 ]]
 #then
 #    PKGSTORE=s3://packages.couchbase.com/builds/mobile/sync_gateway/${REL_VER}/${VERSION}
 #    echo        ........................... uploading to ${PKGSTORE}/${NEW_PKG_NAME}
