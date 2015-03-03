@@ -32,5 +32,5 @@ echo ============================================ make simple-test
 cd testrunner
 make simple-test
 sudo killall -9 beam.smp epmd memcached python >/dev/null || true
-zip cluster_run_log cluster_run.log
+zip cluster_run_log ../ns_server/cluster_run*log
 echo ============================================ `date`
