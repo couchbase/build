@@ -155,12 +155,16 @@ case "$PKG" in
     rpm)
         ARCHITECTURE=x86_64
         INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-        cp ~/rpmbuild/RPMS/x86_64/*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
+        DBG_FILENAME=couchbase-server-${EDITION}-debug-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
+        cp ~/rpmbuild/RPMS/x86_64/couchbase-server-[1-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
+        cp ~/rpmbuild/RPMS/x86_64/couchbase-server-debug-*.rpm ${WORKSPACE}/${DBG_FILENAME}
         ;;
     deb)
         ARCHITECTURE=amd64
         INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
-        cp build/deb/*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
+        DBG_FILENAME=couchbase-server-${EDITION}-dbg_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
+        cp build/deb/couchbase-server_*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
+        cp build/deb/couchbase-server-dbg_*.deb ${WORKSPACE}/${DBG_FILENAME}
         ;;
     mac)
         ARCHITECTURE=x86_64
