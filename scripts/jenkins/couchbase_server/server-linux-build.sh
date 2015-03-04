@@ -157,7 +157,16 @@ case "$PKG" in
         INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
         DBG_FILENAME=couchbase-server-${EDITION}-debug-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
         cp ~/rpmbuild/RPMS/x86_64/couchbase-server-[1-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
-        cp ~/rpmbuild/RPMS/x86_64/couchbase-server-debug-*.rpm ${WORKSPACE}/${DBG_FILENAME}
+	if [ "${FLAVOR}" = "redhat" ]
+	then
+            cp ~/rpmbuild/RPMS/x86_64/couchbase-server-debug-*.rpm ${WORKSPACE}/${DBG_FILENAME}
+	elif [ "${FLAVOR}" = "suse" ]
+	then
+            cp ~/rpmbuild/RPMS/x86_64/couchbase-server-debuginfo-*.rpm ${WORKSPACE}/${DBG_FILENAME}
+	else
+	    echo "Error: Unknown FLAVOR '${FLAVOR}'"
+	    exit 6
+	fi
         ;;
     deb)
         ARCHITECTURE=amd64
