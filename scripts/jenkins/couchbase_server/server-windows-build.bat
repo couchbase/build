@@ -41,7 +41,7 @@ cmake -E touch CMakeLists.txt
 nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE% EXTRA_CMAKE_OPTIONS="-D PRODUCT_VERSION=%VERSION%-%BLD_NUM%-rel -D CMAKE_ERL_LIB_INSTALL_PREFIX=lib -D CMAKE_BUILD_TYPE=RelWithDebInfo" || goto error
 
 rem Archive all Windows debug files for future reference.
-7za a -tzip -mx9 -ir!*.pdb couchbase-server-%VERSION%-%BLD_NUM%-%ARCHITECTURE%-PDB.zip
+7za a -tzip -mx9 -ir!*.pdb couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_%ARCHITECTURE%-PDB.zip
 
 cd ..
 echo ============================================== %DATE%
