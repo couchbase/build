@@ -82,7 +82,7 @@ else
 fi
 cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CMAKE_PREFIX_PATH=/opt/couchbase \
-      -D CMAKE_BUILD_TYPE=Release \
+      -D CMAKE_BUILD_TYPE=RelWithDebInfo \
       -D PRODUCT_VERSION=${PRODUCT_VERSION} \
       -D BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
       -D CB_DOWNLOAD_DEPS=1 \
