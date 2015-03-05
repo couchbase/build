@@ -155,17 +155,26 @@ case "$PKG" in
     rpm)
         ARCHITECTURE=x86_64
         INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-        DBG_FILENAME=couchbase-server-${EDITION}-debug-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
         cp ~/rpmbuild/RPMS/x86_64/couchbase-server-[1-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
-	if [ "${FLAVOR}" = "redhat" ]
+
+	# Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
+	# newer ones and SuSE use "-debuginfo-*.rpm".
+	# Scan for both and move to correct final name.
+	DBG_PREFIX="${HOME}/rpmbuild/RPMS/x86_64/couchbase-server"
+	DEBUG=""
+	if ls ${DBG_PREFIX}-debug-*.rpm > /dev/null 2>&1;
 	then
-            cp ~/rpmbuild/RPMS/x86_64/couchbase-server-debug-*.rpm ${WORKSPACE}/${DBG_FILENAME}
-	elif [ "${FLAVOR}" = "suse" ]
+	    DEBUG=debug
+	elif ls ${DBG_PREFIX}-debuginfo-*.rpm > /dev/null 2>&1;
 	then
-            cp ~/rpmbuild/RPMS/x86_64/couchbase-server-debuginfo-*.rpm ${WORKSPACE}/${DBG_FILENAME}
+	    DEBUG=debuginfo
 	else
-	    echo "Error: Unknown FLAVOR '${FLAVOR}'"
-	    exit 6
+	    echo "Warning: No couchbase-server-{debug,debuginfo}-*.rpm package found; skipping copy."
+	fi
+	if [ -n "$DEBUG" ]
+	then
+            cp ${DBG_PREFIX}-${DEBUG}-*.rpm \
+               ${WORKSPACE}/couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
 	fi
         ;;
     deb)
