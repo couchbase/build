@@ -257,7 +257,7 @@ done
 
 echo ======== test ================================ `date`
 echo ........................ running test.sh
-                                ./test.sh
+                                ./test.sh -cpu 4 -race
 
 echo ======== package =============================
 cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
