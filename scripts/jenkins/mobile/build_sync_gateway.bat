@@ -34,9 +34,14 @@ if "%PLATFRM%" == "" call :usage 66
 set  EDITION=%5
 if "%EDITION%" == "" call :usage 55
 
+set  GO_RELEASE=%6
+if "%GO_RELEASE%" == "" (
+    set GO_RELEASE=1.4.1
+)
+
 set PUT_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini put -P --no-progress
 set CHK_CMD=s3cmd --config=c:\Users\Administrator\s3cmd.ini ls
-set PKGSTORE="s3://packages.couchbase.com/builds/mobile/sync_gateway/%RELEASE%/%VERSION%"
+set LATESTBUILDS_SGW="http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/%RELEASE%/%VERSION%"
 
 set LAST_GOOD_PARAM=%SYNCGATE_VERSION_PARAM%
 set GOOS=windows
@@ -73,9 +78,7 @@ if "%ARCHP%" == "amd64" (
 set     PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
 set NEW_PKG_NAME=couchbase-sync-gateway-%EDITION%_%VERSION%_%PARCH%.%PKGTYPE%
 
-set GO_RELEASE=1.2
 set GOROOT=c:\usr\local\go\%GO_RELEASE%
-
 set PATH=%PATH%;%GOROOT%\bin\
 
 set
@@ -186,11 +189,14 @@ echo  ======= upload ==============================
 copy %STAGING%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
 cd                        %SGW_DIR%
 md5sum  %NEW_PKG_NAME%  > %NEW_PKG_NAME%.md5
-echo        ........................... uploading to %PKGSTORE%/%NEW_PKG_NAME%
-%PUT_CMD%  %NEW_PKG_NAME%                            %PKGSTORE%/%NEW_PKG_NAME%
-%CHK_CMD%                                            %PKGSTORE%/%NEW_PKG_NAME%
-%PUT_CMD%  %NEW_PKG_NAME%.md5                        %PKGSTORE%/%NEW_PKG_NAME%.md5
-%CHK_CMD%                                            %PKGSTORE%/%NEW_PKG_NAME%.md5
+echo        ........................... uploading internally to %LATESTBUILDS_SGW%
+
+::set PKGSTORE="s3://packages.couchbase.com/builds/mobile/sync_gateway/%RELEASE%/%VERSION%"
+::echo        ........................... uploading to %PKGSTORE%/%NEW_PKG_NAME%
+::%PUT_CMD%  %NEW_PKG_NAME%                            %PKGSTORE%/%NEW_PKG_NAME%
+::%CHK_CMD%                                            %PKGSTORE%/%NEW_PKG_NAME%
+::%PUT_CMD%  %NEW_PKG_NAME%.md5                        %PKGSTORE%/%NEW_PKG_NAME%.md5
+::%CHK_CMD%                                            %PKGSTORE%/%NEW_PKG_NAME%.md5
 
 echo ============================================== %DATE%
 
