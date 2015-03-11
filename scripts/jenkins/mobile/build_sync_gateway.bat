@@ -190,7 +190,7 @@ cd   %BLD_DIR%
 echo  ======= upload ==============================
 copy %STAGING%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
 cd                        %SGW_DIR%
-md5sum  %NEW_PKG_NAME%  > %NEW_PKG_NAME%.md5
+::md5sum  %NEW_PKG_NAME%  > %NEW_PKG_NAME%.md5
 echo        ........................... uploading internally to %LATESTBUILDS_SGW%
 
 ::set PKGSTORE="s3://packages.couchbase.com/builds/mobile/sync_gateway/%RELEASE%/%VERSION%"
