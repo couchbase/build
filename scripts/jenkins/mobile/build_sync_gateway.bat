@@ -108,6 +108,7 @@ git submodule init
 git submodule update
 git show --stat
 
+if NOT EXIST %STAGING%           mkdir %STAGING%
 if NOT EXIST %STAGING%\bin       mkdir %STAGING%\bin
 if NOT EXIST %STAGING%\examples  mkdir %STAGING%\examples
 if NOT EXIST %STAGING%\service   mkdir %STAGING%\service
@@ -165,9 +166,10 @@ echo ................... running tests from test.sh
     cd src\github.com\couchbase\sync_gateway
     go vet     ./...
     go test -i ./...
-    go test    ./...
+    go test -cpu 4 -race ./...
 
 echo ======== package =============================
+echo ".................staging files to %STAGING%" 
 copy  %DEST_DIR%\%EXEC%                 %STAGING%\bin\
 copy  %BLD_DIR%\README.txt              %STAGING%\README.txt
 echo  %VERSION%                       > %STAGING%\VERSION.txt
