@@ -217,6 +217,9 @@ case $project in
     go-couchbase)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    goforestdb)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
