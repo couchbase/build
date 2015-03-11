@@ -136,6 +136,15 @@ then
     fi
 fi
 
+cxxlib_needed="suse11|ubuntu12"
+if [[ "$DISTRO" =~ $cxxlib_needed ]]
+then
+    libstdcpp=`g++ --print-file-name=libstdc++.so`
+    libstdcppname=`basename "$libstdcpp"`
+    cp -p "$libstdcpp" "/opt/couchbase/lib/$libstdcppname"
+    ln -s "$libstdcppname" "/opt/couchbase/lib/${libstdcppname}.6"
+fi
+
 # Execute platform-specific packaging step
 PRODUCT_VERSION=${PRODUCT_VERSION} LD_LIBRARY_PATH=/opt/couchbase/lib \
    ./server-${PKG}.rb /opt/couchbase couchbase-server couchbase server 1.0.0
