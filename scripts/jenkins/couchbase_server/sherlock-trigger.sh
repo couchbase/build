@@ -22,7 +22,7 @@ git commit --allow-empty -m "$msg"
 git push origin HEAD:master
 
 # Also save it with the right name for uploading to latestbuilds.
-rm ${WORKSPACE}/*.xml
+rm -f ${WORKSPACE}/*.xml
 cp sherlock.xml ${WORKSPACE}/couchbase-server-${VERSION}-${BUILD_NUMBER}-manifest.xml
 
 # Save the new commit SHA and the build number for downstream jobs in
