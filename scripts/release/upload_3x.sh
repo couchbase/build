@@ -3,13 +3,24 @@
 # Expects to be run from the latestbuilds directory.
 
 RELEASE=3.0.2
+MP=MP2
 BUILD=1603
+STAGING=
 
-ROOT=s3://packages.couchbase.com/releases/$RELEASE
-STAGING=.staging
+# Don't modify anything below this line
 
-RELEASE_DIR=/home/buildbot/releases/$RELEASE
+# Compute destination directories
+ROOT=s3://packages.couchbase.com/releases/$RELEASE-$MP
+RELEASE_DIR=/home/buildbot/releases/$RELEASE-$MP
 mkdir -p $RELEASE_DIR
+
+# Compute target filename component
+if [ -z "$MP" ]
+then
+    FILENAME_VER=$RELEASE
+else
+    FILENAME_VER=$RELEASE-$BUILD
+fi
 
 upload()
 {
@@ -31,50 +42,50 @@ upload()
     cp /tmp/$build.md5 $RELEASE_DIR/$target.md5
 }
 
-if [ ! -e couchbase-server_$RELEASE-src.tgz ]
-then
-    echo 'Create the source tarball with create_tarball.sh!'
-    exit 1
-fi
-upload couchbase-server_$RELEASE-src.tgz couchbase-server_$RELEASE-src.tgz
+#if [ ! -e couchbase-server_$FILENAME_VER-src.tgz ]
+#then
+#    echo 'Create the source tarball with create_tarball.sh!'
+#    exit 1
+#fi
+#upload couchbase-server_$FILENAME_VER-src.tgz couchbase-server_$FILENAME_VER-src.tgz
 
 upload couchbase-server-community_centos6_x86_64_$RELEASE-$BUILD-rel.rpm \
-  couchbase-server-community-$RELEASE-centos6.x86_64.rpm
+  couchbase-server-community-$FILENAME_VER-centos6.x86_64.rpm
 upload couchbase-server-enterprise_centos6_x86_64_$RELEASE-$BUILD-rel.rpm \
-  couchbase-server-enterprise-$RELEASE-centos6.x86_64.rpm
+  couchbase-server-enterprise-$FILENAME_VER-centos6.x86_64.rpm
 
 upload couchbase-server-community_x86_64_$RELEASE-$BUILD-rel.rpm \
-  couchbase-server-community-$RELEASE-centos5.x86_64.rpm
+  couchbase-server-community-$FILENAME_VER-centos5.x86_64.rpm
 upload couchbase-server-enterprise_x86_64_$RELEASE-$BUILD-rel.rpm \
-  couchbase-server-enterprise-$RELEASE-centos5.x86_64.rpm
+  couchbase-server-enterprise-$FILENAME_VER-centos5.x86_64.rpm
 
 upload couchbase-server-community_debian7_x86_64_$RELEASE-$BUILD-rel.deb \
-  couchbase-server-community_$RELEASE-debian7_amd64.deb
+  couchbase-server-community_$FILENAME_VER-debian7_amd64.deb
 upload couchbase-server-enterprise_debian7_x86_64_$RELEASE-$BUILD-rel.deb \
-  couchbase-server-enterprise_$RELEASE-debian7_amd64.deb
+  couchbase-server-enterprise_$FILENAME_VER-debian7_amd64.deb
 
 upload couchbase-server-community_ubuntu_1204_x86_64_$RELEASE-$BUILD-rel.deb \
-  couchbase-server-community_$RELEASE-ubuntu12.04_amd64.deb
+  couchbase-server-community_$FILENAME_VER-ubuntu12.04_amd64.deb
 upload couchbase-server-enterprise_ubuntu_1204_x86_64_$RELEASE-$BUILD-rel.deb \
-  couchbase-server-enterprise_$RELEASE-ubuntu12.04_amd64.deb
+  couchbase-server-enterprise_$FILENAME_VER-ubuntu12.04_amd64.deb
 
 upload couchbase-server-community_x86_64_$RELEASE-$BUILD-rel.deb \
-  couchbase-server-community_$RELEASE-ubuntu10.04_amd64.deb
+  couchbase-server-community_$FILENAME_VER-ubuntu10.04_amd64.deb
 upload couchbase-server-enterprise_x86_64_$RELEASE-$BUILD-rel.deb \
-  couchbase-server-enterprise_$RELEASE-ubuntu10.04_amd64.deb
+  couchbase-server-enterprise_$FILENAME_VER-ubuntu10.04_amd64.deb
 
 upload couchbase-server-community_x86_64_$RELEASE-$BUILD-rel.zip \
-  couchbase-server-community_$RELEASE-macos_x86_64.zip
+  couchbase-server-community_$FILENAME_VER-macos_x86_64.zip
 upload couchbase-server-enterprise_x86_64_$RELEASE-$BUILD-rel.zip \
-  couchbase-server-enterprise_$RELEASE-macos_x86_64.zip
+  couchbase-server-enterprise_$FILENAME_VER-macos_x86_64.zip
 
 upload couchbase_server-community-windows-amd64-$RELEASE-$BUILD.exe \
-  couchbase-server-community_$RELEASE-windows_amd64.exe
+  couchbase-server-community_$FILENAME_VER-windows_amd64.exe
 upload couchbase_server-enterprise-windows-amd64-$RELEASE-$BUILD.exe \
-  couchbase-server-enterprise_$RELEASE-windows_amd64.exe
+  couchbase-server-enterprise_$FILENAME_VER-windows_amd64.exe
 
 upload couchbase_server-community-windows-x86-$RELEASE-$BUILD.exe \
-  couchbase-server-community_$RELEASE-windows_x86.exe
+  couchbase-server-community_$FILENAME_VER-windows_x86.exe
 upload couchbase_server-enterprise-windows-x86-$RELEASE-$BUILD.exe \
-  couchbase-server-enterprise_$RELEASE-windows_x86.exe
+  couchbase-server-enterprise_$FILENAME_VER-windows_x86.exe
 
