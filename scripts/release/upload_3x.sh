@@ -2,25 +2,28 @@
 
 # Expects to be run from the latestbuilds directory.
 
-RELEASE=3.0.2
-MP=MP2
-BUILD=1603
+RELEASE=3.0.3
+MP=
+BUILD=1713
 STAGING=
 
 # Don't modify anything below this line
 
-# Compute destination directories
-ROOT=s3://packages.couchbase.com/releases/$RELEASE-$MP
-RELEASE_DIR=/home/buildbot/releases/$RELEASE-$MP
-mkdir -p $RELEASE_DIR
 
 # Compute target filename component
 if [ -z "$MP" ]
 then
+    RELEASE_DIRNAME=$RELEASE
     FILENAME_VER=$RELEASE
 else
+    RELEASE_DIRNAME=$RELEASE-$MP
     FILENAME_VER=$RELEASE-$BUILD
 fi
+
+# Compute destination directories
+ROOT=s3://packages.couchbase.com/releases/$RELEASE_DIRNAME
+RELEASE_DIR=/home/buildbot/releases/$RELEASE_DIRNAME
+mkdir -p $RELEASE_DIR
 
 upload()
 {
