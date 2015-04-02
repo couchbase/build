@@ -34,6 +34,9 @@
 @IF NOT DEFINED PARALLELISM (
     set PARALLELISM=8
 )
+@IF NOT DEFINED TEST_PARALLELISM (
+    set TEST_PARALLELISM=%PARALLELISM%
+)
 
 @echo.
 @echo ============================================
@@ -88,7 +91,7 @@ nmake EXTRA_CMAKE_OPTIONS=""
         pushd build\%GERRIT_PROJECT%
         @REM  -j%PARALLELISM% : Run tests in parallel.
         @REM  -T Test   : Generate XML output file of test results.
-        nmake test ARGS="-j%PARALLELISM% --output-on-failure --no-compress-output -T Test"
+        nmake test ARGS="-j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test"
         popd
     ) ELSE (
         @echo ============================================

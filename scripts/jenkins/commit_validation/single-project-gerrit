@@ -25,8 +25,9 @@ if [ -z "$GERRIT_REFSPEC" ]; then
     exit 4
 fi
 
-# How many jobs to run in parallel by default?
+# Optional env vars - how many jobs to run in parallel by default?
 PARALLELISM="${PARALLELISM:-8}"
+TEST_PARALLELISM="${TEST_PARALLELISM:-${PARALLELISM}}"
 
 source ~jenkins/.bash_profile
 set -e
@@ -85,11 +86,11 @@ then
 ============================================
 EOF
     pushd build/${GERRIT_PROJECT} 2>&1 > /dev/null
-    # -j${PARALLELISM} : Run tests in parallel.
+    # -j${TEST_PARALLELISM} : Run tests in parallel.
     # -T Test   : Generate XML output file of test results.
     # "|| true" : Needed to ensure that xUnit scanner is run even if one or more
     #             tests fail.
-    echo_cmd make test ARGS="-j${PARALLELISM} --output-on-failure --no-compress-output -T Test" || true
+    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test" || true
     popd 2>&1 > /dev/null
 else
     cat <<EOF
