@@ -91,6 +91,13 @@ EOF
     # "|| true" : Needed to ensure that xUnit scanner is run even if one or more
     #             tests fail.
     echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test" || true
+
+    if [ -n "$RUN_TESTS_UNDER_VALGRIND" ]; then
+        # Clear out any previous runs' output files
+        echo_cmd rm -f memcheck.*.xml
+        echo_cmd make test ARGS="-j${TEST_PARALLELISM} -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}" || true
+    fi
+
     popd 2>&1 > /dev/null
 else
     cat <<EOF
