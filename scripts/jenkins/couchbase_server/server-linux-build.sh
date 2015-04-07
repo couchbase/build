@@ -200,8 +200,21 @@ case "$PKG" in
         ;;
 esac
 
-echo Creating trigger.properties...
+# Back to the top
 cd ${WORKSPACE}
+
+# Support for Oracle Enterprise Linux. If we're building Centos 6, make
+# an exact copy with an oel6 filename.
+case "$DISTRO" in
+    centos6)
+        for rpm in *.rpm
+        do
+            cp ${rpm} ${rpm//centos/oel}
+        done
+        ;;
+esac
+
+echo Creating trigger.properties...
 cat <<EOF > trigger.properties
 ARCHITECTURE=${ARCHITECTURE}
 PLATFORM=${DISTRO}
