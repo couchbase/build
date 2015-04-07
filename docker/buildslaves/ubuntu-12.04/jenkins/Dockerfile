@@ -75,6 +75,10 @@ RUN mkdir /tmp/deploy && \
 RUN apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
 
+# Valgrind needed for leak checking as part of unit tests.
+RUN apt-get install -y valgrind && \
+    apt-get clean
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh
