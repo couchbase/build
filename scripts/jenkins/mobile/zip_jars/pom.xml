@@ -17,7 +17,7 @@
         <commons-io.version>  2.0.1 </commons-io.version>
         <rhino.version>       1.7R3 </rhino.version>
         <servlet.version>     2-3   </servlet.version>
-        <stateless4j.version> 2.5.0 </stateless4j.version>
+        <stateless4j.version> 2.4.0 </stateless4j.version>
 
         <LICENSE_DIR>${basedir}/../../../../license/couchbase-lite</LICENSE_DIR>
         <LICENSE_FILE>LICENSE_${EDITION}.txt</LICENSE_FILE>
