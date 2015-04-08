@@ -10,11 +10,11 @@ USER root
 
 # Install SSH server
 RUN apt-get update && \
-    apt-get install -y openssh-server && \
+    apt-get install -y apt openssh-server && \
     rm -f /var/cache/apt/archives/*.deb && \
     mkdir /var/run/sshd # comment
 
-# Create couchbase user with password-less sudo privs, and give 
+# Create couchbase user with password-less sudo privs, and give
 # ownership of /opt/couchbase
 RUN useradd couchbase -G sudo -m -s /bin/bash && \
     mkdir -p /opt/couchbase && chown -R couchbase:couchbase /opt/couchbase && \
