@@ -22,7 +22,7 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
 # Install Couchbase build dependencies
-RUN apt-get install -y git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
+RUN apt-get install -y ccache git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Install updated C++11 compiler.
@@ -47,7 +47,8 @@ RUN mkdir /tmp/deploy && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
     curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo && \
-    cd /tmp && rm -rf /tmp/deploy
+    cd /tmp && rm -rf /tmp/deploy && \
+    ccache --clear
 
 # Install third-party build dependencies. Note: python-software-properties
 # is only required for add-apt-repository; add-apt-repository is only
@@ -69,7 +70,8 @@ RUN mkdir /tmp/deploy && \
     curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
     cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make && make install && \
-    cd /tmp && rm -rf /tmp/deploy
+    cd /tmp && rm -rf /tmp/deploy && \
+    ccache --clear
 
 # JDK for Jenkins.
 RUN apt-get install -y openjdk-7-jre-headless && \
