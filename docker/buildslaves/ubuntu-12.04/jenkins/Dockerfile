@@ -78,8 +78,12 @@ RUN apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Valgrind needed for leak checking as part of unit tests.
-RUN apt-get install -y valgrind && \
-    apt-get clean
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && curl -L -O http://valgrind.org/downloads/valgrind-3.10.1.tar.bz2 && \
+    tar -xjf valgrind-3.10.1.tar.bz2 && cd valgrind-3.10.1 && \
+    ./configure --prefix=/usr/local && make && make install && \
+    cd /tmp && rm -fr /tmp/deploy && \
+    ccache --clear
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
