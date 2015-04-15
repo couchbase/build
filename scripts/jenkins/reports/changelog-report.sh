@@ -11,7 +11,7 @@
 
 if [[ ! ${PROJECTS}  ]]
     then
-    PROJECTS="cbsasl couchbase-cli couchbase-examples couchbase-python-client couchdb couchdbx-app couchstore ep-engine geocouch healthchecker libconflate libmemcached libvbucket memcached moxi ns_server platform portsigar sigar testrunner tlm"
+    PROJECTS="cbsasl couchbase-cli couchbase-examples couchbase-python-client couchdb couchdbx-app couchstore ep-engine geocouch libconflate libmemcached libvbucket memcached moxi ns_server platform portsigar sigar testrunner tlm"
 fi
 
 FAILS=0

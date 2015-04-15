@@ -9,7 +9,7 @@ set -e
 GITLOG='--pretty=format:--------------------------------------------------%ncommit: %H%nAuthor: %an < %ae >%nDate:   %cd%n%n%s%n%n%b'
 
 PROJECTS='bucket_engine cbsasl couchbase-cli couchbase-examples couchbase-python-client
-          couchdb couchdbx-app couchstore ep-engine geocouch healthchecker libconflate
+          couchdb couchdbx-app couchstore ep-engine geocouch libconflate
           libvbucket moxi ns_server portsigar sigar testrunner tlm'
 
 MEMPROJS='libmemcached memcached'
