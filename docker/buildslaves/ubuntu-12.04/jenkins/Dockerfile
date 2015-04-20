@@ -77,13 +77,16 @@ RUN mkdir /tmp/deploy && \
 RUN apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
 
-# Valgrind needed for leak checking as part of unit tests.
+# Valgrind needed for leak checking as part of unit tests. Note: It requires
+# libc debug symbols (libc6-dbg) to ensure it can locate the address of strlen().
 RUN mkdir /tmp/deploy && \
     cd /tmp/deploy && curl -L -O http://valgrind.org/downloads/valgrind-3.10.1.tar.bz2 && \
     tar -xjf valgrind-3.10.1.tar.bz2 && cd valgrind-3.10.1 && \
     ./configure --prefix=/usr/local && make && make install && \
     cd /tmp && rm -fr /tmp/deploy && \
-    ccache --clear
+    ccache --clear && \
+    apt-get install -y libc6-dbg && \
+    rm -f /var/cache/apt/archives/*.deb
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
