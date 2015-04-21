@@ -44,21 +44,40 @@ if [[ ! ${4} ]] ; then usage ; exit 66 ; fi
 EDITION=${4}
 EDN_PRFX=`echo ${EDITION} | tr '[a-z]' '[A-Z]'`
 
-PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${REVISION}
-PUT_CMD="s3cmd put -P"
+if [[ ! ${5} ]] ; then usage ; exit 55 ; fi
+OS=${5}
+EDN_PRFX=`echo ${OS} | tr '[a-z]' '[A-Z]'`
 
-LOG_FILE=${WORKSPACE}/build_ios_results.log
-if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
-
-
-BASE_DIR=${WORKSPACE}/couchbase-lite-ios
+BASE_DIR=${WORKSPACE}/couchbase-lite-${OS}
 BUILDDIR=${BASE_DIR}/build
 
-ZIP_FILE=couchbase-lite-ios-${EDITION}_${REVISION}.zip
+if [[ $OS =~ ios  ]]
+then
+    CBLITE="CBL iOS"
+    CBLITE_LISTENER="CBL Listener iOS"
+    RIO_SRCD=${BUILDDIR}/Release-ios-universal
+elif [[ $OS =~ macosx  ]]
+then
+    CBLITE="CBL Mac"
+    CBLITE_LISTENER="CBL Listener Mac"
+    RIO_SRCD=${BUILDDIR}/Release
+else
+   echo -e "\nunsupported OS:  ${OS}\n"
+    exit 555
+fi
+
+LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${OS}/${VERSION}/${REVISION}
+#PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${REVISION}
+#PUT_CMD="s3cmd put -P"
+
+LOG_FILE=${WORKSPACE}/build_${OS}_results.log
+if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
+
+ZIP_FILE=couchbase-lite-${OS}-${EDITION}_${REVISION}.zip
 ZIP_PATH=${BASE_DIR}/${ZIP_FILE}
 ZIP_SRCD=${BASE_DIR}/zipfile_staging
 
-DOC_ZIP_FILE=couchbase-lite-ios-${EDITION}_${REVISION}_Documentation.zip
+DOC_ZIP_FILE=couchbase-lite-${OS}-${EDITION}_${REVISION}_Documentation.zip
 DOC_ZIP_PATH=${BASE_DIR}/${DOC_ZIP_FILE}
 
 LICENSED=${WORKSPACE}/build/license/couchbase-lite
@@ -69,7 +88,6 @@ README_D=${BASE_DIR}
 README_F=${README_D}/README.md
 RME_DEST=${ZIP_SRCD}
 
-RIO_SRCD=${BUILDDIR}/Release-ios-universal
 RIO_DEST=${ZIP_SRCD}
 
 REL_SRCD=${BUILDDIR}/Release
@@ -92,12 +110,12 @@ env | grep -iv password | grep -iv passwd | sort
 
 cd ${WORKSPACE}
 echo ============================================  sync couchbase-lite-ios
-echo ============================================  to ${GITSPEC}
+echo ============================================  to ${GITSPEC} into ${WORKSPACE}/couchbase-lite-${OS}
 
-if [[ -d couchbase-lite-ios ]] ; then rm -rf couchbase-lite-ios ; fi
-git clone       https://github.com/couchbase/couchbase-lite-ios.git   couchbase-lite-ios
+if [[ -d couchbase-lite-${OS} ]] ; then rm -rf couchbase-lite-${OS} ; fi
+git clone       https://github.com/couchbase/couchbase-lite-ios.git   couchbase-lite-${OS}
 
-cd  couchbase-lite-ios
+cd  couchbase-lite-${OS}
 if [[ !  `git branch | grep ${GITSPEC}` ]]
     then
     git branch -t ${GITSPEC} origin/${GITSPEC}
@@ -112,7 +130,7 @@ REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
 cd ${WORKSPACE}
 echo ============================================  sync cblite-build
-echo ============================================  to master
+echo ============================================  to master into ${WORKSPACE}
 
 if [[ ! -d cblite-build ]] ; then git clone https://github.com/couchbaselabs/cblite-build.git ; fi
 cd  cblite-build
@@ -132,11 +150,11 @@ XCODE_CMD="xcodebuild CURRENT_PROJECT_VERSION=${BLD_NUM} CBL_VERSION_STRING=${VE
 echo "using command: ${XCODE_CMD}"
 echo "using command: ${XCODE_CMD}"                                            >>  ${LOG_FILE}
 
-cd ${WORKSPACE}/couchbase-lite-ios
-for TARGET in "CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation"
+cd ${WORKSPACE}/couchbase-lite-${OS}
+for TARGET in "${CBLITE}" "${CBLITE_LISTENER}" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation"
   do
-    echo ============================================  iOS target: ${TARGET}
-    echo ============================================  iOS target: ${TARGET}  >>  ${LOG_FILE}
+    echo ============================================  ${OS} target: ${TARGET}
+    echo ============================================  ${OS} target: ${TARGET}  >>  ${LOG_FILE}
     ( ${XCODE_CMD} -target "${TARGET}"  2>&1 )                                >>  ${LOG_FILE}
     if  [[ -e ${LOGFILE} ]]
         then
@@ -171,10 +189,11 @@ mkdir -p ${ZIP_SRCD}
 cp  -r   ${RIO_SRCD}/*             ${RIO_DEST}
 #cp -r   ${REL_SRCD}/LiteServ*     ${REL_DEST}
 cp  -r   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
-cp       ${LIB_SRCF}               ${LIB_DEST}
 cp  -r   ${JSC_SRCD}               ${JSC_DEST}
 cp       ${README_F}               ${RME_DEST}
 cp       ${LICENSEF}               ${LIC_DEST}
+
+if [[ $OS =~ ios  ]] ; then cp ${LIB_SRCF} ${LIB_DEST} ; fi
 
 cd       ${ZIP_SRCD}/CouchbaseLite.framework
 rm -rf PrivateHeaders
@@ -198,17 +217,24 @@ if  [[ -e ${ZIP_LOG} ]]
     tail  ${LOG_TAIL}                             ${ZIP_LOG}
 fi
 
-echo  ============================================== upload ${PKGSTORE}/${ZIP_FILE}
-${PUT_CMD}  ${ZIP_PATH}                                     ${PKGSTORE}/${ZIP_FILE}
+#echo  ============================================== upload ${PKGSTORE}/${ZIP_FILE}
+#${PUT_CMD}  ${ZIP_PATH}                                     ${PKGSTORE}/${ZIP_FILE}
 
-echo  ============================================== upload ${PKGSTORE}/${DOC_ZIP_FILE}
-${PUT_CMD}  ${DOC_ZIP_PATH}                                 ${PKGSTORE}/${DOC_ZIP_FILE}
+#echo  ============================================== upload ${PKGSTORE}/${DOC_ZIP_FILE}
+#${PUT_CMD}  ${DOC_ZIP_PATH}                                 ${PKGSTORE}/${DOC_ZIP_FILE}
 
-echo  ============================================== update default value of test and release jobs
-  SET_SCRIPT=${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl
+echo        ........................... uploading internally to ${LATESTBUILDS_CBL}
 
-${SET_SCRIPT}  -j prepare_release_ios_${JOB_SUFX}              -p ${EDN_PRFX}_BLD_TO_RELEASE    -v ${REVISION}
-#${SET_SCRIPT}  -j mobile_functional_tests_ios_${JOB_SUFX}      -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
+echo ============================================== `date`
 
+# changes required in mobile_functional_tests_xxx to support macosx
+if [[ $OS =~ ios  ]]
+then
+    echo  ============================================== update default value of test and release jobs
+    SET_SCRIPT=${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl
+
+    ${SET_SCRIPT}  -j prepare_release_ios_${JOB_SUFX}              -p ${EDN_PRFX}_BLD_TO_RELEASE    -v ${REVISION}
+    ${SET_SCRIPT}  -j mobile_functional_tests_ios_${JOB_SUFX}      -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
 echo  ============================================== test
+fi
 
