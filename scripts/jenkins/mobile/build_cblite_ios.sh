@@ -53,16 +53,14 @@ BUILDDIR=${BASE_DIR}/build
 
 if [[ $OS =~ ios  ]]
 then
-    CBLITE="CBL iOS"
-    CBLITE_LISTENER="CBL Listener iOS"
+    BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation")
     RIO_SRCD=${BUILDDIR}/Release-ios-universal
 elif [[ $OS =~ macosx  ]]
 then
-    CBLITE="CBL Mac"
-    CBLITE_LISTENER="CBL Listener Mac"
+    BUILD_TARGETS=("CBL Mac" "CBL Listener Mac") 
     RIO_SRCD=${BUILDDIR}/Release
 else
-   echo -e "\nunsupported OS:  ${OS}\n"
+    echo -e "\nunsupported OS:  ${OS}\n"
     exit 555
 fi
 
@@ -140,10 +138,13 @@ git submodule update --init --recursive
 git show --stat
                                                                    # required by "Documentation" target
 DERIVED_FILE_DIR=${REL_SRCD}/Documentation                         #  where the doc files are generated
-TARGET_BUILD_DIR=${REL_SRCD}/com.couchbase.CouchbaseLite.docset    #  where the doc set ends up
 DOC_ZIP_ROOT_DIR=${REL_SRCD}/${REVISION}
 
-mkdir -p ${TARGET_BUILD_DIR}
+if [[ $OS =~ ios  ]]
+then
+    TARGET_BUILD_DIR=${REL_SRCD}/com.couchbase.CouchbaseLite.docset    #  where the doc set ends up
+    mkdir -p ${TARGET_BUILD_DIR}
+fi
 
 XCODE_CMD="xcodebuild CURRENT_PROJECT_VERSION=${BLD_NUM} CBL_VERSION_STRING=${VERSION} CBL_SOURCE_REVISION=${REPO_SHA}"
 
@@ -151,7 +152,7 @@ echo "using command: ${XCODE_CMD}"
 echo "using command: ${XCODE_CMD}"                                            >>  ${LOG_FILE}
 
 cd ${WORKSPACE}/couchbase-lite-${OS}
-for TARGET in "${CBLITE}" "${CBLITE_LISTENER}" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation"
+for TARGET in "${BUILD_TARGETS[@]}"
   do
     echo ============================================  ${OS} target: ${TARGET}
     echo ============================================  ${OS} target: ${TARGET}  >>  ${LOG_FILE}
@@ -165,35 +166,41 @@ for TARGET in "${CBLITE}" "${CBLITE_LISTENER}" "LiteServ" "CBLJSViewCompiler" "L
     fi
 done
 
-echo  ============================================== package ${DOC_ZIP_FILE}
-DOC_LOG=${WORKSPACE}/doc_zip.log
-if [[ -e ${DOC_LOG} ]] ; then rm -f ${DOC_LOG} ; fi
 
-mv     ${DERIVED_FILE_DIR} ${DOC_ZIP_ROOT_DIR}
-pushd  ${REL_SRCD}         2>&1 > /dev/null
+if [[ $OS =~ ios  ]]
+then 
+    echo  ============================================== package ${DOC_ZIP_FILE}
+    DOC_LOG=${WORKSPACE}/doc_zip.log
+    if [[ -e ${DOC_LOG} ]] ; then rm -f ${DOC_LOG} ; fi
 
-( zip -r ${DOC_ZIP_PATH} ${REVISION}  2>&1 )                                  >>  ${DOC_LOG}
-if  [[ -e ${DOC_LOG} ]]
-    then
-    echo
-    echo "======================================= ${DOC_LOG}"
-    echo ". . ."
-    tail  ${LOG_TAIL}                             ${DOC_LOG}
+    mv     ${DERIVED_FILE_DIR} ${DOC_ZIP_ROOT_DIR}
+    pushd  ${REL_SRCD}         2>&1 > /dev/null
+
+    ( zip -ry ${DOC_ZIP_PATH} ${REVISION}  2>&1 )                                  >>  ${DOC_LOG}
+    if  [[ -e ${DOC_LOG} ]]
+        then
+        echo
+        echo "======================================= ${DOC_LOG}"
+        echo ". . ."
+        tail  ${LOG_TAIL}                             ${DOC_LOG}
+    fi
+    popd                        2>&1 > /dev/null
 fi
-popd                        2>&1 > /dev/null
 
 echo  ============================================== prepare ${ZIP_FILE}
 if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
 mkdir -p ${ZIP_SRCD}
 
-cp  -r   ${RIO_SRCD}/*             ${RIO_DEST}
-#cp -r   ${REL_SRCD}/LiteServ*     ${REL_DEST}
-cp  -r   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
-cp  -r   ${JSC_SRCD}               ${JSC_DEST}
+cp  -R   ${RIO_SRCD}/*             ${RIO_DEST}
 cp       ${README_F}               ${RME_DEST}
 cp       ${LICENSEF}               ${LIC_DEST}
 
-if [[ $OS =~ ios  ]] ; then cp ${LIB_SRCF} ${LIB_DEST} ; fi
+if [[ $OS =~ ios  ]]
+then 
+    cp ${LIB_SRCF} ${LIB_DEST}
+    cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
+    cp  -R   ${JSC_SRCD}               ${JSC_DEST}
+fi
 
 cd       ${ZIP_SRCD}/CouchbaseLite.framework
 rm -rf PrivateHeaders
@@ -208,7 +215,7 @@ ZIP_LOG=${WORKSPACE}/doc_zip.log
 if [[ -e ${ZIP_LOG} ]] ; then rm -f ${ZIP_LOG} ; fi
 
 cd         ${ZIP_SRCD}
-( zip -r   ${ZIP_PATH} *  2>&1 )                                              >>  ${ZIP_LOG}
+( zip -ry   ${ZIP_PATH} *  2>&1 )                                              >>  ${ZIP_LOG}
 if  [[ -e ${ZIP_LOG} ]]
     then
     echo
