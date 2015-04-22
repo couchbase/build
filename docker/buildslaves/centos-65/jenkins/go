@@ -2,4 +2,4 @@
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
-docker build -t ceejatec/centos-65-couchbase-build .
+docker build -t ceejatec/centos-65-couchbase-build:20150224 .

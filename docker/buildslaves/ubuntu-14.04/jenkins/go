@@ -2,4 +2,4 @@
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
-docker build -t ceejatec/ubuntu-1404-couchbase-build .
+docker build -t ceejatec/ubuntu-1404-couchbase-build:20150224 .
