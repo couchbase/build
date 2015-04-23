@@ -10,4 +10,4 @@ if [ ! -d build/local ]
 then
     docker run -v $(pwd)/build:/output ceejatec/opensuse-gcc-build:latest cp -a /usr/local /output
 fi
-docker build -t ceejatec/opensuse-113-couchbase-build:20150224 .
+docker build -t ceejatec/opensuse-113-couchbase-build:20150422 .

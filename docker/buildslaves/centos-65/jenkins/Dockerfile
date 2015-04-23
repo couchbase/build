@@ -72,7 +72,7 @@ RUN mkdir /tmp/deploy && \
 
 # * golang
 RUN mkdir /tmp/deploy && \
-    curl https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    curl https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
     cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
     rm -fr /tmp/deploy

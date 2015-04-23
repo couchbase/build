@@ -12,7 +12,7 @@ USER root
 RUN apt-get update && \
     apt-get install -y openssh-server sudo && \
     rm -f /var/cache/apt/archives/*.deb && \
-    mkdir /var/run/sshd # update
+    mkdir /var/run/sshd # update 2
 
 # Create couchbase user with password-less sudo privs, and give
 # ownership of /opt/couchbase
@@ -34,7 +34,7 @@ RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    curl https://storage.googleapis.com/golang/go1.3.3.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    curl https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
     cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
     curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
