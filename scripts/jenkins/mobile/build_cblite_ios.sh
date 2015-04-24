@@ -199,7 +199,6 @@ if [[ $OS =~ ios  ]]
 then 
     cp ${LIB_SRCF} ${LIB_DEST}
     cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
-    cp  -R   ${JSC_SRCD}               ${JSC_DEST}
 fi
 
 cd       ${ZIP_SRCD}/CouchbaseLite.framework
