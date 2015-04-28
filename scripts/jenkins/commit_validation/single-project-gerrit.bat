@@ -70,8 +70,10 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 @echo ============================================
 
 pushd %GERRIT_PROJECT%
-git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%GERRIT_PROJECT% %GERRIT_REFSPEC%
-git checkout FETCH_HEAD
+@REM Both of these *must* succeed to continue; hence goto :error
+@REM if either fail.
+git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
+git checkout FETCH_HEAD || goto :error
 popd
 
 @echo.
@@ -79,7 +81,7 @@ popd
 @echo ===               Build                  ===
 @echo ============================================
 
-nmake EXTRA_CMAKE_OPTIONS=""
+nmake EXTRA_CMAKE_OPTIONS="" || goto :error
 
 @echo.
 @IF NOT DEFINED SKIP_UNIT_TESTS (
@@ -103,3 +105,10 @@ nmake EXTRA_CMAKE_OPTIONS=""
     @echo ===    SKIP_UNIT_TESTS set - skipping unit tests
     @echo ============================================
 )
+
+:end
+exit /b 0
+
+:error
+@echo Previous command failed with error #%errorlevel%.
+exit /b %errorlevel%
