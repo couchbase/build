@@ -108,8 +108,11 @@ echo
 echo =============== 2. Building installation package
 echo
 
-# We still need to create this for voltron's "overlay" step.
+# Pre-clean all unnecessary files
 cd ${WORKSPACE}
+ruby voltron/cleanup.rb /opt/couchbase
+
+# We still need to create this for voltron's "overlay" step.
 repo manifest -r > current.xml
 
 if [ "${DISTRO}" = "nopkg" ]

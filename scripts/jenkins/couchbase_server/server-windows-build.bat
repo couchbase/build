@@ -43,7 +43,9 @@ nmake BUILD_ENTERPRISE=%BUILD_ENTERPRISE% EXTRA_CMAKE_OPTIONS="-D PRODUCT_VERSIO
 rem Archive all Windows debug files for future reference.
 7za a -tzip -mx9 -ir!*.pdb couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_%ARCHITECTURE%-PDB.zip
 
-cd ..
+rem Pre-clean all unnecessary files
+ruby voltron\cleanup.rb %WORKSPACE%\couchbase\install
+
 echo ============================================== %DATE%
 goto eof
 
