@@ -29,6 +29,8 @@ fi
 PARALLELISM="${PARALLELISM:-8}"
 TEST_PARALLELISM="${TEST_PARALLELISM:-${PARALLELISM}}"
 
+BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
+
 source ~jenkins/.bash_profile
 set -e
 
@@ -96,6 +98,12 @@ EOF
         # Clear out any previous runs' output files
         echo_cmd rm -f memcheck.*.xml
         echo_cmd make test ARGS="-j${TEST_PARALLELISM} -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}" || true
+        # As part our test execution we run system commands which
+        # unfortunately have leaks themselves
+        # (e.g. /bin/sh). Therefore remove any results from such
+        # programs Jenkins parses the results so we don't include
+        # them.
+        echo_cmd ${BASEDIR}/remove_irrelevant_memcheck_results.py memcheck.*.xml
     fi
 
     popd 2>&1 > /dev/null
