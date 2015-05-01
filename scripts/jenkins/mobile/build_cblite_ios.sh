@@ -234,13 +234,13 @@ echo        ........................... uploading internally to ${LATESTBUILDS_C
 echo ============================================== `date`
 
 # changes required in mobile_functional_tests_xxx to support macosx
-if [[ $OS =~ ios  ]]
-then
-    echo  ============================================== update default value of test and release jobs
-    SET_SCRIPT=${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl
+#if [[ $OS =~ ios  ]]
+#then
+#    echo  ============================================== update default value of test and release jobs
+#    SET_SCRIPT=${WORKSPACE}/build/scripts/cgi/set_jenkins_default_param.pl
 
-    ${SET_SCRIPT}  -j prepare_release_ios_${JOB_SUFX}              -p ${EDN_PRFX}_BLD_TO_RELEASE    -v ${REVISION}
-    ${SET_SCRIPT}  -j mobile_functional_tests_ios_${JOB_SUFX}      -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
-echo  ============================================== test
-fi
+#    ${SET_SCRIPT}  -j prepare_release_ios_${JOB_SUFX}              -p ${EDN_PRFX}_BLD_TO_RELEASE    -v ${REVISION}
+#    ${SET_SCRIPT}  -j mobile_functional_tests_ios_${JOB_SUFX}      -p ${EDN_PRFX}_LITESERV_VERSION  -v ${REVISION}
+#echo  ============================================== test
+#fi
 
