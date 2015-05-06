@@ -1,0 +1,246 @@
+#!/bin/bash -ex
+#          
+#    run by jenkins sync_gateway jobs:
+#          
+#    with required paramters:
+#   
+#          branch_name    distro    version    bld_num    edition
+#             
+#    e.g.: master         centos    0.0.0      0000       community
+#          release/1.1.0  macosx    1.1.0      1234       enterprise
+#
+#    and optional parameters:
+#    
+#        GO_REL    1.4.1  (non-Docker builders)
+#        OS        -- `uname -s`
+#        ARCH      -- `uname -m`
+#          
+#    This script only aupports branches 1.1.0 and newer
+#
+set -e
+
+function usage
+    {
+    echo "Incorrect parameters..."
+    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  [ GO_REL ] [ OS ]  [ ARCH ]\n\n"
+    }
+
+if [[ "$#" < 5 ]] ; then usage ; exit 99 ; fi
+
+# enable nocasematch
+shopt -s nocasematch
+
+GITSPEC=${1}
+
+DISTRO=${2}
+
+VERSION=${3}
+
+BLD_NUM=${4}
+
+EDITION=${5}
+
+if [[ $6 ]] ; then  echo "setting GO_REL to $GO_REL"    ; GO_REL=$6 ; else GO_REL=1.4.1      ; fi
+if [[ $7 ]] ; then  echo "setting OS     to $OS"        ; OS=$7     ; else OS=`uname -s`     ; fi
+if [[ $8 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$8   ; else ARCH=`uname -m`   ; fi
+
+export GITSPEC ; export DISTRO ; export VERSION ; export BLD_NUM ; export EDITION
+export OS ; export ARCH
+
+LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${VERSION}/${VERSION}-${BLD_NUM}
+
+ARCHP=${ARCH}
+PARCH=${ARCHP}
+
+if [[ $DISTRO =~ centos  ]]
+then
+    DISTRO="centos"
+    PKGR=package-rpm.rb
+    PKGTYPE=rpm
+    if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
+elif [[ $DISTRO =~ ubuntu  ]]
+then
+    DISTRO="ubuntu"
+    PKGR=package-deb.rb
+    PKGTYPE=deb
+    if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
+                              else ARCHP=i386 ; fi
+else
+   echo -e "\nunsupported DISTRO:  $DISTRO\n"
+    exit 77
+fi
+
+if [[ $OS =~ Linux  ]]
+then
+    GOOS=linux
+    EXEC=sync_gateway
+elif [[ $OS =~ Darwin ]]
+then
+    GOOS=darwin
+    EXEC=sync_gateway
+    PKGR=package-mac.rb
+else
+    echo -e "\nunsupported operating system:  $OS\n"
+    exit 666
+fi
+
+export GOOS ; export EXEC
+
+if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
+                        else GOARCH=386   ; fi
+
+# disable nocasematch
+shopt -u nocasematch
+
+if [[ $ARCHP =~ i386  ]] ; then PARCH=x86
+elif [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
+
+GOPLAT=${GOOS}-${GOARCH}
+
+if [[ $DISTRO =~ macosx ]]
+then
+    PLATFORM=${DISTRO}-${ARCH}
+    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
+else
+    PLATFORM=${OS}-${ARCH}
+    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+
+fi
+
+# Require for builds not using Docker
+GO_RELEASE=${GO_REL}
+if [ -d /usr/local/go/${GO_RELEASE} ]
+then
+    GOROOT=/usr/local/go/${GO_RELEASE}
+fi
+
+PATH=${PATH}:${GOROOT}/bin
+
+export GO_RELEASE ; export GOROOT ; export PATH
+
+env | grep -iv password | grep -iv passwd | sort -u
+echo ============================================== `date`
+
+LIC_DIR=${WORKSPACE}/build/license/sync_gateway
+AUT_DIR=${WORKSPACE}/app-under-test
+SGW_DIR=${AUT_DIR}/sync_gateway
+BLD_DIR=${SGW_DIR}/build
+
+PREFIX=/opt/couchbase-sync-gateway
+PREFIXP=./opt/couchbase-sync-gateway
+STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
+
+if [[ -e ${PREFIX}  ]] ; then sudo rm -rf ${PREFIX}  ; fi
+if [[ -e ${STAGING} ]] ; then      rm -rf ${STAGING} ; fi
+
+                                                #  needed by ~/.rpmmacros 
+                                                #  called by package-rpm.rb
+                                                #
+RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-sync-gateway_${VERSION}-${BLD_NUM}/rpmbuild/
+export RPM_ROOT_DIR
+
+if [[ ! -d ${AUT_DIR} ]] ; then  mkdir -p ${AUT_DIR} ; fi
+cd         ${AUT_DIR}
+echo ======== sync sync_gateway ===================
+pwd
+if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
+cd         sync_gateway
+git checkout      ${GITSPEC}
+git pull  origin  ${GITSPEC}
+git submodule init
+git submodule update
+git show --stat
+
+if [[ ! -d ${STAGING}/bin/      ]] ; then mkdir -p ${STAGING}/bin/      ; fi
+if [[ ! -d ${STAGING}/examples/ ]] ; then mkdir -p ${STAGING}/examples/ ; fi
+if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
+
+REPO_SHA=`git log --oneline --pretty="format:%H" -1`
+
+#
+# Does not support releases 1.0.4 and older due to move from couchbaselab to couchbase
+#
+TEMPLATE_FILES="src/github.com/couchbase/sync_gateway/rest/api.go"
+
+echo ======== insert build meta-data ==============
+for TF in ${TEMPLATE_FILES}
+  do
+    cat ${TF} | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
+              | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
+    mv  ${TF}      ${TF}.orig
+    mv  ${TF}.new  ${TF}
+done
+
+cd ${SGW_DIR}
+echo ======== build ===============================
+rm -rf bin
+echo .................. ${PLAT_DIR}
+DEST_DIR=${SGW_DIR}/bin/${PLAT_DIR}
+mkdir -p ${DEST_DIR}
+
+GOPATH=${SGW_DIR}:${SGW_DIR}/vendor
+export GOPATH
+export CGO_ENABLED=1
+
+
+# prevent connection timed out:  https://google.com: dial tcp 74.125.239.97:443...
+# 
+# RANDOM in 1..32767
+
+let STARTUP_DELAY=30+${RANDOM}/1000
+sleep ${STARTUP_DELAY}
+echo ======== D O N E   S L E E P ================= `date`
+
+# ... caused by all builders running at once
+
+#
+# Does not support releases 1.0.4 and older due to move from couchbaselab to couchbase
+#
+GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway
+
+if [[ -e ${SGW_DIR}/${EXEC} ]]
+  then
+    mv   ${SGW_DIR}/${EXEC} ${DEST_DIR}
+    echo "..............................Success! Output is: ${DEST_DIR}/${EXEC}"
+  else
+    echo "############################# FAIL! no such file: ${DEST_DIR}/${EXEC}"
+fi
+
+echo ======== remove build meta-data ==============
+for TF in ${TEMPLATE_FILES}
+  do
+    mv  ${TF}.orig ${TF}
+done
+
+echo ======== test ================================ `date`
+echo ........................ running test.sh
+                                ./test.sh -cpu 4 -race
+
+echo ======== package =============================
+cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
+cp    ${BLD_DIR}/README.txt              ${STAGING}
+echo  ${VERSION}-${BLD_NUM}            > ${STAGING}/VERSION.txt
+cp    ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
+cp -r ${SGW_DIR}/examples                ${STAGING}
+cp -r ${SGW_DIR}/service                 ${STAGING}
+
+echo ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
+cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
+
+echo  ======= upload ==============================
+cp ${STAGING}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
+cd                        ${SGW_DIR}
+if [[ $DISTRO =~ macosx ]]
+then
+    md5 ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+else
+    md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
+fi
+sleep ${STARTUP_DELAY}
+echo ======== D O N E   S L E E P ================= `date`
+
+echo -------........................... uploading internally to ${LATESTBUILDS_SGW}/${NEW_PKG_NAME}
+
+echo ============================================== `date`
