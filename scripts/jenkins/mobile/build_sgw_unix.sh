@@ -22,27 +22,29 @@ set -e
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  [ GO_REL ] [ OS ]  [ ARCH ]\n\n"
+    echo -e "\nUsage:  ${0}   branch_name  repo_sha  distro  version  bld_num  edition  [ GO_REL ] [ OS ]  [ ARCH ]\n\n"
     }
 
-if [[ "$#" < 5 ]] ; then usage ; exit 99 ; fi
+if [[ "$#" < 6 ]] ; then usage ; exit 99 ; fi
 
 # enable nocasematch
 shopt -s nocasematch
 
 GITSPEC=${1}
 
-DISTRO=${2}
+REPO_SHA=${2}
 
-VERSION=${3}
+DISTRO=${3}
 
-BLD_NUM=${4}
+VERSION=${4}
 
-EDITION=${5}
+BLD_NUM=${5}
 
-if [[ $6 ]] ; then  echo "setting GO_REL to $GO_REL"    ; GO_REL=$6 ; else GO_REL=1.4.1      ; fi
-if [[ $7 ]] ; then  echo "setting OS     to $OS"        ; OS=$7     ; else OS=`uname -s`     ; fi
-if [[ $8 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$8   ; else ARCH=`uname -m`   ; fi
+EDITION=${6}
+
+if [[ $7 ]] ; then  echo "setting GO_REL to $GO_REL"    ; GO_REL=$6 ; else GO_REL=1.4.1      ; fi
+if [[ $8 ]] ; then  echo "setting OS     to $OS"        ; OS=$7     ; else OS=`uname -s`     ; fi
+if [[ $9 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$8   ; else ARCH=`uname -m`   ; fi
 
 export GITSPEC ; export DISTRO ; export VERSION ; export BLD_NUM ; export EDITION
 export OS ; export ARCH
@@ -123,8 +125,9 @@ export GO_RELEASE ; export GOROOT ; export PATH
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
 
-LIC_DIR=${WORKSPACE}/build/license/sync_gateway
-AUT_DIR=${WORKSPACE}/app-under-test
+TARGET_DIR=${WORKSPACE}/${GITSPEC}/${EDITION}
+LIC_DIR=${TARGET_DIR}/build/license/sync_gateway
+AUT_DIR=${TARGET_DIR}/app-under-test
 SGW_DIR=${AUT_DIR}/sync_gateway
 BLD_DIR=${SGW_DIR}/build
 
@@ -148,7 +151,15 @@ pwd
 if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
 cd         sync_gateway
 git checkout      ${GITSPEC}
-git pull  origin  ${GITSPEC}
+
+if [ !${REPO_SHA} ]
+then
+    git pull  origin  ${GITSPEC}
+    REPO_SHA=`git log --oneline --pretty="format:%H" -1`
+else
+    git fetch  origin  ${REPO_SHA}
+fi
+
 git submodule init
 git submodule update
 git show --stat
@@ -156,8 +167,6 @@ git show --stat
 if [[ ! -d ${STAGING}/bin/      ]] ; then mkdir -p ${STAGING}/bin/      ; fi
 if [[ ! -d ${STAGING}/examples/ ]] ; then mkdir -p ${STAGING}/examples/ ; fi
 if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
-
-REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
 #
 # Does not support releases 1.0.4 and older due to move from couchbaselab to couchbase
