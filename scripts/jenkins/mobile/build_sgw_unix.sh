@@ -60,6 +60,9 @@ then
     PKGR=package-rpm.rb
     PKGTYPE=rpm
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
+    PLATFORM=${OS}-${ARCH}
+    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
 elif [[ $DISTRO =~ ubuntu  ]]
 then
     DISTRO="ubuntu"
@@ -67,6 +70,14 @@ then
     PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
                               else ARCHP=i386 ; fi
+    PLATFORM=${OS}-${ARCH}
+    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+elif [[ $DISTRO =~ macosx  ]]
+then
+    PLATFORM=${DISTRO}-${ARCH}
+    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 77
@@ -98,18 +109,6 @@ if [[ $ARCHP =~ i386  ]] ; then PARCH=x86
 elif [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
 
 GOPLAT=${GOOS}-${GOARCH}
-
-if [[ $DISTRO =~ macosx ]]
-then
-    PLATFORM=${DISTRO}-${ARCH}
-    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
-    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
-else
-    PLATFORM=${OS}-${ARCH}
-    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
-    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-
-fi
 
 # Require for builds not using Docker
 GO_RELEASE=${GO_REL}
