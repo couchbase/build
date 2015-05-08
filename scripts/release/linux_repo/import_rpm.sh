@@ -1,60 +1,60 @@
 #!/bin/bash
-#  
+#
 #  Create a new local yum repo.  Step 3 of six:
-#  
+#
 #   1.  prepare repo meta-files
 #   2.  seed new repo
 #   3.  import packages
 #   4.  sign packges in local repo
 #   5.  upload local repo to shared repository
 #   6.  upload keys and yum.repos.d
-#  
+#
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
 
 function usage
-    {
+{
     echo ""
     echo "use:  `basename $0`  Release Edition"
     echo ""
     echo "      Release is build number, like 2.0.2-1234"
     echo "      Edition is either 'community' or 'enterprise'"
     echo ""
-    }
+}
 
 function fetch_rpm
-    {
+{
     package=${1}
-    latestbuilds="http://builds.hq.northscale.net/latestbuilds"
+    latestbuilds="http://latestbuilds.hq.couchbase.com/couchbase-server/sherlock"
     if [[ ! -e ${package} ]] ; then echo "fetching ${package}" ; wget ${latestbuilds}/${package} ; else echo "alread have ${package}" ; fi
-    }
+}
 
 function get_version_base
-    {
+{
     local __result_rel_num=$1
     local __result_bld_num=$2
-    
+
     local versionarg=$3
     local rel_num
     local bld_num
-    
+
     vrs_rex='([0-9]\.[0-9]\.[0-9])-([0-9]{1,})'
-    
+
     if [[ $versionarg =~ $vrs_rex ]]
-      then
+    then
         for N in 1 2 ; do
             if [[ $N -eq 1 ]] ; then rel_num=${BASH_REMATCH[$N]} ; fi
             if [[ $N -eq 2 ]] ; then bld_num=${BASH_REMATCH[$N]} ; fi
         done
-      else
+    else
         echo ""
         echo 'bad version >>>'${versionarg}'<<<'
         usage
         exit
     fi
-    
+
     eval $__result_rel_num="'$rel_num'"
     eval $__result_bld_num="'$bld_num'"
-    }
+}
 
 VERSION=$1 ; shift ; if [[ ! ${VERSION} ]] ; then read -p "Release: "  VERSION ; fi
 
@@ -70,16 +70,20 @@ echo ""
 echo "Importing into local ${EDITION} repo at ${REPO}"
 echo ""
 
-fetch_rpm  couchbase-server-${EDITION}_x86_64_${VERSION}-rel.rpm
-cp         couchbase-server-${EDITION}_x86_64_${VERSION}-rel.rpm  ${REPO}/5/x86_64/couchbase-server-${EDITION}_${BASEVER}.x86_64.rpm
-cp         couchbase-server-${EDITION}_x86_64_${VERSION}-rel.rpm  ${REPO}/6/x86_64/couchbase-server-${EDITION}_${BASEVER}.x86_64.rpm
-    
+for CENTOS in 6 7
+do
+    fetch_rpm  ${BLDNUM}/couchbase-server-${EDITION}-${VERSION}-centos${CENTOS}.x86_64.rpm
+    cp couchbase-server-${EDITION}-${VERSION}-centos${CENTOS}.x86_64.rpm  ${REPO}/${CENTOS}/x86_64/couchbase-server-${EDITION}-${BASEVER}-centos${CENTOS}.x86_64.rpm
+done
+
 echo ""
 echo "updating ${REPO}"
 echo ""
 
-createrepo --update  ${REPO}/5/x86_64
-createrepo --update  ${REPO}/6/x86_64
+for CENTOS in 6 7
+do
+    createrepo --simple-md-filenames --update  ${REPO}/${CENTOS}/x86_64
+done
 
 echo ""
 echo "repo ready for signing: ${REPO}"

@@ -26,7 +26,7 @@ if [[ ! ${S3_PACKAGE_ROOT} ]] ; then  S3_PACKAGE_ROOT=s3://packages.couchbase.co
 HTTP_PACKAGE_ROOT=`echo ${S3_PACKAGE_ROOT} | sed 's/s3:/http:/'`
 
 function usage
-    {
+{
     echo ""
     echo "use:  .  ${THISFILE}      [ LOCAL_REPO_ROOT ] , where"
     echo ""
@@ -46,69 +46,60 @@ function usage
     echo ""
     echo ""
     quit
-    }
+}
+
 if [[ ${1} =~ '-h' || ${1} =~ '-H' ]] ; then usage ; fi
 
 if [[ ${1} ]] ;  then  LOCAL_REPO_ROOT=${1} ; fi
 
 
 function write_keys
-    {
+{
     mkdir -p ${LOCAL_REPO_ROOT}/keys
-    cp ./couchbase-server-public-key     ${LOCAL_REPO_ROOT}/keys/couchbase-server-public-key
-    cp ./couchbase-server-public-key-v3  ${LOCAL_REPO_ROOT}/keys/couchbase-server-public-key-v3
-    }
+    cp ./couchbase-release/GPG-KEY-COUCHBASE-1.0 ${LOCAL_REPO_ROOT}/keys/GPG-KEY-COUCHBASE-1.0
+}
 
 function write_sources
-    {
+{
     SSL_ROOT=http://packages.couchbase.com/releases/openssl098
     URL_ROOT=${HTTP_PACKAGE_ROOT}
     for EDITION in enterprise community
-      do
-        for CENTOS in 5 6
-          do
-            if [[ ${CENTOS} -eq 5 ]] ; then KEYFILE=couchbase-server-public-key-v3 ; fi
-            if [[ ${CENTOS} -eq 6 ]] ; then KEYFILE=couchbase-server-public-key    ; fi
-            
+    do
+        for CENTOS in 6 7
+        do
+            KEYFILE=GPG-KEY-COUCHBASE-1.0
             YUM_DIR=${LOCAL_REPO_ROOT}/yum.repos.d/${CENTOS}/${EDITION}
+
             mkdir -p ${YUM_DIR}
             REPOFILE=${YUM_DIR}/couchbase-server.repo
-            echo "# `date`"                                                                     > ${REPOFILE}
-            echo '# '                                                                          >> ${REPOFILE}
-            echo '[couchbase-server]'                                                          >> ${REPOFILE}
-            echo 'name=Couchbase Server'                                                       >> ${REPOFILE}
-            echo 'baseurl='${URL_ROOT}'/'${EDITION}'/rpm/$releasever/$basearch/'               >> ${REPOFILE}
-            echo 'enabled=1'                                                                   >> ${REPOFILE}
-            echo 's3_enabled=1'                                                                >> ${REPOFILE}
-            echo 'gpgcheck=1'                                                                  >> ${REPOFILE}
-            echo 'gpgkey='${URL_ROOT}'/keys/'${KEYFILE}                                        >> ${REPOFILE}
-            echo '# '                                                                          >> ${REPOFILE}
-            echo '[openssl]'                                                                   >> ${REPOFILE}
-            echo 'name=OpenSSL'                                                                >> ${REPOFILE}
-            echo 'baseurl='${SSL_ROOT}'/rpm/$releasever/$basearch/'                            >> ${REPOFILE}
-            echo 'enabled=1'                                                                   >> ${REPOFILE}
-            echo 's3_enabled=1'                                                                >> ${REPOFILE}
-            echo 'gpgcheck=1'                                                                  >> ${REPOFILE}
-            echo 'gpgkey='${URL_ROOT}'/keys/'${KEYFILE}                                        >> ${REPOFILE}
-            echo '# '                                                                          >> ${REPOFILE}
-            echo '# '                                                                          >> ${REPOFILE}
+            echo "# `date`"                                                                 > ${REPOFILE}
+            echo '# '                                                                      >> ${REPOFILE}
+            echo '[couchbase-server]'                                                      >> ${REPOFILE}
+            echo 'name=Couchbase Server'                                                   >> ${REPOFILE}
+            echo 'baseurl='${URL_ROOT}'/'${EDITION}'/rpm/$releasever/$basearch/'           >> ${REPOFILE}
+            echo 'enabled=1'                                                               >> ${REPOFILE}
+            echo 's3_enabled=1'                                                            >> ${REPOFILE}
+            echo 'gpgcheck=1'                                                              >> ${REPOFILE}
+            echo 'gpgkey='${URL_ROOT}'/keys/'${KEYFILE}                                    >> ${REPOFILE}
+            echo '# '                                                                      >> ${REPOFILE}
         done
     done
-    }
+}
 
-if [[    -e  ${LOCAL_REPO_ROOT} ]]
-  then
+if [[ -e  ${LOCAL_REPO_ROOT} ]]
+then
     echo ""
     read -p "${LOCAL_REPO_ROOT} already exists.  Delete? " YESNO
     echo ""
     if [[ ${YESNO} =~ 'y' || ${YESNO} =~ 'Y' ]] ; then echo "replacing ${LOCAL_REPO_ROOT}" ;  rm  -rf  ${LOCAL_REPO_ROOT} ; fi
 fi
-export        LOCAL_REPO_ROOT=${LOCAL_REPO_ROOT}
+
+export  LOCAL_REPO_ROOT=${LOCAL_REPO_ROOT}
 
 
 write_keys
 write_sources
 
-echo "" 
+echo ""
 echo "Ready to seed repositories under ${LOCAL_REPO_ROOT}"
-echo "" 
+echo ""

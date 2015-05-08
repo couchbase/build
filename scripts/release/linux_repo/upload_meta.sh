@@ -1,21 +1,21 @@
 #!/bin/bash
-#  
+#
 #  Upload meta files from local debian/rpm repo(s) to shared location on S3.
-#  
+#
 #  Last step in both DEB and RPM processes (see *deb.sh, *rpm.sh)
-#  
+#
 #       prepare repo meta-files
 #       seed new repo
 #       import and sign packages
 #       upload to shared repository
-# 
+#
 #  ==>  upload keys, sources.list.d, and yum.repos.d
-#  
+#
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server                        ; fi
 if [[ ! ${S3_PACKAGE_ROOT} ]] ; then  S3_PACKAGE_ROOT=s3://packages.couchbase.com/releases/couchbase-server ; fi
 
 function usage
-    {
+{
     echo ""
     echo "use:  `basename $0`  [ --init | --update ]"
     echo ""
@@ -26,7 +26,7 @@ function usage
     echo ""
     echo "This step should be performed after both debain repos are uploaded."
     echo ""
-    }
+}
 
 
 S3ROOT=${S3_PACKAGE_ROOT}
@@ -35,14 +35,15 @@ echo "Uploading local repo metadata at ${REPO} to ${S3ROOT}"
 
 
 if [[ $1 == "--init" ]]
-    then
+then
     pushd ${LOCAL_REPO_ROOT} 2>&1 >> /dev/null
     s3cmd put -v -P --recursive keys            ${S3ROOT}/
     s3cmd put -v -P --recursive sources.list.d  ${S3ROOT}/
     s3cmd put -v -P --recursive yum.repos.d     ${S3ROOT}/
     popd                     2>&1 >> /dev/null
 
-else if [[ $1 == "--update" ]]
+else
+    if [[ $1 == "--update" ]]
     then
       # s3cmd sync -P --no-delete-removed --no-check-md5 --progress --verbose  ${LOCAL_REPO_ROOT}/keys         #  ${S3ROOT}/keys/
         s3cmd sync -P --no-delete-removed                --progress --verbose  ${LOCAL_REPO_ROOT}/keys            ${S3ROOT}/keys/
