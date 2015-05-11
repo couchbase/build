@@ -59,7 +59,7 @@ fi
 
 # Step 0: Derived values and cleanup. (Some of these are RPM- or
 # DEB-specific, but will safely do nothing on other systems.)
-PRODUCT_VERSION=${VERSION}-${BLD_NUM}-rel
+export PRODUCT_VERSION=${VERSION}-${BLD_NUM}
 rm -f *.rpm *.deb *.zip
 rm -rf ~/rpmbuild
 rm -rf ${WORKSPACE}/voltron/build/deb
@@ -149,8 +149,9 @@ then
 fi
 
 # Execute platform-specific packaging step
-PRODUCT_VERSION=${PRODUCT_VERSION} LD_LIBRARY_PATH=/opt/couchbase/lib \
-   ./server-${PKG}.rb /opt/couchbase couchbase-server couchbase server 1.0.0
+export LD_LIBRARY_PATH=/opt/couchbase/lib
+./server-${PKG}.rb /opt/couchbase couchbase-server couchbase server 1.0.0
+
 if [ "${PKG}" = "mac" ]
 then
     cd ${WORKSPACE}/couchdbx-app
