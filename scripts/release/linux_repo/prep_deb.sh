@@ -1,18 +1,18 @@
 #!/bin/bash
-#  
+#
 #  Create a new local debian repo.  Step 1 of five:
-#  
+#
 #   1.  prepare repo meta-files
 #   2.  seed new repo
 #   3.  import packages
 #   4.  upload to shared repository
 #   5.  upload keys and sources files
-#  
+#
 if [[ ${0} == '-bash' ]]
-    then                      # called with  . path/to/this.sh
+then                      # called with  . path/to/this.sh
     THISFILE=prep_deb.sh
     DO_EXIT=0
-  else                        # called as      path/to/this.sh
+else                        # called as      path/to/this.sh
     THISFILE=`basename $0`
     DO_EXIT=1
 fi
@@ -26,7 +26,7 @@ HTTP_PACKAGE_ROOT=`echo ${S3_PACKAGE_ROOT} | sed 's/s3:/http:/'`
 
 
 function usage
-    {
+{
     echo ""
     echo "use:  .  ${THISFILE}      [ LOCAL_REPO_ROOT ] , where"
     echo ""
@@ -46,67 +46,68 @@ function usage
     echo ""
     echo ""
     quit
-    }
+}
+
 if [[ ${1} =~ '-h' || ${1} =~ '-H' ]] ; then usage ; fi
 
 if [[ ${1} ]] ;  then  LOCAL_REPO_ROOT=${1} ; fi
 
 function write_keys
-    {
+{
     mkdir -p ${LOCAL_REPO_ROOT}/keys
-    cp ./couchbase-server-public-key  ${LOCAL_REPO_ROOT}/keys/couchbase-server-public-key
-    }
+    cp ./couchbase-release/GPG-KEY-COUCHBASE-1.0  ${LOCAL_REPO_ROOT}/keys/GPG-KEY-COUCHBASE-1.0
+}
 
 function write_sources
-    {
+{
     for EDITION in enterprise community
       do
-        for UBUNTU in precise lucid
+        for UBUNTU in precise trusty
           do
             SRCL_DIR=${LOCAL_REPO_ROOT}/sources.list.d/${UBUNTU}/${EDITION}
             mkdir -p ${SRCL_DIR}
             LISTFILE=${SRCL_DIR}/couchbase-server.list
-            echo "# `date`"                                                                                                 > ${LISTFILE}
-            echo '# '                                                                                                      >> ${LISTFILE}
-            echo "# wget ${HTTP_PACKAGE_ROOT}/keys/couchbase-server-public-key"                                            >> ${LISTFILE}
-            echo '# gpg --import  couchbase-server-public-key'                                                             >> ${LISTFILE}
-            echo '# cat couchbase-server-public-key  | sudo apt-key add -'                                                 >> ${LISTFILE}
-            echo '# sudo apt-get update'                                                                                   >> ${LISTFILE}
-            echo '# '                                                                                                      >> ${LISTFILE}
-            echo "deb  ${HTTP_PACKAGE_ROOT}/${EDITION}/deb/  ${UBUNTU}/${UBUNTU} main"                                     >> ${LISTFILE}
-            echo "deb  http://security.ubuntu.com/ubuntu     ${UBUNTU}-security  main"                                     >> ${LISTFILE}
+            echo "# `date`"                                                                       > ${LISTFILE}
+            echo '# '                                                                            >> ${LISTFILE}
+            echo "# wget ${HTTP_PACKAGE_ROOT}/keys/GPG-KEY-COUCHBASE-1.0"                        >> ${LISTFILE}
+            echo '# gpg --import GPG-KEY-COUCHBASE-1.0'                                          >> ${LISTFILE}
+            echo '# cat GPG-KEY-COUCHBASE-1.0 | sudo apt-key add -'                              >> ${LISTFILE}
+            echo '# sudo apt-get update'                                                         >> ${LISTFILE}
+            echo '# '                                                                            >> ${LISTFILE}
+            echo "deb  ${HTTP_PACKAGE_ROOT}/${EDITION}/deb/  ${UBUNTU}/${UBUNTU} main"           >> ${LISTFILE}
+            echo "deb  http://security.ubuntu.com/ubuntu     ${UBUNTU}-security  main"           >> ${LISTFILE}
         done
         for DEBIAN in wheezy
           do
             SRCL_DIR=${LOCAL_REPO_ROOT}/sources.list.d/${DEBIAN}/${EDITION}
             mkdir -p ${SRCL_DIR}
             LISTFILE=${SRCL_DIR}/couchbase-server.list
-            echo "# `date`"                                                                                                 > ${LISTFILE}
-            echo '# '                                                                                                      >> ${LISTFILE}
-            echo "# wget ${HTTP_PACKAGE_ROOT}/keys/couchbase-server-public-key"                                            >> ${LISTFILE}
-            echo '# gpg --import  couchbase-server-public-key'                                                             >> ${LISTFILE}
-            echo '# cat couchbase-server-public-key  | sudo apt-key add -'                                                 >> ${LISTFILE}
-            echo '# sudo apt-get update'                                                                                   >> ${LISTFILE}
-            echo '# '                                                                                                      >> ${LISTFILE}
-            echo "deb  ${HTTP_PACKAGE_ROOT}/${EDITION}/deb/  ${DEBIAN}/${DEBIAN} main"                                     >> ${LISTFILE}
-            echo "deb  http://security.debian.org            ${DEBIAN}/updates   main"                                     >> ${LISTFILE}
+            echo "# `date`"                                                                       > ${LISTFILE}
+            echo '# '                                                                            >> ${LISTFILE}
+            echo "# wget ${HTTP_PACKAGE_ROOT}/keys/GPG-KEY-COUCHBASE-1.0"                        >> ${LISTFILE}
+            echo '# gpg --import GPG-KEY-COUCHBASE-1.0'                                          >> ${LISTFILE}
+            echo '# cat GPG-KEY-COUCHBASE-1.0 | sudo apt-key add -'                              >> ${LISTFILE}
+            echo '# sudo apt-get update'                                                         >> ${LISTFILE}
+            echo '# '                                                                            >> ${LISTFILE}
+            echo "deb  ${HTTP_PACKAGE_ROOT}/${EDITION}/deb/  ${DEBIAN}/${DEBIAN} main"           >> ${LISTFILE}
+            echo "deb  http://security.debian.org            ${DEBIAN}/updates   main"           >> ${LISTFILE}
         done
     done
     }
 
 
-if [[    -e  ${LOCAL_REPO_ROOT} ]]
-  then
+if [[ -e ${LOCAL_REPO_ROOT} ]]
+then
     echo ""
     read -p "${LOCAL_REPO_ROOT} already exists.  Delete? " YESNO
     echo ""
     if [[ ${YESNO} =~ 'y' || ${YESNO} =~ 'Y' ]] ; then echo "replacing ${LOCAL_REPO_ROOT}" ;  rm  -rf  ${LOCAL_REPO_ROOT} ; fi
 fi
-export        LOCAL_REPO_ROOT=${LOCAL_REPO_ROOT}
+export LOCAL_REPO_ROOT=${LOCAL_REPO_ROOT}
 
 write_keys
 write_sources
 
-echo "" 
+echo ""
 echo "Ready to seed repositories under ${LOCAL_REPO_ROOT}"
-echo "" 
+echo ""
