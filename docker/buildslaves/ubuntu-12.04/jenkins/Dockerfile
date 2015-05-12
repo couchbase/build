@@ -32,7 +32,8 @@ RUN apt-get install --yes python-software-properties && \
     apt-get update && \
     apt-get install --yes g++-4.9 && \
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 50 \
-                        --slave /usr/bin/g++ g++ /usr/bin/g++-4.9 && \
+                        --slave /usr/bin/g++ g++ /usr/bin/g++-4.9 \
+                        --slave /usr/bin/gcov gcov /usr/bin/gcov-4.9 && \
     apt-get clean
 
 # Enable ccache.
@@ -87,6 +88,11 @@ RUN mkdir /tmp/deploy && \
     ccache --clear && \
     apt-get install -y libc6-dbg && \
     rm -f /var/cache/apt/archives/*.deb
+
+# Code coverage requires gcovr to convert from gcov to XML files consumable by
+# Jenkins.
+RUN apt-get install -y python-pip && \
+    pip install gcovr
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
