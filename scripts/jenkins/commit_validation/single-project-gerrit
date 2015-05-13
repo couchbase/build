@@ -77,7 +77,11 @@ cat <<EOF
 ===               Build                  ===
 ============================================
 EOF
-echo_cmd make -j${PARALLELISM}
+CMAKE_ARGS=""
+if [ -n "$ENABLE_CODE_COVERAGE" ]; then
+   CMAKE_ARGS="-DCB_CODE_COVERAGE=ON"
+fi
+echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS=${CMAKE_ARGS}
 
 if [ -f build/${GERRIT_PROJECT}/Makefile ]
 then
@@ -88,11 +92,22 @@ then
 ============================================
 EOF
     pushd build/${GERRIT_PROJECT} 2>&1 > /dev/null
+
+    if [ -n "$ENABLE_CODE_COVERAGE" ]; then
+        # Reset code coverage counters (note optional hence the || true).
+        echo_cmd make coverage-zero-counters || true
+    fi
+
     # -j${TEST_PARALLELISM} : Run tests in parallel.
     # -T Test   : Generate XML output file of test results.
     # "|| true" : Needed to ensure that xUnit scanner is run even if one or more
     #             tests fail.
     echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test" || true
+
+    # Generate code coverage report in XML format for Jenkins plugin.
+    if [ -n "$ENABLE_CODE_COVERAGE" ]; then
+        echo_cmd make coverage-report-xml || true
+    fi
 
     if [ -n "$RUN_TESTS_UNDER_VALGRIND" ]; then
         # Clear out any previous runs' output files
