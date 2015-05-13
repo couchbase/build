@@ -1,0 +1,6 @@
+#!/bin/bash
+gpg --import /etc/apt/trusted.gpg.d/GPG-KEY-COUCHBASE-1.0
+apt-key add /etc/apt/trusted.gpg.d/GPG-KEY-COUCHBASE-1.0
+
+repl=`cat /etc/lsb-release | grep DISTRIB_CODENAME | awk -F= '{print $2}'`
+sed -e "s/%DCODE%/$repl/g" -i /etc/apt/sources.list.d/couchbase.list
