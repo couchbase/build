@@ -16,29 +16,26 @@ set THIS_SCRIPT=%0
 set  GITSPEC=%1
 if "%GITSPEC%" == "" call :usage 99
 
-set  REPO_SHA=%2
-if "%REPO_SHA%" == "" call :usage 44
-
-set  REL_VER=%3
+set  REL_VER=%2
 if "%REL_VER%" == "" call :usage 88
 
-set  BLD_NUM=%4
+set  BLD_NUM=%3
 if "%BLD_NUM%" == "" call :usage 77
 
-set  EDITION=%5
+set  EDITION=%4
 if "%EDITION%" == "" call :usage 55
 
-set  PLATFRM=%6
-if not defined PLATFRM (
-    set PLATFRM=windows-x64
-)
+set  PLATFRM=%5
+if "%PLATFRM%" == "" call :usage 44
+
+set  REPO_SHA=%6
 
 set  GO_RELEASE=%7
 if not defined GO_RELEASE (
     set GO_RELEASE=1.4.1
 )
 
-set VERSION="%REL_VER%-%BLD_NUM%"
+set VERSION=%REL_VER%-%BLD_NUM%
 set LATESTBUILDS_SGW="http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/%GITSPEC%/%VERSION%"
 
 for /f "tokens=1-2 delims=-" %%A in ("%PLATFRM%") do (
@@ -79,9 +76,9 @@ set PATH=%PATH%;%GOROOT%\bin\
 set
 echo ============================================== %DATE%
 
-set WORKSPACE=C:\jenkins\workspace\myspace
-set LIC_DIR=%WORKSPACE%\build\license\sync_gateway
-set AUT_DIR=%WORKSPACE%\app-under-test
+set TARGET_DIR=%WORKSPACE%\%EDITION%
+set LIC_DIR=%TARGET_DIR%\build\license\sync_gateway
+set AUT_DIR=%TARGET_DIR%\app-under-test
 set SGW_DIR=%AUT_DIR%\sync_gateway
 set BLD_DIR=%SGW_DIR%\build
 
@@ -98,7 +95,7 @@ echo ======== sync sync_gateway ===================
 
 if NOT EXIST sync_gateway  git clone https://github.com/couchbase/sync_gateway.git
 cd           sync_gateway
-if "%REPO_SHA%" == "0" (
+if not defined REPO_SHA (
     git checkout %GITSPEC%
     git pull origin %GITSPEC%
 ) else (
@@ -114,10 +111,7 @@ if NOT EXIST %STAGING%\examples  mkdir %STAGING%\examples
 if NOT EXIST %STAGING%\service   mkdir %STAGING%\service
 
 set  REPO_FILE=%WORKSPACE%\revision.bat
-if "%REPO_SHA%" == "0" (
-    git  log --oneline --pretty="format:set REPO_SHA=%%H" -1
-)
-echo %REPO_SHA% > %REPO_FILE%
+git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
 call %REPO_FILE%
 
 set  TEMPLATE_FILE="src\github.com\couchbase\sync_gateway\rest\api.go"
@@ -156,6 +150,7 @@ go build -v github.com\couchbase\sync_gateway
 
 if NOT EXIST %SGW_DIR%\%EXEC% (
     echo "############################# FAIL! no such file: %SGW_DIR%\%EXEC%"
+    exit 1
     )
 move   %SGW_DIR%\%EXEC% %DEST_DIR%
 echo "..................................Success! Output is: %DEST_DIR%\%EXEC%"
@@ -205,7 +200,7 @@ goto :EOF
 :usage
     set ERR_CODE=%1
     echo.
-    echo "use:  %THIS_SCRIPT%   branch_name  commit_sha rel_ver build_num  edition  platform  [ OS ]  [ ARCH ]"
+    echo "use:  %THIS_SCRIPT%   branch_name  rel_ver build_num  edition  platform  commit_sha [ OS ]  [ ARCH ]"
     echo.
     echo "exiting ERROR code: %ERR_CODE%"
     echo.

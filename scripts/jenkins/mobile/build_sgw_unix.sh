@@ -22,25 +22,25 @@ set -e
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  repo_sha  distro  version  bld_num  edition  [ GO_REL ] [ OS ]  [ ARCH ]\n\n"
+    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ] [ OS ]  [ ARCH ]\n\n"
     }
 
-if [[ "$#" < 6 ]] ; then usage ; exit 99 ; fi
+if [[ "$#" < 5 ]] ; then usage ; exit 99 ; fi
 
 # enable nocasematch
 shopt -s nocasematch
 
 GITSPEC=${1}
 
-REPO_SHA=${2}
+DISTRO=${2}
 
-DISTRO=${3}
+VERSION=${3}
 
-VERSION=${4}
+BLD_NUM=${4}
 
-BLD_NUM=${5}
+EDITION=${5}
 
-EDITION=${6}
+REPO_SHA=${6}
 
 if [[ $7 ]] ; then  echo "setting GO_REL to $GO_REL"    ; GO_REL=$6 ; else GO_REL=1.4.1      ; fi
 if [[ $8 ]] ; then  echo "setting OS     to $OS"        ; OS=$7     ; else OS=`uname -s`     ; fi
@@ -149,14 +149,13 @@ echo ======== sync sync_gateway ===================
 pwd
 if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
 cd         sync_gateway
-git checkout      ${GITSPEC}
 
-if [ !${REPO_SHA} ]
+if [ -z ${REPO_SHA} ]
 then
-    git pull  origin  ${GITSPEC}
-    REPO_SHA=`git log --oneline --pretty="format:%H" -1`
+    git checkout ${GITSPEC}
+    git pull origin ${GITSPEC}
 else
-    git fetch  origin  ${REPO_SHA}
+    git checkout -b ${GITSPEC} ${REPO_SHA}
 fi
 
 git submodule init
@@ -166,6 +165,8 @@ git show --stat
 if [[ ! -d ${STAGING}/bin/      ]] ; then mkdir -p ${STAGING}/bin/      ; fi
 if [[ ! -d ${STAGING}/examples/ ]] ; then mkdir -p ${STAGING}/examples/ ; fi
 if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
+
+REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
 #
 # Does not support releases 1.0.4 and older due to move from couchbaselab to couchbase
