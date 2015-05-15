@@ -22,7 +22,7 @@ fi
 repo manifest -r > current.xml
 
 # See if it is different than the tip of build-team-manifests.
-diffchars=`repo diffmanifests current.xml build-team-manifests/sherlock.xml --raw | wc -c`
+diffchars=`repo diffmanifests ${WORKSPACE}/current.xml ${WORKSPACE}/build-team-manifests/sherlock.xml --raw | wc -c`
 if [ "${diffchars}" = "0" ]
 then
     echo "No differences since last build - not triggering downstream build"
