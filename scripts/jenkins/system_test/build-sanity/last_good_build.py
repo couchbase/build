@@ -1,5 +1,7 @@
 import sys
 import urllib2
+import json
+from optparse import OptionParser
 
 ################################
 # NOTE: HARDCODED FOR SHERLOCK #
@@ -21,7 +23,7 @@ import urllib2
 #
 
 _BUILDS_FILE_SERVER='http://latestbuilds.hq.couchbase.com/couchbase-server/sherlock'
-_LAST_GOOD_BUILD_JENKINS_URL='http://factory.couchbase.com/job/sherlock-build/lastStableBuild/buildNumber'
+_GOOD_BUILD_HISTORY_URL='http://factory.couchbase.com/job/sherlock-build/api/json?tree=builds[number]'
 
 _FILES_PREFIX_TO_CHECK = [
         'centos6.x86_64.rpm',
@@ -37,9 +39,17 @@ _FILES_PREFIX_TO_CHECK = [
 
 _CURRENT_VERSION='4.0.0'
 
-def get_last_good_build_from_jenkins():
-    ret = urllib2.urlopen(_LAST_GOOD_BUILD_JENKINS_URL)
-    return ret.read()
+def get_last_good_build_from_jenkins(first, last):
+    ret = urllib2.urlopen(_GOOD_BUILD_HISTORY_URL)
+    all_builds_json = json.loads(ret.read())
+    bnums = [int(x['number']) for x in all_builds_json['builds']]
+    bnums.sort(reverse=True)
+    for b in bnums:
+        if b > first and b < last:
+            break
+    else:
+        b = 0
+    return b
 
 def check_if_file_exists(url):
     try:
@@ -67,12 +77,20 @@ def check_if_good_build(build_number):
             return False
     return True
 
-start = int(get_last_good_build_from_jenkins())
+if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option("-s", "--start", dest="last_success", default=0, type="int",
+                      help="last successful build... start searching from this number")
+    parser.add_option("-e", "--end", dest="upper_limit", default=100000, type="int",
+                      help="upper limit for build numbers (any build above this number is not considered)")
+    (options, args) = parser.parse_args()
 
-for build_number in range(start, start-10, -1):
-    ret = check_if_good_build(build_number)
-    if ret:
-        print build_number
-        sys.exit(0)
-print '0'
+    start = get_last_good_build_from_jenkins(options.last_success, options.upper_limit)
+
+    for build_number in range(start, start-50, -1):
+        ret = check_if_good_build(build_number)
+        if ret:
+            print build_number
+            sys.exit(0)
+    print '0'
 sys.exit(1)
