@@ -8,6 +8,7 @@
 touch $HOME/review_site/logs/hook.log
 exec >>$HOME/review_site/logs/hook.log 2>&1
 
+echo =============================
 echo "Change Merged Hook"
 
 while [ $# -gt 0 ]
