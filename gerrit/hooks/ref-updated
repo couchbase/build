@@ -63,4 +63,13 @@ case "$refname" in
 	git push --tags $repo
 	git gc --auto
 	;;
+    *)
+        if echo "$refname" | grep -q /
+        then
+            echo "Non-head ref, doing nothing"
+        else
+            echo "Head ref, pushing to github"
+            git push $repo $newrev:refs/heads/$refname
+        fi
+        ;;
 esac
