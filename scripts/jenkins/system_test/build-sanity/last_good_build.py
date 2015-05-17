@@ -93,4 +93,3 @@ if __name__ == '__main__':
             print build_number
             sys.exit(0)
     print '0'
-sys.exit(1)
