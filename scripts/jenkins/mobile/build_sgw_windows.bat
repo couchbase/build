@@ -76,7 +76,7 @@ set PATH=%PATH%;%GOROOT%\bin\
 set
 echo ============================================== %DATE%
 
-set TARGET_DIR=%WORKSPACE%\%GITSPEC%\%EDITION%
+set TARGET_DIR=%WORKSPACE%\%GITSPEC:/=\%\%EDITION%
 set LIC_DIR=%TARGET_DIR%\build\license\sync_gateway
 set AUT_DIR=%TARGET_DIR%\app-under-test
 set SGW_DIR=%AUT_DIR%\sync_gateway
@@ -98,10 +98,10 @@ cd           sync_gateway
 
 :: master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
 if "%GITSPEC%" == "0.0.0" (
-    set BRANCH="master"
+    set BRANCH=master
 ) else (
     set BRANCH=%GITSPEC%
-    git checkout -b %BRANCH%
+    git checkout %BRANCH%
 )
 if not defined REPO_SHA (
     git pull origin %BRANCH%
