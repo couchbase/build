@@ -151,9 +151,9 @@ if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_ga
 cd         sync_gateway
 
 # master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
-if [ $(GITSPEC} == "0.0.0" ]
+if [[ ${GITSPEC} =~ "0.0.0" ]]
 then
-    BRANCH="master"
+    BRANCH=master
 else
     BRANCH=${GITSPEC}
     git checkout -b ${BRANCH}
