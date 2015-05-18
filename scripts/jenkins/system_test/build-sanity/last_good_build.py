@@ -24,6 +24,7 @@ from optparse import OptionParser
 
 _BUILDS_FILE_SERVER='http://latestbuilds.hq.couchbase.com/couchbase-server/sherlock'
 _GOOD_BUILD_HISTORY_URL='http://factory.couchbase.com/job/sherlock-build/api/json?tree=builds[number]'
+_ENV_VARS='http://factory.couchbase.com/job/sherlock-build/{0}/injectedEnvVars/api/json'
 
 _FILES_PREFIX_TO_CHECK = [
         'centos6.x86_64.rpm',
@@ -45,11 +46,16 @@ def get_last_good_build_from_jenkins(first, last):
     bnums = [int(x['number']) for x in all_builds_json['builds']]
     bnums.sort(reverse=True)
     for b in bnums:
-        if b > first and b < last:
-            break
-    else:
-        b = 0
-    return b
+        ret = urllib2.urlopen(_ENV_VARS.format(b))
+        all_envs = json.loads(ret.read())
+        if not all_envs.has_key('envMap'):
+            return 0
+        if not all_envs['envMap'].has_key('BLD_NUM'):
+            return 0
+        sherlock_build = int(all_envs['envMap']['BLD_NUM'])
+        if last > sherlock_build > first:
+            return sherlock_build
+    return 0
 
 def check_if_file_exists(url):
     try:
