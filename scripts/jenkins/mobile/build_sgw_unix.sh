@@ -22,7 +22,7 @@ set -e
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ] [ OS ]  [ ARCH ]\n\n"
+    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ]\n\n"
     }
 
 if [[ "$#" < 5 ]] ; then usage ; exit 99 ; fi
@@ -49,7 +49,7 @@ if [[ $9 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$8   ; else ARCH=
 export GITSPEC ; export DISTRO ; export VERSION ; export BLD_NUM ; export EDITION
 export OS ; export ARCH
 
-LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${VERSION}/${VERSION}-${BLD_NUM}
+LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${GITSPEC}/${VERSION}-${BLD_NUM}
 
 ARCHP=${ARCH}
 PARCH=${ARCHP}
@@ -150,12 +150,19 @@ pwd
 if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
 cd         sync_gateway
 
+# master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
+if [ $(GITSPEC} == "0.0.0" ]
+then
+    BRANCH="master"
+else
+    BRANCH=${GITSPEC}
+    git checkout -b ${BRANCH}
+fi
 if [ -z ${REPO_SHA} ]
 then
-    git checkout ${GITSPEC}
-    git pull origin ${GITSPEC}
+    git pull origin ${BRANCH}
 else
-    git checkout -b ${GITSPEC} ${REPO_SHA}
+    git checkout ${REPO_SHA}
 fi
 
 git submodule init

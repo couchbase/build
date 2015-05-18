@@ -76,7 +76,7 @@ set PATH=%PATH%;%GOROOT%\bin\
 set
 echo ============================================== %DATE%
 
-set TARGET_DIR=%WORKSPACE%\%EDITION%
+set TARGET_DIR=%WORKSPACE%\%GITSPEC%\%EDITION%
 set LIC_DIR=%TARGET_DIR%\build\license\sync_gateway
 set AUT_DIR=%TARGET_DIR%\app-under-test
 set SGW_DIR=%AUT_DIR%\sync_gateway
@@ -95,11 +95,18 @@ echo ======== sync sync_gateway ===================
 
 if NOT EXIST sync_gateway  git clone https://github.com/couchbase/sync_gateway.git
 cd           sync_gateway
-if not defined REPO_SHA (
-    git checkout %GITSPEC%
-    git pull origin %GITSPEC%
+
+:: master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
+if "%GITSPEC%" == "0.0.0" (
+    set BRANCH="master"
 ) else (
-    git checkout -b %GITSPEC% %REPO_SHA%
+    set BRANCH=%GITSPEC%
+    git checkout -b %BRANCH%
+)
+if not defined REPO_SHA (
+    git pull origin %BRANCH%
+) else (
+    git checkout %REPO_SHA%
 )
 git submodule init
 git submodule update
@@ -110,7 +117,7 @@ if NOT EXIST %STAGING%\bin       mkdir %STAGING%\bin
 if NOT EXIST %STAGING%\examples  mkdir %STAGING%\examples
 if NOT EXIST %STAGING%\service   mkdir %STAGING%\service
 
-set  REPO_FILE=%WORKSPACE%\revision.bat
+set  REPO_FILE=%TARGET_DIR%\revision.bat
 git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
 call %REPO_FILE%
 
@@ -200,7 +207,7 @@ goto :EOF
 :usage
     set ERR_CODE=%1
     echo.
-    echo "use:  %THIS_SCRIPT%   branch_name  rel_ver build_num  edition  platform  commit_sha [ OS ]  [ ARCH ]"
+    echo "use:  %THIS_SCRIPT%   branch_name  rel_ver build_num  edition  platform  commit_sha [ GO_VERSION ]"
     echo.
     echo "exiting ERROR code: %ERR_CODE%"
     echo.
