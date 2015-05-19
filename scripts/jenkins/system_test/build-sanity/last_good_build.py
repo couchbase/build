@@ -45,17 +45,19 @@ def get_last_good_build_from_jenkins(first, last):
     all_builds_json = json.loads(ret.read())
     bnums = [int(x['number']) for x in all_builds_json['builds']]
     bnums.sort(reverse=True)
+    good_build = first
     for b in bnums:
         ret = urllib2.urlopen(_ENV_VARS.format(b))
         all_envs = json.loads(ret.read())
         if not all_envs.has_key('envMap'):
-            return 0
+            break
         if not all_envs['envMap'].has_key('BLD_NUM'):
-            return 0
+            break
         sherlock_build = int(all_envs['envMap']['BLD_NUM'])
         if last > sherlock_build > first:
-            return sherlock_build
-    return 0
+            good_build = sherlock_build
+            break
+    return good_build
 
 def check_if_file_exists(url):
     try:
