@@ -1,3 +1,8 @@
 #!/bin/sh
 
-docker build -t ceejatec/ubuntu-1204-couchbase-cv:20150512 .
+# Bump this when rebuilding with changes
+TAG=20150519
+
+docker build -t ceejatec/ubuntu-1204-couchbase-cv:$TAG .
+docker tag -f ceejatec/ubuntu-1204-couchbase-cv:$TAG ceejatec/ubuntu-1204-couchbase-cv:latest
+
