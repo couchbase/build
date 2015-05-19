@@ -1,0 +1,85 @@
+diff --git a/scripts/jenkins/mobile/build_sgw_windows.bat b/scripts/jenkins/mobile/build_sgw_windows.bat
+index 80ddd13..aaace46 100755
+--- a/scripts/jenkins/mobile/build_sgw_windows.bat
++++ b/scripts/jenkins/mobile/build_sgw_windows.bat
+@@ -25,15 +25,12 @@ if "%BLD_NUM%" == "" call :usage 77
+ set  EDITION=%4
+ if "%EDITION%" == "" call :usage 55
+ 
+-set  OS=%5
+-if "%OS%" == "" call :usage 44
++set  PLATFRM=%5
++if "%PLATFRM%" == "" call :usage 44
+ 
+-set  PROC_ARCH=%6
+-if "%PROC_ARCH%" == "" call :usage 33
++set  REPO_SHA=%6
+ 
+-set  REPO_SHA=%7
+-
+-set  GO_RELEASE=%8
++set  GO_RELEASE=%7
+ if not defined GO_RELEASE (
+     set GO_RELEASE=1.4.1
+ )
+@@ -41,6 +38,11 @@ if not defined GO_RELEASE (
+ set VERSION=%REL_VER%-%BLD_NUM%
+ set LATESTBUILDS_SGW="http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/%GITSPEC%/%VERSION%"
+ 
++for /f "tokens=1-2 delims=-" %%A in ("%PLATFRM%") do (
++    set OS=%%A
++    set PROC_ARCH=%%B
++)
++
+ set GOOS=%OS%
+ set EXEC=sync_gateway.exe
+ 
+@@ -75,7 +77,7 @@ set
+ echo ============================================== %DATE%
+ 
+ set TARGET_DIR=%WORKSPACE%\%EDITION%
+-set LIC_DIR=%WORKSPACE%\build\license\sync_gateway
++set LIC_DIR=%TARGET_DIR%\build\license\sync_gateway
+ set AUT_DIR=%TARGET_DIR%\app-under-test
+ set SGW_DIR=%AUT_DIR%\sync_gateway
+ set BLD_DIR=%SGW_DIR%\build
+@@ -93,18 +95,11 @@ echo ======== sync sync_gateway ===================
+ 
+ if NOT EXIST sync_gateway  git clone https://github.com/couchbase/sync_gateway.git
+ cd           sync_gateway
+-
+-:: master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
+-if "%GITSPEC%" == "0.0.0" (
+-    set BRANCH="master"
+-) else (
+-    set BRANCH=%GITSPEC%
+-    git checkout -b %BRANCH%
+-)
+ if not defined REPO_SHA (
+-    git pull origin %BRANCH%
++    git checkout %GITSPEC%
++    git pull origin %GITSPEC%
+ ) else (
+-    git checkout %REPO_SHA%
++    git checkout -b %GITSPEC% %REPO_SHA%
+ )
+ git submodule init
+ git submodule update
+@@ -115,7 +110,7 @@ if NOT EXIST %STAGING%\bin       mkdir %STAGING%\bin
+ if NOT EXIST %STAGING%\examples  mkdir %STAGING%\examples
+ if NOT EXIST %STAGING%\service   mkdir %STAGING%\service
+ 
+-set  REPO_FILE=%TARGET_DIR%\revision.bat
++set  REPO_FILE=%WORKSPACE%\revision.bat
+ git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
+ call %REPO_FILE%
+ 
+@@ -205,7 +200,7 @@ goto :EOF
+ :usage
+     set ERR_CODE=%1
+     echo.
+-    echo "use:  %THIS_SCRIPT%   branch_name  rel_ver build_num  edition  os proc_arch  commit_sha [ GO_VERSION ]"
++    echo "use:  %THIS_SCRIPT%   branch_name  rel_ver build_num  edition  platform  commit_sha [ OS ]  [ ARCH ]"
+     echo.
+     echo "exiting ERROR code: %ERR_CODE%"
+     echo.
