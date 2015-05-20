@@ -205,7 +205,9 @@ export CGO_ENABLED=1
 # 
 # RANDOM in 1..32767
 
-let STARTUP_DELAY=30+${RANDOM}/1000
+#let STARTUP_DELAY=30+${RANDOM}/1000
+# Decrease to 1 sec to observe connection issue.  If no issue, then remove
+let STARTUP_DELAY=1
 sleep ${STARTUP_DELAY}
 echo ======== D O N E   S L E E P ================= `date`
 
