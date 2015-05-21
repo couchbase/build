@@ -112,7 +112,7 @@ EOF
     if [ -n "$RUN_TESTS_UNDER_VALGRIND" ]; then
         # Clear out any previous runs' output files
         echo_cmd rm -f memcheck.*.xml
-        echo_cmd make test ARGS="-j${TEST_PARALLELISM} -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}" || true
+        echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}" || true
         # As part our test execution we run system commands which
         # unfortunately have leaks themselves
         # (e.g. /bin/sh). Therefore remove any results from such
