@@ -76,9 +76,11 @@ set PATH=%PATH%;%GOROOT%\bin\
 set
 echo ============================================== %DATE%
 
-set TARGET_DIR=%WORKSPACE%\%GITSPEC:/=\%\%EDITION%
-set LIC_DIR=%TARGET_DIR%\build\license\sync_gateway
-set AUT_DIR=%TARGET_DIR%\app-under-test
+:: package-win is tightly coupled to Jenkins workspace. 
+:: Changes needed to support concurrent builds later
+::set TARGET_DIR=%WORKSPACE%\%GITSPEC:/=\%\%EDITION%
+set LIC_DIR=%WORKSPACE%\build\license\sync_gateway
+set AUT_DIR=%WORKSPACE%\app-under-test
 set SGW_DIR=%AUT_DIR%\sync_gateway
 set BLD_DIR=%SGW_DIR%\build
 
@@ -117,7 +119,7 @@ if NOT EXIST %STAGING%\bin       mkdir %STAGING%\bin
 if NOT EXIST %STAGING%\examples  mkdir %STAGING%\examples
 if NOT EXIST %STAGING%\service   mkdir %STAGING%\service
 
-set  REPO_FILE=%TARGET_DIR%\revision.bat
+set  REPO_FILE=%WORKSPACE%\revision.bat
 git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
 call %REPO_FILE%
 
@@ -190,6 +192,11 @@ unix2dos  %STAGING%\LICENSE.txt
 echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 cd   %BLD_DIR%
                      .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
+
+if %ERRORLEVEL% NEQ 0 (
+    echo "############################# FAIL! unable to create installer package"
+    exit %ERRORLEVEL%
+    )
 
 echo  ======= upload ==============================
 copy %STAGING%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
