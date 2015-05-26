@@ -194,8 +194,7 @@ cd   %BLD_DIR%
                      .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP%
 
 if %ERRORLEVEL% NEQ 0 (
-    echo "############################# FAIL! unable to create installer package"
-    exit %ERRORLEVEL%
+    echo "############################# Installer warning!"
     )
 
 echo  ======= upload ==============================
