@@ -62,7 +62,6 @@ trap finish EXIT
 
 cd couchbase-server/$CODENAME/$BUILD
 upload couchbase-server-$RELEASE-$BUILD-manifest.xml
-exit 
 
 for edition in $EDITIONS
 do
