@@ -156,7 +156,7 @@ then
     BRANCH=master
 else
     BRANCH=${GITSPEC}
-    git checkout -B ${BRANCH}
+    git checkout --track -B ${BRANCH} origin/${BRANCH}
 fi
 if [ -z ${REPO_SHA} ]
 then
