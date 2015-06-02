@@ -57,7 +57,7 @@ then
     RIO_SRCD=${BUILDDIR}/Release-ios-universal
 elif [[ $OS =~ macosx  ]]
 then
-    BUILD_TARGETS=("CBL Mac" "CBL Listener Mac") 
+    BUILD_TARGETS=("CBL Mac" "CBL Listener Mac" "LiteServ" "LiteServ App") 
     RIO_SRCD=${BUILDDIR}/Release
 else
     echo -e "\nunsupported OS:  ${OS}\n"
