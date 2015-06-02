@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Bump this when rebuilding with changes
+TAG=20150422
+
 mkdir -p build
 cp -a -u ../../util/couchbuilder_start.sh build
 
@@ -10,4 +13,6 @@ if [ ! -d build/local ]
 then
     docker run -v $(pwd)/build:/output ceejatec/opensuse-gcc-build:latest cp -a /usr/local /output
 fi
-docker build -t ceejatec/opensuse-113-couchbase-build:20150422 .
+docker build -t ceejatec/opensuse-113-couchbase-build:$TAG .
+docker tag -f ceejatec/opensuse-113-couchbase-build:$TAG ceejatec/opensuse-113-couchbase-build:latest
+

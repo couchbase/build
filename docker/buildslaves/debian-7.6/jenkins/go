@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# Bump this when rebuilding with changes
+TAG=20150422
+
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
-docker build -t ceejatec/debian-7-couchbase-build:20150422 .
+docker build -t ceejatec/debian-7-couchbase-build:$TAG .
+docker tag -f ceejatec/debian-7-couchbase-build:$TAG ceejatec/debian-7-couchbase-build:latest
+
