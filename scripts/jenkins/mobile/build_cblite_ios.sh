@@ -207,9 +207,7 @@ cd       ${ZIP_SRCD}/CouchbaseLite.framework
 rm -rf PrivateHeaders
 
 cd       ${ZIP_SRCD}
-rm -rf CouchbaseLite.framework.dSYM
-rm -rf CouchbaseLiteListener.framework.dSYM
-rm -rf LiteServ.app.dSYM
+rm -rf *.dSYM
 
 echo  ============================================== package ${ZIP_FILE}
 ZIP_LOG=${WORKSPACE}/doc_zip.log
