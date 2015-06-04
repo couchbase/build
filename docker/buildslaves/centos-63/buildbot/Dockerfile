@@ -40,7 +40,7 @@ RUN yum install -y gcc-c++ make git tar openssl-devel ruby rubygems rubygem-rake
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    curl -L http://samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
+    curl -L https://www.samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
     cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
     cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy && \
@@ -83,9 +83,18 @@ RUN mkdir /tmp/deploy && \
     python setup.py build && python setup.py install && \
     cd /tmp && rm -rf /tmp/deploy
 
+# Install gosu for startup script
+RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+    && curl -o /usr/local/bin/gosu -sSL "https://github.com/tianon/gosu/releases/download/1.4/gosu-amd64" \
+    && curl -o /usr/local/bin/gosu.asc -sSL "https://github.com/tianon/gosu/releases/download/1.4/gosu-amd64.asc" \
+    && gpg --verify /usr/local/bin/gosu.asc \
+    && rm /usr/local/bin/gosu.asc \
+    && chmod +x /usr/local/bin/gosu
+
 ADD .s3cfg /home/buildbot/.s3cfg
 RUN chown buildbot:buildbot /home/buildbot/.s3cfg
 
 # Override default command for buildbot purposes
-CMD su - buildbot -c "buildslave start /home/buildbot/buildbot_slave"; /usr/sbin/sshd -D
+COPY centos_start.sh /usr/sbin/
+ENTRYPOINT [ "/usr/sbin/centos_start.sh" ]
 
