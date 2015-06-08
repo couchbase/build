@@ -114,14 +114,22 @@ echo ============================================  to ${GITSPEC} into ${WORKSPAC
 if [[ -d couchbase-lite-${OS} ]] ; then rm -rf couchbase-lite-${OS} ; fi
 git clone       https://github.com/couchbase/couchbase-lite-ios.git   couchbase-lite-${OS}
 
+# master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
+if [[ ${GITSPEC} =~ "0.0.0" ]]
+then
+    BRANCH=master
+else
+    BRANCH=${GITSPEC}
+fi
+
 cd  couchbase-lite-${OS}
-if [[ !  `git branch | grep ${GITSPEC}` ]]
+if [[ !  `git branch | grep ${BRANCH}` ]]
     then
-    git branch -t ${GITSPEC} origin/${GITSPEC}
+    git branch -t ${BRANCH} origin/${BRANCH}
 fi
 git fetch
-git checkout      ${GITSPEC}
-git pull  origin  ${GITSPEC}
+git checkout      ${BRANCH}
+git pull  origin  ${BRANCH}
 git submodule update --init --recursive
 git show --stat
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
