@@ -69,7 +69,7 @@ def check_if_file_exists(url):
 
 def check_if_good_build(build_number):
     for artifact in _FILES_PREFIX_TO_CHECK:
-        if artifact.startswith('suse') and build_number < 3000:
+        if artifact.startswith('suse') and build_number < 2217:
             artifact = 'opensuse11.3.x86_64.rpm'
         special_separator = "-"
         if not artifact.endswith('.rpm'):
