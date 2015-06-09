@@ -29,7 +29,7 @@ _ENV_VARS='http://factory.couchbase.com/job/sherlock-build/{0}/injectedEnvVars/a
 _FILES_PREFIX_TO_CHECK = [
         'centos6.x86_64.rpm',
         'centos7.x86_64.rpm',
-        'opensuse11.3.x86_64.rpm',
+        'suse11.x86_64.rpm',
         'debian7_amd64.deb',
         'ubuntu12.04_amd64.deb',
         'ubuntu14.04_amd64.deb',
