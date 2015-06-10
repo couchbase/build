@@ -66,7 +66,12 @@ cat <<EOF
 ===    update ${GERRIT_PROJECT}          ===
 ============================================
 EOF
-pushd ${GERRIT_PROJECT} 2>&1 > /dev/null
+
+# there are components (eg build) that don't get checked out
+# to the directory by the same name. Figure out the checkout
+# dir using repo (CBD-1587)
+checkout_dir=$(repo forall ${GERRIT_PROJECT} -c 'basename $PWD')
+pushd ${checkout_dir} 2>&1 > /dev/null
 echo_cmd git fetch ssh://${GERRIT_HOST}:${GERRIT_PORT}/${GERRIT_PROJECT} $GERRIT_REFSPEC
 echo_cmd git checkout FETCH_HEAD
 popd 2>&1 > /dev/null

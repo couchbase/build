@@ -69,7 +69,19 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 @echo ===    update %GERRIT_PROJECT%           ===
 @echo ============================================
 
-pushd %GERRIT_PROJECT%
+@REM there are components (eg build) that don't get checked out
+@REM to the directory by the same name. Figure out the checkout
+@REM dir using repo (CBD-1587). All repo commands are not windows
+@REM compatible like repo forall. So we have use this method on
+@REM windows
+set CHECKOUT_DIR=%GERRIT_PROJECT%
+set BASE_DIR=%GERRIT_PROJECT%
+for /f "tokens=1-3" %%i in ('repo info %GERRIT_PROJECT% ^| findstr "Mount Path"') do (
+    set BASE_DIR=%%k
+)
+for /f %%i in ("%BASE_DIR%") do set CHECKOUT_DIR=%%~ni
+
+pushd %CHECKOUT_DIR%
 @REM Both of these *must* succeed to continue; hence goto :error
 @REM if either fail.
 git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
