@@ -63,7 +63,7 @@ echo ""
 echo "Signing local ${EDITION} repo at ${REPO}"
 echo ""
 
-RPM_GPG_KEY_V4=B4156E18
+RPM_GPG_KEY_V4=CD406E62
 
 for CENTOS in 6 7
 do
