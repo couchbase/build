@@ -1,7 +1,7 @@
 Name:           couchbase-release
 Version:        1
 Release:        0
-Summary:        Entry point rpm for accesing couchbase rpms
+Summary:        Entry point rpm for accesing couchbase yum repository
 
 Group:          System Environment/Base
 License:        Apache
@@ -14,7 +14,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch:     noarch
 
 %description
-FOO BAR FILL IN THE BLANKS
+A package that configures access to couchbase yum repository.
 
 %prep
 %setup -q  -c -T
