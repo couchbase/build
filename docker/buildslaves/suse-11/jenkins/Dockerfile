@@ -33,6 +33,7 @@ RUN zypper install -y \
                 make \
                 man \
                 ncurses-devel \
+                libnuma-devel \
                 libopenssl-devel \
                 python-devel \
                 lsb-release \

@@ -26,7 +26,7 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
 # mechanism, but we hope to remove that requirement as it brings in
 # a lot of unnecessary packages.
 
-RUN apt-get install -y g++ ccache git-core tar libssl-dev rubygems \
+RUN apt-get install -y g++ ccache git-core tar libssl-dev libnuma-dev rubygems \
     rake ncurses-dev python-dev devscripts debhelper ed man curl \
     libc6-i386 lsb-release && \
     rm -f /var/cache/apt/archives/*.deb

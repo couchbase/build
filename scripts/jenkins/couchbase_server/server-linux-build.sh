@@ -148,6 +148,15 @@ then
     ln -s "$libstdcppname" "/opt/couchbase/lib/${libstdcppname}.6"
 fi
 
+# libnuma.so is required on Linux platforms (so we can control NUMA
+# allocation policy).
+if [ "${PKG}" != "mac" ]
+then
+    libnuma="libnuma.so.1"
+    libnuma_path=$(g++ --print-file-name=${libnuma})
+    cp -p ${libnuma_path} /opt/couchbase/lib/${libnuma}
+fi
+
 # Determine flavor of OpenSSL required
 openssl098_needed="suse11"
 if [[ "$DISTRO" =~ $openssl098_needed ]]

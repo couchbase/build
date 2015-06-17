@@ -22,7 +22,7 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
 # Install Couchbase build dependencies
-RUN apt-get install -y ccache git-core tar libssl-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
+RUN apt-get install -y ccache git-core tar libssl-dev libnuma-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Install updated C++11 compiler.
