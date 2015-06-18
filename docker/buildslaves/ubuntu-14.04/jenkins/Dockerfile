@@ -12,7 +12,7 @@ USER root
 RUN apt-get update && \
     apt-get install -y openssh-server && \
     rm -f /var/cache/apt/archives/*.deb && \
-    mkdir /var/run/sshd # update
+    mkdir /var/run/sshd # update 2
 
 # Create couchbase user with password-less sudo privs, and give
 # ownership of /opt/couchbase
