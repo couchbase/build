@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Bump this when rebuilding with changes
-TAG=20150422
+TAG=20150617
 
 mkdir -p build
 cp -a -u ../../util/couchbuilder_start.sh build
@@ -11,8 +11,8 @@ cp -a -u ../../util/couchbuilder_start.sh build
 # gcc, you need to manually delete this directory and rebuild.
 if [ ! -d build/local ]
 then
-    docker run -v $(pwd)/build:/output ceejatec/opensuse-gcc-build:latest cp -a /usr/local /output
+    docker run -v $(pwd)/build:/output ceejatec/opensuse-gcc-build:11.2 cp -a /usr/local /output
 fi
-docker build -t ceejatec/opensuse-113-couchbase-build:$TAG .
-docker tag -f ceejatec/opensuse-113-couchbase-build:$TAG ceejatec/opensuse-113-couchbase-build:latest
+docker build -t ceejatec/suse-11-couchbase-build:$TAG .
+docker tag -f ceejatec/suse-11-couchbase-build:$TAG ceejatec/suse-11-couchbase-build:latest
 

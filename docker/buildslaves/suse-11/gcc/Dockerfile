@@ -1,6 +1,6 @@
 # Docker container just to build GCC, because it's slow.
 
-FROM ceejatec/naked-opensuse:11.3
+FROM ceejatec/naked-opensuse:11.2
 MAINTAINER ceej@couchbase.com
 
 # Install the older gcc so we can bootstrap up to the newer

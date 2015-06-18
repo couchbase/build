@@ -6,6 +6,7 @@
 ./restart_builddocker.py ceejatec/centos-58-couchbase-builddocker:latest centos-5-builddocker-01 2204
 ./restart_builddocker.py ceejatec/centos-63-couchbase-builddocker:latest centos-6-builddocker-01 2201
 ./restart_builddocker.py ceejatec/debian-7-couchbase-builddocker:latest debian-7-builddocker-01 2203
+./restart_builddocker.py ceejatec/suse-11-couchbase-builddocker:20150617 suse-11-builddocker-01 2206
 
 # New hotness Jenkins docker containers
 ./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:latest sherlocker-centos6 2222 &
@@ -24,7 +25,7 @@ sleep 2
 sleep 2
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1404-couchbase-build:latest sherlocker-ubuntu14.04 2226 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/opensuse-113-couchbase-build:latest sherlocker-opensuse11.3 2228 &
+./restart_jenkinsdocker.py ceejatec/suse-11-couchbase-build:latest sherlocker-suse11 2228 &
 wait
 
 # Clean up abandoned images

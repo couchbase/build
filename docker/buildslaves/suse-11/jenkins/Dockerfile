@@ -3,7 +3,7 @@
 # See https://github.com/ceejatec/naked-docker/ for details about the
 # construction of the base image.
 
-FROM ceejatec/naked-opensuse:11.3
+FROM ceejatec/naked-opensuse:11.2
 MAINTAINER ceej@couchbase.com
 
 USER root
@@ -76,7 +76,9 @@ RUN mkdir /tmp/deploy && \
     curl https://www.kernel.org/pub/software/scm/git/git-1.9.4.tar.gz -o /tmp/deploy/git.tar.gz && \
     cd /tmp/deploy && tar xzf git.tar.gz && \
     cd git-1.9.4 && ./configure && make -j8 NO_PERL=YesPlease && make NO_PERL=YesPlease install && \
-    cd /tmp && rm -rf /tmp/deploy && zypper remove -y -u curl-devel gettext-devel && zypper clean && \
+    cd /tmp && rm -rf /tmp/deploy && \
+    zypper remove -y cvs gettext-runtime curl-devel gettext-devel gettext-tools libcurl-devel libgomp44 tcsh && \
+    zypper clean && \
     cd /usr/local/libexec/git-core && \
     find . -samefile git -name 'git-*' -exec ln -sf git {} \; && \
     find . -samefile git-remote-ftp -name 'git-*' -exec ln -sf git-remote-ftp {} \; && \
