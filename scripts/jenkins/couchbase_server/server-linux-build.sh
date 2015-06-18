@@ -150,7 +150,7 @@ fi
 
 # Determine flavor of OpenSSL required
 openssl098_needed="suse11"
-if [[ "$DISTRO" +~ $openssl098_needed ]]
+if [[ "$DISTRO" =~ $openssl098_needed ]]
 then
     OPENSSL_VER=0.9.8
 else
