@@ -148,9 +148,18 @@ then
     ln -s "$libstdcppname" "/opt/couchbase/lib/${libstdcppname}.6"
 fi
 
+# Determine flavor of OpenSSL required
+openssl098_needed="suse11"
+if [[ "$DISTRO" +~ $openssl098_needed ]]
+then
+    OPENSSL_VER=0.9.8
+else
+    OPENSSL_VER=1.0.0
+fi
+
 # Execute platform-specific packaging step
 export LD_LIBRARY_PATH=/opt/couchbase/lib
-./server-${PKG}.rb /opt/couchbase couchbase-server couchbase server 1.0.0
+./server-${PKG}.rb /opt/couchbase couchbase-server couchbase server ${OPENSSL_VER}
 
 if [ "${PKG}" = "mac" ]
 then
