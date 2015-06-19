@@ -1,0 +1,6 @@
+config-history/*
+jobs/*/workspace*
+jobs/*/builds/*/log
+jobs/*/builds/*/archive
+plugins/*/*
+plugins/*.bak
