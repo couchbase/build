@@ -62,6 +62,10 @@ echo_cmd make clean-xfd-hard
 
 cat <<EOF
 
+# Zero ccache stats, so we can measure how much space this build is
+# consuming.
+echo_cmd ccache -z
+
 ============================================
 ===    update ${GERRIT_PROJECT}          ===
 ============================================
@@ -90,6 +94,8 @@ if [ -n "$ENABLE_THREADSANITIZER" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_THREADSANITIZER=ON"
 fi
 echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
+
+echo_cmd ccache -s
 
 if [ -f build/${GERRIT_PROJECT}/Makefile ]
 then
