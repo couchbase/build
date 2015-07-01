@@ -166,9 +166,19 @@ else
     OPENSSL_VER=1.0.0
 fi
 
+# The "product name" is couchbase-server for Enterprise and
+# couchbase-server-community for Community, to keep them
+# distinguished in deb/rpm repositories.
+if [ "${EDITION}" = "enterprise" ]
+then
+    PRODUCT=couchbase-server
+else
+    PRODUCT=couchbase-server-community
+fi
+
 # Execute platform-specific packaging step
 export LD_LIBRARY_PATH=/opt/couchbase/lib
-./server-${PKG}.rb /opt/couchbase couchbase-server couchbase server ${OPENSSL_VER}
+./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase server ${OPENSSL_VER}
 
 if [ "${PKG}" = "mac" ]
 then
@@ -186,12 +196,12 @@ case "$PKG" in
     rpm)
         ARCHITECTURE=x86_64
         INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-        cp ~/rpmbuild/RPMS/x86_64/couchbase-server-[1-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
+        cp ~/rpmbuild/RPMS/x86_64/${PRODUCT}-[1-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
 
 	# Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
 	# newer ones and SuSE use "-debuginfo-*.rpm".
 	# Scan for both and move to correct final name.
-	DBG_PREFIX="${HOME}/rpmbuild/RPMS/x86_64/couchbase-server"
+	DBG_PREFIX="${HOME}/rpmbuild/RPMS/x86_64/${PRODUCT}"
 	DEBUG=""
 	if ls ${DBG_PREFIX}-debug-*.rpm > /dev/null 2>&1;
 	then
@@ -200,7 +210,7 @@ case "$PKG" in
 	then
 	    DEBUG=debuginfo
 	else
-	    echo "Warning: No couchbase-server-{debug,debuginfo}-*.rpm package found; skipping copy."
+	    echo "Warning: No ${PRODUCT}-{debug,debuginfo}-*.rpm package found; skipping copy."
 	fi
 	if [ -n "$DEBUG" ]
 	then
@@ -212,8 +222,8 @@ case "$PKG" in
         ARCHITECTURE=amd64
         INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
         DBG_FILENAME=couchbase-server-${EDITION}-dbg_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
-        cp build/deb/couchbase-server_*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
-        cp build/deb/couchbase-server-dbg_*.deb ${WORKSPACE}/${DBG_FILENAME}
+        cp build/deb/${PRODUCT}_*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
+        cp build/deb/${PRODUCT}-dbg_*.deb ${WORKSPACE}/${DBG_FILENAME}
         ;;
     mac)
         ARCHITECTURE=x86_64
