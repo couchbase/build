@@ -2,9 +2,9 @@
 @REM This script is normally used in conjunction with allcommits.py
 @REM ./allcommits.py <change-id>|xargs -n 3 ./fetchproject.sh
 
-PROJECT=%1
-PROJECT_PATH=%2
-REFSPEC=%3
+set PROJECT=%1
+set PROJECT_PATH=%2
+set REFSPEC=%3
 
 cd %PROJECT_PATH%
 git reset --hard HEAD
