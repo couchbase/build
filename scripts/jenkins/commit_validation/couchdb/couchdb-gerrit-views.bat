@@ -47,14 +47,11 @@ for /f "tokens=1-3" %%i in ('%CURDIR%..\alldependencies.py %GERRIT_PATCHSET_REVI
 
 nmake EXTRA_CMAKE_OPTIONS="" || goto :error
 
-pushd build\couchdb
-nmake check
-popd
-
 @echo.
 @IF NOT DEFINED SKIP_UNIT_TESTS (
     cd testrunner
-    python scripts/start_cluster_and_run_tests.py b/resources/dev-4-nodes-xdcr.ini conf/simple.conf
+    python scripts/start_cluster_and_run_tests.sh b/resources/dev-single-node.ini conf/view-conf/py-viewmerge.conf
+    python scripts/start_cluster_and_run_tests.sh b/resources/dev-4-nodes.ini conf/view-conf/py-viewmerge.conf
 ) ELSE (
     @echo ============================================
     @echo ===    SKIP_UNIT_TESTS set - skipping unit tests
