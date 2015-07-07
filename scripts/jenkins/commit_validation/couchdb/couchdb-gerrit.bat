@@ -47,12 +47,12 @@ for /f "tokens=1-3" %%i in ('%CURDIR%..\alldependencies.py %GERRIT_PATCHSET_REVI
 
 nmake EXTRA_CMAKE_OPTIONS="" || goto :error
 
-pushd build\couchdb
-nmake check
-popd
-
 @echo.
 @IF NOT DEFINED SKIP_UNIT_TESTS (
+    pushd build\couchdb
+    nmake check
+    popd
+
     cd testrunner
     python scripts/start_cluster_and_run_tests.py b/resources/dev-4-nodes-xdcr.ini conf/simple.conf
 ) ELSE (
