@@ -1,4 +1,8 @@
 @REM script for doing CV on windows for couchdb project
+@IF NOT DEFINED target_arch (
+    set target_arch=amd64
+    @echo Notice: environment variable 'target_arch' not set. Defaulting to 'amd64'.
+)
 
 SET CURDIR=%~dp0
 
