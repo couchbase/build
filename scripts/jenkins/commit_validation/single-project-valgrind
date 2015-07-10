@@ -1,0 +1,87 @@
+#!/bin/bash
+#
+# Common script run by various Jenkins builds.
+#
+# Builds Couchbase and then runs Valgrind against all the unit tests
+# in the specified project.
+
+if [ -z "$PROJECT" ]; then
+    echo "Error: Required environment variable 'PROJECT' not set."
+    exit 3
+fi
+
+# Optional env vars - how many jobs to run in parallel by default?
+PARALLELISM="${PARALLELISM:-8}"
+TEST_PARALLELISM="${TEST_PARALLELISM:-${PARALLELISM}}"
+
+# Per-test timout.
+TIMEOUT="${TIMEOUT:-4000}"
+
+BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
+
+source ~jenkins/.bash_profile
+set -e
+
+# CCACHE is good - use it if available.
+export PATH=/usr/lib/ccache:$PATH
+
+function echo_cmd {
+    echo \# "$@"
+    "$@"
+}
+
+cat <<EOF
+
+============================================
+===    environment                       ===
+============================================
+EOF
+ulimit -a
+echo ""
+env | grep -iv password | grep -iv passwd | sort
+
+cat <<EOF
+
+============================================
+===    clean                             ===
+============================================
+EOF
+echo_cmd make clean-xfd-hard
+
+cat <<EOF
+
+# Zero ccache stats, so we can measure how much space this build is
+# consuming.
+echo_cmd ccache -z
+
+============================================
+===               Build                  ===
+============================================
+EOF
+echo_cmd make -j${PARALLELISM}
+
+echo_cmd ccache -s
+
+cat <<EOF
+
+============================================
+===    Run unit tests under Valgrind     ===
+============================================
+EOF
+pushd build/${PROJECT} 2>&1 > /dev/null
+
+# Clear out any previous runs' output files
+echo_cmd rm -f memcheck.*.xml
+
+echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure \
+    --no-compress-output -D ExperimentalMemCheck --timeout ${TIMEOUT} \
+    --exclude-regex ${VALGRIND_TESTS_EXCLUDE}" || true
+
+# As part our test execution we run system commands which
+# unfortunately have leaks themselves
+# (e.g. /bin/sh). Therefore remove any results from such
+# programs Jenkins parses the results so we don't include
+# them.
+echo_cmd ${BASEDIR}/remove_irrelevant_memcheck_results.py memcheck.*.xml
+
+popd 2>&1 > /dev/null
