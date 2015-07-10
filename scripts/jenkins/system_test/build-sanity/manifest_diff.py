@@ -63,8 +63,7 @@ def main(manifest1, manifest2, create_email_file):
 
         if create_email_file and email_list:
             with open('committers_email', 'w') as F:
-                for email in email_list:
-                    F.write('%s ' %email)
+                F.write('%s' %(', '.join(email_list)))
 
 if __name__ == '__main__':
     parser = OptionParser()
