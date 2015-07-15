@@ -95,8 +95,6 @@ LSA_SRCD=${BUILDDIR}/Release
 LSA_DEST=${ZIP_SRCD}
 
 LIB_FORESTDB=${BUILDDIR}/Release-CBLForestDBStorage-ios-universal/libCBLForestDBStorage.a
-LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
-LIB_SRCF=${LIB_SRCD}/libCBLJSViewCompiler.a
 LIB_DEST=${ZIP_SRCD}/Extras
 
 JSC_SRCD=${BASE_DIR}/vendor/JavaScriptCore.framework
@@ -206,7 +204,6 @@ cp       ${LICENSEF}               ${LIC_DEST}
 
 if [[ $OS =~ ios  ]]
 then 
-    cp ${LIB_SRCF} ${LIB_DEST}
     cp ${LIB_FORESTDB} ${LIB_DEST}
     cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
 fi
