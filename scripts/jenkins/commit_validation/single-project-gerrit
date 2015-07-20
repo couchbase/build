@@ -109,7 +109,7 @@ EOF
 
     if [ -n "$ENABLE_CODE_COVERAGE" ]; then
         # Reset code coverage counters (note optional hence the || true).
-        echo_cmd make coverage-zero-counters || true
+        echo_cmd make ${GERRIT_PROJECT}-coverage-zero-counters || true
     fi
 
     # -j${TEST_PARALLELISM} : Run tests in parallel.
@@ -120,7 +120,7 @@ EOF
 
     # Generate code coverage report in XML format for Jenkins plugin.
     if [ -n "$ENABLE_CODE_COVERAGE" ]; then
-        echo_cmd make coverage-report-xml || true
+        echo_cmd make ${GERRIT_PROJECT}-coverage-report-xml || true
     fi
 
     if [ -n "$RUN_TESTS_UNDER_VALGRIND" ]; then
