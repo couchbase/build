@@ -85,7 +85,7 @@ pushd %CHECKOUT_DIR%
 @REM Both of these *must* succeed to continue; hence goto :error
 @REM if either fail.
 git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
-git checkout FETCH_HEAD || goto :error
+git checkout --force FETCH_HEAD || goto :error
 popd
 
 @echo.

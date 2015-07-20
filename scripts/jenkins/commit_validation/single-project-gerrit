@@ -77,7 +77,7 @@ EOF
 checkout_dir=$(repo forall ${GERRIT_PROJECT} -c 'basename $PWD')
 pushd ${checkout_dir} 2>&1 > /dev/null
 echo_cmd git fetch ssh://${GERRIT_HOST}:${GERRIT_PORT}/${GERRIT_PROJECT} $GERRIT_REFSPEC
-echo_cmd git checkout FETCH_HEAD
+echo_cmd git checkout --force FETCH_HEAD
 popd 2>&1 > /dev/null
 
 cat <<EOF
