@@ -1,5 +1,5 @@
 Name:           couchbase-release
-Version:        1
+Version:        1.0
 Release:        0
 Summary:        Entry point rpm for accesing couchbase yum repository
 
