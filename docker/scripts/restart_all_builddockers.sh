@@ -19,9 +19,11 @@ sleep 2
 sleep 2
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest sherlocker-ubuntu12.04-01 2225 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest sherlocker-ubuntu12.04-02 2229 &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:latest cv-sherlocker-ubuntu12.04-01 2229 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest sherlocker-ubuntu12.04-03 2230 &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:latest cv-sherlocker-ubuntu12.04-02 2230 &
+sleep 2
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:latest cv-sherlocker-ubuntu12.04-03 2231 &
 sleep 2
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1404-couchbase-build:latest sherlocker-ubuntu14.04 2226 &
 sleep 2
