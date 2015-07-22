@@ -48,7 +48,6 @@ output = check_output(
     ["docker", "run", "--name={0}".format(slave), "--detach=true",
      "--publish={0}:22".format(port),
      "--volume=/home/couchbase/reporef:/home/buildbot/reporef",
-     "--volume=/etc/resolv.conf:/etc/resolv.conf",
      "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
      image])
 print "Result: {0}".format(output)
