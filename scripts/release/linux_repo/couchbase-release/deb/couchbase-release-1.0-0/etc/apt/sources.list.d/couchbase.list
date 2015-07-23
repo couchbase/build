@@ -1,4 +1,3 @@
 deb [ arch=amd64 ] http://packages.couchbase.com/releases/couchbase-server/enterprise/deb/  %DCODE% %DCODE%/main
 deb [ arch=amd64 ] http://packages.couchbase.com/releases/couchbase-server/community/deb/  %DCODE% %DCODE%/main
 deb  http://packages.couchbase.com/ubuntu %DCODE% %DCODE%/main
-deb  http://security.ubuntu.com/ubuntu %DCODE%-security main

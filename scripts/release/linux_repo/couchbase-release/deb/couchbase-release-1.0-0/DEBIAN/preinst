@@ -1,5 +1,5 @@
 #!/bin/bash
-distrib=`cat /etc/lsb-release | grep DISTRIB_CODENAME | awk -F= '{print $2}'`
+distrib=`lsb_release -c | awk '{print $2}'`
 if [ "$distrib" = "precise" -o "$distrib" = "trusty" -o "$distrib" = "lucid" -o "$distrib" = "wheezy" ]; then
     exit 0
 fi
