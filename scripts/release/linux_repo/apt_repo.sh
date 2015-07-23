@@ -2,7 +2,7 @@
 
 # this is just a helper script; rather than running each script separately just use this
 #
-# prereq - need createrepo, wget and s3cmd installed
+# prereq - need reporepro, wget and s3cmd installed
 #        - also need s3cmd --configure run for the user that is running this script
 
 edition=$1
@@ -11,7 +11,7 @@ release=$2
 function help() {
     cat <<HELP_STRING
     Usage:
-        ./yum_repo.sh <edition> <release>
+        ./apt_repo.sh <edition> <release>
 
         <edition> - enterprise or community
         <release> - version string of the format <version>-<build> eg: 4.0.0-3010
@@ -19,8 +19,8 @@ function help() {
 HELP_STRING
 }
 
-if ! hash createrepo 2>/dev/null; then
-    echo "createrepo is not installed"
+if ! hash reprepro 2>/dev/null; then
+    echo "reprepro is not installed"
     exit 1
 fi
 
@@ -54,9 +54,8 @@ for key in $gpgkeys; do
     fi
 done
 
-./prep_rpm.sh
-./seed_rpm.sh $edition
-./import_rpm.sh $release $edition
-./sign_rpm.sh $release $edition
-./upload_rpm.sh $edition --init
+./prep_deb.sh
+./seed_deb.sh $edition
+./import_deb.sh $release $edition
+./upload_deb.sh $edition --init
 ./upload_meta.sh --init
