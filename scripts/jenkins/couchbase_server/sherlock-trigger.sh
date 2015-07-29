@@ -31,7 +31,7 @@ bldnum=$(( `repo forall build -c 'echo $REPO__BLD_NUM'` + 1))
 cd build-team-manifests
 sed -i "s/@BLD_NUM@/${bldnum}/g" sherlock.xml
 git add sherlock.xml
-msg="Sherlock build ${bldnum} at "`date`
+msg="${PRODUCT_BRANCH} build ${bldnum} at "`date`
 git commit --allow-empty -m "$msg"
 git push origin HEAD:${PRODUCT_BRANCH}
 
