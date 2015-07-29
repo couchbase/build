@@ -2,9 +2,9 @@
 
 # Expects to be run from the latestbuilds directory.
 
-RELEASE=3.0.3
+RELEASE=3.1.0
 MP=
-BUILD=1713
+BUILD=1776
 STAGING=
 
 # Don't modify anything below this line
@@ -41,8 +41,8 @@ upload()
     s3cmd sync -P /tmp/$build.md5 $ROOT/$target.md5$STAGING
 
     echo Copying $build to releases...
-    cp $build $RELEASE_DIR/$target
-    cp /tmp/$build.md5 $RELEASE_DIR/$target.md5
+    rsync -P $build $RELEASE_DIR/$target
+    rsync -P /tmp/$build.md5 $RELEASE_DIR/$target.md5
 }
 
 #if [ ! -e couchbase-server_$FILENAME_VER-src.tgz ]
@@ -66,6 +66,11 @@ upload couchbase-server-community_debian7_x86_64_$RELEASE-$BUILD-rel.deb \
   couchbase-server-community_$FILENAME_VER-debian7_amd64.deb
 upload couchbase-server-enterprise_debian7_x86_64_$RELEASE-$BUILD-rel.deb \
   couchbase-server-enterprise_$FILENAME_VER-debian7_amd64.deb
+
+upload couchbase-server-community_suse11_x86_64_$RELEASE-$BUILD-rel.rpm \
+  couchbase-server-community-$FILENAME_VER-suse11.x86_64.rpm
+upload couchbase-server-enterprise_suse11_x86_64_$RELEASE-$BUILD-rel.rpm \
+  couchbase-server-enterprise-$FILENAME_VER-suse11.x86_64.rpm
 
 upload couchbase-server-community_ubuntu_1204_x86_64_$RELEASE-$BUILD-rel.deb \
   couchbase-server-community_$FILENAME_VER-ubuntu12.04_amd64.deb
