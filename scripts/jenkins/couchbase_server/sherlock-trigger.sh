@@ -12,10 +12,8 @@ git config --global color.ui false
 if [ ! -d build-team-manifests ]
 then
     git clone ssh://git@github.com/couchbase/build-team-manifests
-else
-    (cd build-team-manifests; git pull)
 fi
-(cd build-team-manifests; git checkout ${PRODUCT_BRANCH})
+(cd build-team-manifests && git checkout ${PRODUCT_BRANCH} && git pull)
 
 # Save a copy of the previous build manifest before overwriting it.
 cp build-team-manifests/sherlock.xml .repo/manifests/last-build.xml
