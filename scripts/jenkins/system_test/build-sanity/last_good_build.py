@@ -38,8 +38,6 @@ _FILES_PREFIX_TO_CHECK = [
         'windows_x86.exe',
 ]
 
-_CURRENT_VERSION='4.0.0'
-
 def get_last_good_build_from_jenkins(first, last):
     ret = urllib2.urlopen(_GOOD_BUILD_HISTORY_URL)
     all_builds_json = json.loads(ret.read())
@@ -67,7 +65,7 @@ def check_if_file_exists(url):
     except:
         return False
 
-def check_if_good_build(build_number):
+def check_if_good_build(build_number, ver):
     for artifact in _FILES_PREFIX_TO_CHECK:
         if artifact.startswith('suse') and build_number < 2217:
             artifact = 'opensuse11.3.x86_64.rpm'
@@ -79,7 +77,7 @@ def check_if_good_build(build_number):
                             %(_BUILDS_FILE_SERVER, \
                               build_number, 
                               special_separator,
-                              _CURRENT_VERSION, 
+                              ver,
                               build_number, 
                               artifact)
 
@@ -89,6 +87,8 @@ def check_if_good_build(build_number):
 
 if __name__ == '__main__':
     parser = OptionParser()
+    parser.add_option("-v", "--version", dest="version", default="4.0.1",
+                      help="sherlock version to be used")
     parser.add_option("-s", "--start", dest="last_success", default=0, type="int",
                       help="last successful build... start searching from this number")
     parser.add_option("-e", "--end", dest="upper_limit", default=100000, type="int",
@@ -98,7 +98,7 @@ if __name__ == '__main__':
     start = get_last_good_build_from_jenkins(options.last_success, options.upper_limit)
 
     for build_number in range(start, start-50, -1):
-        ret = check_if_good_build(build_number)
+        ret = check_if_good_build(build_number, options.version)
         if ret:
             print build_number
             sys.exit(0)
