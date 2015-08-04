@@ -49,7 +49,12 @@ if [[ $9 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$8   ; else ARCH=
 export GITSPEC ; export DISTRO ; export VERSION ; export BLD_NUM ; export EDITION
 export OS ; export ARCH
 
-LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${GITSPEC}/${VERSION}-${BLD_NUM}
+if [[ $GITSPEC =~ feature  ]]
+then
+    LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/0.0.1/${VERSION}-${BLD_NUM}
+else
+    LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${GITSPEC}/${VERSION}-${BLD_NUM}
+fi
 
 ARCHP=${ARCH}
 PARCH=${ARCHP}
