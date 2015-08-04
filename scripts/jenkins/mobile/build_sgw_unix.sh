@@ -63,6 +63,7 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+    TAR_PKG_NAME=couchbase-sync-gateway-centos_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 elif [[ $DISTRO =~ ubuntu  ]]
 then
     DISTRO="ubuntu"
@@ -73,6 +74,7 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+    TAR_PKG_NAME=couchbase-sync-gateway-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 elif [[ $DISTRO =~ macosx  ]]
 then
     PLATFORM=${DISTRO}-${ARCH}
@@ -249,6 +251,15 @@ cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REP
 
 echo  ======= upload ==============================
 cp ${STAGING}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
+
+if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
+  then
+    cd ${STAGING}
+    rm -f ${PKG_NAME}
+    tar cvfz ${TAR_PKG_NAME} * 
+    cp ${TAR_PKG_NAME} ${SGW_DIR}
+fi
+
 cd                        ${SGW_DIR}
 if [[ $DISTRO =~ macosx ]]
 then
