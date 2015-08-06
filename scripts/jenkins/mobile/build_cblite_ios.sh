@@ -64,7 +64,7 @@ else
     exit 555
 fi
 
-LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${OS}/${VERSION}/${REVISION}
+LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${GITSPEC}/${VERSION}/${OS}/${REVISION}
 #PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${REVISION}
 #PUT_CMD="s3cmd put -P"
 
