@@ -8,20 +8,24 @@ import os
 from subprocess import call, check_output
 
 if len(sys.argv) <= 3:
-    print "Usage: {0} <image name> <jenkins slave name> <ssh port>".format(sys.argv[0])
+    print "Usage: {0} <image name> <jenkins slave name> <ssh port> [ <jenkins host> ]".format(sys.argv[0])
     sys.exit(2)
 
 image = sys.argv[1]
 slave = sys.argv[2]
 port = sys.argv[3]
+try:
+    jenkins = sys.argv[4]
+except IndexError:
+    jenkins = "factory.couchbase.com"
 
 devnull = open(os.devnull, "w")
 
 # See if Jenkins thinks the slave is connected
-print "Seeing if {0} is connected to buildbot master...".format(slave)
-slaveurl = 'http://factory.couchbase.com/computer/{0}/api/json?tree=offline,executors[idle]'
+print "Seeing if {1} is connected to Jenkins master '{0}'...".format(jenkins, slave)
+slaveurl = 'http://{0}/computer/{1}/api/json?tree=offline,executors[idle]'
 while True:
-    response = urllib2.urlopen(slaveurl.format(slave))
+    response = urllib2.urlopen(slaveurl.format(jenkins, slave))
     slavedata = json.load(response)
 
     # If slave is "offline", fine. Otherwise, if ALL executors are "idle", fine.

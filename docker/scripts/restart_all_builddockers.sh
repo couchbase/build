@@ -28,6 +28,12 @@ sleep 2
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1404-couchbase-build:latest sherlocker-ubuntu14.04 2226 &
 sleep 2
 ./restart_jenkinsdocker.py ceejatec/suse-11-couchbase-build:latest sherlocker-suse11 2228 &
+
+# New hostness Watson docker containers
+./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:latest watson-centos6 3322 server.jenkins.couchbase.com &
+sleep 2
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest zz-server-lightweight 3322 server.jenkins.couchbase.com &
+
 wait
 
 # Clean up abandoned images
