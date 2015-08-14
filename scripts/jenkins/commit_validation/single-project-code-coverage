@@ -3,10 +3,10 @@
 # Common script run by various Jenkins builds.
 #
 # Builds Couchbase with code coverage enabled and then all the unit
-# tests in the specified project.
+# tests in the specified project(s).
 
-if [ -z "$PROJECT" ]; then
-    echo "Error: Required environment variable 'PROJECT' not set."
+if [ -z "$PROJECTS" ]; then
+    echo "Error: Required environment variable 'PROJECTS' not set."
     exit 3
 fi
 
@@ -59,16 +59,26 @@ cat <<EOF
 ===   Run unit tests with code coverage enabled  ===
 ====================================================
 EOF
-pushd build/${PROJECT} 2>&1 > /dev/null
+# 1. Clear all counters.
+for proj in $PROJECTS
+do
+    pushd build/${proj} 2>&1 > /dev/null
+    echo_cmd make ${proj}-coverage-zero-counters
+    popd 2>&1 > /dev/null
+done
 
-# Reset code coverage counters
-echo_cmd make ${PROJECT}-coverage-zero-counters
+# 2. Run tests and generate reports.
+for proj in $PROJECTS
+do
+    pushd build/${proj} 2>&1 > /dev/null
 
-# -j${TEST_PARALLELISM} : Run tests in parallel.
-# -T Test   : Generate XML output file of test results.
-echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test"
+    # -j${TEST_PARALLELISM} : Run tests in parallel.
+    # -T Test   : Generate XML output file of test results.
+    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test"
 
-# Generate code coverage report in XML format for Jenkins plugin.
-echo_cmd make ${PROJECT}-coverage-report-xml
+    # Generate code coverage report in XML format for Jenkins plugin.
+    echo_cmd make ${proj}-coverage-report-xml
 
-popd 2>&1 > /dev/null
+    popd 2>&1 > /dev/null
+done
+
