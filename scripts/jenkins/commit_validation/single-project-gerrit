@@ -83,11 +83,11 @@ cat <<EOF
 EOF
 echo_cmd make clean-xfd-hard
 
-cat <<EOF
-
 # Zero ccache stats, so we can measure how much space this build is
 # consuming.
 echo_cmd ccache -z
+
+cat <<EOF
 
 ============================================
 ===    update ${GERRIT_PROJECT}          ===
