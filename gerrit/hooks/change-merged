@@ -171,7 +171,7 @@ case $project in
         repo="git@github.com:couchbaselabs/$project.git"
         ;;
     perfrunner)
-        repo="git@github.com:couchbaselabs/$project.git"
+        repo="git@github.com:couchbase/$project.git"
         ;;
     cbfs)
         repo="git@github.com:couchbaselabs/$project.git"
@@ -192,7 +192,7 @@ case $project in
         repo="git@github.com:membase/$project.git"
         ;;
     cbagent)
-        repo="git@github.com:couchbaselabs/$project.git"
+        repo="git@github.com:couchbase/$project.git"
         ;;
     goxdcr)
         repo="git@github.com:couchbase/$project.git"
@@ -224,6 +224,9 @@ case $project in
     subjson)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    spring)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;

@@ -41,6 +41,9 @@ do
 	--is-draft)
 	    is_draft=$1
 	    ;;
+	--kind)
+	    kind=$1
+	    ;;
 	*)
 	    echo "Unexpected arg:  $arg"
 	    exit 1
@@ -52,7 +55,7 @@ done
 exec >>$HOME/review_site/logs/hook.log 2>&1
 
 echo =============================
-echo "Patchset Created Hook"
+echo "Patchset Created Hook (currently does nothing)"
 echo "date: `date`"
 echo "change: $change"
 echo "change_url: $change_url"
@@ -62,11 +65,4 @@ echo "uploader: $uploader"
 echo "submitter: $submitter"
 echo "commit: $commit"
 echo "patchset: $patchset"
-
-$BUILD/hooks/trivial-rebase.py --change=$change \
-	--project=$project \
-	--commit=$commit \
-	--patchset=$patchset \
-	--server-port=29418 \
-	--private-key-path $RS/etc/ssh_host_dsa_key
 
