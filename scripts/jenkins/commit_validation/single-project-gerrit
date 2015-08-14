@@ -32,7 +32,6 @@ TEST_PARALLELISM="${TEST_PARALLELISM:-${PARALLELISM}}"
 BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
 
 source ~jenkins/.bash_profile
-set -e
 
 # CCACHE is good - use it if available.
 export PATH=/usr/lib/ccache:$PATH
@@ -41,6 +40,30 @@ function echo_cmd {
     echo \# "$@"
     "$@"
 }
+
+# We define two error handler functions - a fatal one used for the
+# manditory parts of the build (i.e. actually building Couchbase), and
+# a deferred one which 'remembers' error(s) have occured but lets the
+# rest of the script run.
+# This is to maximise the number of tests we run (even if earlier
+# tests fail), so developers see as many problems in a single run as
+# possible, but ensures that the script still exits with the correct
+# error code.
+last_error=0
+error_count=0
+
+function fatal_error_handler() {
+    last_error=$?
+    echo "Fatal error - aborting"
+    exit $last_error
+}
+function deferred_error_handler() {
+    last_error=$?
+    (( error_count++ ))
+}
+
+# Initially install the fatal handler.
+trap fatal_error_handler ERR
 
 cat <<EOF
 
@@ -97,6 +120,9 @@ echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
 
 echo_cmd ccache -s
 
+# Manditory steps complete, install the deferred error handler.
+trap deferred_error_handler ERR
+
 if [ -f build/${GERRIT_PROJECT}/Makefile ]
 then
     cat <<EOF
@@ -114,9 +140,7 @@ EOF
 
     # -j${TEST_PARALLELISM} : Run tests in parallel.
     # -T Test   : Generate XML output file of test results.
-    # "|| true" : Needed to ensure that xUnit scanner is run even if one or more
-    #             tests fail.
-    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test" || true
+    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test"
 
     # Generate code coverage report in XML format for Jenkins plugin.
     if [ -n "$ENABLE_CODE_COVERAGE" ]; then
@@ -126,7 +150,7 @@ EOF
     if [ -n "$RUN_TESTS_UNDER_VALGRIND" ]; then
         # Clear out any previous runs' output files
         echo_cmd rm -f memcheck.*.xml
-        echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}" || true
+        echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}"
         # As part our test execution we run system commands which
         # unfortunately have leaks themselves
         # (e.g. /bin/sh). Therefore remove any results from such
@@ -144,3 +168,5 @@ else
 ============================================
 EOF
 fi
+
+exit $last_error
