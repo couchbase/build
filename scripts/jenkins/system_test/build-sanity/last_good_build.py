@@ -3,59 +3,37 @@ import urllib2
 import json
 from optparse import OptionParser
 
-################################
-# NOTE: HARDCODED FOR SHERLOCK #
-################################
 #
-# The current up to downstream of sherlock build looks like this:
-#   sherlock-build --> sherlock-unix-matrix --> sherlock-unix --> distro specific *nix build
+# The current up to downstream of a build looks like this:
+#   <rel>-build --> <rel>-unix-matrix --> <rel>-unix --> distro specific *nix build
 #
 # The downstream builds are non-blocking. And if one of them fails, the top level job
-# doesn't know about it. That is, a green status of sherlock-build job doesn't necessarily
-# mean the build was successful. The easiest and fairly reliable way to tell this is to
-# check the file server were the builds are kept by making sure we have binaries for all
-# the required platforms.
+# doesn't know about it. That is, a green status of the job sherlock-build or
+# watson-build doesn't necessarily mean the build was successful. The easiest and
+# fairly reliable way to tell this is to check the file server where the builds are
+# kept by making sure we have binaries for all the required platforms.
 #
-# This script first checks the latest successful build of sherlock-build. Then it looks
-# for the directory with that build number on the file server (latestbuild.hq) to see 
-# if all platform binaries are there. If not, it checks the previous build...and so on
-# for upto 10 builds
+# This script first checks the latest successful build of <rel>-build. Then it looks
+# for the directory with that build number on the file server to see if all platform
+# binaries are there. If not, it checks the previous build, and so on for upto 50
+# builds. The first such build number for which we have all platform binaries, is
+# the one that is considered the latest good build
 #
 
-_BUILDS_FILE_SERVER='http://latestbuilds.hq.couchbase.com/couchbase-server/sherlock'
-_GOOD_BUILD_HISTORY_URL='http://factory.couchbase.com/job/sherlock-build/api/json?tree=builds[number]'
-_ENV_VARS='http://factory.couchbase.com/job/sherlock-build/{0}/injectedEnvVars/api/json'
+_FACTORY='http://factory.couchbase.com'
+_SERV_JENKINS='http://server.jenkins.couchbase.com'
 
-_FILES_PREFIX_TO_CHECK = [
-        'centos6.x86_64.rpm',
-        'centos7.x86_64.rpm',
-        'suse11.x86_64.rpm',
-        'debian7_amd64.deb',
-        'ubuntu12.04_amd64.deb',
-        'ubuntu14.04_amd64.deb',
-        'macos_x86_64.zip',
-        'windows_amd64.exe',
-        'windows_x86.exe',
-]
-
-def get_last_good_build_from_jenkins(first, last):
-    ret = urllib2.urlopen(_GOOD_BUILD_HISTORY_URL)
-    all_builds_json = json.loads(ret.read())
-    bnums = [int(x['number']) for x in all_builds_json['builds']]
-    bnums.sort(reverse=True)
-    good_build = first
-    for b in bnums:
-        ret = urllib2.urlopen(_ENV_VARS.format(b))
-        all_envs = json.loads(ret.read())
-        if not all_envs.has_key('envMap'):
-            break
-        if not all_envs['envMap'].has_key('BLD_NUM'):
-            break
-        sherlock_build = int(all_envs['envMap']['BLD_NUM'])
-        if last > sherlock_build > first:
-            good_build = sherlock_build
-            break
-    return good_build
+_PLATFORM_PREFIX = {
+    'centos6' : 'centos6.x86_64.rpm',
+    'centos7' : 'centos7.x86_64.rpm',
+    'suse11'  : 'suse11.x86_64.rpm',  # name was opensuse11.3 until 2217; so we will not support anything less than 2217
+    'debian7' : 'debian7_amd64.deb',
+    'ubuntu12': 'ubuntu12.04_amd64.deb',
+    'ubuntu14': 'ubuntu14.04_amd64.deb',
+    'mac'     : 'macos_x86_64.zip',
+    'win32'   : 'windows_amd64.exe',
+    'win64'   : 'windows_x86.exe',
+}
 
 def check_if_file_exists(url):
     try:
@@ -65,25 +43,81 @@ def check_if_file_exists(url):
     except:
         return False
 
-def check_if_good_build(build_number, ver):
-    for artifact in _FILES_PREFIX_TO_CHECK:
-        if artifact.startswith('suse') and build_number < 2217:
-            artifact = 'opensuse11.3.x86_64.rpm'
-        special_separator = "-"
-        if not artifact.endswith('.rpm'):
-            special_separator = "_"
-            
-        artifact_url = '%s/%d/couchbase-server-enterprise%s%s-%d-%s' \
-                            %(_BUILDS_FILE_SERVER, \
-                              build_number, 
-                              special_separator,
-                              ver,
-                              build_number, 
-                              artifact)
 
-        if not check_if_file_exists(artifact_url):
-            return False
-    return True
+class Builds():
+    def __init__(self, version):
+        code_name = ''
+        jenkins_url = ''
+        build_job = ''
+
+        self.supported_platforms = []
+
+        if version.startswith('4.0'):
+            code_name = 'sherlock'
+            jenkins_url = _FACTORY
+            build_job = 'sherlock-build'
+            self.supported_platforms = _PLATFORM_PREFIX.keys()
+        elif version.startswith('4.1'):
+            code_name = 'watson'
+            jenkins_url = _SERV_JENKINS
+            build_job = 'watson-build'
+            self.supported_platforms = ['centos6']
+
+        self.file_server = 'http://172.23.120.24/builds/latestbuilds/couchbase-server/' + code_name
+        self.build_history_url = jenkins_url + '/job/' + build_job + '/api/json?tree=builds[number]'
+        self.env_vars_url = jenkins_url + '/job/' + build_job + '/{0}/injectedEnvVars/api/json'
+
+    def get_last_good_build_from_jenkins(self, first, last):
+        ret = urllib2.urlopen(self.build_history_url)
+        all_builds_json = json.loads(ret.read())
+        bnums = [int(x['number']) for x in all_builds_json['builds']]
+        bnums.sort(reverse=True)
+        good_build = first
+        for b in bnums:
+            ret = urllib2.urlopen(self.env_vars_url.format(b))
+            all_envs = json.loads(ret.read())
+            if not all_envs.has_key('envMap'):
+                break
+            if all_envs['envMap'].has_key('BLD_NUM'):
+                build_num = int(all_envs['envMap']['BLD_NUM'])
+            elif all_envs['envMap'].has_key('BUILD_NUMBER'):
+                build_num = int(all_envs['envMap']['BUILD_NUMBER'])
+            else:
+                break
+            if last > build_num > first:
+                good_build = build_num
+                break
+        return good_build
+
+    def check_if_good_build(self, build_number, ver):
+        for plat in self.supported_platforms:
+            artifact_suffix = _PLATFORM_PREFIX[plat]
+            special_separator = "-"
+            if not artifact_suffix.endswith('.rpm'):
+                special_separator = "_"
+
+            artifact_url = '%s/%d/couchbase-server-enterprise%s%s-%d-%s' \
+                                %(self.file_server, \
+                                  build_number,
+                                  special_separator,
+                                  ver,
+                                  build_number,
+                                  artifact_suffix)
+
+            if not check_if_file_exists(artifact_url):
+                print 'file {0} missing for build {1}'.format(artifact_url, build_number)
+                return False
+        return True
+
+    def get_last_good(self, from_build, to_build):
+        start = self.get_last_good_build_from_jenkins(from_build, to_build)
+        for build_number in range(start, start-50, -1):
+            if build_number < 0:
+                break
+            ret = self.check_if_good_build(build_number, options.version)
+            if ret:
+                return build_number
+        return '0'
 
 if __name__ == '__main__':
     parser = OptionParser()
@@ -95,11 +129,10 @@ if __name__ == '__main__':
                       help="upper limit for build numbers (any build above this number is not considered)")
     (options, args) = parser.parse_args()
 
-    start = get_last_good_build_from_jenkins(options.last_success, options.upper_limit)
+    rel_code_name = ''
+    if not options.version.startswith('4.0') and not options.version.startswith('4.1'):
+        print 'Unsupported version %s' %options.version
+        sys.exit(1)
 
-    for build_number in range(start, start-50, -1):
-        ret = check_if_good_build(build_number, options.version)
-        if ret:
-            print build_number
-            sys.exit(0)
-    print '0'
+    builds = Builds(options.version)
+    print builds.get_last_good(options.last_success, options.upper_limit)
