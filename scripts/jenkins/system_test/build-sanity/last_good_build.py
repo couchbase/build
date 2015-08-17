@@ -35,6 +35,12 @@ _PLATFORM_PREFIX = {
     'win64'   : 'windows_x86.exe',
 }
 
+_BUILD_NUMBER_RANGE = {
+    '4.0.0' : (4000, 4500),
+    '4.0.1' : (4500, 10000),
+    '4.1.0' : (0, 10000),
+}
+
 def check_if_file_exists(url):
     try:
         ret = urllib2.urlopen(url)
@@ -109,12 +115,20 @@ class Builds():
                 return False
         return True
 
-    def get_last_good(self, from_build, to_build):
+    def get_last_good(self, version, from_build, to_build):
+        (default_from, default_to) = (0, 10000)
+        if _BUILD_NUMBER_RANGE.has_key(version):
+            (default_from, default_to) = _BUILD_NUMBER_RANGE[version]
+        if not from_build:
+            from_build = default_from
+        if not to_build:
+            to_build = default_to
         start = self.get_last_good_build_from_jenkins(from_build, to_build)
+        end = start-50
         for build_number in range(start, start-50, -1):
             if build_number < 0:
                 break
-            ret = self.check_if_good_build(build_number, options.version)
+            ret = self.check_if_good_build(build_number, version)
             if ret:
                 return build_number
         return '0'
@@ -123,9 +137,9 @@ if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-v", "--version", dest="version", default="4.0.1",
                       help="sherlock version to be used")
-    parser.add_option("-s", "--start", dest="last_success", default=0, type="int",
+    parser.add_option("-s", "--start", dest="last_success", type="int",
                       help="last successful build... start searching from this number")
-    parser.add_option("-e", "--end", dest="upper_limit", default=100000, type="int",
+    parser.add_option("-e", "--end", dest="upper_limit", type="int",
                       help="upper limit for build numbers (any build above this number is not considered)")
     (options, args) = parser.parse_args()
 
@@ -135,4 +149,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     builds = Builds(options.version)
-    print builds.get_last_good(options.last_success, options.upper_limit)
+    print builds.get_last_good(options.version, options.last_success, options.upper_limit)
