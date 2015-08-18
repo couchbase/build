@@ -111,7 +111,6 @@ class Builds():
                                   artifact_suffix)
 
             if not check_if_file_exists(artifact_url):
-                print 'file {0} missing for build {1}'.format(artifact_url, build_number)
                 return False
         return True
 
