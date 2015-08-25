@@ -51,11 +51,16 @@ EDN_PRFX=`echo ${OS} | tr '[a-z]' '[A-Z]'`
 BASE_DIR=${WORKSPACE}/couchbase-lite-${OS}
 BUILDDIR=${BASE_DIR}/build
 
-if [[ $OS =~ ios  ]]
+
+if [[ $OS =~ ios ]]
 then
-    BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "CBLJSViewCompiler" "LiteServ App" "Documentation")
+    BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "LiteServ App" "Documentation")
+    if [[ $VERSION > 0.0.0 ]] && [[ $VERSION < 1.2.0 ]]
+    then
+        BUILD_TARGETS=("CBLJSViewCompiler" ${BUILD_TARGETS[@]})
+    fi
     RIO_SRCD=${BUILDDIR}/Release-ios-universal
-elif [[ $OS =~ macosx  ]]
+elif [[ $OS =~ macosx ]]
 then
     BUILD_TARGETS=("CBL Mac" "CBL Listener Mac" "LiteServ" "LiteServ App") 
     RIO_SRCD=${BUILDDIR}/Release
@@ -206,7 +211,10 @@ cp       ${LICENSEF}               ${LIC_DEST}
 
 if [[ $OS =~ ios  ]]
 then 
-    if [[ -e ${LIB_JSVC}  ]] ; then cp ${LIB_JSVC} ${LIB_DEST} ; fi
+    if [[ $VERSION > 0.0.0 ]] && [[ $VERSION < 1.2.0 ]]
+    then
+        cp ${LIB_JSVC} ${LIB_DEST}
+    fi
     cp ${LIB_FORESTDB} ${LIB_DEST}
     cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
 fi
