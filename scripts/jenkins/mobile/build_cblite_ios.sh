@@ -55,7 +55,7 @@ BUILDDIR=${BASE_DIR}/build
 if [[ $OS =~ ios ]]
 then
     BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "LiteServ App" "Documentation")
-    if [[ $VERSION > 0.0.0 ]] && [[ $VERSION < 1.2.0 ]]
+    if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
     then
         BUILD_TARGETS=("CBLJSViewCompiler" ${BUILD_TARGETS[@]})
     fi
@@ -211,7 +211,7 @@ cp       ${LICENSEF}               ${LIC_DEST}
 
 if [[ $OS =~ ios  ]]
 then 
-    if [[ $VERSION > 0.0.0 ]] && [[ $VERSION < 1.2.0 ]]
+    if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
     then
         cp ${LIB_JSVC} ${LIB_DEST}
     fi
