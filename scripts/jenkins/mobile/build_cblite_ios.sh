@@ -57,7 +57,7 @@ then
     BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "LiteServ App" "Documentation")
     if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
     then
-        BUILD_TARGETS=("CBLJSViewCompiler" ${BUILD_TARGETS[@]})
+        BUILD_TARGETS=("${BUILD_TARGETS[@]}" "CBLJSViewCompiler")
     fi
     RIO_SRCD=${BUILDDIR}/Release-ios-universal
 elif [[ $OS =~ macosx ]]
