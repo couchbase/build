@@ -21,6 +21,10 @@ cp build-team-manifests/watson.xml .repo/manifests/last-build.xml
 # Write out the new build manifest.
 repo manifest -r > build-team-manifests/watson.xml
 
+# get changelog - last build to current build
+rm CHANGELOG
+repo diffmanifests last-build.xml `pwd`/build-team-manifests/watson.xml > CHANGELOG
+
 # Play fun repo games to figure out the last build's build number, and add 1.
 repo init -m last-build.xml -g all
 bldnum=$(( `repo forall build -c 'echo $REPO__BLD_NUM'` + 1))
