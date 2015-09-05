@@ -22,7 +22,7 @@ cp build-team-manifests/watson.xml .repo/manifests/last-build.xml
 repo manifest -r > build-team-manifests/watson.xml
 
 # get changelog - last build to current build
-rm CHANGELOG
+rm -f CHANGELOG
 repo diffmanifests last-build.xml `pwd`/build-team-manifests/watson.xml > CHANGELOG
 
 # Play fun repo games to figure out the last build's build number, and add 1.
