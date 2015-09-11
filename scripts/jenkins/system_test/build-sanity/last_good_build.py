@@ -58,12 +58,12 @@ class Builds():
 
         self.supported_platforms = []
 
-        if version.startswith('4.0'):
+        if version.startswith('4.0') or version.startswith('4.1'):
             code_name = 'sherlock'
             jenkins_url = _FACTORY
             build_job = 'sherlock-build'
             self.supported_platforms = _PLATFORM_PREFIX.keys()
-        elif version.startswith('4.1'):
+        elif version.startswith('4.5'):
             code_name = 'watson'
             jenkins_url = _SERV_JENKINS
             build_job = 'watson-build'
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     rel_code_name = ''
-    if not options.version.startswith('4.0') and not options.version.startswith('4.1'):
+    if not options.version[:3] in ['4.0', '4.1', '4.5']:
         print 'Unsupported version %s' %options.version
         sys.exit(1)
 
