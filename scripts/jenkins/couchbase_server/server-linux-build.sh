@@ -99,6 +99,11 @@ make -j8 install || (
 # couchdbx-app on MacOS depends on this:
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
 
+if [ "${DISTRO}" = "nopkg" ]
+then
+    echo "Skipping packaging as requested; all done!"
+    exit 0
+fi
 
 # Step 2: Create installer, using Voltron.  Goal is to incorporate the
 # "build-filter" and "overlay" steps here into server-rpm/deb.rb, so
@@ -114,12 +119,6 @@ ruby voltron/cleanup.rb /opt/couchbase
 
 # We still need to create this for voltron's "overlay" step.
 repo manifest -r > current.xml
-
-if [ "${DISTRO}" = "nopkg" ]
-then
-    echo "Skipping packaging as requested; all done!"
-    exit 0
-fi
 
 # Tweak install directory in Voltron-magic fashion
 cd ${WORKSPACE}/voltron
