@@ -56,18 +56,16 @@ class Builds():
         jenkins_url = ''
         build_job = ''
 
-        self.supported_platforms = []
+        self.supported_platforms = _PLATFORM_PREFIX.keys()
 
         if version.startswith('4.0') or version.startswith('4.1'):
             code_name = 'sherlock'
             jenkins_url = _FACTORY
             build_job = 'sherlock-build'
-            self.supported_platforms = _PLATFORM_PREFIX.keys()
         elif version.startswith('4.5'):
             code_name = 'watson'
             jenkins_url = _SERV_JENKINS
             build_job = 'watson-build'
-            self.supported_platforms = ['centos6']
 
         self.file_server = 'http://172.23.120.24/builds/latestbuilds/couchbase-server/' + code_name
         self.build_history_url = jenkins_url + '/job/' + build_job + '/api/json?tree=builds[number]'
