@@ -77,6 +77,10 @@ port:8091
 
 fi
 
+
+echo "NODE CONFIGURATION:"
+cat node_conf.ini
+
 version_number=${VERSION}-${CURRENT_BUILD_NUMBER}
 echo version=${version_number}
 
@@ -85,5 +89,9 @@ if [ "x${BIN_URL}" != "x" ]; then
   PARAMS="${PARAMS},url=$BIN_URL"
 fi
 
+echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
 COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS
+echo
+
+echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True"
 python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True
