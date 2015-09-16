@@ -3,6 +3,13 @@
 read -a node_list <<< $NODE_IPS
 num_nodes=${#node_list[@]}
 
+USER=root
+PASSWORD=couchbase
+if [ "$DISTRO" = "win64" ]; then
+    USER=Administrator
+    PASSWORD=Membase123
+fi
+
 if [ $num_nodes -ne 1 -a $num_nodes -ne 4 ]; then
     echo "Supports only a sigle node or 4 node runs"
     exit 1
@@ -19,8 +26,8 @@ if [ $num_nodes -eq 4 ]; then
 fi
 
 echo "[global]
-username:root
-password:couchbase
+username:${USER}
+password:${PASSWORD}
 
 [membase]
 rest_username:Administrator
