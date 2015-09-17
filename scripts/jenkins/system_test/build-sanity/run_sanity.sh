@@ -1,5 +1,10 @@
 #!/bin/bash
 
+install_only="no"
+if [ "$1" = "-i" ]; then
+    install_only="yes"
+fi
+
 read -a node_list <<< $NODE_IPS
 num_nodes=${#node_list[@]}
 
@@ -92,6 +97,10 @@ fi
 echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
 COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS
 echo
+
+if [ "$install_only" = "yes" ]; then
+  exit 0
+fi
 
 echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True"
 python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True
