@@ -43,9 +43,9 @@ if [ "${build_number}" == "0" ]; then
     exit 1
 fi
 
-REL_CODE="watson"
-if [[ $VERSION_NUM = 4.0* ]]; then
-    REL_CODE="sherlock"
+REL_CODE="sherlock"
+if [[ $VERSION_NUM = 4.5* ]]; then
+    REL_CODE="watson"
 fi
 
 previous_build_number="1"
