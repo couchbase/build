@@ -8,7 +8,7 @@ MP=rc0
 BUILD=4047
 STAGING=
 COMMUNITY=private
-PLATFORMS="centos6 centos7 debian7 macos oel6 suse11.3 ubuntu12.04 ubuntu14.04 windows"
+PLATFORMS="centos6 centos7 debian7 macos oel6 suse11 ubuntu12.04 ubuntu14.04 windows"
 
 ########################################
 # Don't modify anything below this line
@@ -83,4 +83,3 @@ do
         done
     done
 done
-
