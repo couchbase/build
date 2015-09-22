@@ -3,9 +3,10 @@
 # Expects to be run from the latestbuilds directory.
 
 RELEASE=3.1.0
-MP=
-BUILD=1776
+MP=MP1
+BUILD=1797
 STAGING=
+COMMUNITY=private
 
 # Don't modify anything below this line
 
@@ -17,32 +18,43 @@ then
     FILENAME_VER=$RELEASE
 else
     RELEASE_DIRNAME=$RELEASE-$MP
-    FILENAME_VER=$RELEASE-$BUILD
+    FILENAME_VER=$RELEASE-$MP
 fi
 
 # Compute destination directories
 ROOT=s3://packages.couchbase.com/releases/$RELEASE_DIRNAME
 RELEASE_DIR=/home/buildbot/releases/$RELEASE_DIRNAME
-mkdir -p $RELEASE_DIR
+mkdir -p $RELEASE_DIR/ce
 
 upload()
 {
     build=$1
     target=$2
+    md5file=$RELEASE_DIR/$target.md5
 
-    if [ ! -e /tmp/$build.md5 ]
+    if [ ! -e $md5file -o $build -nt $md5file ]
     then
         echo Creating fresh md5sum file for $build...
-        md5sum $build | cut -c1-32 > /tmp/$build.md5
+        md5sum $build | cut -c1-32 > /tmp/md5-$$.md5
+        mv /tmp/md5-$$.md5 $md5file
     fi
 
-    echo Uploading $build...
-    s3cmd sync -P $build $ROOT/$target$STAGING
-    s3cmd sync -P /tmp/$build.md5 $ROOT/$target.md5$STAGING
+    if [[ "$COMMUNITY" = "private" && "$target" =~ "community" ]]
+    then
+        echo Uploading $build PRIVATELY...
+        perm_arg=
+        ce_dir=ce/
+    else
+        echo Uploading $build...
+        perm_arg=-P
+        ce_dir=
+    fi
+
+    s3cmd sync $perm_arg $build $ROOT/$target$STAGING
+    s3cmd sync $perm_arg $md5file $ROOT/$target.md5$STAGING
 
     echo Copying $build to releases...
-    rsync -P $build $RELEASE_DIR/$target
-    rsync -P /tmp/$build.md5 $RELEASE_DIR/$target.md5
+    rsync -a $build $RELEASE_DIR/$ce_dir$target
 }
 
 #if [ ! -e couchbase-server_$FILENAME_VER-src.tgz ]
@@ -51,6 +63,9 @@ upload()
 #    exit 1
 #fi
 #upload couchbase-server_$FILENAME_VER-src.tgz couchbase-server_$FILENAME_VER-src.tgz
+
+upload couchbase-server-enterprise_centos6_x86_64_$RELEASE-$BUILD-rel.rpm.manifest.xml \
+  couchbase-server-$FILENAME_VER-manifest.xml
 
 upload couchbase-server-community_centos6_x86_64_$RELEASE-$BUILD-rel.rpm \
   couchbase-server-community-$FILENAME_VER-centos6.x86_64.rpm
