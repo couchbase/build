@@ -55,3 +55,31 @@ then
   repo init -u git://github.com/couchbase/manifest -g all -m watson.xml --mirror
 fi
 repo sync --jobs=6
+
+#run unit test and simple-test at midnight by default
+#it can also be run other times by manually setting the parameter in jenkins job
+
+hour=`date +"%H"`
+run_unit=${UNIT_TEST:-false}
+# shouldn't happen if the var is jenkins bool param,
+# but checking for any spurious values anyway...
+if [[ "${run_unit}" != "true" ]]; then
+    run_unit=false
+fi
+if [[ "${run_unit}" = "false" ]]; then
+    if [[ "$hour" = "00" ]]; then
+        run_unit=true
+    fi
+fi
+echo "UNIT_TEST=${run_unit}" >> ${WORKSPACE}/trigger.properties
+
+run_simple=${SIMPLE_TEST:-false}
+if [[ "${run_simple}" != "true" ]]; then
+    run_simple=false
+fi
+if [[ "${run_simple}" = "false" ]]; then
+    if [[ "$hour" = "00" ]]; then
+        run_simple=true
+    fi
+fi
+echo "SIMPLE_TEST=${run_simple}" >> ${WORKSPACE}/trigger.properties
