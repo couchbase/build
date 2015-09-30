@@ -25,7 +25,6 @@ RUN groupadd -g1000 couchbase && \
 ### Install Couchbase build dependencies ######################################
 # * Packages from the base CentOS repository
 RUN yum install --setopt=keepcache=0 -y \
-                cmake \
                 ed \
                 gcc \
                 gcc-c++ \
@@ -44,6 +43,12 @@ RUN yum install --setopt=keepcache=0 -y \
                 unzip \
                 which && \
     ln -s /usr/bin/python2.7 /usr/bin/python2.6
+
+# * CMake (from cmake.org)
+RUN mkdir /tmp/deploy && \
+    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
+    rm -fr /tmp/deploy
 
 # * ccache (from source)
 RUN mkdir /tmp/deploy && \
