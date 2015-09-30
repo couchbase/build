@@ -22,7 +22,7 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
 # Install Couchbase build dependencies
-RUN apt-get install -y ccache g++ git-core tar libssl-dev libnuma-dev ruby rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
+RUN apt-get update && apt-get install -y ccache g++ git-core tar libssl-dev libnuma-dev ruby rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
     rm -f /var/cache/apt/archives/*.deb
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 RUN mkdir /tmp/deploy && \
@@ -40,7 +40,8 @@ RUN mkdir /tmp/deploy && \
 # required to get python2.6; and python2.6 is only required for gyp, which
 # is part of the v8 build. python2.6 is also required for our compiling of
 # pysqlite and pysnappy, and for that we even need python2.6-dev.
-RUN apt-get install -y software-properties-common && \
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
     add-apt-repository ppa:fkrull/deadsnakes && \
     apt-get update && \
     apt-get install -y m4 python2.6 python2.6-dev && \
@@ -57,8 +58,13 @@ RUN mkdir /tmp/deploy && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make && make install && \
     cd /tmp && rm -rf /tmp/deploy
 
+#paramiko for testrunner
+RUN apt-get update && \
+    apt-get install -y python-paramiko
+
 # JDK for Jenkins.
-RUN apt-get install -y openjdk-7-jre-headless && \
+RUN apt-get update && \
+    apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Expose SSH daemon and run our builder startup script

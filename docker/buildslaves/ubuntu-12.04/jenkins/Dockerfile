@@ -22,12 +22,13 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
 # Install Couchbase build dependencies
-RUN apt-get install -y ccache git-core tar libssl-dev libnuma-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
+RUN apt-get update && apt-get install -y ccache git-core tar libssl-dev libnuma-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Install updated C++11 compiler.
 # Note: python-software-properties required for `add-apt-repository`.
-RUN apt-get install --yes python-software-properties && \
+RUN apt-get update && \
+    apt-get install --yes python-software-properties && \
     add-apt-repository --yes ppa:ubuntu-toolchain-r/test && \
     apt-get update && \
     apt-get install --yes g++-4.9 && \
@@ -56,7 +57,8 @@ RUN mkdir /tmp/deploy && \
 # required to get python2.6; and python2.6 is only required for gyp, which
 # is part of the v8 build. python2.6 is also required for our compiling of
 # pysqlite and pysnappy, and for that we even need python2.6-dev.
-RUN apt-get install -y python-software-properties && \
+RUN apt-get update && \
+    apt-get install -y python-software-properties && \
     add-apt-repository ppa:fkrull/deadsnakes && \
     apt-get update && \
     apt-get install -y m4 python2.6 python2.6-dev && \
@@ -75,7 +77,8 @@ RUN mkdir /tmp/deploy && \
     ccache --clear
 
 # JDK for Jenkins.
-RUN apt-get install -y openjdk-7-jre-headless && \
+RUN apt-get update && \
+    apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Valgrind needed for leak checking as part of unit tests. Note: It requires
@@ -86,13 +89,18 @@ RUN mkdir /tmp/deploy && \
     ./configure --prefix=/usr/local && make && make install && \
     cd /tmp && rm -fr /tmp/deploy && \
     ccache --clear && \
-    apt-get install -y libc6-dbg && \
+    apt-get update &&  apt-get install -y libc6-dbg && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Code coverage requires gcovr to convert from gcov to XML files consumable by
 # Jenkins.
-RUN apt-get install -y python-pip && \
+RUN apt-get update && \
+    apt-get install -y python-pip && \
     pip install gcovr
+
+#paramiko for testrunner
+RUN apt-get update && \
+    apt-get install -y python-paramiko
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22

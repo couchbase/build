@@ -92,6 +92,11 @@ RUN mkdir /tmp/deploy && \
 # JDK for Jenkins.
 RUN yum --setopt=keepcache=0 -y install java-1.7.0-openjdk
 
+# paramiko for testrunner
+RUN rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm && \
+    yum install -y python-pip && \
+    pip install paramiko
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh

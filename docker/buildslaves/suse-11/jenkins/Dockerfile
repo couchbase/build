@@ -117,6 +117,9 @@ RUN mkdir /tmp/deploy && \
     ln -s ccache /home/couchbase/bin/c++ && \
     rm -fr /tmp/deploy
 
+#paramiko for testrunner
+RUN zypper install -y python-paramiko && zypper clean
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh

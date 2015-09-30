@@ -26,7 +26,7 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
 # mechanism, but we hope to remove that requirement as it brings in
 # a lot of unnecessary packages.
 
-RUN apt-get install -y g++ ccache git-core tar libssl-dev libnuma-dev rubygems \
+RUN apt-get update && apt-get install -y g++ ccache git-core tar libssl-dev libnuma-dev rubygems \
     rake ncurses-dev python-dev devscripts debhelper ed man curl \
     libc6-i386 lsb-release && \
     rm -f /var/cache/apt/archives/*.deb
@@ -43,7 +43,7 @@ RUN mkdir /tmp/deploy && \
 
 # Install third-party build dependencies (python 2.6 can hopefully be removed
 # in future)
-RUN apt-get install -y m4 python2.6 python2.6-dev && \
+RUN apt-get update && apt-get install -y m4 python2.6 python2.6-dev && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Install autoconf and friends - necessary for building some third-party deps
@@ -60,8 +60,11 @@ RUN mkdir /tmp/deploy && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy
 
+#paramiko for testrunner
+RUN apt-get update && apt-get install -y python-paramiko
+
 # JDK for Jenkins.
-RUN apt-get install -y openjdk-7-jre-headless && \
+RUN apt-get update && apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Expose SSH daemon and run our builder startup script
