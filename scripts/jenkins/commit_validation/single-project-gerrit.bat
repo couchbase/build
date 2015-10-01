@@ -43,6 +43,12 @@
     set CMAKE_GENERATOR=NMake Makefiles
 )
 
+:: Ninja requires that we explictly tell cmake to use cl (MSVC),
+:: otherwise it will auto-select gcc (MinGW) if that is installed.
+IF "%CMAKE_GENERATOR%"=="Ninja" (
+    set EXTRA_CMAKE_OPTIONS=%EXTRA_CMAKE_OPTIONS% -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl
+)
+
 @echo.
 @echo ============================================
 @echo ===    environment                       ===
