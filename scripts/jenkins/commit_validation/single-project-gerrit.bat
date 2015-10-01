@@ -54,14 +54,10 @@ call tlm\win32\environment
 @echo ===    clean                             ===
 @echo ============================================
 
-@REM Windows build is serial and there is no ccache, hence very slow.
-@REM To try to alleviate this, we *don't* perform a top-level clean, only for
-@REM the project subdirectory and Go objects (as it's incremental build is a bit flaky).
-@REM This should speed things up a little, but still
-@REM ensures that the correct number of warnings are reported for this project.
-pushd build\%GERRIT_PROJECT%
-nmake clean
-popd
+:: The CMake / Go integration doesn't always correctly rebuild
+:: modified source files on an incremental build. Therefore just
+:: wipe out Go's binary directories (and essentially always
+:: perform a clean build Go code).
 del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 
 @echo.
