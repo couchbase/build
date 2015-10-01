@@ -227,6 +227,15 @@ case $project in
     spring)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    cbft)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    cbgt)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    blance)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;

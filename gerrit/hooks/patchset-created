@@ -20,6 +20,9 @@ do
 	--change-url)
 	    change_url=$1
 	    ;;
+	--change-owner)
+	    change_owner=$1
+	    ;;
 	--project)
 	    project=$1
 	    ;;
