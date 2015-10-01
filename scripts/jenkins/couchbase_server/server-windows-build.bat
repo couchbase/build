@@ -59,7 +59,8 @@ cmake -G %MAKETYPE% ^
       %EXTRA_CMAKE_OPTIONS% ^
       %source_root% || goto error
 
-cmake --build . || goto error
+cmake --build . --target install || goto error
+
 popd
 
 rem Archive all Windows debug files for future reference.
