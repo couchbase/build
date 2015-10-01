@@ -38,6 +38,11 @@
     set TEST_PARALLELISM=%PARALLELISM%
 )
 
+:: Set default CMake generator
+@IF NOT DEFINED CMAKE_GENERATOR (
+    set CMAKE_GENERATOR=NMake Makefiles
+)
+
 @echo.
 @echo ============================================
 @echo ===    environment                       ===
@@ -89,11 +94,15 @@ popd
 @echo ===               Build                  ===
 @echo ============================================
 
-nmake EXTRA_CMAKE_OPTIONS="" || goto :error
+if not exist build mkdir build
+pushd build
+cmake -G %CMAKE_GENERATOR% %EXTRA_CMAKE_OPTIONS% .. || goto :error
+cmake --build . || goto :error
+popd
 
 @echo.
 @IF NOT DEFINED SKIP_UNIT_TESTS (
-    @IF EXIST build\%GERRIT_PROJECT%\Makefile (
+    @IF EXIST build\%GERRIT_PROJECT%\CTestTestfile.cmake (
         @echo ============================================
         @echo ===          Run unit tests              ===
         @echo ============================================
@@ -101,11 +110,11 @@ nmake EXTRA_CMAKE_OPTIONS="" || goto :error
         pushd build\%GERRIT_PROJECT%
         @REM  -j%PARALLELISM% : Run tests in parallel.
         @REM  -T Test   : Generate XML output file of test results.
-        nmake test ARGS="-j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test"
+        ctest -j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test
         popd
     ) ELSE (
         @echo ============================================
-        @echo ===    No ${GERRIT_PROJECT} Makefile - skipping unit tests
+        @echo ===    No %GERRIT_PROJECT% CTestTestfile.cmake - skipping unit tests
         @echo ============================================
     )
 ) ELSE (
