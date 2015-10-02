@@ -10,24 +10,24 @@ num_nodes=${#node_list[@]}
 
 USER=root
 PASSWORD=couchbase
-if [ "$DISTRO" = "win64" ]; then
-    USER=Administrator
-    PASSWORD=Membase123
-fi
-
-if [ $num_nodes -ne 1 -a $num_nodes -ne 4 ]; then
-    echo "Supports only a sigle node or 4 node runs"
-    exit 1
-fi
-
 
 TR_CONF="conf/py-1node-sanity.conf"
 NODE_1=${node_list[0]}
-if [ $num_nodes -eq 4 ]; then
+if [ $num_nodes -gt 1 ]; then
+    TR_CONF="conf/py-4node-sanity.conf"
     NODE_2=${node_list[1]}
     NODE_3=${node_list[2]}
     NODE_4=${node_list[3]}
-    TR_CONF="conf/py-4node-sanity.conf"
+fi
+
+if [ "$DISTRO" = "macos" ]; then
+    USER=couchbase
+    if [ $num_nodes -gt 1 ]; then
+        TR_CONF="conf/py-mac-sanity.conf"
+    fi
+elif [ "$DISTRO" = "win64" ]; then
+    USER=Administrator
+    PASSWORD=Membase123
 fi
 
 echo "[global]
@@ -52,7 +52,23 @@ echo "[servers]
 " >> node_conf.ini
 
 else
+if [ "$DISTRO" = "macos" ]; then
+echo "[cluster1]
+1:_1
 
+[cluster2]
+1:_2
+
+[servers]
+1:_1
+2:_2
+
+[_2]
+ip:${NODE_2}
+port:8091
+" >> node_conf.ini
+
+else
 echo "[cluster1]
 1:_1
 2:_2
@@ -81,6 +97,7 @@ port:8091
 " >> node_conf.ini
 
 fi
+fi
 
 
 echo "NODE CONFIGURATION:"
@@ -89,9 +106,12 @@ cat node_conf.ini
 version_number=${VERSION}-${CURRENT_BUILD_NUMBER}
 echo version=${version_number}
 
-PARAMS="version=${version_number},product=cb,parallel=True"
+PARAMS="version=${version_number},product=cb"
 if [ "x${BIN_URL}" != "x" ]; then
   PARAMS="${PARAMS},url=$BIN_URL"
+fi
+if [ "$DISTRO" != "win64" ]; then
+    PARAMS="${PARAMS},parallel=True"
 fi
 
 echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
