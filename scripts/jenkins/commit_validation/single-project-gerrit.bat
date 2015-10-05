@@ -102,7 +102,7 @@ popd
 
 if not exist build mkdir build
 pushd build
-cmake -G %CMAKE_GENERATOR% %EXTRA_CMAKE_OPTIONS% .. || goto :error
+cmake -G "%CMAKE_GENERATOR%" %EXTRA_CMAKE_OPTIONS% .. || goto :error
 cmake --build . || goto :error
 popd
 
