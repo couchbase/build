@@ -14,7 +14,7 @@ PASSWORD=couchbase
 TR_CONF="conf/py-1node-sanity.conf"
 NODE_1=${node_list[0]}
 if [ $num_nodes -gt 1 ]; then
-    TR_CONF="conf/py-4node-sanity.conf"
+    TR_CONF="conf/py-multi-node-sanity.conf"
     NODE_2=${node_list[1]}
     NODE_3=${node_list[2]}
     NODE_4=${node_list[3]}
