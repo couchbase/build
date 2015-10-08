@@ -13,11 +13,11 @@ RUN apt-get install -y python-setuptools && \
     rm -f /var/cache/apt/archives/*.deb && \
     easy_install paramiko
 
-# Install Clang 3.5 (current stable) - needed for building with ThreadSanitizer.
+# Install Clang 3.6 (current stable) - needed for building with ThreadSanitizer.
 # (Note: This doesn't change the default compiler; users must explicitly
-# select clang-3.5 / clang++-3.5).
+# select clang-3.6 / clang++-3.6).
 RUN wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add - && \
-    echo "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.5 main" > /etc/apt/sources.list.d/llvm.list && \
+    echo "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.6 main" > /etc/apt/sources.list.d/llvm.list && \
     apt-get update && \
-    apt-get install --assume-yes clang-3.5 && \
+    apt-get install --assume-yes clang-3.6 && \
     rm -fr /var/cache/apt/archives/*.deb
