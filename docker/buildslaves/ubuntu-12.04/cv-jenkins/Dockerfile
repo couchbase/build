@@ -9,7 +9,7 @@ MAINTAINER hari.kodungallur@couchbase.com
 USER root
 
 # install easy_install and paramiko
-RUN apt-get install -y python-setuptools && \
+RUN apt-get update && apt-get install -y python-setuptools && \
     rm -f /var/cache/apt/archives/*.deb && \
     easy_install paramiko
 
