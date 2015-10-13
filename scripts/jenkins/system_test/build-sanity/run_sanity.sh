@@ -30,6 +30,10 @@ elif [ "$DISTRO" = "win64" ]; then
     PASSWORD=Membase123
 fi
 
+if [ -n ${TR_CONF_FILE} ]; then
+    TR_CONF=${TR_CONF_FILE}
+fi
+
 echo "[global]
 username:${USER}
 password:${PASSWORD}
