@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta content="en" http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Couchbase buildboard</title>
+	<!-- meta http-equiv="refresh" content="60" -->
+	<style type="text/css">a {text-decoration: none}</style>
+	<link rel="stylesheet" href="buildboard.css" type="text/css"/>	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</head>
+
+<body style="margin: 0px; padding: 0px; font-family: 'Georgia',Trebuchet MS,sans-serif;">
+
+<div style="width:100%; height:1200px; overflow:visible">
+<!-- ============ HEADER ============== -->
+<div class="bb_header">
+	<h1><img src="couchbase.png" hspace="10" width="60" height="60">Buildboard</h1>
+</div>
+
+<!-- ============ NAVIGATION BAR ============== -->
+<div class="bb_navbar">
+    <span style="margin:5%"><a href="buildboard.html" id="home" onclick="mainDisplay('dashboard');">Home</a></span>
+    <span class="dropdown" style="margin:30%">
+        <a href="javascript:void(0)">Jenkins<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="http://server.jenkins.couchbase.com/view/Watson/job/watson-unix">Watson-Unix</a></li>
+              <li><a href="http://server.jenkins.couchbase.com/view/Watson/job/watson-windows">Watson-Windows</a></li>
+              <li><a href="http://factory.couchbase.com/view/build/view/couchbase_server/view/Sherlock/job/sherlock-unix">Sherlock-Unix</a></li>
+              <li><a href="http://factory.couchbase.com/view/build/view/couchbase_server/view/Sherlock/job/sherlock-windows">Sherlock-Windows</a></li>
+            </ul>
+    </span>   
+    <span class="dropdown" style="margin:5%">
+        <a href="javascript:void(0)">Downloads<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="http://172.23.120.24/builds/latestbuilds/couchbase-server/watson/">Watson</a></li>
+              <li><a href="http://172.23.120.24/builds/latestbuilds/couchbase-server/sherlock/">Sherlock</a></li>
+    </span>
+</div>
+
+<!-- ========== Build History SIDE BAR ============ -->
+<div class="bb_sidebar">
+	<br><p><font size="5px">Build History</font></p>
+	<a href="javascript:void(0)" style="color:red" id="watsonHref" onclick="mainDisplay('watson');">Watson</a><br>
+	<a href="javascript:void(0)" style="color:red" id="sherlockHref" onclick="mainDisplay('sherlock');">Sherlock</a><br>
+	<br><br><br>
+</div>
+
+<!-- ============ MAIN (SECTION) ============== -->
+<div class="bb_section" id="dashboard" style="display:none"> 
+	<iframe src="dashboard.html" style="border:none; width:100%; height:100%;" scrolling="yes"></iframe>
+</div>
+
+<div class="bb_section" id="sherlock" style="display:none"> 
+	<iframe id="sherlockFrame" src="Sherlock.html" style="border:none; width:100%; height:100%;" scrolling="yes"></iframe>
+</div>
+
+<div class="bb_section" id="watson" style="display:inline"> 
+	<iframe id="watsonFrame" src="Watson.html" style="border:none; width:100%; height:100%;" scrolling="yes"></iframe>
+</div>
+
+<div class="bb_section" id="faq" style="display:none"> 
+	<iframe id="dashboardFrame" src="faq.html" style="border:none; width:100%; height:100%;" scrolling="yes"></iframe>
+</div>
+
+<script>
+function mainDisplay(id){
+	document.getElementById('sherlock').style.display = 'none';
+	document.getElementById('watson').style.display = 'none';
+	document.getElementById('dashboard').style.display = 'none';
+	document.getElementById('faq').style.display = 'none';
+	document.getElementById(id).style.display = 'inline';
+        $('#id').click(function(e){
+            e.preventDefault();
+        });
+}
+
+</script>
+
+<!-- ============ FOOTER ============== -->
+<div class="bb_footer">
+	<p>Copyright &copy; 2015 Couchbase Inc</p>
+</div>
+</div>
+
+</body>
+
+</html>

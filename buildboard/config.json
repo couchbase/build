@@ -1,0 +1,32 @@
+{
+"dashboard": [
+        {
+             "name": "Watson",
+             "init-param": {
+                 "jenkinsParentUrl": "http://server.jenkins.couchbase.com/job/watson-build/",
+                 "jenkinsBuildUrls": [ 
+                     "http://server.jenkins.couchbase.com/job/watson-unix/",
+                     "http://server.jenkins.couchbase.com/job/watson-windows/"
+                 ],
+                 "jenkinsType": "multi-build",
+                 "githubType": "repo-manifest",
+                 "githubUrl": "https://github.com/couchbase/",
+                 "method": "pull",
+                 "timeout": "5400"}
+        },
+        {
+             "name": "Sherlock",
+             "init-param": {
+                 "jenkinsParentUrl": "http://factory.couchbase.com/view/build/view/couchbase_server/view/Sherlock/job/sherlock-build/",
+                 "jenkinsBuildUrls": [ 
+                     "http://factory.couchbase.com/view/build/view/couchbase_server/view/Sherlock/job/sherlock-unix/",
+                     "http://factory.couchbase.com/view/build/view/couchbase_server/view/Sherlock/job/sherlock-windows/"
+                 ],
+                 "jenkinsType": "multi-build",
+                 "githubType": "repo-manifest",
+                 "githubUrl": "https://github.com/couchbase/",
+                 "method": "pull",
+                 "timeout": "5400"}
+        }
+    ]
+}
