@@ -4,13 +4,14 @@
 # construction of the base image.
 
 FROM ceejatec/naked-ubuntu:14.04
-MAINTAINER ceej@couchbase.com
+MAINTAINER michael.kwok@couchbase.com
 
 USER root
 
+RUN apt-get update
+
 # Install SSH server
-RUN apt-get update && \
-    apt-get install -y openssh-server && \
+RUN apt-get install -y openssh-server && \
     rm -f /var/cache/apt/archives/*.deb && \
     mkdir /var/run/sshd # update
 
@@ -46,8 +47,13 @@ RUN mkdir /tmp/deploy && \
 RUN apt-get install -y openjdk-7-jdk maven unzip && \
     rm -f /var/cache/apt/archives/*.deb
 
+# CLANG compiler
+RUN apt-get install -y clang-3.6
+
+# Android SDK/CLANG environment settings
+RUN echo 'export ANDROID_NDK_HOME="/home/couchbase/jenkins/tools/android-ndk-r10e"\nexport ANDROID_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport ANDROID_SDK_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport PATH="/usr/lib/llvm-3.6/bin:$ANDROID_NDK_HOME:$ANDROID_SDK_HOME:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
+
 # Android SDK
-RUN echo 'export ANDROID_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
 USER couchbase
 RUN mkdir -p /home/couchbase/jenkins/tools && \
     cd /home/couchbase/jenkins/tools && \
@@ -56,11 +62,21 @@ RUN mkdir -p /home/couchbase/jenkins/tools && \
     mv android-sdk-linux android-sdk && \
     chown -R couchbase:couchbase android-sdk && \
     chmod 755 android-sdk
+
 RUN . /etc/profile && \
-    echo yes | android update sdk --filter platform-tools,android-19,extra --no-ui --force --all && \
-    filter=`android list sdk --all | grep Build-tools | grep 19.1 | awk '{ print $1 }' | tr -d -` && \
+    echo yes | android update sdk --filter platform-tools,android-22,extra --no-ui --force --all && \
+    filter=`android list sdk --all | grep Build-tools | grep 22.0.1 | awk '{ print $1 }' | tr -d -` && \
     echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    echo yes | android update sdk --filter sys-img-armeabi-v7a-android-19 --no-ui --force --all
+    echo yes | android update sdk --filter sys-img-armeabi-v7a-android-22 --no-ui --force --all
+
+# Android NDK
+USER couchbase
+RUN cd /home/couchbase/jenkins/tools && \
+    curl -L https://dl.google.com/android/ndk/android-ndk-r10e-linux-x86_64.bin -o android-ndk.bin && \
+    chmod a+x android-ndk.bin && \
+    ./android-ndk.bin && \
+    chown -R couchbase:couchbase android-ndk-r10e && \
+    chmod 755 android-ndk-r10e
 
 # Revert so CMD will run as root.
 USER root
