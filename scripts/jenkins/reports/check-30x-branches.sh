@@ -1,4 +1,8 @@
-#!/bin/bash
+#!/bin/bash -ex
+
+git config --global user.name "Couchbase Build Team"
+git config --global user.email "build-team@couchbase.com"
+git config --global color.ui false
 
 # Sync the primary repo
 if [ ! -d repo ]
