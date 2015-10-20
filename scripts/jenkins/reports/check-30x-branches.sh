@@ -8,7 +8,7 @@ fi
 cd repo
 # Conveniently this does NOT delete the .repo directory itself
 rm -rf * .repo/manifest*
-repo init -u git://github.com/ceejatec/manifest -g all -m rel-3.0.x.xml
+repo init -u git://github.com/couchbase/manifest -g all -m rel-3.0.x.xml
 repo sync --jobs=6
 
 repo manifest -r > rel30x.xml
