@@ -24,6 +24,9 @@ RUN groupadd -g1000 couchbase && \
     echo 'Defaults:%wheel !requiretty' >> /etc/sudoers.d/wheel_group && \
     chmod 440 /etc/sudoers.d/wheel_group
 
+# JDK for Jenkins.
+RUN yum -y install java-1.7.0-openjdk && yum clean packages
+
 ### Install Couchbase build dependencies ######################################
 # * Packages from the base CentOS repository
 RUN yum install --setopt=keepcache=0 -y \
@@ -54,38 +57,6 @@ RUN curl http://people.centos.org/tru/devtools-2/devtools-2.repo > \
     ln -s /opt/rh/devtoolset-2/root/usr/bin/g++ /usr/bin/g++ && \
     ln -s /opt/rh/devtoolset-2/root/usr/bin/c++ /usr/bin/c++
 
-# * CMake (from cmake.org)
-RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
-    (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    rm -fr /tmp/deploy
-
-# * ccache (from source)
-RUN mkdir /tmp/deploy && \
-    curl -L https://www.samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
-    cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
-    cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
-    ln -s ccache /usr/local/bin/gcc && \
-    ln -s ccache /usr/local/bin/g++ && \
-    ln -s ccache /usr/local/bin/cc && \
-    ln -s ccache /usr/local/bin/c++ && \
-    rm -fr /tmp/deploy
-
-# * golang
-RUN mkdir /tmp/deploy && \
-    curl https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
-    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
-    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
-    rm -fr /tmp/deploy
-
-# * repo
-RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
-    chmod a+x /usr/local/bin/repo
-
-# * git - needs to exist as /usr/bin/git for Git SCM Jenkins plugin
-RUN yum install -y --setopt=keepcache=0 devtoolset-2-git && \
-    ln -s /opt/rh/devtoolset-2/root/usr/bin/git /usr/bin/git
-
 # Install third-party build dependencies
 RUN yum install -y --setopt=keepcache=0 m4 file
 
@@ -101,10 +72,39 @@ RUN mkdir /tmp/deploy && \
     curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
     cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \
-    cd /tmp && rm -rf /tmp/deploy && ccache --clear
+    cd /tmp && rm -rf /tmp/deploy
 
-# JDK for Jenkins.
-RUN yum -y install java-1.7.0-openjdk && yum clean packages
+# * git - needs to exist as /usr/bin/git for Git SCM Jenkins plugin
+RUN yum install -y --setopt=keepcache=0 devtoolset-2-git && \
+    ln -s /opt/rh/devtoolset-2/root/usr/bin/git /usr/bin/git
+
+# * ccache (from source)
+RUN mkdir /tmp/deploy && \
+    curl -L https://www.samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
+    cd /tmp/deploy && tar -xjf ccache.tar.bz2 && \
+    cd ccache-3.1.9 && ./configure --prefix=/usr/local && make -j8 && make install && \
+    ln -s ccache /usr/local/bin/gcc && \
+    ln -s ccache /usr/local/bin/g++ && \
+    ln -s ccache /usr/local/bin/cc && \
+    ln -s ccache /usr/local/bin/c++ && \
+    rm -fr /tmp/deploy
+
+# * repo
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
+    chmod a+x /usr/local/bin/repo
+
+# * CMake (from cmake.org)
+RUN mkdir /tmp/deploy && \
+    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
+    rm -fr /tmp/deploy
+
+# * golang
+RUN mkdir /tmp/deploy && \
+    curl https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
+    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
+    rm -fr /tmp/deploy
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22

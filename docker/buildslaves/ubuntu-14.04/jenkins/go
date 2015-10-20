@@ -1,10 +1,14 @@
 #!/bin/sh
 
 # Bump this when rebuilding with changes
-TAG=20150927
+TAG=20151020
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
 docker build -t ceejatec/ubuntu-1404-couchbase-build:$TAG .
 docker tag -f ceejatec/ubuntu-1404-couchbase-build:$TAG ceejatec/ubuntu-1404-couchbase-build:latest
+if [ "$1" = "--publish" ]
+then
+  docker push ceejatec/ubuntu-1404-couchbase-build
+fi
 

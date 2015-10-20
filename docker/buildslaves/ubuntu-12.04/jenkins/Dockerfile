@@ -21,6 +21,11 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     echo 'couchbase:couchbase' | chpasswd && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
+# JDK for Jenkins.
+RUN apt-get update && \
+    apt-get install -y openjdk-7-jre-headless && \
+    rm -f /var/cache/apt/archives/*.deb
+
 # Install Couchbase build dependencies
 RUN apt-get update && apt-get install -y ccache git-core tar libssl-dev libnuma-dev rubygems rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
     rm -f /var/cache/apt/archives/*.deb
@@ -37,20 +42,9 @@ RUN apt-get update && \
                         --slave /usr/bin/gcov gcov /usr/bin/gcov-4.9 && \
     apt-get clean
 
-# Enable ccache.
-RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
-
-# CMake, Go and Repo.
-RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
-    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    curl https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
-    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
-    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
-    curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
-    chmod a+x /usr/local/bin/repo && \
-    cd /tmp && rm -rf /tmp/deploy && \
-    ccache --clear
+#paramiko for testrunner
+RUN apt-get update && \
+    apt-get install -y python-paramiko
 
 # Install third-party build dependencies. Note: python-software-properties
 # is only required for add-apt-repository; add-apt-repository is only
@@ -76,31 +70,20 @@ RUN mkdir /tmp/deploy && \
     cd /tmp && rm -rf /tmp/deploy && \
     ccache --clear
 
-# JDK for Jenkins.
-RUN apt-get update && \
-    apt-get install -y openjdk-7-jre-headless && \
-    rm -f /var/cache/apt/archives/*.deb
+# Enable ccache.
+RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 
-# Valgrind needed for leak checking as part of unit tests. Note: It requires
-# libc debug symbols (libc6-dbg) to ensure it can locate the address of strlen().
+# CMake, Go and Repo.
 RUN mkdir /tmp/deploy && \
-    cd /tmp/deploy && curl -L -O http://valgrind.org/downloads/valgrind-3.10.1.tar.bz2 && \
-    tar -xjf valgrind-3.10.1.tar.bz2 && cd valgrind-3.10.1 && \
-    ./configure --prefix=/usr/local && make && make install && \
-    cd /tmp && rm -fr /tmp/deploy && \
-    ccache --clear && \
-    apt-get update &&  apt-get install -y libc6-dbg && \
-    rm -f /var/cache/apt/archives/*.deb
-
-# Code coverage requires gcovr to convert from gcov to XML files consumable by
-# Jenkins.
-RUN apt-get update && \
-    apt-get install -y python-pip && \
-    pip install gcovr
-
-#paramiko for testrunner
-RUN apt-get update && \
-    apt-get install -y python-paramiko
+    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
+    curl https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
+    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
+    curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
+    chmod a+x /usr/local/bin/repo && \
+    cd /tmp && rm -rf /tmp/deploy && \
+    ccache --clear
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22

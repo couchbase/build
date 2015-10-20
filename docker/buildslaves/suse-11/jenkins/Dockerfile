@@ -24,6 +24,9 @@ RUN groupadd -g1000 couchbase && \
     echo 'couchbase:couchbase' | chpasswd && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
+# JDK for Jenkins.
+RUN zypper install -y java-1_6_0-openjdk && zypper clean
+
 ### Install Couchbase build dependencies ######################################
 # * Packages from the base CentOS repository
 RUN zypper install -y \
@@ -42,49 +45,14 @@ RUN zypper install -y \
                 unzip && \
                 zypper clean
 
-# * golang
-RUN mkdir /tmp/deploy && \
-    curl https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
-    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
-    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
-    rm -fr /tmp/deploy
-
-# * repo
-RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
-    chmod a+x /usr/local/bin/repo && \
-    zypper install -y python-xml && zypper clean
-
-# JDK for Jenkins.
-RUN zypper install -y java-1_6_0-openjdk && zypper clean
-
 # GCC (from ceejatec/opensuse-gcc-build)
 COPY build/local /usr/local
 RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
      mv /tmp/ld.so.conf /etc && ldconfig && \
      ln -s gcc /usr/local/bin/cc
 
-# * CMake (from cmake.org)
-RUN mkdir /tmp/deploy && cd /tmp/deploy && \
-    curl -O http://www.cmake.org/files/v3.1/cmake-3.1.3.tar.gz && \
-    tar xzf cmake-3.1.3.tar.gz && \
-    cd cmake-3.1.3 && ./configure --prefix=/usr/local --no-system-libs && \
-    make -j8 all && make install && \
-    cd /tmp && rm -rf /tmp/deploy
-
-# * git
-RUN mkdir /tmp/deploy && \
-    zypper install -y curl-devel gettext-tools && \
-    curl https://www.kernel.org/pub/software/scm/git/git-1.9.4.tar.gz -o /tmp/deploy/git.tar.gz && \
-    cd /tmp/deploy && tar xzf git.tar.gz && \
-    cd git-1.9.4 && ./configure && make -j8 NO_PERL=YesPlease && make NO_PERL=YesPlease install && \
-    cd /tmp && rm -rf /tmp/deploy && \
-    zypper remove -y cvs gettext-runtime curl-devel gettext-devel gettext-tools libcurl-devel libgomp44 tcsh && \
-    zypper clean && \
-    cd /usr/local/libexec/git-core && \
-    find . -samefile git -name 'git-*' -exec ln -sf git {} \; && \
-    find . -samefile git-remote-ftp -name 'git-*' -exec ln -sf git-remote-ftp {} \; && \
-    (strip * || true) && \
-    ln -s /usr/local/bin/git /usr/bin/git
+#paramiko for testrunner
+RUN zypper install -y python-paramiko && zypper clean
 
 # Install autoconf and friends - necessary for building some third-party deps
 # from source, not for Couchbase. (The "full" version of perl is also required
@@ -105,6 +73,21 @@ RUN zypper install -y perl && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy && zypper clean
 
+# * git
+RUN mkdir /tmp/deploy && \
+    zypper install -y curl-devel gettext-tools && \
+    curl https://www.kernel.org/pub/software/scm/git/git-1.9.4.tar.gz -o /tmp/deploy/git.tar.gz && \
+    cd /tmp/deploy && tar xzf git.tar.gz && \
+    cd git-1.9.4 && ./configure && make -j8 NO_PERL=YesPlease && make NO_PERL=YesPlease install && \
+    cd /tmp && rm -rf /tmp/deploy && \
+    zypper remove -y cvs gettext-runtime curl-devel gettext-devel gettext-tools libcurl-devel libgomp44 tcsh && \
+    zypper clean && \
+    cd /usr/local/libexec/git-core && \
+    find . -samefile git -name 'git-*' -exec ln -sf git {} \; && \
+    find . -samefile git-remote-ftp -name 'git-*' -exec ln -sf git-remote-ftp {} \; && \
+    (strip * || true) && \
+    ln -s /usr/local/bin/git /usr/bin/git
+
 # * ccache (from source)
 RUN mkdir /tmp/deploy && \
     curl -L https://www.samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
@@ -117,8 +100,25 @@ RUN mkdir /tmp/deploy && \
     ln -s ccache /home/couchbase/bin/c++ && \
     rm -fr /tmp/deploy
 
-#paramiko for testrunner
-RUN zypper install -y python-paramiko && zypper clean
+# * repo
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
+    chmod a+x /usr/local/bin/repo && \
+    zypper install -y python-xml && zypper clean
+
+# * CMake (from cmake.org)
+RUN mkdir /tmp/deploy && cd /tmp/deploy && \
+    curl -O http://www.cmake.org/files/v3.1/cmake-3.1.3.tar.gz && \
+    tar xzf cmake-3.1.3.tar.gz && \
+    cd cmake-3.1.3 && ./configure --prefix=/usr/local --no-system-libs && \
+    make -j8 all && make install && \
+    cd /tmp && rm -rf /tmp/deploy
+
+# * golang
+RUN mkdir /tmp/deploy && \
+    curl https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
+    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
+    rm -fr /tmp/deploy
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22

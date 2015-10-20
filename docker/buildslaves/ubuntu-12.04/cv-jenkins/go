@@ -1,8 +1,12 @@
 #!/bin/sh
 
 # Bump this when rebuilding with changes
-TAG=20151009
+TAG=20151020
 
 docker build -t ceejatec/ubuntu-1204-couchbase-cv:$TAG .
 docker tag -f ceejatec/ubuntu-1204-couchbase-cv:$TAG ceejatec/ubuntu-1204-couchbase-cv:latest
+if [ "$1" = "--publish" ]
+then
+  docker push ceejatec/ubuntu-1204-couchbase-cv
+fi
 

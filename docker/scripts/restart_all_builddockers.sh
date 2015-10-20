@@ -9,25 +9,25 @@
 ./restart_builddocker.py ceejatec/suse-11-couchbase-builddocker:20150617 suse-11-builddocker-01 2206
 
 # New hotness Jenkins docker containers
-./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:latest sherlocker-centos6 2222 &
+./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20150618 sherlocker-centos6 2222 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/centos-70-couchbase-build:latest sherlocker-centos7 2227 &
+./restart_jenkinsdocker.py ceejatec/centos-70-couchbase-build:20150930 sherlocker-centos7 2227 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/debian-7-couchbase-build:latest sherlocker-debian7 2224 &
+./restart_jenkinsdocker.py ceejatec/debian-7-couchbase-build:20150927 sherlocker-debian7 2224 &
 sleep 2
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest zz-lightweight 2223 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest sherlocker-ubuntu12.04-01 2225 &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:20150927 sherlocker-ubuntu12.04-01 2225 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:latest cv-sherlocker-ubuntu12.04-01 2229 &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20151009 cv-sherlocker-ubuntu12.04-01 2229 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:latest cv-sherlocker-ubuntu12.04-02 2230 &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20151009 cv-sherlocker-ubuntu12.04-02 2230 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:latest cv-sherlocker-ubuntu12.04-03 2231 &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20151009 cv-sherlocker-ubuntu12.04-03 2231 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1404-couchbase-build:latest sherlocker-ubuntu14.04 2226 &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1404-couchbase-build:20150927 sherlocker-ubuntu14.04 2226 &
 sleep 2
-./restart_jenkinsdocker.py ceejatec/suse-11-couchbase-build:latest sherlocker-suse11 2228 &
+./restart_jenkinsdocker.py ceejatec/suse-11-couchbase-build:20150927 sherlocker-suse11 2228 &
 
 wait
 

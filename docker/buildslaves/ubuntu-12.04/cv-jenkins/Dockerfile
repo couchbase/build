@@ -8,6 +8,23 @@ MAINTAINER hari.kodungallur@couchbase.com
 
 USER root
 
+# Code coverage requires gcovr to convert from gcov to XML files consumable by
+# Jenkins.
+RUN apt-get update && \
+    apt-get install -y python-pip && \
+    pip install gcovr
+
+# Valgrind needed for leak checking as part of unit tests. Note: It requires
+# libc debug symbols (libc6-dbg) to ensure it can locate the address of strlen().
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && curl -L -O http://valgrind.org/downloads/valgrind-3.10.1.tar.bz2 && \
+    tar -xjf valgrind-3.10.1.tar.bz2 && cd valgrind-3.10.1 && \
+    ./configure --prefix=/usr/local && make && make install && \
+    cd /tmp && rm -fr /tmp/deploy && \
+    ccache --clear && \
+    apt-get update &&  apt-get install -y libc6-dbg && \
+    rm -f /var/cache/apt/archives/*.deb
+
 # install easy_install and paramiko
 RUN apt-get update && apt-get install -y python-setuptools && \
     rm -f /var/cache/apt/archives/*.deb && \
