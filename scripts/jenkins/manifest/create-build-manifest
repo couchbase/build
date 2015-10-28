@@ -1,0 +1,163 @@
+#!/usr/bin/env python
+
+import json
+import xml.etree.ElementTree as ET
+import argparse
+import sys
+from subprocess import call, check_call
+import os
+import io
+from datetime import datetime
+import time
+
+# Most of this script is involved with computing important values
+# for producing a new manifest. These important values are represented
+# as all-caps CONSTANTS once they are finally set.
+
+
+
+# Command-line args
+parser = argparse.ArgumentParser()
+parser.add_argument("manifest", type=str, help="manifest path")
+parser.add_argument("--no-commit", action="store_true",
+                    help="Don't commit final manifest")
+parser.add_argument("-p", "--manifest-project", type=str, default="couchbase",
+                    help="Alternate github.com account for manifest")
+args = parser.parse_args()
+MANIFEST = args.manifest
+MANIFEST_PROJECT = args.manifest_project
+
+# Determine product and release from manifest path
+PRODUCT, _, MANIFEST_PATH = MANIFEST.partition('/')
+if MANIFEST_PATH is '':
+  print "Manifest path must contain a slash"
+  sys.exit(2)
+
+# Sync manifest project
+if not os.path.isdir("manifest"):
+  check_call(["git", "clone",
+    "git://github.com/{}/manifest".format(MANIFEST_PROJECT)])
+os.chdir("manifest")
+print "Updating manifest repository..."
+check_call(["git", "pull"])
+
+# Verify and open input manifest
+if not os.path.exists(MANIFEST):
+  print "Manifest '{}' does not exist!".format(MANIFEST)
+  sys.exit(3)
+input_manifest = ET.parse(MANIFEST)
+
+# Load configuration JSON file for project, if any
+product_config_filename = "{}/product-config.json".format(PRODUCT)
+if os.path.exists(product_config_filename):
+  with io.open(product_config_filename) as product_config_file:
+    product_config = json.load(product_config_file)
+else:
+  product_config = {}
+
+# Load manifest metadata from JSON, if any
+manifests = product_config.get("manifests")
+if manifests is not None and MANIFEST_PATH in manifests:
+  manifest_config = manifests[MANIFEST_PATH]
+else:
+  manifest_config = {}
+
+# Set values from branch config or defaults
+RELEASE = manifest_config.get("release")
+if RELEASE is None:
+  RELEASE, _ = os.path.splitext(MANIFEST_PATH)
+PRODUCT_BRANCH = manifest_config.get("branch", "master")
+START_BUILD = int(manifest_config.get("start_build", "1"))
+PRODUCTION = manifest_config.get("production", False)
+PARENT = manifest_config.get("parent")
+if PARENT is not None:
+  PARENT_BRANCH = manifests[PARENT].get("branch", "master")
+else:
+  PARENT_BRANCH = "master"
+
+# Set values from input manifest or defaults
+build_element = input_manifest.find("./project[@name='build']")
+if build_element is None:
+  print "ERROR: input manifest {} has no 'build' project!".format(MANIFEST)
+  sys.exit(4)
+version_annot = build_element.find("annotation[@name='VERSION']")
+if version_annot is not None:
+  VERSION = version_annot.get("value")
+  print "Input manifest version: {}".format(VERSION)
+else:
+  VERSION = "0.0.0"
+  print "Default to version 0.0.0"
+
+# Sync build-team-manifests project and checkout/create PRODUCT_BRANCH
+os.chdir("..")
+if not os.path.isdir("build-team-manifests"):
+  check_call(["git", "clone",
+    "ssh://git@github.com/{}/build-team-manifests".format(MANIFEST_PROJECT)])
+os.chdir("build-team-manifests")
+check_call(["git", "reset", "--hard"])
+print "Updating build-team-manifests repository..."
+check_call(["git", "fetch", "--all"])
+branch_exists = call(["git", "show-ref", "--verify", "--quiet",
+  "refs/remotes/origin/{}".format(PRODUCT_BRANCH)])
+if branch_exists == 0:
+  check_call(["git", "checkout", "-B", PRODUCT_BRANCH,
+    "remotes/origin/{}".format(PRODUCT_BRANCH)])
+else:
+  check_call(["git", "checkout", "-b", PRODUCT_BRANCH, PARENT_BRANCH])
+
+# Extract previous build number from last build manifest, if any
+build_manifest_filename = os.path.abspath(
+  "{}/{}.xml".format(PRODUCT, RELEASE))
+LAST_BUILD_NUM = 0
+if os.path.exists(build_manifest_filename):
+  last_build_manifest = ET.parse(build_manifest_filename)
+  last_build_num_annot = last_build_manifest.find(
+    "./project[@name='build']/annotation[@name='BLD_NUM']")
+  if last_build_num_annot is not None:
+    LAST_BUILD_NUM = int(last_build_num_annot.get("value"))
+
+# Now we can at last determine the build number of this new build.
+BLD_NUM = max(LAST_BUILD_NUM + 1, START_BUILD)
+
+# At last, we are ready to pull the source code.
+os.chdir("..")
+if not os.path.isdir("repo"):
+  os.mkdir("repo")
+os.chdir("repo")
+check_call(["repo", "init", "-u", "../manifest", "-g", "all", "-m", MANIFEST])
+check_call(["repo", "sync", "--jobs=6"])
+
+# Ensure build manifest directory exists
+build_manifest_dir = os.path.dirname(build_manifest_filename)
+if not os.path.isdir(build_manifest_dir):
+  os.makedirs(build_manifest_dir)
+
+# Create the new build manifest and insert BLD_NUM
+print "Updating build manifest {}".format(build_manifest_filename)
+with open(build_manifest_filename, "w") as f:
+  check_call(["repo", "manifest", "-r"], stdout=f)
+last_build_manifest = ET.parse(build_manifest_filename)
+build_element = last_build_manifest.find("./project[@name='build']")
+last_build_num_annot = ET.Element("annotation")
+last_build_num_annot.set("name", "BLD_NUM")
+last_build_num_annot.set("value", str(BLD_NUM))
+last_build_num_annot.tail = "\n    "
+build_element.insert(0, last_build_num_annot)
+last_build_manifest.write(build_manifest_filename)
+
+# Compute the commit message - dates in python are a bit hard
+now = datetime.now()
+tz = time.tzname[time.localtime().tm_isdst]
+commit_msg = "{} {} '{}' build {}-{}\n\n{} {}{}".format(
+  PRODUCT, RELEASE, PRODUCT_BRANCH, VERSION, BLD_NUM,
+  now.strftime("%Y/%m/%d %H:%M:%S"), tz,
+  "" if branch_exists == 0 else " (first branch build)")
+
+# Finally, push the new build manifest back to GitHub
+os.chdir("../build-team-manifests")
+check_call(["git", "add", build_manifest_filename])
+check_call(["git", "commit", "-m", commit_msg])
+check_call(["git", "push", "origin",
+  "{0}:refs/heads/{0}".format(PRODUCT_BRANCH)])
+
+

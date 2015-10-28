@@ -195,7 +195,7 @@ case "$PKG" in
     rpm)
         ARCHITECTURE=x86_64
         INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-        cp ~/rpmbuild/RPMS/x86_64/${PRODUCT}-[1-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
+        cp ~/rpmbuild/RPMS/x86_64/${PRODUCT}-[0-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
 
 	# Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
 	# newer ones and SuSE use "-debuginfo-*.rpm".
