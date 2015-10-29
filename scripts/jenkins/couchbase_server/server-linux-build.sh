@@ -106,7 +106,7 @@ then
 fi
 
 # Step 2: Create installer, using Voltron.  Goal is to incorporate the
-# "build-filter" and "overlay" steps here into server-rpm/deb.rb, so
+# "build-filter" and "overlay" steps here or into server-rpm/deb.rb, so
 # we can completely drop voltron's Makefile.
 
 echo
@@ -117,8 +117,12 @@ echo
 cd ${WORKSPACE}
 ruby voltron/cleanup.rb /opt/couchbase
 
-# We still need to create this for voltron's "overlay" step.
-repo manifest -r > current.xml
+# We still need to create this for voltron's "overlay" step, if it's not
+# already there.
+if [ ! -e "manifest.xml" ]
+then
+  repo manifest -r > manifest.xml
+fi
 
 # Tweak install directory in Voltron-magic fashion
 cd ${WORKSPACE}/voltron
@@ -197,25 +201,25 @@ case "$PKG" in
         INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
         cp ~/rpmbuild/RPMS/x86_64/${PRODUCT}-[0-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
 
-	# Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
-	# newer ones and SuSE use "-debuginfo-*.rpm".
-	# Scan for both and move to correct final name.
-	DBG_PREFIX="${HOME}/rpmbuild/RPMS/x86_64/${PRODUCT}"
-	DEBUG=""
-	if ls ${DBG_PREFIX}-debug-*.rpm > /dev/null 2>&1;
-	then
-	    DEBUG=debug
-	elif ls ${DBG_PREFIX}-debuginfo-*.rpm > /dev/null 2>&1;
-	then
-	    DEBUG=debuginfo
-	else
-	    echo "Warning: No ${PRODUCT}-{debug,debuginfo}-*.rpm package found; skipping copy."
-	fi
-	if [ -n "$DEBUG" ]
-	then
-            cp ${DBG_PREFIX}-${DEBUG}-*.rpm \
-               ${WORKSPACE}/couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-	fi
+        # Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
+        # newer ones and SuSE use "-debuginfo-*.rpm".
+        # Scan for both and move to correct final name.
+        DBG_PREFIX="${HOME}/rpmbuild/RPMS/x86_64/${PRODUCT}"
+        DEBUG=""
+        if ls ${DBG_PREFIX}-debug-*.rpm > /dev/null 2>&1;
+        then
+          DEBUG=debug
+        elif ls ${DBG_PREFIX}-debuginfo-*.rpm > /dev/null 2>&1;
+        then
+          DEBUG=debuginfo
+        else
+          echo "Warning: No ${PRODUCT}-{debug,debuginfo}-*.rpm package found; skipping copy."
+        fi
+        if [ -n "$DEBUG" ]
+        then
+          cp ${DBG_PREFIX}-${DEBUG}-*.rpm \
+             ${WORKSPACE}/couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
+        fi
         ;;
     deb)
         ARCHITECTURE=amd64

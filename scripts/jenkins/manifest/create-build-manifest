@@ -171,6 +171,9 @@ check_call(["git", "push", "origin",
 os.chdir("..")
 print "Saving build manifest..."
 shutil.copy(build_manifest_filename, "build-manifest.xml")
+# Also keep a copy of this build manifest in the tarball
+shutil.copy(build_manifest_filename, "repo/manifest.xml")
+
 print "Saving build parameters..."
 properties = {
   "PRODUCT": PRODUCT,
