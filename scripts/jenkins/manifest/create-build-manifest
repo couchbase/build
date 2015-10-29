@@ -7,8 +7,10 @@ import sys
 from subprocess import call, check_call
 import os
 import io
+import shutil
 from datetime import datetime
 import time
+import tarfile
 
 # Most of this script is involved with computing important values
 # for producing a new manifest. These important values are represented
@@ -119,11 +121,15 @@ if os.path.exists(build_manifest_filename):
 # Now we can at last determine the build number of this new build.
 BLD_NUM = max(LAST_BUILD_NUM + 1, START_BUILD)
 
-# At last, we are ready to pull the source code.
+# At last, we are ready to pull the source code. Clean out old
+# source directories, leaving just .repo to avoid needing to suck
+# everything down from github again.
 os.chdir("..")
 if not os.path.isdir("repo"):
   os.mkdir("repo")
 os.chdir("repo")
+for entry in [f for f in os.listdir(".") if f != ".repo"]:
+  shutil.rmtree(entry) if os.path.isdir(entry) else os.remove(entry)
 check_call(["repo", "init", "-u", "../manifest", "-g", "all", "-m", MANIFEST])
 check_call(["repo", "sync", "--jobs=6"])
 
@@ -160,4 +166,28 @@ check_call(["git", "commit", "-m", commit_msg])
 check_call(["git", "push", "origin",
   "{0}:refs/heads/{0}".format(PRODUCT_BRANCH)])
 
+# Save the build manifest, current source tarball, and all computed
+# properties with consistent names in top-level directory
+os.chdir("..")
+print "Saving build manifest..."
+shutil.copy(build_manifest_filename, "build-manifest.xml")
+print "Saving build parameters..."
+properties = {
+  "PRODUCT": PRODUCT,
+  "RELEASE": RELEASE,
+  "PRODUCT_BRANCH": PRODUCT_BRANCH,
+  "VERSION": VERSION,
+  "BLD_NUM": BLD_NUM,
+  "MANIFEST": MANIFEST,
+  "PARENT": PARENT,
+  "PRODUCTION": PRODUCTION
+}
+with open("build-properties.json", "w") as prop:
+  json.dump(properties, prop, indent=2, separators=(',', ': '))
+print "Creating source tarball..."
+with tarfile.open("source.tar.gz", "w:gz") as tar:
+  os.chdir("repo")
+  for entry in [f for f in os.listdir(".") if f != ".repo"]:
+    tar.add(entry)
+check_call(["pwd"])
 
