@@ -184,10 +184,16 @@ properties = {
 }
 with open("build-properties.json", "w") as prop:
   json.dump(properties, prop, indent=2, separators=(',', ': '))
+
 print "Creating source tarball..."
 with tarfile.open("source.tar.gz", "w:gz") as tar:
   os.chdir("repo")
-  for entry in [f for f in os.listdir(".") if f != ".repo"]:
-    tar.add(entry)
-check_call(["pwd"])
+  for root, dirs, files in os.walk("."):
+    for name in files:
+      tar.add(os.path.join(root, name)[2:])
+    for name in dirs:
+      if name == ".repo" or name == ".git":
+        dirs.remove(name)
+      else:
+        tar.add(os.path.join(root, name)[2:], recursive=False)
 
