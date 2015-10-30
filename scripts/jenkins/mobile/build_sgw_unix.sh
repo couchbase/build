@@ -51,7 +51,7 @@ export OS ; export ARCH
 
 if [[ $GITSPEC =~ feature  ]]
 then
-    LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/0.0.1/${VERSION}-${BLD_NUM}
+    LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/0.0.1/${GITSPEC}/${VERSION}-${BLD_NUM}
 else
     LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${GITSPEC}/${VERSION}-${BLD_NUM}
 fi
