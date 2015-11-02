@@ -14,6 +14,11 @@ parser.add_argument("-p", "--manifest-project", type=str, default="couchbase",
 args = parser.parse_args()
 MANIFEST_PROJECT = args.manifest_project
 
+# Initialize results file
+result_filename = os.path.abspath("results.json")
+if os.path.exists(result_filename):
+  os.remove(result_filename)
+
 # Initialize previous-check state file
 state_filename = os.path.abspath("last-check.json")
 if os.path.exists(state_filename):
@@ -61,17 +66,20 @@ for root, dirs, files in os.walk("."):
 
 # Iterate through the manifests, and find the first one that hasn't been
 # checked in at least 'interval' minutes.
+results = {}
 for manifest in manifests:
   interval = manifests[manifest].get("interval", 240)
   if manifest not in check_states:
     check_states[manifest] = 0L
   now = long(time.time())
   if (now - check_states[manifest] > interval * 60):
-    print "Time to check {}".format(manifest)
+    results["MANIFEST"] = manifest
     check_states[manifest] = now
     break
 
 # Save updated check-states
+with open(result_filename, "w") as result:
+  json.dump(results, result)
 with open(state_filename, "w") as state:
   json.dump(check_states, state)
 
