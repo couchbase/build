@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+
+import json
+import os
+import argparse
+from subprocess import check_call
+import time
+
+# Check out the manifest project.
+# Command-line args
+parser = argparse.ArgumentParser()
+parser.add_argument("-p", "--manifest-project", type=str, default="couchbase",
+                    help="Alternate github.com account for manifest")
+args = parser.parse_args()
+MANIFEST_PROJECT = args.manifest_project
+
+# Initialize previous-check state file
+state_filename = os.path.abspath("last-check.json")
+if os.path.exists(state_filename):
+  with open(state_filename, "r") as state:
+    check_states = json.load(state)
+else:
+  check_states = {}
+
+# Sync manifest project
+if not os.path.isdir("manifest"):
+  check_call(["git", "clone",
+    "git://github.com/{}/manifest".format(MANIFEST_PROJECT)])
+os.chdir("manifest")
+print "Updating manifest repository..."
+check_call(["git", "pull"])
+
+# Scan the current directory for build manifests.
+manifests = {}
+for root, dirs, files in os.walk("."):
+  # Prune all legacy manifests, including those in the top-level dir
+  if root == ".":
+    dirs.remove(".git")
+    if "toy" in dirs: dirs.remove("toy")
+    if "released" in dirs: dirs.remove("released")
+    continue
+
+  # Load manifest metadata where specified
+  if "product-config.json" in files:
+    with open(os.path.join(root, "product-config.json"), "r") as conffile:
+      config = json.load(conffile)
+      if not "manifests" in config:
+        continue
+      for manifest in config["manifests"]:
+        manifests[os.path.join(root, manifest)] = config["manifests"][manifest]
+
+  # Identify each .xml file
+  for filename in files:
+    if filename[-4:] == ".xml":
+      # If this manifest is listed in a product-config.json, it will have
+      # already been read since we're doing a top-down walk. So if we don't
+      # find it here, initialize it with an empty dict.
+      full_filename = os.path.join(root, filename)
+      if full_filename not in manifests:
+        manifests[full_filename] = {}
+
+# Iterate through the manifests, and find the first one that hasn't been
+# checked in at least 'interval' minutes.
+for manifest in manifests:
+  interval = manifests[manifest].get("interval", 240)
+  if manifest not in check_states:
+    check_states[manifest] = 0L
+  now = long(time.time())
+  if (now - check_states[manifest] > interval * 60):
+    print "Time to check {}".format(manifest)
+    check_states[manifest] = now
+    break
+
+# Save updated check-states
+with open(state_filename, "w") as state:
+  json.dump(check_states, state)
+
+

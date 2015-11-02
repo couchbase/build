@@ -4,7 +4,7 @@ import json
 import xml.etree.ElementTree as ET
 import argparse
 import sys
-from subprocess import call, check_call
+from subprocess import call, check_call, check_output
 import os
 import io
 import shutil
@@ -25,9 +25,12 @@ parser.add_argument("--no-commit", action="store_true",
                     help="Don't commit final manifest")
 parser.add_argument("-p", "--manifest-project", type=str, default="couchbase",
                     help="Alternate github.com account for manifest")
+parser.add_argument("--force", action="store_true",
+                    help="Produce new build manifest even if no repo changes")
 args = parser.parse_args()
 MANIFEST = args.manifest
 MANIFEST_PROJECT = args.manifest_project
+force = args.force
 
 # Determine product and release from manifest path
 PRODUCT, _, MANIFEST_PATH = MANIFEST.partition('/')
@@ -125,13 +128,28 @@ BLD_NUM = max(LAST_BUILD_NUM + 1, START_BUILD)
 # source directories, leaving just .repo to avoid needing to suck
 # everything down from github again.
 os.chdir("..")
-if not os.path.isdir("repo"):
-  os.mkdir("repo")
-os.chdir("repo")
+if not os.path.isdir(PRODUCT):
+  os.mkdir(PRODUCT)
+os.chdir(PRODUCT)
 for entry in [f for f in os.listdir(".") if f != ".repo"]:
   shutil.rmtree(entry) if os.path.isdir(entry) else os.remove(entry)
 check_call(["repo", "init", "-u", "../manifest", "-g", "all", "-m", MANIFEST])
 check_call(["repo", "sync", "--jobs=6"])
+
+# See if there are changes since the last build, unless --force specified
+if (os.path.exists(build_manifest_filename)):
+  output = check_output(["repo", "diffmanifests", build_manifest_filename])
+  if (len(output) == 0):
+    if (not force):
+      print "No changes since last build {}-{}; not executing new build".format(
+        VERSION, BLD_NUM)
+      os.chdir("..")
+      with open("build-properties.json", "w") as prop:
+        json.dump({}, prop)
+      sys.exit(0)
+    else:
+      print "No changes since last build {}-{}, but forcing new build anyway".format(
+        VERSION, BLD_NUM)
 
 # Ensure build manifest directory exists
 build_manifest_dir = os.path.dirname(build_manifest_filename)
@@ -172,7 +190,7 @@ os.chdir("..")
 print "Saving build manifest..."
 shutil.copy(build_manifest_filename, "build-manifest.xml")
 # Also keep a copy of this build manifest in the tarball
-shutil.copy(build_manifest_filename, "repo/manifest.xml")
+shutil.copy(build_manifest_filename, "{}/manifest.xml".format(PRODUCT))
 
 print "Saving build parameters..."
 properties = {
@@ -183,14 +201,15 @@ properties = {
   "BLD_NUM": BLD_NUM,
   "MANIFEST": MANIFEST,
   "PARENT": PARENT,
-  "PRODUCTION": PRODUCTION
+  "PRODUCTION": PRODUCTION,
+  "FORCE": force
 }
 with open("build-properties.json", "w") as prop:
   json.dump(properties, prop, indent=2, separators=(',', ': '))
 
 print "Creating source tarball..."
 with tarfile.open("source.tar.gz", "w:gz") as tar:
-  os.chdir("repo")
+  os.chdir(PRODUCT)
   for root, dirs, files in os.walk("."):
     for name in files:
       tar.add(os.path.join(root, name)[2:])
