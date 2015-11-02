@@ -52,7 +52,7 @@ for root, dirs, files in os.walk("."):
       if not "manifests" in config:
         continue
       for manifest in config["manifests"]:
-        manifests[os.path.join(root, manifest)] = config["manifests"][manifest]
+        manifests[os.path.join(root, manifest)[2:]] = config["manifests"][manifest]
 
   # Identify each .xml file
   for filename in files:
@@ -60,7 +60,7 @@ for root, dirs, files in os.walk("."):
       # If this manifest is listed in a product-config.json, it will have
       # already been read since we're doing a top-down walk. So if we don't
       # find it here, initialize it with an empty dict.
-      full_filename = os.path.join(root, filename)
+      full_filename = os.path.join(root, filename)[2:]
       if full_filename not in manifests:
         manifests[full_filename] = {}
 
