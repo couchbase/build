@@ -33,6 +33,7 @@ OSX=${4} # macos vs elcapitan
 
 DOWNLOAD_NEW_PKG=${5}  # Get new build 
 
+result="rejected"
 
 if [[ ${PKG_VERSION} =~ "4.0.0" ]] || [[ ${PKG_VERSION} =~ "4.1.0" ]]
 then
@@ -91,4 +92,15 @@ then
 fi
 
 zip -qry ${PKG_NAME} ${PKG_DIR} 
+
+# Verify codesigned successfully
+spctl -avvvv ${PKG_DIR}/*.app > tmp.txt 2>&1
+result=`grep "accepted" tmp.txt | awk '{ print $3 }'`
+echo ${result}
+if [[ ${result} =~ "accepted" ]]
+then
+    exit 0
+else
+    exit 1
+fi
 
