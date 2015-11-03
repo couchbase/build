@@ -35,7 +35,12 @@ DOWNLOAD_NEW_PKG=${5}  # Get new build
 
 result="rejected"
 
-if [[ ${PKG_VERSION} =~ "4.0.0" ]] || [[ ${PKG_VERSION} =~ "4.1.0" ]]
+if [[ ${PKG_VERSION} =~ "4.5.0" ]]
+then
+    PKG_URL=http://172.23.120.24/builds/latestbuilds/couchbase-server/watson/${PKG_BUILD_NUM}
+    PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
+    PKG_DIR=couchbase-server-${EDITION}_4
+elif [[ ${PKG_VERSION} =~ "4.0.0" ]] || [[ ${PKG_VERSION} =~ "4.1.0" ]]
 then
     PKG_URL=http://latestbuilds.hq.couchbase.com/couchbase-server/sherlock/${PKG_BUILD_NUM}
     PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
