@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Script intended to be ENTRYPOINT for Couchbase build containers
 
@@ -12,5 +12,9 @@ chown -R couchbase:couchbase /home/couchbase/.ssh
 chmod 600 /home/couchbase/.ssh/*
 
 # Start sshd (as new, long-running, foreground process)
-exec /usr/sbin/sshd -D
+[[ "$1" == "default" ]] && {
+    exec /usr/sbin/sshd -D
+}
+
+exec "$@"
 
