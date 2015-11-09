@@ -892,7 +892,11 @@ def dashboard_monitor(dashbrd):
             if buildStatus == "pending": 
                 # Corresponding build jobs no longer availabe in Jenkins 
                 # Set to "unknown" if build does not already exist in DB
-                buildStatus = "unknown"
+                dbHistory = bldDB.query_buildHistory(bldHistory)
+                if dbHistory and "status" in dbHistory:
+                    buildStatus = dbHistory['status']
+                else:
+                    buildStatus = "unknown"
                 dashbrd.setBuildStatus(buildStatus)
 
             dashbrd.finish(currBuild)

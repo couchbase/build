@@ -102,11 +102,10 @@ class buildDB(object):
         # Get previously incomplete builds
         logger.debug("{0}...not implemented".format(dashboard_name))
 
-    def query_builds(self, ids):
-        #
-        # type: list
-        #
-        logger.debug("Not implemented...db_retrieve_last_build")
+    def query_buildHistory(self, bldHistory):
+        docId = bldHistory['branch']+"-"+str(bldHistory['buildNum'])
+        readResult = self.db.get(docId)
+        return readResult.value
 
     def __repr__(self):
         return ("buildDB(history, num_jobs)".format(self))

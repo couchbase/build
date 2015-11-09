@@ -188,23 +188,24 @@ class Dashboard(object):
         else:
             logger.debug("Builds in queue: {0}".format(len(self.job_queue)))
             # Update overall buildStatus based on all build jobs
-            buildStatus = ""
+            jobStatus = ""
             for job in jobList:
                 status = job.getStatus()
                 if not status or status == "" or status == "ABORT" or status == "TIMEOUT":
-                    buildStatus = "incomplete" 
+                    jobStatus = "incomplete" 
                 else:
                     if status == "SUCCESS":
-                        buildStatus = "success" 
+                        jobStatus = "success" 
                     elif status == "UNSTABLE":
-                        buildStatus = "unstable" 
+                        jobStatus = "unstable" 
                     else:
-                        buildStatus = "failed" 
+                        jobStatus = "failed" 
 
-                if self.buildStatus == "pending" or self.buildStatus == "success":
-                    self.buildStatus = buildStatus 
-                elif self.buildStatus != "incomplete" and buildStatus != "success":
-                    self.buildStatus = buildStatus 
+                if self.buildStatus != jobStatus:
+                    if self.buildStatus == "pending" or self.buildStatus == "success":
+                        self.buildStatus = jobStatus 
+                    elif self.buildStatus != "incomplete" and jobStatus != "success":
+                        self.buildStatus = jobStatus 
 
         logger.debug("Build status: {0}".format(self.buildStatus))
         return self.buildStatus
