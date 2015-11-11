@@ -23,11 +23,12 @@ set -e
 
 CURL_CMD="curl --fail --retry 10"
 
+BLD_NUM=${1}
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 if [[ ! ${VERSION} ]] ; then VERSION=1.0    ; fi
 
-REVISION=${VERSION}-${BUILD_NUMBER}
+REVISION=${VERSION}-${BLD_NUM}
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ========================================================= `date`
@@ -117,7 +118,7 @@ ZIP_FILE=Couchbase-Lite-PhoneGap-Plugin_${REVISION}.zip
 zip -r ${ZIP_FILE} *
 
 echo  ======= upload =========================================
-echo                                         ${CBFS_URL}/${ZIP_FILE}
-${CURL_CMD} -XPUT --data-binary @${ZIP_FILE} ${CBFS_URL}/${ZIP_FILE}
+LATESTBUILDS_PHONEGAP=http://latestbuilds.hq.couchbase.com/couchbase-lite-phonegap/release/${VERSION}/${VERSION}-${BLD_NUM}
+echo -------........................... uploading internally to ${LATESTBUILDS_PHONEGAP}
 
 popd                     2>&1 >/dev/null
