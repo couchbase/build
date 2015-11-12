@@ -8,10 +8,9 @@ MAINTAINER michael.kwok@couchbase.com
 
 USER root
 
-RUN apt-get update
-
 # Install SSH server
-RUN apt-get install -y openssh-server && \
+RUN apt-get update && \
+    apt-get install -y openssh-server && \
     rm -f /var/cache/apt/archives/*.deb && \
     mkdir /var/run/sshd # update
 
@@ -28,10 +27,12 @@ CMD [ "/usr/sbin/sshd", "-D" ]
 
 # Install Couchbase Mobile build dependencies. We don't need "go" or "repo"
 # yet, but we probably will.
-RUN apt-get install -y ccache git-core ed man curl ccache gcc-multilib g++-multilib lib32z1 lib32stdc++6 npm bc && \
+RUN apt-get update && \
+    apt-get install -y ccache git-core ed man curl ccache gcc-multilib g++-multilib lib32z1 lib32stdc++6 npm bc && \
     rm -f /var/cache/apt/archives/*.deb
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 RUN ln -s /usr/bin/nodejs /usr/sbin/node
+RUN ln -s /usr/bin/nodejs /usr/local/bin/node
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 RUN mkdir /tmp/deploy && \
     curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
@@ -42,6 +43,12 @@ RUN mkdir /tmp/deploy && \
     curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo && \
     cd /tmp && rm -rf /tmp/deploy
+
+# Node.js dependency to build phonegap-plugin
+RUN npm xmlbuilder
+RUN npm findit
+RUN npm ncp
+RUN apt-get install zip
 
 # JDK for Jenkins.
 RUN apt-get install -y openjdk-7-jdk maven unzip && \
