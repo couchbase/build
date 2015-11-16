@@ -45,6 +45,7 @@ log_file = "buildboard.log"
 
 threadPools = []
 issueLabels = ["CB", "MB", "SDK"]
+projWhitelist = ["voltron", "cbbuild"]
 
 # Active dashboards
 dashboardPool = []
@@ -147,7 +148,7 @@ def html_generate_buildHistory_page(name):
     soup.title.insert(0, title)
 
     # Add table
-    table = "<br><h2 style=color:#086a87>{0}</h2> <div class=build_table> <table> <tr> <td style=width:8%;> Build ID </td> <td style=width:8%;> Date </td> <td style=width:8%;> Issue ID </td> <td style=width:8%;> Module </td> <td style=width:12%;> Change List </td> <td style=width:40%;> Description </td> <td style=width:8%;> Build Result </td> <td style=width:8%;> Post Sanity </td> </table> </div>".format(name)
+    table = "<br><h2 style=color:#086a87>{0}</h2> <div class=build_table> <table> <tr> <td style=width:8%;> Build ID </td> <td style=width:8%;> Date </td> <td style=width:8%;> Issue ID </td> <td style=width:8%;> Module </td> <td style=width:10%;> Change List </td> <td style=width:42%;> Commit Summary </td> <td style=width:8%;> Build Result </td> <td style=width:8%;> Post Sanity </td> </table> </div>".format(name)
 
     chickenSoup = soup.findAll("body")
     table = BeautifulSoup(table, "html.parser")
@@ -219,7 +220,7 @@ def html_buildHistory_report(name, data):
 
     if not data["changeSet"]:
         # Top row for this build entry
-        row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td class={6}>{7}</td><td>{8}</td></tr>".format(data["buildNum"], timestamp, "NA", "NA", "NA", "NA", status, status, "NA")
+        row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td class={6}>{7}</td><td>{8}</td></tr>".format(data["buildNum"], timestamp, "NA", "NA", "NA", "NA", "NA", status, status, "NA")
         row = BeautifulSoup(row, "html.parser")
         soup.table.insert(offset, row)
     else:
@@ -228,13 +229,16 @@ def html_buildHistory_report(name, data):
             repo = commit['repo']
             issueId = commit['issueId'] 
             commitSHA = commit['commitId']
-            commitDesc = "NA" 
+            if "title" in commit:
+                commitTitle = commit['title'].encode('ascii', 'ignore')
+            else:
+                commitTitle = "NA"
 
             if first_row == True:
-                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td class={6}>{7}</td><td>{8}</td></tr>".format(data["buildNum"], timestamp, issueId, repo, commitSHA[:10], commitDesc[:50], status, status, "NA")
+                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td class={6}>{7}</td><td>{8}</td></tr>".format(data["buildNum"], timestamp, issueId, repo, commitSHA[:10], commitTitle[:100], status, status, "NA")
                 first_row = False
             else:
-                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td></tr>".format("", "", issueId, repo, commitSHA[:10], commitDesc[:50], "", "")
+                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td></tr>".format("", "", issueId, repo, commitSHA[:10], commitTitle[:100], "", "")
                 offset += 2
 
             row = BeautifulSoup(row, "html.parser")
@@ -313,7 +317,7 @@ def jenkins_get_manifestSHA(url, buildNum):
 
 def jenkins_fetch_changeSet(dashbrd, buildNum, url):
     items = []
-    result = {"repo": "", "commitId": ""}
+    result = {}
     changeSet = []
 
     # Build summary detail
@@ -354,6 +358,13 @@ def jenkins_fetch_changeSet(dashbrd, buildNum, url):
             else:
                 result["repo"] = i
                 write_data = ""
+            # Find other method
+            if "manifest" in result["repo"]: 
+                result["repo"] = u'manifest'
+#            elif "goproj" in result["repo"] or "godeps" in result["repo"]:
+            else:
+                proj = result["repo"].split("/")
+                result["repo"] = proj[-1]
             logger.debug("{0} Repo: {1}".format(dashbrd.getName(), result["repo"]))
             continue
         if write_data == "commitId":
@@ -580,16 +591,21 @@ def jenkins_fetch_buildHistory(dashbrd, parentBuildNum, jenkinsBuildNum):
                         commitHistory["issueId"] = issueArray[0]
                         logger.debug("issueId: {0}".format(commitHistory["issueId"]))
 
-                    # Get complete changeSet from Jenkins 
+                    # Get complete changeSet from Jenkins and github
                     if changeSet:
                         commit = changeSet.pop(0)
                         logger.debug("Repo: {0}".format(commit["repo"]))
-                        commitHistory["commitId"] = commit["commitId"]
                         commitHistory["repo"] = commit["repo"]
+                        commitHistory["commitId"] = commit["commitId"]
                         commitHistory["url"] = githubUrl+commit["repo"]+"/commit/"+commit["commitId"]
                         commitHistory["codename"] = bldHistory["codename"]
                         commitHistory["branch"] = bldHistory["branch"]
-
+                        commitLog = github_get_commit_log(dashbrd, commit["repo"], commit["commitId"])
+                        if commitLog:
+                            commitHistory["title"] = commitLog["title"]
+                            commitHistory["desc"] = commitLog["desc"]
+                        else:
+                            logger.debug("commitLog is empty {0}".format(commitHistory["url"]))
                         docId = bldDB.insert_commit(commitHistory)
                         bldHistory["changeSet"].append(docId)
 
@@ -628,7 +644,7 @@ def jenkins_find_new_builds(dashbrd):
         return buildCount
  
     count = 0
-    max_count = 30 
+    max_count = 40 
     # Scan all available builds
     for build in bld_list["builds"]:
         parentBldNum = 0
@@ -675,41 +691,44 @@ def jenkins_find_new_builds(dashbrd):
 #
 # Need to add support for Python Git module
 #
-def github_fetch_commit(url, commitHistory):
+def github_fetch_commit(url):
     commitLog = None
     try:
-        rsp = urllib2.urlopen(commitHistory["url"], timeout=10)
+        rsp = urllib2.urlopen(url, timeout=10)
         data = rsp.read()
         commitLog = BeautifulSoup(data, "html.parser") 
         rsp.close()
     except (httplib.BadStatusLine, urllib2.HTTPError, urllib2.URLError) as e:
-        logger.warning("Warning: {0} query github at {1}".format(e, commitHistory["url"]))
+        logger.warning("Warning: {0} query github at {1}".format(e, url))
     except socket.timeout: 
-        logger.warning("Github request timeout {0}".format(commitHistory["url"]))
+        logger.warning("Github request timeout {0}".format(url))
 
     return commitLog
 
 
 def github_get_commit_log(dashbrd, repo, commitId):
-    changelog = {}
+    commitLog = {}
     githubUrl = dashbrd.getGithubUrl()
     url = githubUrl+"{0}/commit/{1}".format(repo, commitId)
 
+    # Need alternate method
+    if repo in projWhitelist:
+        return commitLog
+ 
     log = github_fetch_commit(url)
     if log is not None:
-        return changelog
+        commitLog["desc"] = log.find("div", {"class": "commit-desc"}).text.strip()
+        title = log.find("div", {"class": "commit"}).text.strip()
+        title = title.split("\n")
+        commitLog["title"] = title[2].lstrip()
 
-    for td in log.findAll("div", {"class": "commit-desc"}):
-        for span in td.findAll("span", {"class": "blob-code-inner"}):
-            if "project" == span.find("span", {"class": "pl-ent"}).text.strip():
-                for val in span.findAll("span", {"class": "pl-s"}):
-                    val = val.text.strip()
-                    if "master" not in val:
-                        values.append(val)
+    logger.debug("{0}".format(commitLog))
+
+    return commitLog
     
 
 def github_get_manifest_changes(url, manifestSHA):
-    # changetSet : [ 
+    # changeSet : [ 
     #    {
     #        "repo" : "",
     #        "commitId" : "" 
