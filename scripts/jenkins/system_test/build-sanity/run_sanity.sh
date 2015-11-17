@@ -126,9 +126,14 @@ if [ "$install_only" = "yes" ]; then
   exit 0
 fi
 
+EXTRA_PARAMS=""
+if [ -n "${EXTRA_TEST_PARAMS}" ]; then
+    EXTRA_PARAMS=",${EXTRA_TEST_PARAMS}"
+fi
+
 echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True"
 if [ "$DISTRO" = "macos" ]; then
     python testrunner.py -i node_conf.ini -c $TR_CONF 
 else
-    python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=True,stop-on-failure=True
+    python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=True,stop-on-failure=True${EXTRA_PARAMS}
 fi
