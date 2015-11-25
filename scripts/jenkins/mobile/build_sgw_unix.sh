@@ -29,7 +29,7 @@ set -e
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  test_options commit_sha  [ GO_REL ]\n\n"
+    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ]\n\n"
     }
 
 if [[ "$#" < 5 ]] ; then usage ; exit 11 ; fi
@@ -47,21 +47,9 @@ BLD_NUM=${4}
 
 EDITION=${5}
 
-if [[ $6 ]]
-then
-    if [[ $6 =~ "-cpu" ]]
-    then
-        #Sample TEST_OPTIONS "-cpu 4 -race"
-        echo "setting TEST_OPTIONS to $6";
-        TEST_OPTIONS=$6;
-        if [[ $7 ]] ; then  echo "setting REPO_SHA to $7"   ; REPO_SHA=$7   ; else REPO_SHA="None"  ; fi
-        if [[ $8 ]] ; then  echo "setting GO_REL to $8"     ; GO_REL=$8     ; else GO_REL=1.4.1     ; fi
-    else
-        REPO_SHA=$6;
-        TEST_OPTIONS="None";
-        if [[ $7 ]] ; then  echo "setting GO_REL to $7"     ; GO_REL=$7     ; else GO_REL=1.4.1     ; fi
-    fi
-fi
+if [[ $6 ]] ; then  echo "setting TEST_OPTIONS to $6"   ; TEST_OPTIONS=$6   ; else TEST_OPTIONS="None"  ; fi
+if [[ $7 ]] ; then  echo "setting REPO_SHA to $7"       ; REPO_SHA=$7       ; else REPO_SHA="None"      ; fi
+if [[ $8 ]] ; then  echo "setting GO_REL to $8"         ; GO_REL=$8         ; else GO_REL=1.4.1         ; fi
 
 OS=`uname -s`
 ARCH=`uname -m`
