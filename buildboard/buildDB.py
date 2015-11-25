@@ -22,7 +22,7 @@ logger = logging.getLogger()
 class buildDB(object):
     def __init__(self, bucket):
         self.bucket = bucket
-        self.db = Bucket(bucket)
+        self.db = Bucket(bucket, lockmode=LOCKMODE_WAIT)
 
     def insert_job_history(self, job):
         #

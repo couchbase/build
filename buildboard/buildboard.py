@@ -45,7 +45,7 @@ log_file = "buildboard.log"
 
 threadPools = []
 issueLabels = ["CB", "MB", "SDK"]
-projWhitelist = ["voltron", "cbbuild"]
+projPrivate = ["voltron", "cbbuild"]
 
 # Active dashboards
 dashboardPool = []
@@ -148,7 +148,7 @@ def html_generate_buildHistory_page(name):
     soup.title.insert(0, title)
 
     # Add table
-    table = "<br><h2 style=color:#086a87>{0}</h2> <div class=build_table> <table> <tr> <td style=width:8%;> Build ID </td> <td style=width:8%;> Date </td> <td style=width:8%;> Issue ID </td> <td style=width:8%;> Module </td> <td style=width:10%;> Change List </td> <td style=width:42%;> Commit Summary </td> <td style=width:8%;> Build Result </td> <td style=width:8%;> Post Sanity </td> </table> </div>".format(name)
+    table = "<br><h2 style=color:#086a87>{0}</h2> <div class=build_table> <table> <tr> <td style=width:7%;> Build ID </td> <td style=width:8%;> Date </td> <td style=width:8%;> Issue ID </td> <td style=width:8%;> Module </td> <td style=width:9%;> Change List </td> <td style=width:10%;> Author </td> <td style=width:42%;> Commit Summary </td> <td style=width:8%;> Build Result </td> </table> </div>".format(name)
 
     chickenSoup = soup.findAll("body")
     table = BeautifulSoup(table, "html.parser")
@@ -220,7 +220,7 @@ def html_buildHistory_report(name, data):
 
     if not data["changeSet"]:
         # Top row for this build entry
-        row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td class={6}>{7}</td><td>{8}</td></tr>".format(data["buildNum"], timestamp, "NA", "NA", "NA", "NA", "NA", status, status, "NA")
+        row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td class={7}>{8}</td></tr>".format(data["buildNum"], timestamp, "NA", "NA", "NA", "NA", "NA", status, status)
         row = BeautifulSoup(row, "html.parser")
         soup.table.insert(offset, row)
     else:
@@ -234,11 +234,16 @@ def html_buildHistory_report(name, data):
             else:
                 commitTitle = "NA"
 
+            if "author" in commit:
+                commitAuthor = commit['author'].encode('ascii', 'ignore')
+            else:
+                commitAuthor = "NA"
+
             if first_row == True:
-                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td class={6}>{7}</td><td>{8}</td></tr>".format(data["buildNum"], timestamp, issueId, repo, commitSHA[:10], commitTitle[:100], status, status, "NA")
+                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td class={7}>{8}</td></tr>".format(data["buildNum"], timestamp, issueId, repo, commitSHA[:10], commitAuthor, commitTitle[:100], status, status)
                 first_row = False
             else:
-                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td></tr>".format("", "", issueId, repo, commitSHA[:10], commitTitle[:100], "", "")
+                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td></tr>".format("", "", issueId, repo, commitSHA[:10], commitAuthor, commitTitle[:100], "")
                 offset += 2
 
             row = BeautifulSoup(row, "html.parser")
@@ -358,10 +363,9 @@ def jenkins_fetch_changeSet(dashbrd, buildNum, url):
             else:
                 result["repo"] = i
                 write_data = ""
-            # Find other method
+            # Need to handle private Project 
             if "manifest" in result["repo"]: 
                 result["repo"] = u'manifest'
-#            elif "goproj" in result["repo"] or "godeps" in result["repo"]:
             else:
                 proj = result["repo"].split("/")
                 result["repo"] = proj[-1]
@@ -473,8 +477,9 @@ def jenkins_find_downstream_jobs(url, parentBldNum):
                         break
 
                 if parentBldNum == upstreamBldNum:
-                    jobList.append(build["url"])
-                    break
+                    if build["url"] is not None:
+                        jobList.append(build["url"])
+                        break
 
             # Traverse downstream
             if downstream_builds["downstreamProjects"]:
@@ -515,8 +520,9 @@ def jenkins_find_multi_build_jobs(parentBldNum, buildUrl):
             logger.debug("{0} Found Job BLD_NUM {1}".format(parentBldNum, buildNum))
 
             if buildNum == parentBldNum:
-                jobLinks.append(downstream["url"])
-                continue
+                if downstream["url"] is not None:
+                    jobLinks.append(downstream["url"])
+                    continue
             elif buildNum < parentBldNum:
                 break
 
@@ -582,13 +588,18 @@ def jenkins_fetch_buildHistory(dashbrd, parentBuildNum, jenkinsBuildNum):
         for line in issueMsg:
             for label in issueLabels:
                 if label in line or "Change-Id" in line:
-                    if "Change-Id" in line:
-                        commitHistory["issueId"] = "NA" 
-                    else:
+                    commitHistory["issueId"] = "NA" 
+                    if "Change-Id" not in line:
                         issue = line.split(":")
                         issueArray = issue[0].split(" ")
                         # Just get issue ID and get additional description from (JIRA)
-                        commitHistory["issueId"] = issueArray[0]
+                        for i in issueArray:
+                            for label in issueLabels:
+                                if label in i:
+                                    commitHistory["issueId"] = i
+                                    break
+                            if commitHistory["issueId"] != "NA":
+                                break
                         logger.debug("issueId: {0}".format(commitHistory["issueId"]))
 
                     # Get complete changeSet from Jenkins and github
@@ -602,6 +613,7 @@ def jenkins_fetch_buildHistory(dashbrd, parentBuildNum, jenkinsBuildNum):
                         commitHistory["branch"] = bldHistory["branch"]
                         commitLog = github_get_commit_log(dashbrd, commit["repo"], commit["commitId"])
                         if commitLog:
+                            commitHistory["author"] = commitLog["author"]
                             commitHistory["title"] = commitLog["title"]
                             commitHistory["desc"] = commitLog["desc"]
                         else:
@@ -712,7 +724,7 @@ def github_get_commit_log(dashbrd, repo, commitId):
     url = githubUrl+"{0}/commit/{1}".format(repo, commitId)
 
     # Need alternate method
-    if repo in projWhitelist:
+    if repo in projPrivate:
         return commitLog
  
     log = github_fetch_commit(url)
@@ -721,6 +733,14 @@ def github_get_commit_log(dashbrd, repo, commitId):
         title = log.find("div", {"class": "commit"}).text.strip()
         title = title.split("\n")
         commitLog["title"] = title[2].lstrip()
+
+        try:
+            commitLog["author"] = log.find("a", {"rel": "contributor"}).text.strip()
+        except AttributeError:
+            try:
+                commitLog["author"] = log.find("span", {"class": "user-mention"}).text.strip()
+            except AttributeError:
+                commitLog["author"] = "NA"
 
     logger.debug("{0}".format(commitLog))
 
@@ -950,7 +970,6 @@ def dashboard_handler(service, params):
     # :param service - action to perform
     #
     count = 0
-    newBuild = None
 
     dashbrd = findDashboardByName(params[0])
     logger.debug("{0}...{1}".format(service, dashbrd.getName()))
@@ -967,7 +986,7 @@ def dashboard_handler(service, params):
         return "Unknown event service" 
 
     # Spin up one monitoring daemon per dashboard
-    if newBuild or count:
+    if count:
         if dashbrd.getState() == "ready":
             dname = dashbrd.getName()
             t = findThreadByName(dname)
