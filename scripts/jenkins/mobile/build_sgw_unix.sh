@@ -17,15 +17,22 @@
 #          
 #    This script only aupports branches 1.1.0 and newer
 #
+#    ErrorCode:
+#        11 = Incorrect input parameters
+#        22 = Unsupported DISTRO
+#        33 = Unsupported OS
+#        44 = Build failed
+#        55 = Unit test failed
+#
 set -e
 
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ]\n\n"
+    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  test_options commit_sha  [ GO_REL ]\n\n"
     }
 
-if [[ "$#" < 5 ]] ; then usage ; exit 99 ; fi
+if [[ "$#" < 5 ]] ; then usage ; exit 11 ; fi
 
 # enable nocasematch
 shopt -s nocasematch
@@ -40,11 +47,24 @@ BLD_NUM=${4}
 
 EDITION=${5}
 
-REPO_SHA=${6}
+if [[ $6 ]]
+then
+    if [[ $6 =~ "-cpu" ]]
+    then
+        #Sample TEST_OPTIONS "-cpu 4 -race"
+        echo "setting TEST_OPTIONS to $6";
+        TEST_OPTIONS=$6;
+        if [[ $7 ]] ; then  echo "setting REPO_SHA to $7"   ; REPO_SHA=$7   ; else REPO_SHA="None"  ; fi
+        if [[ $8 ]] ; then  echo "setting GO_REL to $8"     ; GO_REL=$8     ; else GO_REL=1.4.1     ; fi
+    else
+        REPO_SHA=$6;
+        TEST_OPTIONS="None";
+        if [[ $7 ]] ; then  echo "setting GO_REL to $7"     ; GO_REL=$7     ; else GO_REL=1.4.1     ; fi
+    fi
+fi
 
-if [[ $7 ]] ; then  echo "setting GO_REL to $GO_REL"    ; GO_REL=$6 ; else GO_REL=1.4.1      ; fi
-if [[ $8 ]] ; then  echo "setting OS     to $OS"        ; OS=$7     ; else OS=`uname -s`     ; fi
-if [[ $9 ]] ; then  echo "setting ARCH   to $ARCH"      ; ARCH=$8   ; else ARCH=`uname -m`   ; fi
+OS=`uname -s`
+ARCH=`uname -m`
 
 export GITSPEC ; export DISTRO ; export VERSION ; export BLD_NUM ; export EDITION
 export OS ; export ARCH
@@ -87,7 +107,7 @@ then
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
-    exit 77
+    exit 22
 fi
 
 if [[ $OS =~ Linux  ]]
@@ -101,7 +121,7 @@ then
     PKGR=package-mac.rb
 else
     echo -e "\nunsupported operating system:  $OS\n"
-    exit 666
+    exit 33
 fi
 
 export GOOS ; export EXEC
@@ -165,7 +185,7 @@ else
     BRANCH=${GITSPEC}
     git checkout --track -B ${BRANCH} origin/${BRANCH}
 fi
-if [ -z ${REPO_SHA} ]
+if [ ${REPO_SHA} == "None" ]
 then
     git pull origin ${BRANCH}
 else
@@ -231,6 +251,7 @@ if [[ -e ${SGW_DIR}/${EXEC} ]]
     echo "..............................Success! Output is: ${DEST_DIR}/${EXEC}"
   else
     echo "############################# FAIL! no such file: ${DEST_DIR}/${EXEC}"
+    exit 44
 fi
 
 echo ======== remove build meta-data ==============
@@ -241,7 +262,19 @@ done
 
 echo ======== test ================================ `date`
 echo ........................ running test.sh
-                                ./test.sh -cpu 4 -race
+if [[ ${TEST_OPTIONS} =~ "None" ]]
+then
+    ./test.sh
+else
+    ./test.sh ${TEST_OPTIONS} 
+fi
+
+test_result=$?
+if [ ${test_result} -ne "0" ]
+then
+    echo "########################### FAIL! Unit test results = ${test_result}"
+    exit 55
+fi
 
 echo ======== package =============================
 cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
