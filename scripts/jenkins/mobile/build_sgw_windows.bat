@@ -28,9 +28,11 @@ if "%EDITION%" == "" call :usage 55
 set  PLATFRM=%5
 if "%PLATFRM%" == "" call :usage 44
 
-set  REPO_SHA=%6
+:: Sample TEST_OPTIONS "-cpu 4 -race"
+set  TEST_OPTIONS=%6
+set  REPO_SHA=%7
+set  GO_RELEASE=%8
 
-set  GO_RELEASE=%7
 if not defined GO_RELEASE (
     set GO_RELEASE=1.4.1
 )
@@ -172,7 +174,7 @@ echo ................... running tests from test.sh
     cd src\github.com\couchbase\sync_gateway
     go vet     ./...
     go test -i ./...
-    go test -cpu 4 -race ./...
+    go test %TEST_OPTIONS% ./...
 
 echo ======== package =============================
 echo ".................staging files to %STAGING%" 
