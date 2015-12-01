@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+
+import os
+import xml.etree.ElementTree as ET
+import base64
+import argparse
+import re
+
+from jira import JIRA
+from manifest_util import scan_manifests
+
+"""
+Intended to run as a Gerrit trigger
+"""
+PROJECT=os.environ["GERRIT_PROJECT"]
+BRANCH=os.environ["GERRIT_BRANCH"]
+COMMIT_MSG=base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"])
+
+def check_branch_in_manifest(manifest_filename, meta):
+  """
+  Returns true if the PRODUCT/BRANCH are listed in the named manifest
+  """
+  manifest_et = ET.parse(os.path.join("./manifest", manifest_filename))
+  project_et = manifest_et.find("./project[@name='{}']".format(PROJECT))
+  if project_et is None:
+    print "project {} not found".format(PROJECT)
+    return False
+
+  # Compute the default branch for the manifest
+  default_branch = "master"
+  default_et = manifest_et.find("./default")
+  if default_et is not None:
+    default_branch = default_et.get("branch", "master")
+
+  # Pull out the branch for the given project
+  project_branch = project_et.get("revision", default_branch)
+  if project_branch != BRANCH:
+    print "project {} on branch {}, not {}".format(PROJECT, project_branch, BRANCH)
+    return False
+
+  return True
+
+def get_approved_tickets(ticket):
+  """
+  Given a Jira ticket ID, return all linked ticket IDs
+  """
+  with open("{}/.ssh/jira.pem".format(os.environ["HOME"]), "r") as key_cert_file:
+    key_cert_data = key_cert_file.read()
+  oauth_dict = {
+    "access_token": "PrxvLiICry8gkXXPHqnorpRHjBCn3V0O",
+    "access_token_secret": "kNX06aseOyJx3GnWmRH1w14UQ4o7puiV",
+    "consumer_key": "ceej-ticket-key",
+    "key_cert": key_cert_data
+  }
+  jira = JIRA({"server": "https://issues.couchbase.com"}, oauth=oauth_dict)
+  links = [link.outwardIssue.key
+    for link in jira.issue(ticket).fields.issuelinks
+    if hasattr(link, "outwardIssue")]
+  return links
+
+
+def validate_change(ticket):
+  """
+  Checks the commit message for a ticket, and verifies it with the the
+  approval ticket for the restricted manifest
+  """
+  # First ensure topic line mentions tickets, and pull them out.
+  print COMMIT_MSG
+  fix_tickets = re.findall("[A-Z]{2,5}-[0-9]{1,6}", COMMIT_MSG)
+  print fix_tickets
+  tix = get_approved_tickets(ticket)
+
+
+# Command-line args
+parser = argparse.ArgumentParser()
+parser.add_argument("-p", "--manifest-project", type=str, default="couchbase",
+                    help="Alternate github.com account for manifest")
+args = parser.parse_args()
+MANIFEST_PROJECT = args.manifest_project
+
+manifests = scan_manifests(MANIFEST_PROJECT)
+
+# Iterate through restricted manifests
+for manifest in manifests:
+  meta = manifests[manifest]
+  if meta.get("restricted"):
+    ticket = meta.get("approval_ticket")
+    if ticket is None:
+      print "no approval ticket for restricted manifest {}".format(manifest)
+      continue
+    if not check_branch_in_manifest(manifest, meta):
+      continue
+    # Ok, this proposal is to a branch in a restricted manifest - validate it
+    validate_change("MB-14772")
+

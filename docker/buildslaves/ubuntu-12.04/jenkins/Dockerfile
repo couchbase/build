@@ -75,7 +75,7 @@ RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 
 # CMake, Go and Repo.
 RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    curl -L http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
     curl https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
     cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
@@ -84,6 +84,15 @@ RUN mkdir /tmp/deploy && \
     chmod a+x /usr/local/bin/repo && \
     cd /tmp && rm -rf /tmp/deploy && \
     ccache --clear
+
+# Some Python stuff to allow use of the Jira module in scripts.
+RUN apt-get update && \
+    apt-get install -y python-pip libffi-dev && \
+    pip install oauthlib==0.7.2 && \
+    pip install --upgrade pycrypto && \
+    pip install pyopenssl ndg-httpsclient pyasn1 jira && \
+    apt-get purge -y libffi-dev && \
+    ccache --clear && rm -f /var/cache/apt/archives/*.deb
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
