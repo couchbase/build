@@ -27,11 +27,13 @@ if os.path.exists(state_filename):
 else:
   check_states = {}
 
-# Iterate through the manifests, and find the first one that hasn't been
-# checked in at least 'interval' minutes.
+# Iterate through the manifests, and find the first one that isn't inactive
+# and hasn't been checked in at least 'interval' minutes.
 manifests = scan_manifests(MANIFEST_PROJECT)
 results = {}
 for manifest in manifests:
+  if manifests[manifest].get("inactive", False):
+    continue
   interval = manifests[manifest].get("interval", 240)
   if manifest not in check_states:
     check_states[manifest] = 0L

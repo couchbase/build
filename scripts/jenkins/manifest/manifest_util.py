@@ -12,7 +12,7 @@ def remember_cwd():
 def scan_manifests(manifest_repo = "couchbase"):
   """
   Syncs to the "manifest" project from the given repository, and
-  returns a list of metadat about all discovered manifests
+  returns a list of metadata about all discovered manifests
   """
   # Sync manifest project
   if not os.path.isdir("manifest"):
@@ -47,10 +47,12 @@ def scan_manifests(manifest_repo = "couchbase"):
         if filename[-4:] == ".xml":
           # If this manifest is listed in a product-config.json, it will have
           # already been read since we're doing a top-down walk. So if we don't
-          # find it here, initialize it with an empty dict.
+          # find it here, initialize it with a dict that marks it "inactive".
+          # QQQ it should only assume manifests are inactive if there is NO
+          # product-config.json for the current project.
           full_filename = os.path.join(root, filename)[2:]
           if full_filename not in manifests:
-            manifests[full_filename] = {}
+            manifests[full_filename] = { "inactive": True }
 
   return manifests
 
