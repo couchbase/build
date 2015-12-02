@@ -106,6 +106,11 @@ RUN mkdir /tmp/deploy && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
     rm -fr /tmp/deploy
 
+# paramiko for testrunner
+RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm && \
+    yum install -y python-pip && \
+    pip install paramiko
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh
