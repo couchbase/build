@@ -61,7 +61,10 @@ output = check_output(
      "--publish={0}:22".format(port),
      "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
      "--volume=/etc/resolv.conf:/etc/resolv.conf",
+     "--volume=/etc/localtime:/etc/localtime",
+     "--volume=/etc/timezone:/etc/timezone",
      "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
+     "--volume=/home/couchbase/latestbuilds:/latestbuilds",
      image])
 print "Result: {0}".format(output)
 
