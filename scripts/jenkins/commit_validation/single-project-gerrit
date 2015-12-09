@@ -152,7 +152,7 @@ EOF
         oldfiles=`find . -name "memcheck.*.xml"`
         if [ -n "${oldfiles}" ]; then
             echo_cmd rm -f ${oldfiles}
-        if
+        fi
         echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}"
         # As part our test execution we run system commands which
         # unfortunately have leaks themselves
