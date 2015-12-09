@@ -32,7 +32,11 @@ else:
 manifests = scan_manifests(MANIFEST_PROJECT)
 results = {}
 for manifest in manifests:
+  # Skip manifests marked "inactive"
   if manifests[manifest].get("inactive", False):
+    continue
+  # Skip manifests explicitly marked "do-build=False"
+  if not manifests[manifest].get("do-build", True):
     continue
   interval = manifests[manifest].get("interval", 240)
   if manifest not in check_states:

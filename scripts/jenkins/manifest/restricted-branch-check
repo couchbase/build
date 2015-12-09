@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 import xml.etree.ElementTree as ET
 import base64
 import argparse
@@ -20,6 +21,7 @@ def check_branch_in_manifest(manifest_filename, meta):
   """
   Returns true if the PRODUCT/BRANCH are listed in the named manifest
   """
+  print "Checking manifest {}".format(manifest_filename)
   manifest_et = ET.parse(os.path.join("./manifest", manifest_filename))
   project_et = manifest_et.find("./project[@name='{}']".format(PROJECT))
   if project_et is None:
@@ -65,11 +67,17 @@ def validate_change(ticket):
   approval ticket for the restricted manifest
   """
   # First ensure topic line mentions tickets, and pull them out.
-  print COMMIT_MSG
   fix_tickets = re.findall("[A-Z]{2,5}-[0-9]{1,6}", COMMIT_MSG)
-  print fix_tickets
-  tix = get_approved_tickets(ticket)
-
+  approved_tickets = get_approved_tickets(ticket)
+  if len(approved_tickets) == 0:
+    print "ERROR: commit message does not name a ticket!"
+    return False
+  for tick in fix_tickets:
+    if not tick in approved_tickets:
+      print "ERROR: ticket {} is not approved (see approval ticket {})".format(
+        tick, ticket)
+      return False
+  return True
 
 # Command-line args
 parser = argparse.ArgumentParser()
@@ -91,5 +99,9 @@ for manifest in manifests:
     if not check_branch_in_manifest(manifest, meta):
       continue
     # Ok, this proposal is to a branch in a restricted manifest - validate it
-    validate_change("MB-14772")
+    print "Project: {} Branch: {} is in restricted manifest: {}".format(
+      PROJECT, BRANCH, manifest)
+    if not validate_change(ticket):
+      sys.exit(5)
+
 
