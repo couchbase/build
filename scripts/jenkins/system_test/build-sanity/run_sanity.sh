@@ -127,9 +127,9 @@ if [ "$install_only" = "yes" ]; then
 fi
 
 EXTRA_PARAMS=""
-if [ "$DISTRO" != "win64" ]; then
-    EXTRA_PARAMS=",stop-on-failure=True"
-fi
+#if [ "$DISTRO" != "win64" ]; then
+#    EXTRA_PARAMS=",stop-on-failure=True"
+#fi
 
 if [ -n "${EXTRA_TEST_PARAMS}" ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS},${EXTRA_TEST_PARAMS}"
