@@ -117,6 +117,9 @@ fi
 if [ "$DISTRO" != "win64" ]; then
     PARAMS="${PARAMS},parallel=True"
 fi
+if [ -n "${EXTRA_INSTALL_PARAMS}" ]; then
+    EXTRA_PARAMS="${PARAMS},${EXTRA_INSTALL_PARAMS}"
+fi
 
 echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
 COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS
