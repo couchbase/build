@@ -38,7 +38,9 @@ _PLATFORM_PREFIX = {
 _BUILD_NUMBER_RANGE = {
     '4.0.0' : (4000, 4500),
     '4.1.0' : (4500, 5449),
+    '4.1.0' : (5500, 10000),
     '4.5.0' : (0, 10000),
+    '4.7.0' : (1, 10000),
 }
 
 def check_if_file_exists(url):
@@ -58,7 +60,7 @@ class Builds():
 
         self.supported_platforms = _PLATFORM_PREFIX.keys()
 
-        if version.startswith('4.0') or version.startswith('4.1'):
+        if version.startswith('4.0') or version.startswith('4.1') or version.startswith('4.2'):
             code_name = 'sherlock'
             jenkins_url = _FACTORY
             build_job = 'sherlock-build'
@@ -66,6 +68,11 @@ class Builds():
             code_name = 'watson'
             jenkins_url = _SERV_JENKINS
             build_job = 'watson-build'
+        elif version.startswith('4.7'):
+            self.supported_platforms = ['centos7']
+            code_name = 'spock'
+            jenkins_url = _SERV_JENKINS
+            build_job = 'couchbase-server-unix'
 
         self.file_server = 'http://172.23.120.24/builds/latestbuilds/couchbase-server/' + code_name
         self.build_history_url = jenkins_url + '/job/' + build_job + '/api/json?tree=builds[number]'
@@ -141,7 +148,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     rel_code_name = ''
-    if not options.version[:3] in ['4.0', '4.1', '4.5']:
+    if not options.version[:3] in ['4.0', '4.1', '4.2', '4.5', '4.7']:
         print 'Unsupported version %s' %options.version
         sys.exit(1)
 
