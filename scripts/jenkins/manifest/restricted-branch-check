@@ -69,7 +69,7 @@ def validate_change(ticket):
   # First ensure topic line mentions tickets, and pull them out.
   fix_tickets = re.findall("[A-Z]{2,5}-[0-9]{1,6}", COMMIT_MSG)
   if len(fix_tickets) == 0:
-    print "ERROR: commit message does not name a ticket!"
+    print "\n\n\n\n\n*********\nERROR: commit message does not name a ticket!"
     return False
 
   # Now get list of approved tickets from master ticket, and ensure
@@ -77,7 +77,7 @@ def validate_change(ticket):
   approved_tickets = get_approved_tickets(ticket)
   for tick in fix_tickets:
     if not tick in approved_tickets:
-      print "ERROR: ticket {} is not approved (see approval ticket {})".format(
+      print "\n\n\n\n\n*********\nERROR: ticket {} is not approved (see approval ticket {})".format(
         tick, ticket)
       return False
   return True
