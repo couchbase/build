@@ -156,17 +156,23 @@ build_manifest_dir = os.path.dirname(build_manifest_filename)
 if not os.path.isdir(build_manifest_dir):
   os.makedirs(build_manifest_dir)
 
-# Create the new build manifest and insert BLD_NUM
+# Create the new build manifest and insert all variables
+def insert_child_annot(parent, name, value):
+  annot = ET.Element("annotation")
+  annot.set("name", name)
+  annot.set("value", value)
+  annot.tail = "\n    "
+  parent.insert(0, annot)
+
 print "Updating build manifest {}".format(build_manifest_filename)
 with open(build_manifest_filename, "w") as f:
   check_call(["repo", "manifest", "-r"], stdout=f)
 last_build_manifest = ET.parse(build_manifest_filename)
 build_element = last_build_manifest.find("./project[@name='build']")
-last_build_num_annot = ET.Element("annotation")
-last_build_num_annot.set("name", "BLD_NUM")
-last_build_num_annot.set("value", str(BLD_NUM))
-last_build_num_annot.tail = "\n    "
-build_element.insert(0, last_build_num_annot)
+insert_child_annot(build_element, "BLD_NUM", str(BLD_NUM))
+insert_child_annot(build_element, "PRODUCT", PRODUCT)
+insert_child_annot(build_element, "PRODUCT_BRANCH", PRODUCT_BRANCH)
+insert_child_annot(build_element, "RELEASE", RELEASE)
 last_build_manifest.write(build_manifest_filename)
 
 # Compute the commit message - dates in python are a bit hard

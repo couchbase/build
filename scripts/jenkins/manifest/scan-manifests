@@ -38,6 +38,9 @@ for manifest in manifests:
   # Skip manifests explicitly marked "do-build=False"
   if not manifests[manifest].get("do-build", True):
     continue
+  # Skip toy manifests
+  if manifests[manifest].get("type", "production") == "toy":
+    continue
   interval = manifests[manifest].get("interval", 240)
   if manifest not in check_states:
     check_states[manifest] = 0L
