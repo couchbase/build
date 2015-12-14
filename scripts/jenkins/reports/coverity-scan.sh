@@ -74,7 +74,7 @@ echo
 echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 echo Upload scan to Coverity...
 echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-datestamp=`date ++%Y-%m-%d`
+datestamp=`date +%Y-%m-%d`
 curl --form token="${TOKEN}" \
   --form email="ceej+github@lambda.nu" \
   --form file="@../couchbase-build.tgz" \
