@@ -52,13 +52,14 @@ def scan_manifests(manifest_repo = "couchbase"):
           # product-config.json for the current project.
           full_filename = os.path.join(root, filename)[2:]
           if full_filename not in manifests:
-            if root.endswith("toys"):
-              type = "toy"
-            elif root.endswith("features"):
-              type = "feature"
-            else:
-              type = "production"
             manifests[full_filename] = { "inactive": True, "type": type }
+          if not "type" in manifests[full_filename]:
+            if root.endswith("toys"):
+              manifests[full_filename]["type"] = "toy"
+            elif root.endswith("features"):
+              manifests[full_filename]["type"] = "feature"
+            else:
+              manifests[full_filename]["type"] = "production"
 
   return manifests
 

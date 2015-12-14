@@ -73,7 +73,7 @@ if RELEASE is None:
   RELEASE, _ = os.path.splitext(MANIFEST_PATH)
 PRODUCT_BRANCH = manifest_config.get("branch", "master")
 START_BUILD = int(manifest_config.get("start_build", "1"))
-PRODUCTION = manifest_config.get("production", False)
+TYPE = manifest_config.get("type", "production")
 PARENT = manifest_config.get("parent")
 if PARENT is not None:
   PARENT_BRANCH = manifests[PARENT].get("branch", "master")
@@ -207,7 +207,7 @@ properties = {
   "BLD_NUM": BLD_NUM,
   "MANIFEST": MANIFEST,
   "PARENT": PARENT,
-  "PRODUCTION": PRODUCTION,
+  "TYPE": TYPE,
   "FORCE": force
 }
 with open("build-properties.json", "w") as prop:
