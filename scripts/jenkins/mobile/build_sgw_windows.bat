@@ -29,12 +29,17 @@ set  PLATFRM=%5
 if "%PLATFRM%" == "" call :usage 44
 
 :: Sample TEST_OPTIONS "-cpu 4 -race"
-set  TEST_OPTIONS=%6
+if "%6" == "None" (
+    set  TEST_OPTIONS=""
+) else (
+    set  TEST_OPTIONS=%6
+)
+
 set  REPO_SHA=%7
 set  GO_RELEASE=%8
 
 if not defined GO_RELEASE (
-    set GO_RELEASE=1.4.1
+    set GO_RELEASE=1.5.2
 )
 
 set VERSION=%REL_VER%-%BLD_NUM%
@@ -107,7 +112,7 @@ if "%GITSPEC%" == "0.0.0" (
     set BRANCH=%GITSPEC%
     git checkout %BRANCH%
 )
-if not defined REPO_SHA (
+if "%REPO_SHA%" == "None" (
     git pull origin %BRANCH%
 ) else (
     git checkout %REPO_SHA%
@@ -157,6 +162,10 @@ mkdir %DEST_DIR%
 set GOPATH=%SGW_DIR%;%SGW_DIR%\vendor
 set CGO_ENABLED=1
 echo GOOS=%GOOS% GOARCH=%GOARCH%
+
+:: Clean up stale objects before switching GO version
+if EXIST %SGW_DIR%\pkg           rmdir %SGW_DIR%\pkg
+
 go build -v github.com\couchbase\sync_gateway
 
 if NOT EXIST %SGW_DIR%\%EXEC% (
