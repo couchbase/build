@@ -49,7 +49,7 @@ EDITION=${5}
 
 if [[ $6 ]] ; then  echo "setting TEST_OPTIONS to $6"   ; TEST_OPTIONS=$6   ; else TEST_OPTIONS="None"  ; fi
 if [[ $7 ]] ; then  echo "setting REPO_SHA to $7"       ; REPO_SHA=$7       ; else REPO_SHA="None"      ; fi
-if [[ $8 ]] ; then  echo "setting GO_REL to $8"         ; GO_REL=$8         ; else GO_REL=1.4.1         ; fi
+if [[ $8 ]] ; then  echo "setting GO_REL to $8"         ; GO_REL=$8         ; else GO_REL=1.5.2         ; fi
 
 OS=`uname -s`
 ARCH=`uname -m`
