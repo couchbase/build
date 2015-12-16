@@ -1,0 +1,106 @@
+#!/bin/bash
+#
+# Common script run by various Jenkins builds to run Clang Static
+# Analyzer on a project.
+
+# Checks out the changeset specified by
+# (GERRIT_PROJECT,GERRIT_REFSPEC) from Gerrit server
+# GERRIT_HOST:GERRIT_PORT then builds (GERRIT_PROJECT) with Clang
+# Static Analyzer.
+#
+# Triggered on patchset creation in a project's repo.
+
+if [ -z "$GERRIT_HOST" ]; then
+    echo "Error: Required environment variable 'GERRIT_HOST' not set."
+    exit 1
+fi
+if [ -z "$GERRIT_PORT" ]; then
+    echo "Error: Required environment variable 'GERRIT_PORT' not set."
+    exit 2
+fi
+if [ -z "$GERRIT_PROJECT" ]; then
+    echo "Error: Required environment variable 'GERRIT_PROJECT' not set."
+    exit 3
+fi
+if [ -z "$GERRIT_REFSPEC" ]; then
+    echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
+    exit 4
+fi
+
+# Optional env vars - how many jobs to run in parallel by default?
+PARALLELISM="${PARALLELISM:-8}"
+
+BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
+
+set -e
+
+function echo_cmd {
+    echo \# "$@"
+    "$@"
+}
+
+cat <<EOF
+
+============================================
+===    environment                       ===
+============================================
+EOF
+ulimit -a
+echo ""
+env | grep -iv password | grep -iv passwd | sort
+
+cat <<EOF
+
+============================================
+===    clean                             ===
+============================================
+EOF
+echo_cmd make clean-xfd-hard
+
+cat <<EOF
+
+============================================
+===    update ${GERRIT_PROJECT}          ===
+============================================
+EOF
+
+# there are components (eg build) that don't get checked out
+# to the directory by the same name. Figure out the checkout
+# dir using repo (CBD-1587)
+checkout_dir=$(repo forall ${GERRIT_PROJECT} -c 'basename $PWD')
+pushd ${checkout_dir} 2>&1 > /dev/null
+echo_cmd git fetch ssh://${GERRIT_HOST}:${GERRIT_PORT}/${GERRIT_PROJECT} $GERRIT_REFSPEC
+echo_cmd git checkout --force FETCH_HEAD
+popd 2>&1 > /dev/null
+
+cat <<EOF
+
+============================================
+===  Build ${GERRIT_PROJECT} under Clang Static Analyzer   ===
+============================================
+EOF
+# Can't use ccache with clang analyzer - see
+# https://llvm.org/bugs/show_bug.cgi?id=25851
+CMAKE_ARGS="${CMAKE_ARGS} -DCOUCHBASE_DISABLE_CCACHE=1"
+
+REPORT_DIR="$(pwd)/clangScanBuildReports"
+SCAN_BUILD_ARGS="--use-analyzer=$(which clang-3.6) -o ${REPORT_DIR}"
+
+# We only want to build the Gerrit project under test,
+# as we only want issues which are related to that project,
+# and there doesn't appear to be a way to cull the results to a specific
+# pattern / sub-directory.
+# Therefore run cmake to generate all the makefiles, then just
+# run make in the specific sub-directory.
+mkdir -p build
+cd build
+echo_cmd scan-build-3.6 ${SCAN_BUILD_ARGS} \
+         cmake .. ${CMAKE_ARGS}
+
+# The CMake configure step leaves an analyzer output run which
+# confuses the Jenkins scan-build plugin. Clean out the directory
+# before starting the actual build so we end up with just one report.
+echo_cmd rm -fr ${REPORT_DIR}/*
+
+echo_cmd scan-build-3.6 ${SCAN_BUILD_ARGS} \
+         make -C ${GERRIT_PROJECT} -j${PARALLELISM}
