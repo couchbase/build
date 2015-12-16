@@ -129,12 +129,18 @@ GOPLAT=${GOOS}-${GOARCH}
 GO_RELEASE=${GO_REL}
 if [ -d /usr/local/go/${GO_RELEASE} ]
 then
-    GOROOT=/usr/local/go/${GO_RELEASE}
+    GOROOT=/usr/local/go/${GO_RELEASE}/go
+else
+    echo -e "\nNeed to specify correct GOLANG version: 1.4.1 or 1.5.2\n"
+    exit 1
 fi
 
 PATH=${PATH}:${GOROOT}/bin
 
 export GO_RELEASE ; export GOROOT ; export PATH
+
+echo "Running GO version ${GO_RELEASE}"
+go version
 
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
@@ -227,6 +233,12 @@ sleep ${STARTUP_DELAY}
 echo ======== D O N E   S L E E P ================= `date`
 
 # ... caused by all builders running at once
+
+# clean up stale objects switching between GO version
+if [[ -d ${SGW_DIR}/pkg ]]
+then
+    rm -rf ${SGW_DIR}/pkg
+fi
 
 #
 # Does not support releases 1.0.4 and older due to move from couchbaselab to couchbase

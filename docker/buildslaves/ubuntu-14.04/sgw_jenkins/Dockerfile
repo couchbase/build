@@ -24,16 +24,24 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
 # Install Couchbase build dependencies
 RUN apt-get install -y ccache g++ git-core tar libssl-dev ruby rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
     rm -f /var/cache/apt/archives/*.deb
+RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN ln -s /usr/bin/nodejs /usr/sbin/node
+RUN ln -s /usr/bin/nodejs /usr/local/bin/node
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
-RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
-    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    curl https://storage.googleapis.com/golang/go1.4.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
-    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
-    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
-    curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
+#RUN mkdir /tmp/deploy && \
+#    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+#    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo && \
     cd /tmp && rm -rf /tmp/deploy
+
+# golang
+RUN mkdir -p /usr/local/go/1.4.1 && cd /usr/local/go/1.4.1 && \
+    curl https://storage.googleapis.com/golang/go1.4.1.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz && \
+    mkdir /usr/local/go/1.5.2 && cd /usr/local/go/1.5.2 && \
+    curl https://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz
 
 # Install third-party build dependencies. Note: software-properties-common
 # is only required for add-apt-repository; add-apt-repository is only
@@ -60,6 +68,9 @@ RUN mkdir /tmp/deploy && \
 # JDK for Jenkins.
 RUN apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
+
+# Force UTF-8 support, since it seems to fail to update properly at times
+RUN locale-gen en_US en_US.UTF-8 hu_HU hu_HU.UTF-8 && dpkg-reconfigure locales
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22

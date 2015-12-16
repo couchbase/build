@@ -1,5 +1,7 @@
 #!/bin/sh
 
+TAG=20151210
+
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
-docker build -t ceejatec/centos-65-sgw-build .
+docker build -t ceejatec/centos-65-sgw-build:$TAG .
