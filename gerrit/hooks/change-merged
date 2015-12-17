@@ -236,6 +236,9 @@ case $project in
     blance)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    query-ui)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
