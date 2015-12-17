@@ -92,6 +92,7 @@ MANIFEST_PROJECT = args.manifest_project
 manifests = scan_manifests(MANIFEST_PROJECT)
 
 # Iterate through restricted manifests
+is_restricted = False
 for manifest in manifests:
   meta = manifests[manifest]
   if meta.get("restricted"):
@@ -102,9 +103,13 @@ for manifest in manifests:
     if not check_branch_in_manifest(manifest, meta):
       continue
     # Ok, this proposal is to a branch in a restricted manifest - validate it
+    is_restricted = True
     print "Project: {} Branch: {} is in restricted manifest: {}".format(
       PROJECT, BRANCH, manifest)
     if not validate_change(ticket):
       sys.exit(5)
 
+# Output "all clear" message if no restricted branches were checked
+if not is_restricted:
+  print "*********\nUNRESTRICTED: Branch is in no restricted manifests"
 
