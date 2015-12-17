@@ -67,7 +67,8 @@ def validate_change(ticket):
   approval ticket for the restricted manifest
   """
   # First ensure topic line mentions tickets, and pull them out.
-  fix_tickets = re.findall("[A-Z]{2,5}-[0-9]{1,6}", COMMIT_MSG)
+  topic = COMMIT_MSG.split('\n', 1)[0]
+  fix_tickets = re.findall("[A-Z]{2,5}-[0-9]{1,6}", topic)
   if len(fix_tickets) == 0:
     print "\n\n\n\n\n*********\nERROR: commit message does not name a ticket!"
     return False
