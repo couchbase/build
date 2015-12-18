@@ -29,12 +29,7 @@ set  PLATFRM=%5
 if "%PLATFRM%" == "" call :usage 44
 
 :: Sample TEST_OPTIONS "-cpu 4 -race"
-if "%6" == "None" (
-    set  TEST_OPTIONS=""
-) else (
-    set  TEST_OPTIONS=%6
-)
-
+set  TEST_OPTIONS=%6
 set  REPO_SHA=%7
 set  GO_RELEASE=%8
 
@@ -77,7 +72,7 @@ set PKGTYPE=exe
 set PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
 set NEW_PKG_NAME=couchbase-sync-gateway-%EDITION%_%VERSION%_%PARCH%.%PKGTYPE%
 
-set GOROOT=c:\usr\local\go\%GO_RELEASE%
+set GOROOT=c:\usr\local\go\%GO_RELEASE%\go
 set PATH=%PATH%;%GOROOT%\bin\
 
 set
@@ -164,7 +159,7 @@ set CGO_ENABLED=1
 echo GOOS=%GOOS% GOARCH=%GOARCH%
 
 :: Clean up stale objects before switching GO version
-if EXIST %SGW_DIR%\pkg           rmdir %SGW_DIR%\pkg
+if EXIST %SGW_DIR%\pkg           rmdir /s/q %SGW_DIR%\pkg
 
 go build -v github.com\couchbase\sync_gateway
 
@@ -183,7 +178,12 @@ echo ................... running tests from test.sh
     cd src\github.com\couchbase\sync_gateway
     go vet     ./...
     go test -i ./...
+
+if "%TEST_OPTIONS%" == "None" (
+    go test ./...
+) else (
     go test %TEST_OPTIONS% ./...
+)
 
 echo ======== package =============================
 echo ".................staging files to %STAGING%" 
