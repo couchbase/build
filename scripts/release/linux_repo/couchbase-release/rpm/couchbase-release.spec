@@ -7,7 +7,7 @@ Group:          System Environment/Base
 License:        Apache
 URL:            http://www.couchbase.com
 Source0:        GPG-KEY-COUCHBASE-1.0
-Source1:        couchbase.repo
+Source1:        couchbase-Base.repo
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -38,9 +38,9 @@ rm -rf $RPM_BUILD_ROOT
 %post
 if grep -q -i "release 6" /etc/redhat-release >/dev/null 2>&1
 then
-  sed -e "s/%VERSION%/6.2/g" -i /etc/yum.repos.d/couchbase.repo
+  sed -e "s/%VERSION%/6.2/g" -i /etc/yum.repos.d/couchbase-Base.repo
 else
-  sed -e "s/%VERSION%/\$releasever/g" -i /etc/yum.repos.d/couchbase.repo
+  sed -e "s/%VERSION%/\$releasever/g" -i /etc/yum.repos.d/couchbase-Base.repo
 fi
 
 %postun
