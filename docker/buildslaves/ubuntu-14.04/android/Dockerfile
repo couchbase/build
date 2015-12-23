@@ -35,8 +35,6 @@ RUN ln -s /usr/bin/nodejs /usr/sbin/node
 RUN ln -s /usr/bin/nodejs /usr/local/bin/node
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
-    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
     curl https://storage.googleapis.com/golang/go1.4.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
     cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
@@ -48,7 +46,7 @@ RUN mkdir /tmp/deploy && \
 RUN npm xmlbuilder
 RUN npm findit
 RUN npm ncp
-RUN apt-get install zip
+RUN echo yes | apt-get install zip
 
 # JDK for Jenkins.
 RUN apt-get install -y openjdk-7-jdk maven unzip && \
@@ -71,6 +69,10 @@ RUN mkdir -p /home/couchbase/jenkins/tools && \
     chmod 755 android-sdk
 
 RUN . /etc/profile && \
+    echo yes | android update sdk --filter platform-tools,android-19,extra --no-ui --force --all && \
+    filter=`android list sdk --all | grep Build-tools | grep 19.1 | awk '{ print $1 }' | tr -d -` && \
+    echo yes | android update sdk --filter $filter --no-ui --force --all && \
+    echo yes | android update sdk --filter sys-img-armeabi-v7a-android-19 --no-ui --force --all && \
     echo yes | android update sdk --filter platform-tools,android-22,extra --no-ui --force --all && \
     filter=`android list sdk --all | grep Build-tools | grep 22.0.1 | awk '{ print $1 }' | tr -d -` && \
     echo yes | android update sdk --filter $filter --no-ui --force --all && \
