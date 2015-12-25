@@ -97,13 +97,12 @@ EOF
 # there are components (eg build) that don't get checked out
 # to the directory by the same name. Figure out the checkout
 # dir using repo (CBD-1587)
-checkout_dir=$(repo forall ${GERRIT_PROJECT} -c 'basename $PWD')
 repo_path=$(repo forall ${GERRIT_PROJECT} -c 'echo $REPO_PATH')
 if echo $repo_path | grep -q -E ^'goproj|godeps'; then
     GOPROJECT="true"
 fi
 
-pushd ${checkout_dir} 2>&1 > /dev/null
+pushd ${repo_path} 2>&1 > /dev/null
 echo_cmd git fetch ssh://${GERRIT_HOST}:${GERRIT_PORT}/${GERRIT_PROJECT} $GERRIT_REFSPEC
 echo_cmd git checkout --force FETCH_HEAD
 popd 2>&1 > /dev/null
@@ -130,7 +129,7 @@ trap deferred_error_handler ERR
 
 if [ -n "$GOPROJECT" ]
 then
-    pushd ${checkout_dir}
+    pushd ${repo_path}
     eval "${ENV_VARS} go build"
     eval "go vet"
     eval "${ENV_VARS} go test -v"
