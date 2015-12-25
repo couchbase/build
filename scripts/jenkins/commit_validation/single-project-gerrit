@@ -98,6 +98,11 @@ EOF
 # to the directory by the same name. Figure out the checkout
 # dir using repo (CBD-1587)
 checkout_dir=$(repo forall ${GERRIT_PROJECT} -c 'basename $PWD')
+repo_path=$(repo forall ${GERRIT_PROJECT} -c 'echo $REPO_PATH')
+if echo $repo_path | grep -q -E ^'goproj|godeps'; then
+    GOPROJECT="true"
+fi
+
 pushd ${checkout_dir} 2>&1 > /dev/null
 echo_cmd git fetch ssh://${GERRIT_HOST}:${GERRIT_PORT}/${GERRIT_PROJECT} $GERRIT_REFSPEC
 echo_cmd git checkout --force FETCH_HEAD
@@ -123,7 +128,14 @@ echo_cmd ccache -s
 # Manditory steps complete, install the deferred error handler.
 trap deferred_error_handler ERR
 
-if [ -f build/${GERRIT_PROJECT}/Makefile ]
+if [ -n "$GOPROJECT" ]
+then
+    pushd ${checkout_dir}
+    eval "${ENV_VARS} go build"
+    eval "go vet"
+    eval "${ENV_VARS} go test -v"
+    popd
+elif [ -f build/${GERRIT_PROJECT}/Makefile ]
 then
     cat <<EOF
 
@@ -168,7 +180,8 @@ else
     cat <<EOF
 
 ============================================
-===    No ${GERRIT_PROJECT} Makefile - skipping unit tests
+===  ${GERRIT_PROJECT} is not a Go project. It also doesn't have a Makefile.
+===  Skipping Unit tests.
 ============================================
 EOF
 fi
