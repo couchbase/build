@@ -239,6 +239,9 @@ case $project in
     query-ui)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    go_n1ql)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
