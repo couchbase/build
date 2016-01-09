@@ -156,7 +156,6 @@ go version
 env | grep -iv password | grep -iv passwd | sort -u
 echo ============================================== `date`
 
-WORKSPACE=/home/couchbase/jenkins/workspace/sync-gateway-unix-builds
 TARGET_DIR=${WORKSPACE}/${GITSPEC}/${EDITION}
 LIC_DIR=${TARGET_DIR}/build/license/sync_gateway
 AUT_DIR=${TARGET_DIR}/app-under-test
