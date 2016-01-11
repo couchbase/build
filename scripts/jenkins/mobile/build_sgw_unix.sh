@@ -22,7 +22,7 @@
 #        22 = Unsupported DISTRO
 #        33 = Unsupported OS
 #        44 = Build sync_gateway failed
-#        45 = Build index_writer failed
+#        45 = Build sg_accel failed
 #        55 = Unit test failed
 #
 set -e
@@ -69,8 +69,8 @@ ARCHP=${ARCH}
 PARCH=${ARCHP}
 
 EXEC=sync_gateway
-ACCEL_EXEC=index_writer
-ACCEL_NEW_EXEC=sg-accel
+ACCEL_EXEC=sg_accel
+ACCEL_NAME=sg-accel
 
 if [[ $DISTRO =~ centos  ]]
 then
@@ -82,9 +82,9 @@ then
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
     TAR_PKG_NAME=couchbase-sync-gateway-centos_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
-    ACCEL_PKG_NAME=couchbase-${ACCEL_NEW_EXEC}_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
-    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NEW_EXEC}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    ACCEL_TAR_PKG_NAME=couchbase-${ACCEL_NEW_EXEC}-centos_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
+    ACCEL_PKG_NAME=couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
+    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NAME}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+    ACCEL_TAR_PKG_NAME=couchbase-${ACCEL_NAME}-centos_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 elif [[ $DISTRO =~ ubuntu  ]]
 then
     DISTRO="ubuntu"
@@ -96,16 +96,16 @@ then
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
     TAR_PKG_NAME=couchbase-sync-gateway-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
-    ACCEL_PKG_NAME=couchbase-${ACCEL_NEW_EXEC}_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
-    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NEW_EXEC}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    ACCEL_TAR_PKG_NAME=couchbase-${ACCEL_NEW_EXEC}sync-gateway-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
+    ACCEL_PKG_NAME=couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
+    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NAME}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+    ACCEL_TAR_PKG_NAME=couchbase-${ACCEL_NAME}sync-gateway-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 elif [[ $DISTRO =~ macosx  ]]
 then
     PLATFORM=${DISTRO}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
-    ACCEL_PKG_NAME=couchbase-${ACCEL_NEW_EXEC}_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
-    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NEW_EXEC}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
+    ACCEL_PKG_NAME=couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
+    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NAME}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22
@@ -265,12 +265,12 @@ if [[ -e ${SGW_DIR}/${EXEC} ]]
     exit 44
 fi
 
-GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway/index_writer
+GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway/sg_accel
 
 if [[ -e ${SGW_DIR}/${ACCEL_EXEC} ]]
   then
-    mv   ${SGW_DIR}/${ACCEL_EXEC} ${DEST_DIR}/${ACCEL_NEW_EXEC}
-    echo "..............................SG-ACCEL Success! Output is: ${DEST_DIR}/${ACCEL_NEW_EXEC}"
+    mv   ${SGW_DIR}/${ACCEL_EXEC} ${DEST_DIR}
+    echo "..............................SG-ACCEL Success! Output is: ${DEST_DIR}/${ACCEL_EXEC}"
   else
     echo "############################# SG-ACCEL FAIL! no such file: ${SGW_DIR}/${ACCEL_EXEC}"
     exit 45
@@ -320,7 +320,7 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
     cp ${TAR_PKG_NAME} ${SGW_DIR}
 fi
 
-echo ======== index_writer package =============================
+echo ======== sg_accel package =============================
 ACCEL_PREFIX=/opt/couchbase-sg-accel
 ACCEL_PREFIXP=./opt/couchbase-sg-accel
 ACCEL_STAGING=${BLD_DIR}/opt/couchbase-sg-accel
@@ -330,7 +330,7 @@ if [[ -e ${ACCEL_PREFIX}  ]] ; then sudo rm -rf ${ACCEL_PREFIX}  ; fi
 if [[ -e ${ACCEL_STAGING}  ]] ; then     rm -rf ${ACCEL_STAGING}  ; fi
 cp -rf ${STAGING} ${ACCEL_STAGING}
 
-RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NEW_EXEC}_${VERSION}-${BLD_NUM}/rpmbuild/
+RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}/rpmbuild/
 export RPM_ROOT_DIR
 
 if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
@@ -338,12 +338,12 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
     cd ${ACCEL_STAGING}
     rm -f ${TAR_PKG_NAME}
     rm -f ${ACCEL_STAGING}/bin/${EXEC}
-    cp    ${DEST_DIR}/${ACCEL_NEW_EXEC}                ${ACCEL_STAGING}/bin/
+    cp    ${DEST_DIR}/${ACCEL_EXEC}                ${ACCEL_STAGING}/bin/
 fi
 
-cd   ${BLD_DIR}   ;   ./${PKGR} ${ACCEL_PREFIX} ${ACCEL_PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP} ${ACCEL_NEW_EXEC}
+cd   ${BLD_DIR}   ;   ./${PKGR} ${ACCEL_PREFIX} ${ACCEL_PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP} ${ACCEL_NAME}
 
-echo  ======= prep upload index_writer =========
+echo  ======= prep upload sg_accel =========
 cp ${ACCEL_STAGING}/${ACCEL_PKG_NAME} ${SGW_DIR}/${ACCEL_NEW_PKG_NAME}
 
 if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
