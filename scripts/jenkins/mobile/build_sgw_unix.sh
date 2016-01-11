@@ -98,7 +98,7 @@ then
     TAR_PKG_NAME=couchbase-sync-gateway-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
     ACCEL_PKG_NAME=couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NAME}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    ACCEL_TAR_PKG_NAME=couchbase-${ACCEL_NAME}sync-gateway-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
+    ACCEL_TAR_PKG_NAME=couchbase-${ACCEL_NAME}-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 elif [[ $DISTRO =~ macosx  ]]
 then
     PLATFORM=${DISTRO}-${ARCH}
