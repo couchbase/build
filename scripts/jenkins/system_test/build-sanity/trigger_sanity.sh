@@ -54,12 +54,12 @@ elif [[ $VERSION_NUM = 4.7* ]]; then
     REL_CODE="spock"
 fi
 
-previous_build_number="1"
-if [ -f previous_build/current_build_number ]; then
-    previous_build_number=`cat previous_build/current_build_number`
+last_completed_build_num="1"
+if [ -f previous_completed_build/current_build_number ]; then
+    last_completed_build_num=`cat previous_completed_build/current_build_number`
 fi
 
-if [ "${build_number}" == "${previous_build_number}" ]; then
+if [ "${build_number}" == "${last_completed_build_num}" ]; then
     echo "No new build since last build-sanity run"
 else
 
@@ -67,13 +67,13 @@ else
 
     # create changelog
     cur_manifest="couchbase-server-${VERSION_NUM}-${build_number}-manifest.xml"
-    prev_manifest="couchbase-server-${VERSION_NUM}-${previous_build_number}-manifest.xml"
+    prev_manifest="couchbase-server-${VERSION_NUM}-${last_completed_build_num}-manifest.xml"
 
     wget http://172.23.120.24/builds/latestbuilds/couchbase-server/${REL_CODE}/${build_number}/${cur_manifest}
-    wget http://172.23.120.24/builds/latestbuilds/couchbase-server/${REL_CODE}/${previous_build_number}/${prev_manifest}
+    wget http://172.23.120.24/builds/latestbuilds/couchbase-server/${REL_CODE}/${last_completed_build_num}/${prev_manifest}
 
     if [ -f ${cur_manifest} -a -f ${prev_manifest} ]; then
-        change_log_file="changelog-${previous_build_number}-${build_number}.txt"
+        change_log_file="changelog-${last_completed_build_num}-${build_number}.txt"
         python ${BASEDIR}/manifest_diff.py -o ${prev_manifest} -n ${cur_manifest} -e > ${change_log_file}
         cp ${change_log_file} changelog.txt
     fi
