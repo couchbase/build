@@ -145,6 +145,8 @@ if __name__ == '__main__':
                       help="last successful build... start searching from this number")
     parser.add_option("-e", "--end", dest="upper_limit", type="int",
                       help="upper limit for build numbers (any build above this number is not considered)")
+    parser.add_option("-n", "--number", dest="build_number",
+                      help="check if a particular build number is good")
     (options, args) = parser.parse_args()
 
     rel_code_name = ''
@@ -153,4 +155,6 @@ if __name__ == '__main__':
         sys.exit(1)
 
     builds = Builds(options.version)
+    if options.build_number:
+        sys.exit(not builds.check_if_good_build(int(options.build_number), options.version))
     print builds.get_last_good(options.version, options.last_success, options.upper_limit)
