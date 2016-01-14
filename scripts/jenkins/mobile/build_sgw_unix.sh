@@ -305,6 +305,7 @@ echo  ${VERSION}-${BLD_NUM}            > ${STAGING}/VERSION.txt
 cp    ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
 cp -r ${SGW_DIR}/examples                ${STAGING}
 cp -r ${SGW_DIR}/service                 ${STAGING}
+rm -f ${STAGING}/${ACCEL_EXEC}_service*
 
 echo cd ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
@@ -329,6 +330,8 @@ cd ${BLD_DIR}
 if [[ -e ${ACCEL_PREFIX}  ]] ; then sudo rm -rf ${ACCEL_PREFIX}  ; fi
 if [[ -e ${ACCEL_STAGING}  ]] ; then     rm -rf ${ACCEL_STAGING}  ; fi
 cp -rf ${STAGING} ${ACCEL_STAGING}
+rm -f ${STAGING}/${EXEC}_service*
+cp -r ${SGW_DIR}/service/${ACCEL_EXEC}_service*                 ${STAGING}
 
 RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}/rpmbuild/
 export RPM_ROOT_DIR
@@ -341,7 +344,7 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
     cp    ${DEST_DIR}/${ACCEL_EXEC}                ${ACCEL_STAGING}/bin/
 fi
 
-cd   ${BLD_DIR}   ;   ./${PKGR} ${ACCEL_PREFIX} ${ACCEL_PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP} ${ACCEL_NAME}
+cd   ${BLD_DIR}   ;   ./${PKGR} ${ACCEL_PREFIX} ${ACCEL_PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP} ${ACCEL_NAME} ${ACCEL_EXEC}
 
 echo  ======= prep upload sg_accel =========
 cp ${ACCEL_STAGING}/${ACCEL_PKG_NAME} ${SGW_DIR}/${ACCEL_NEW_PKG_NAME}
