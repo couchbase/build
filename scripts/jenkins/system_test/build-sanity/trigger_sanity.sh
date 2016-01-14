@@ -37,14 +37,18 @@ rm -f changelog-*
 rm -f committers_email
 rm -f env_prop_file
 
-if [ -z $FORCE_BUILD_NUMBER ]; then
+if [ ! -z $FORCE_BUILD_NUMBER ]; then
+    if python ${BASEDIR}/last_good_build.py -v $VERSION_NUM -n $FORCE_BUILD_NUMBER; then
+        build_number=$FORCE_BUILD_NUMBER
+    fi
+fi
+
+if [ -z $build_number ]; then
     build_number=`python ${BASEDIR}/last_good_build.py -v $VERSION_NUM`
     if [ "${build_number}" == "0" ]; then
         echo "Couldn't retrieve latest build information"
         exit 1
     fi
-else
-    build_number=$FORCE_BUILD_NUMBER
 fi
 
 REL_CODE="sherlock"
