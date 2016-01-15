@@ -1,12 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
-# run by jenkins job 'geocouch-gerrit-master'
-# with no paramters
-# triggered on Patchset Creation of repo: geocouch branch: master
-
-source ~jenkins/.bash_profile
 set -e
 set -x
+
+curdir=`dirname $0`
 
 # CCACHE is good - use it if available.
 export PATH=/usr/lib/ccache:$PATH
@@ -34,8 +31,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-./build-scripts/scripts/jenkins/commit_validation/alldependencies.py $GERRIT_PATCHSET_REVISION|\
-    xargs -n 3 ./build-scripts/scripts/jenkins/commit_validation/fetch_project.sh
+${curdir}/../alldependencies.py $GERRIT_PATCHSET_REVISION | xargs -n 3 ${curdir}/../fetch_project.sh
 
 cat <<EOF
 ============================================
