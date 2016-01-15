@@ -114,7 +114,8 @@ if [ -n "$ENABLE_CODE_COVERAGE" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_CODE_COVERAGE=ON"
 fi
 if [ -n "$ENABLE_THREADSANITIZER" ]; then
-   CMAKE_ARGS="${CMAKE_ARGS} -DCB_THREADSANITIZER=ON"
+   # We use a Debug build for tsan to improve the backtraces it produces.
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_THREADSANITIZER=ON -DCMAKE_BUILD_TYPE=Debug"
 fi
 echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
 
