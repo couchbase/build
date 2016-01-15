@@ -242,6 +242,9 @@ case $project in
     go_n1ql)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    backup)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
