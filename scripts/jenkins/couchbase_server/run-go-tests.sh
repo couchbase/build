@@ -21,5 +21,5 @@ function go_test() {
 go_test  godeps/src/github.com/blevesearch/go-porterstemmer
 go_test  godeps/src/github.com/blevesearch/segment
 go_test  godeps/src/github.com/couchbase/blance
-go_test  godeps/src/github.com/couchbase/cbgt
+go_test  goproj/src/github.com/couchbase/cbgt
 go_test  goproj/src/github.com/couchbase/query/test/filestore
