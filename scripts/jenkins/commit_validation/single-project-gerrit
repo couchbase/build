@@ -113,9 +113,8 @@ cat <<EOF
 ===               Build                  ===
 ============================================
 EOF
-CMAKE_ARGS=""
 if [ -n "$ENABLE_CODE_COVERAGE" ]; then
-   CMAKE_ARGS="-DCB_CODE_COVERAGE=ON"
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_CODE_COVERAGE=ON"
 fi
 if [ -n "$ENABLE_THREADSANITIZER" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_THREADSANITIZER=ON"
