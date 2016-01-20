@@ -10,7 +10,7 @@ download_tool() {
   echo Downloading coverity_tool...
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   echo
-  wget https://scan.coverity.com/download/linux-64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild" -O coverity_tool.tgz
+  wget --no-check-certificate https://scan.coverity.com/download/linux-64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild" -O coverity_tool.tgz
   rm -rf cov-analysis-linux64-*
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   echo Expanding coverity_tool archive...
@@ -31,7 +31,7 @@ then
   echo Checking validity of coverity_tool.tgz...
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   echo
-  wget https://scan.coverity.com/download/linux-64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild&md5=1" -O coverity_tool.md5
+  wget --no-check-certificate https://scan.coverity.com/download/linux-64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild&md5=1" -O coverity_tool.md5
   echo "`cat coverity_tool.md5`  coverity_tool.tgz" | md5sum -c || {
     echo "MD5 checksum has changed! Re-downloading coverity_tool..."
     download_tool
@@ -53,8 +53,9 @@ echo
 
 # Delete everything but the .repo directory, if it happens to exist
 rm -rf *
-repo init -u git://github.com/couchbase/manifest -g all -m watson.xml
+repo init -u git://github.com/couchbase/build-team-manifests -g all -m watson.xml
 repo sync --jobs=6
+BLD_NUM=`repo forall build -c echo $REPO__BLD_NUM`
 
 echo
 echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -74,11 +75,11 @@ echo
 echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 echo Upload scan to Coverity...
 echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-datestamp=`date +%Y-%m-%d`
-curl --form token="${TOKEN}" \
+curl --insecure \
+  --form token="${TOKEN}" \
   --form email="ceej+github@lambda.nu" \
   --form file="@../couchbase-build.tgz" \
-  --form version="${datestamp}" \
-  --form description="Couchbase Server Watson" \
+  --form version="4.5.0-${BLD_NUM}" \
+  --form description="Couchbase Server Watson 4.5.0-${BLD_NUM}" \
   https://scan.coverity.com/builds?project=couchbase%2Fbuild
 
