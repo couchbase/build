@@ -15,7 +15,7 @@ LOG_TAIL=-24
 
 function usage
     {
-    echo -e "\nuse:  ${0}   branch_name  release_number  build_number  edition\n\n"
+    echo -e "\nuse:  ${0}   branch_name  release_number  build_number  edition target\n\n"
     }
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
@@ -50,28 +50,54 @@ EDN_PRFX=`echo ${OS} | tr '[a-z]' '[A-Z]'`
 
 BASE_DIR=${WORKSPACE}/couchbase-lite-${OS}
 BUILDDIR=${BASE_DIR}/build
-
+ZIPFILE_STAGING="zipfile_staging"
+SQLCIPHER="libsqlcipher"
+SDK=""
 
 if [[ $OS =~ ios ]]
 then
-    BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "LiteServ App" "Documentation")
     if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
     then
-        BUILD_TARGETS=("${BUILD_TARGETS[@]}" "CBLJSViewCompiler")
+        BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "LiteServ App" "CBLJSViewCompiler" "Documentation")
+    else
+        BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "Documentation")
+        PLATFORM="iOS"
     fi
     RIO_SRCD=${BUILDDIR}/Release-ios-universal
+    REL_SRCD=${BUILDDIR}/Release
+    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
+    then
+        LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
+        LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
+    fi
+elif [[ $OS =~ tvos ]]
+then
+    BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "Documentation")
+    RIO_SRCD=${BUILDDIR}/Release-tvos-universal
+    REL_SRCD=${BUILDDIR}/Release-appletvos
+    PLATFORM="tvOS"
+    SDK="-sdk appletvos"
+    LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/tvos/libsqlcipher.a
+    LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
 elif [[ $OS =~ macosx ]]
 then
-    BUILD_TARGETS=("CBL Mac" "CBL Listener Mac" "LiteServ" "LiteServ App") 
+    BUILD_TARGETS=("CBL Mac" "CBL Listener Mac" "LiteServ" "LiteServ App")
+    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+    then
+        BUILD_TARGETS=("${BUILD_TARGETS[@]}" "CBL Mac+SQLCipher")
+        PLATFORM="OS X"
+        CBL_SQLCIPHER_SRC=${BUILDDIR}/Release-sqlcipher/CouchbaseLite.framework
+        CBL_SQLCIPHER_DST=${BASE_DIR}/${ZIPFILE_STAGING}/CouchbaseLite.framework
+        LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/osx/libsqlcipher.a
+        LIB_SQLCIPHER_DEST=${BASE_DIR}/vendor/SQLCipher/libs/osx
+    fi
     RIO_SRCD=${BUILDDIR}/Release
 else
-    echo -e "\nunsupported OS:  ${OS}\n"
+    echo -e "\nUnsupported OS:  ${OS}\n"
     exit 555
 fi
 
 LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${GITSPEC}/${VERSION}/${OS}/${REVISION}
-#PKGSTORE=s3://packages.couchbase.com/builds/mobile/ios/${VERSION}/${REVISION}
-#PUT_CMD="s3cmd put -P"
 
 LOG_FILE=${WORKSPACE}/build_${OS}_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
@@ -92,20 +118,18 @@ README_F=${README_D}/README.md
 RME_DEST=${ZIP_SRCD}
 
 RIO_DEST=${ZIP_SRCD}
-
-REL_SRCD=${BUILDDIR}/Release
-REL_DEST=${ZIP_SRCD}
+REL_DEST=${BUILDDIR}/Release
 
 LSA_SRCD=${BUILDDIR}/Release
 LSA_DEST=${ZIP_SRCD}
 
-LIB_FORESTDB=${BUILDDIR}/Release-CBLForestDBStorage-ios-universal/libCBLForestDBStorage.a
-LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
-LIB_JSVC=${LIB_SRCD}/libCBLJSViewCompiler.a
-LIB_DEST=${ZIP_SRCD}/Extras
-
-JSC_SRCD=${BASE_DIR}/vendor/JavaScriptCore.framework
-JSC_DEST=${LIB_DEST}
+if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
+then
+    LIB_FORESTDB=${BUILDDIR}/Release-CBLForestDBStorage-ios-universal/libCBLForestDBStorage.a
+    LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
+    LIB_JSVC=${LIB_SRCD}/libCBLJSViewCompiler.a
+    LIB_DEST=${ZIP_SRCD}/Extras
+fi
 
 export TAP_TIMEOUT=120
 
@@ -152,25 +176,48 @@ git submodule update --init --recursive
 git show --stat
                                                                    # required by "Documentation" target
 DERIVED_FILE_DIR=${REL_SRCD}/Documentation                         #  where the doc files are generated
-DOC_ZIP_ROOT_DIR=${REL_SRCD}/${REVISION}
+DOC_ZIP_ROOT_DIR=${REL_DEST}/${REVISION}
 
-if [[ $OS =~ ios  ]]
+if [[ $OS =~ ios  ]] || [[ $OS =~ tvos ]]
 then
-    TARGET_BUILD_DIR=${REL_SRCD}/com.couchbase.CouchbaseLite.docset    #  where the doc set ends up
+    if [[ ! -e ${REL_DEST} ]] ; then mkdir -p ${REL_DEST} ; fi
+    TARGET_BUILD_DIR=${REL_DEST}/com.couchbase.CouchbaseLite.docset    #  where the doc set ends up
     mkdir -p ${TARGET_BUILD_DIR}
 fi
 
+echo  ============================================== prepare ${ZIP_FILE}
+if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
+mkdir -p ${ZIP_SRCD}
+
+cd ${BASE_DIR}
+if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+then
+    # Temporary solution to download prebuilt sqlcipher from couchbaselab
+    if [[ -d ${SQLCIPHER} ]] ; then rm -rf ${SQLCIPHER} ; fi
+    git clone https://github.com/couchbaselabs/couchbase-lite-libsqlcipher.git ${SQLCIPHER}
+    cd ${SQLCIPHER}
+    git checkout ${BRANCH} 
+    cd ${BASE_DIR}
+    if [[ ! -e ${LIB_SQLCIPHER_DEST} ]] ; then mkdir -p ${LIB_SQLCIPHER_DEST} ; fi
+    cp ${LIB_SQLCIPHER} ${LIB_SQLCIPHER_DEST}
+fi
+
+echo "Building target=${OS} platform=${PLATFORM} ${SDK}"
 XCODE_CMD="xcodebuild CURRENT_PROJECT_VERSION=${BLD_NUM} CBL_VERSION_STRING=${VERSION} CBL_SOURCE_REVISION=${REPO_SHA}"
 
 echo "using command: ${XCODE_CMD}"
 echo "using command: ${XCODE_CMD}"                                            >>  ${LOG_FILE}
 
-cd ${WORKSPACE}/couchbase-lite-${OS}
 for TARGET in "${BUILD_TARGETS[@]}"
   do
     echo ============================================  ${OS} target: ${TARGET}
-    echo ============================================  ${OS} target: ${TARGET}  >>  ${LOG_FILE}
-    ( ${XCODE_CMD} -target "${TARGET}"  2>&1 )                                >>  ${LOG_FILE}
+    echo ============================================  ${OS} target: ${TARGET}	>>  ${LOG_FILE}
+    if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
+    then
+        ( ${XCODE_CMD} -target "${TARGET}"  2>&1 )	>>  ${LOG_FILE}
+    else
+        ( ${XCODE_CMD} -destination "platform=${PLATFORM}" ${SDK} -target "${TARGET}"  2>&1 )	>>  ${LOG_FILE}
+    fi
     if  [[ -e ${LOGFILE} ]]
         then
         echo
@@ -180,15 +227,14 @@ for TARGET in "${BUILD_TARGETS[@]}"
     fi
 done
 
-
-if [[ $OS =~ ios  ]]
+if [[ $OS =~ ios  ]] || [[ $OS =~ tvos ]]
 then 
     echo  ============================================== package ${DOC_ZIP_FILE}
     DOC_LOG=${WORKSPACE}/doc_zip.log
     if [[ -e ${DOC_LOG} ]] ; then rm -f ${DOC_LOG} ; fi
 
     mv     ${DERIVED_FILE_DIR} ${DOC_ZIP_ROOT_DIR}
-    pushd  ${REL_SRCD}         2>&1 > /dev/null
+    pushd  ${REL_DEST}         2>&1 > /dev/null
 
     ( zip -ry ${DOC_ZIP_PATH} ${REVISION}  2>&1 )                                  >>  ${DOC_LOG}
     if  [[ -e ${DOC_LOG} ]]
@@ -201,28 +247,31 @@ then
     popd                        2>&1 > /dev/null
 fi
 
-echo  ============================================== prepare ${ZIP_FILE}
-if [[ -e ${ZIP_SRCD} ]] ; then rm -rf ${ZIP_SRCD} ; fi
-mkdir -p ${ZIP_SRCD}
-
+echo  ============================================== update ${ZIP_FILE}
 cp  -R   ${RIO_SRCD}/*             ${RIO_DEST}
 cp       ${README_F}               ${RME_DEST}
 cp       ${LICENSEF}               ${LIC_DEST}
 
-if [[ $OS =~ ios  ]]
-then 
-    if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
+if [[ $OS =~ macosx ]]
+then
+    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
     then
-        cp ${LIB_JSVC} ${LIB_DEST}
+        rm -rf ${CBL_SQLCIPHER_DST}
+        cp -R ${CBL_SQLCIPHER_SRC} ${CBL_SQLCIPHER_DST}
     fi
-    cp ${LIB_FORESTDB} ${LIB_DEST}
-    cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
+else
+    if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
+    then 
+        cp ${LIB_JSVC} ${LIB_DEST}
+        cp ${LIB_FORESTDB} ${LIB_DEST}
+        cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
+    fi
 fi
 
-cd       ${ZIP_SRCD}/CouchbaseLite.framework
+cd ${ZIP_SRCD}/CouchbaseLite.framework
 rm -rf PrivateHeaders
 
-cd       ${ZIP_SRCD}
+cd ${ZIP_SRCD}
 rm -rf *.dSYM
 
 echo  ============================================== package ${ZIP_FILE}
@@ -238,12 +287,6 @@ if  [[ -e ${ZIP_LOG} ]]
     echo ". . ."
     tail  ${LOG_TAIL}                             ${ZIP_LOG}
 fi
-
-#echo  ============================================== upload ${PKGSTORE}/${ZIP_FILE}
-#${PUT_CMD}  ${ZIP_PATH}                                     ${PKGSTORE}/${ZIP_FILE}
-
-#echo  ============================================== upload ${PKGSTORE}/${DOC_ZIP_FILE}
-#${PUT_CMD}  ${DOC_ZIP_PATH}                                 ${PKGSTORE}/${DOC_ZIP_FILE}
 
 echo        ........................... uploading internally to ${LATESTBUILDS_CBL}
 
