@@ -48,6 +48,7 @@ if [[ ! ${5} ]] ; then usage ; exit 55 ; fi
 OS=${5}
 EDN_PRFX=`echo ${OS} | tr '[a-z]' '[A-Z]'`
 
+WORKSPACE=/Users/jenkins/jenkins/test
 BASE_DIR=${WORKSPACE}/couchbase-lite-${OS}
 BUILDDIR=${BASE_DIR}/build
 ZIPFILE_STAGING="zipfile_staging"
@@ -86,12 +87,14 @@ then
     then
         BUILD_TARGETS=("${BUILD_TARGETS[@]}" "CBL Mac+SQLCipher")
         PLATFORM="OS X"
-        CBL_SQLCIPHER_SRC=${BUILDDIR}/Release-sqlcipher/CouchbaseLite.framework
-        CBL_SQLCIPHER_DST=${BASE_DIR}/${ZIPFILE_STAGING}/CouchbaseLite.framework
+        CBL_SQLCIPHER_SRCD=${BUILDDIR}/Release-sqlcipher
+    fi
+    RIO_SRCD=${BUILDDIR}/Release
+    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
+    then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/osx/libsqlcipher.a
         LIB_SQLCIPHER_DEST=${BASE_DIR}/vendor/SQLCipher/libs/osx
     fi
-    RIO_SRCD=${BUILDDIR}/Release
 else
     echo -e "\nUnsupported OS:  ${OS}\n"
     exit 555
@@ -193,10 +196,11 @@ cd ${BASE_DIR}
 if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]]
 then
     # Temporary solution to download prebuilt sqlcipher from couchbaselab
-    if [[ -d ${SQLCIPHER} ]] ; then rm -rf ${SQLCIPHER} ; fi
+    if [[ -e ${SQLCIPHER} ]] ; then rm -rf ${SQLCIPHER} ; fi
     git clone https://github.com/couchbaselabs/couchbase-lite-libsqlcipher.git ${SQLCIPHER}
     cd ${SQLCIPHER}
     git checkout ${BRANCH} 
+    git pull origin ${BRANCH} 
     cd ${BASE_DIR}
     if [[ ! -e ${LIB_SQLCIPHER_DEST} ]] ; then mkdir -p ${LIB_SQLCIPHER_DEST} ; fi
     cp ${LIB_SQLCIPHER} ${LIB_SQLCIPHER_DEST}
@@ -256,23 +260,35 @@ if [[ $OS =~ macosx ]]
 then
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
     then
-        rm -rf ${CBL_SQLCIPHER_DST}
-        cp -R ${CBL_SQLCIPHER_SRC} ${CBL_SQLCIPHER_DST}
+        rm -f ${ZIP_SRCD}/libCouchbaseLite.a
+        rm -rf ${ZIP_SRCD}/CouchbaseLite.framework
+        cp -R ${CBL_SQLCIPHER_SRCD}/CouchbaseLite.framework ${ZIP_SRCD}
+        rm -rf ${ZIP_SRCD}/CouchbaseLite.framework/Versions/A/PrivateHeaders
+        rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/PrivateHeaders
+        rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/Versions/A/PrivateHeaders
     fi
 else
     if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
     then 
+        rm -rf ${LSA_SRCD}/*.dSYM
         cp ${LIB_JSVC} ${LIB_DEST}
         cp ${LIB_FORESTDB} ${LIB_DEST}
         cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
     fi
 fi
 
-cd ${ZIP_SRCD}/CouchbaseLite.framework
-rm -rf PrivateHeaders
-
 cd ${ZIP_SRCD}
 rm -rf *.dSYM
+rm -rf CouchbaseLite.framework/PrivateHeaders
+if [[ $OS =~ ios ]] || [[ $OS =~ tvos ]]
+then
+    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
+    then
+        rm -f libCouchbaseLiteFat.a
+        rm -f libCBLSQLiteStorage.a
+        rm -f libCouchbaseLiteListener.a
+    fi
+fi
 
 echo  ============================================== package ${ZIP_FILE}
 ZIP_LOG=${WORKSPACE}/doc_zip.log
