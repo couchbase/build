@@ -48,7 +48,6 @@ if [[ ! ${5} ]] ; then usage ; exit 55 ; fi
 OS=${5}
 EDN_PRFX=`echo ${OS} | tr '[a-z]' '[A-Z]'`
 
-WORKSPACE=/Users/jenkins/jenkins/test
 BASE_DIR=${WORKSPACE}/couchbase-lite-${OS}
 BUILDDIR=${BASE_DIR}/build
 ZIPFILE_STAGING="zipfile_staging"
