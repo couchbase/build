@@ -245,6 +245,9 @@ case $project in
     backup)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    cbq-gui)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
