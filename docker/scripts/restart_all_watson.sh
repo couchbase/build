@@ -12,9 +12,10 @@ restart_dock ceejatec/ubuntu-1204-couchbase-build:latest zz-server-lightweight 3
 restart_dock ceejatec/ubuntu-1204-couchbase-build:20151020 watson-ubuntu12.04 2223
 restart_dock ceejatec/debian-7-couchbase-build:20151020 watson-debian7 2224
 restart_dock ceejatec/ubuntu-1404-couchbase-build:20151020 watson-ubuntu14.04 2226
-restart_dock ceejatec/suse-11-couchbase-build:20151020 watson-suse11 2228
+restart_dock ceejatec/suse-11-couchbase-build:20160125 watson-suse11 2228
 restart_dock ceejatec/centos-70-couchbase-build:20151020 watson-centos7-01 2227
 restart_dock ceejatec/centos-70-couchbase-build:20151020 watson-centos7-02 2237
+restart_dock ceejatec/debian-7-couchbase-build-gcc49:20160125 watson-debian7-gcc49 2238
 
 wait
 
