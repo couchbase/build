@@ -60,11 +60,11 @@ then
         BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "LiteServ App" "CBLJSViewCompiler" "Documentation")
     else
         BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "CBLJSViewCompiler" "Documentation")
+        LIB_JSVC=${BUILDDIR}/Release-ios-universal/libCBLJSViewCompiler.a
         SDK="-sdk iphoneos"
     fi
     RIO_SRCD=${BUILDDIR}/Release-ios-universal
     REL_SRCD=${BUILDDIR}/Release-iphoneos
-    LIB_JSVC=${BUILDDIR}/Release-ios-universal/libCBLJSViewCompiler.a
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
     then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
@@ -265,16 +265,15 @@ then
         rm -rf ${ZIP_SRCD}/CouchbaseLite.framework/Versions/A/PrivateHeaders
         rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/PrivateHeaders
         rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/Versions/A/PrivateHeaders
-        cp ${LIB_JSVC} ${LIB_DEST}
     fi
 else
     if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
     then 
         rm -rf ${LSA_SRCD}/*.dSYM
-        cp ${LIB_JSVC} ${LIB_DEST}
         cp ${LIB_FORESTDB} ${LIB_DEST}
         cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
     fi
+    cp ${LIB_JSVC} ${LIB_DEST}
 fi
 
 cd ${ZIP_SRCD}
