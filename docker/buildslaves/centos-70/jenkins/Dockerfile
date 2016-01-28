@@ -4,6 +4,8 @@ FROM centos:7.0.1406
 MAINTAINER ceej@couchbase.com
 
 USER root
+RUN yum clean all && yum swap -y fakesystemd systemd
+
 RUN yum install --setopt=keepcache=0 -y openssh-server sudo deltarpm
 
 # Set up for SSH daemon
@@ -71,7 +73,7 @@ RUN rpm -iUvh http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.n
 
 # * CMake (from cmake.org)
 RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    curl https://cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
     rm -fr /tmp/deploy
 
@@ -88,7 +90,7 @@ RUN mkdir /tmp/deploy && \
 
 # * golang
 RUN mkdir /tmp/deploy && \
-    curl https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    curl https://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
     cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
     rm -fr /tmp/deploy

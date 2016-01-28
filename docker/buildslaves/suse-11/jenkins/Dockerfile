@@ -115,17 +115,10 @@ RUN mkdir /tmp/deploy && cd /tmp/deploy && \
 
 # * golang
 RUN mkdir /tmp/deploy && \
-    curl https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    curl https://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
     cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
     rm -fr /tmp/deploy
-
-# * python setuptools
-RUN mkdir /tmp/deploy && \
-    cd /tmp/deploy && \
-    curl ftp://ftp.pbone.net/mirror/ftp5.gwdg.de/pub/opensuse/repositories/Cloud:/Eucalyptus/SLE_11_SP3/x86_64/python-setuptools-17.1-59.1.x86_64.rpm -o setuptools.rpm && \
-    rpm -ivh setuptools.rpm && \
-    cd /tmp && rm -rf deploy
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22

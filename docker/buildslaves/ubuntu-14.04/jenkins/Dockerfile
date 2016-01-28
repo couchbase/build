@@ -59,9 +59,9 @@ RUN mkdir /tmp/deploy && \
 
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
 RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    curl https://cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    curl https://storage.googleapis.com/golang/go1.5.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    curl https://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
     cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
     cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
     curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
