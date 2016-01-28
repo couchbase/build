@@ -125,12 +125,13 @@ REL_DEST=${BUILDDIR}/Release
 LSA_SRCD=${BUILDDIR}/Release
 LSA_DEST=${ZIP_SRCD}
 
+LIB_DEST=${ZIP_SRCD}/Extras
+
 if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
 then
     LIB_FORESTDB=${BUILDDIR}/Release-CBLForestDBStorage-ios-universal/libCBLForestDBStorage.a
     LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
     LIB_JSVC=${LIB_SRCD}/libCBLJSViewCompiler.a
-    LIB_DEST=${ZIP_SRCD}/Extras
 fi
 
 export TAP_TIMEOUT=120
