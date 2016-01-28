@@ -52,7 +52,6 @@ BASE_DIR=${WORKSPACE}/couchbase-lite-${OS}
 BUILDDIR=${BASE_DIR}/build
 ZIPFILE_STAGING="zipfile_staging"
 SQLCIPHER="libsqlcipher"
-SDK=""
 
 if [[ $OS =~ ios ]]
 then
@@ -60,11 +59,12 @@ then
     then
         BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "LiteServ App" "CBLJSViewCompiler" "Documentation")
     else
-        BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "Documentation")
-        PLATFORM="iOS"
+        BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "CBLJSViewCompiler" "Documentation")
+        SDK="-sdk iphoneos"
     fi
     RIO_SRCD=${BUILDDIR}/Release-ios-universal
-    REL_SRCD=${BUILDDIR}/Release
+    REL_SRCD=${BUILDDIR}/Release-iphoneos
+    LIB_JSVC=${BUILDDIR}/Release-ios-universal/libCBLJSViewCompiler.a
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
     then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
@@ -72,11 +72,11 @@ then
     fi
 elif [[ $OS =~ tvos ]]
 then
-    BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "Documentation")
+    BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "CBLJSViewCompiler" "Documentation")
     RIO_SRCD=${BUILDDIR}/Release-tvos-universal
     REL_SRCD=${BUILDDIR}/Release-appletvos
-    PLATFORM="tvOS"
     SDK="-sdk appletvos"
+    LIB_JSVC=${BUILDDIR}/Release-tvos-universal/libCBLJSViewCompiler.a
     LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/tvos/libsqlcipher.a
     LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
 elif [[ $OS =~ macosx ]]
@@ -85,7 +85,7 @@ then
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]]
     then
         BUILD_TARGETS=("${BUILD_TARGETS[@]}" "CBL Mac+SQLCipher")
-        PLATFORM="OS X"
+        SDK=""
         CBL_SQLCIPHER_SRCD=${BUILDDIR}/Release-sqlcipher
     fi
     RIO_SRCD=${BUILDDIR}/Release
@@ -205,7 +205,7 @@ then
     cp ${LIB_SQLCIPHER} ${LIB_SQLCIPHER_DEST}
 fi
 
-echo "Building target=${OS} platform=${PLATFORM} ${SDK}"
+echo "Building target=${OS} ${SDK}"
 XCODE_CMD="xcodebuild CURRENT_PROJECT_VERSION=${BLD_NUM} CBL_VERSION_STRING=${VERSION} CBL_SOURCE_REVISION=${REPO_SHA}"
 
 echo "using command: ${XCODE_CMD}"
@@ -219,7 +219,7 @@ for TARGET in "${BUILD_TARGETS[@]}"
     then
         ( ${XCODE_CMD} -target "${TARGET}"  2>&1 )	>>  ${LOG_FILE}
     else
-        ( ${XCODE_CMD} -destination "platform=${PLATFORM}" ${SDK} -target "${TARGET}"  2>&1 )	>>  ${LOG_FILE}
+        ( ${XCODE_CMD} ${SDK} -target "${TARGET}"  2>&1 )	>>  ${LOG_FILE}
     fi
     if  [[ -e ${LOGFILE} ]]
         then
@@ -265,6 +265,7 @@ then
         rm -rf ${ZIP_SRCD}/CouchbaseLite.framework/Versions/A/PrivateHeaders
         rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/PrivateHeaders
         rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/Versions/A/PrivateHeaders
+        cp ${LIB_JSVC} ${LIB_DEST}
     fi
 else
     if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
