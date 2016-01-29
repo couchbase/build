@@ -34,7 +34,7 @@ set  REPO_SHA=%7
 set  GO_RELEASE=%8
 
 if not defined GO_RELEASE (
-    set GO_RELEASE=1.5.2
+    set GO_RELEASE=1.5.3
 )
 
 set VERSION=%REL_VER%-%BLD_NUM%
