@@ -15,9 +15,9 @@ args = parser.parse_args()
 MANIFEST_PROJECT = args.manifest_project
 
 # Initialize results file
-result_filename = os.path.abspath("results.json")
-if os.path.exists(result_filename):
-  os.remove(result_filename)
+trigger_filename = os.path.abspath("trigger.properties")
+if os.path.exists(trigger_filename):
+  os.remove(trigger_filename)
 
 # Initialize previous-check state file
 state_filename = os.path.abspath("last-check.json")
@@ -30,7 +30,7 @@ else:
 # Iterate through the manifests, and find the first one that isn't inactive
 # and hasn't been checked in at least 'interval' minutes.
 manifests = scan_manifests(MANIFEST_PROJECT)
-results = {}
+result = ""
 for manifest in manifests:
   # Skip manifests marked "inactive"
   if manifests[manifest].get("inactive", False):
@@ -46,14 +46,19 @@ for manifest in manifests:
     check_states[manifest] = 0L
   now = long(time.time())
   if (now - check_states[manifest] > interval * 60):
-    results["MANIFEST"] = manifest
+    result = manifest
     check_states[manifest] = now
     break
 
 # Save updated check-states
-with open(result_filename, "w") as result:
-  json.dump(results, result)
+print "\n----------------------------------\n"
+if result != "":
+  print "Triggering manifest {}".format(result)
+  with open(trigger_filename, "w") as trigger:
+    trigger.write("MANIFEST={}\n".format(result))
+else:
+  print "No manifests need checking yet; not triggering build"
 with open(state_filename, "w") as state:
   json.dump(check_states, state)
-
+print "\n----------------------------------\n"
 
