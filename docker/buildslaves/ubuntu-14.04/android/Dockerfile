@@ -43,9 +43,9 @@ RUN mkdir /tmp/deploy && \
     cd /tmp && rm -rf /tmp/deploy
 
 # Node.js dependency to build phonegap-plugin
-RUN npm xmlbuilder
-RUN npm findit
-RUN npm ncp
+RUN npm install xmlbuilder
+RUN npm install findit
+RUN npm install ncp
 RUN echo yes | apt-get install zip
 
 # JDK for Jenkins.
