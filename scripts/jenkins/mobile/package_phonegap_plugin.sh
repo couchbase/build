@@ -26,7 +26,7 @@ CURL_CMD="curl --fail --retry 10"
 BLD_NUM=${1}
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
-if [[ ! ${VERSION} ]] ; then VERSION=1.0    ; fi
+if [[ ! ${VERSION} ]] ; then VERSION=0.0.0  ; fi
 
 REVISION=${VERSION}-${BLD_NUM}
 
@@ -88,6 +88,11 @@ mkdir -p ${AND_DIR}
 
 # copy all jar files into the target directory
 cp ${DOWN_ADIR}/**/*.jar ${AND_DIR}
+if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
+then
+    cp ${DOWN_ADIR}/**/couchbase-lite-android-${VERSION}.aar ${AND_DIR}
+    cp ${DOWN_ADIR}/**/couchbase-lite-android-sqlite-default-${VERSION}.aar ${AND_DIR}
+fi
 
 popd                     2>&1 >/dev/null
 
