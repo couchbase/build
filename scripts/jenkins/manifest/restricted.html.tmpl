@@ -1,0 +1,80 @@
+<h1>Restricted Commit</h1>
+
+This change:
+<a href="{GERRIT_CHANGE_URL}">{GERRIT_CHANGE_URL}</a>,
+patchset {GERRIT_PATCHSET_NUMBER}, with commit message
+<hr>
+{COMMIT_MSG}
+<hr>
+was rejected for submission because <b>{REASON}</b>.
+<h3>Why did this happen?</h3>
+The change is for the <tt>{GERRIT_BRANCH}</tt> branch of the
+<tt>{GERRIT_PROJECT}</tt> project, which is listed in the manifest
+<a href="https://github.com/couchbase/manifest/blob/master/{MANIFEST}"
+target="_blank"><tt>{MANIFEST}</tt></a>.
+This is a <b><i>restricted manifest</i></b>
+for the upcoming release "<b>{RELEASE_NAME}</b>".
+<p>
+<b><i>Restricted manifests</i></b> are for builds targeting a specific
+upcoming release. Git branches in restricted manifests can only accept
+changes that are <b><i>approved</i></b> for that release.
+
+<h3>How can a change be approved?</h3>
+It is up to Product Management to decide which changes are approved.
+For a change to be approved, two things must happen:
+<ul>
+<li>The commit message for the change must name a specific JIRA ticket
+in the subject (first line of the commit message).
+<li>That JIRA ticket must be listed as a dependency for the tracking
+ticket for the upcoming release.
+</ul>
+For the "<b>{RELEASE_NAME}</b>" release, the approval ticket is
+<a href="https://issues.couchbase.com/browse/{APPROVAL_TICKET}"
+target="_blank">{APPROVAL_TICKET}</a>.
+
+<h3>What can I do?</h3>
+First, if you are not a member of Product Management and do not otherwise
+have permission to approve a change for this release, <b><u>Do not
+update the tracking ticket yourself!</u></b>
+<p>
+You have several choices, depending on the situation:
+<ul>
+<li>If this change is already approved but you forgot to add the JIRA ticket
+number in the commit message subject, simply edit the commit message in
+Gerrit to add the ticket information. This will automatically re-check the
+change for approval.
+</ul>
+<ul>
+<li>If this change is not already approved for the release, seek approval
+from product management. If approved, you will need to ensure there is a JIRA
+ticket tracking your change (and that your commit message subject names this
+ticket), and then PM will add that JIRA ticket to the tracking ticket for the
+release. You can then re-check your change in Gerrit (see below).
+</ul>
+<ul>
+<li>If this change is not intended for the {RELEASE_NAME} release, but the
+restricted manifest shares the git branch <tt>{GERRIT_BRANCH}</tt> with
+another manifest, then you will need to create a new git branch. In most
+cases, this means creating a branch specifically for {RELEASE_NAME} and then
+updating the manifest <tt>{MANIFEST}</tt> to refer to this new branch.
+Once that is done, you should be able to re-check your Gerrit change
+(see below).
+<p>
+To request a new branch, please
+<a href="{MAILTO_URL}" target="_blank">click here to send your request
+to Build Team</a>.
+</ul>
+
+<h3>Re-checking your Gerrit change</h3>
+If you have gotten approval for your change; or if you believe this rejection
+was caused in error; or you have otherwise corrected the problem causing this
+rejection, you can always request that your Gerrit change be re-checked for
+approval. To do so, simply post a comment on the Gerrit change with the text
+"<tt>check approval</tt>". Your change will be re-checked within a minute.
+
+<h3>Help!</h3>
+If after reading all of the above, you still need assistance, please send
+email to
+<a href="mailto:build-team@couchbase.com?subject=Restricted+Branch+Check+Help&body=Regarding+{GERRIT_CHANGE_URL}"
+target=_blank">Build Team</a>.
+
