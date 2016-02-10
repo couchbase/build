@@ -248,6 +248,9 @@ case $project in
     cbq-gui)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    goutils)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
