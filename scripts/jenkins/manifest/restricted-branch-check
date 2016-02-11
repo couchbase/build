@@ -15,7 +15,7 @@ from manifest_util import scan_manifests
 Intended to run as a Gerrit trigger. The following environment variables
 must be set as Gerrit plugin would:
   GERRIT_PROJECT   GERRIT_BRANCH   GERRIT_CHANGE_COMMIT_MESSAGE
-  GERRIT_CHANGE_URL   GERRIT_PATCHSET_NUMBER
+  GERRIT_CHANGE_URL   GERRIT_PATCHSET_NUMBER  GERRIT_EVENT_TYPE
 """
 PROJECT=os.environ["GERRIT_PROJECT"]
 BRANCH=os.environ["GERRIT_BRANCH"]
@@ -150,10 +150,20 @@ for manifest in manifests:
       MANIFEST = manifest
       output_report()
 
+# If we get here, the change is allowed!
 # Output "all clear" message if no restricted branches were checked,
-# or if they were checked and approved
+# or if they were checked and approved.
 if is_restricted:
   print "\n\n\n*********\nAPPROVED: Commit is approved for all restricted manifests\n*********\n\n\n"
 else:
-  print "\n\n\n*********\nUNRESTRICTED: Branch is in no restricted manifests\n*********\n\n\n"
+  # This is the common case where the change was not to any restricted
+  # branches. Normally we want Jenkins to skip voting entirely in this
+  # case, to prevent excessive Gerrit comment spam. We indicate this by
+  # outputting the word "SILENT". However, if this check was triggered
+  # by an explicit "check approval" Gerrit comment, we need to ensure
+  # it is not silent in any case.
+  silent = " (SILENT)"
+  if os.environ.get("GERRIT_EVENT_TYPE") == "comment-added":
+    silent = ""
+  print "\n\n\n*********\nUNRESTRICTED{}: Branch is in no restricted manifests\n*********\n\n\n".format(silent)
 
