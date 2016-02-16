@@ -9,8 +9,9 @@ import time
 
 # Command-line args
 parser = argparse.ArgumentParser()
-parser.add_argument("-p", "--manifest-project", type=str, default="couchbase",
-                    help="Alternate github.com account for manifest")
+parser.add_argument("-p", "--manifest-project", type=str,
+                    default="git://github.com/couchbase/manifest",
+                    help="Alternate git URL for manifest")
 args = parser.parse_args()
 MANIFEST_PROJECT = args.manifest_project
 

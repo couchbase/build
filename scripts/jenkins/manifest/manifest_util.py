@@ -9,15 +9,19 @@ def remember_cwd():
   try: yield
   finally: os.chdir(curdir)
 
-def scan_manifests(manifest_repo = "couchbase"):
+def scan_manifests(manifest_repo = "git://github.com/couchbase/manifest"):
   """
   Syncs to the "manifest" project from the given repository, and
   returns a list of metadata about all discovered manifests
   """
   # Sync manifest project
+  # QQQ Probably should create different manifest directories based on the
+  # manifest_repo URL here, so we can support multiple manifest repositories.
+  # Doing so will require returning the directory containing the manifest
+  # repo as part of the return value of this function, and updating other
+  # scripts to reference that if they want to read the actual manifest files.
   if not os.path.isdir("manifest"):
-   check_call(["git", "clone",
-     "git://github.com/{}/manifest".format(manifest_repo)])
+   check_call(["git", "clone", manifest_repo, "manifest"])
   with remember_cwd():
     os.chdir("manifest")
     print "Updating manifest repository..."

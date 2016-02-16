@@ -23,13 +23,17 @@ parser = argparse.ArgumentParser()
 parser.add_argument("manifest", type=str, help="manifest path")
 parser.add_argument("--no-commit", action="store_true",
                     help="Don't commit final manifest")
-parser.add_argument("-p", "--manifest-project", type=str, default="couchbase",
-                    help="Alternate github.com account for manifest")
+parser.add_argument("-p", "--manifest-project", type=str,
+                    default="git://github.com/couchbase/manifest",
+                    help="Alternate git URL for manifest repository")
+parser.add_argument("--build-manifests-org", type=str, default="couchbase",
+                    help="Alternate github.com organization for build-team-manifests")
 parser.add_argument("--force", action="store_true",
                     help="Produce new build manifest even if no repo changes")
 args = parser.parse_args()
 MANIFEST = args.manifest
 MANIFEST_PROJECT = args.manifest_project
+BUILD_MANIFESTS_ORG = args.build_manifests_org
 force = args.force
 
 # Determine product and release from manifest path
@@ -40,8 +44,7 @@ if MANIFEST_PATH is '':
 
 # Sync manifest project
 if not os.path.isdir("manifest"):
-  check_call(["git", "clone",
-    "git://github.com/{}/manifest".format(MANIFEST_PROJECT)])
+  check_call(["git", "clone", MANIFEST_PROJECT, "manifest"])
 os.chdir("manifest")
 print "Updating manifest repository..."
 check_call(["git", "pull"])
@@ -97,7 +100,7 @@ else:
 os.chdir("..")
 if not os.path.isdir("build-team-manifests"):
   check_call(["git", "clone",
-    "ssh://git@github.com/{}/build-team-manifests".format(MANIFEST_PROJECT)])
+    "ssh://git@github.com/{}/build-team-manifests".format(BUILD_MANIFESTS_ORG)])
 os.chdir("build-team-manifests")
 check_call(["git", "reset", "--hard"])
 print "Updating build-team-manifests repository..."
