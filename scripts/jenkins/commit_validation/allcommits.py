@@ -22,13 +22,19 @@ GERRIT_ROOT = 'http://review.couchbase.org/'
 MAGIC_PREFIX_OFFSET = 5
 
 
-def project_path(manifest, project):
+def project_path(manifest, project, branch):
     """Return the path where the project is stored
 
     If no path is given then the directory equals the project name
+    If no project/branch can be found then it will return None
     """
-    return manifest.findall('project[@name="{}"]'.format(project))[0]\
-        .attrib.get('path', project)
+    default_branch = manifest.find('default').attrib.get('revision')
+
+    entry = manifest.find('project[@name="{}"]'.format(project))
+    if entry is not None:
+        if entry.attrib.get('revision', default_branch) == branch:
+            return entry.attrib.get('path', project)
+    return None
 
 def parse_response(response):
     """Parses a response from a Gerrir REST API request."""
@@ -51,8 +57,9 @@ def all_commits(change_id):
         # The `ref` is the same for every download scheme, hence we can use
         # the first one that is there
         ref = fetch.values()[0]['ref']
-        path = project_path(manifest, project)
-        commits.append((project, path, ref))
+        path = project_path(manifest, project, change['branch'])
+        if path:
+            commits.append((project, path, ref))
     return commits
 
 
