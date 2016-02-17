@@ -251,6 +251,9 @@ case $project in
     goutils)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    moss)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
