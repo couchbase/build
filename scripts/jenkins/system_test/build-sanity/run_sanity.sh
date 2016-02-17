@@ -21,8 +21,8 @@ if [ $num_nodes -gt 1 ]; then
 fi
 
 if [ "$DISTRO" = "macos" ]; then
-    USER=couchbase
     if [ $num_nodes -gt 1 ]; then
+        USER=couchbase
         TR_CONF="conf/py-mac-sanity.conf"
     fi
 elif [ "$DISTRO" = "win64" ]; then
@@ -110,12 +110,9 @@ cat node_conf.ini
 version_number=${VERSION}-${CURRENT_BUILD_NUMBER}
 echo version=${version_number}
 
-PARAMS="version=${version_number},product=cb"
+PARAMS="version=${version_number},product=cb,parallel=True"
 if [ "x${BIN_URL}" != "x" ]; then
   PARAMS="${PARAMS},url=$BIN_URL"
-fi
-if [ "$DISTRO" != "win64" ]; then
-    PARAMS="${PARAMS},parallel=True"
 fi
 if [ -n "${EXTRA_INSTALL_PARAMS}" ]; then
     PARAMS="${PARAMS},${EXTRA_INSTALL_PARAMS}"
