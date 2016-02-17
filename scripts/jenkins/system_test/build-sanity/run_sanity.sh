@@ -21,8 +21,8 @@ if [ $num_nodes -gt 1 ]; then
 fi
 
 if [ "$DISTRO" = "macos" ]; then
+    USER=couchbase
     if [ $num_nodes -gt 1 ]; then
-        USER=couchbase
         TR_CONF="conf/py-mac-sanity.conf"
     fi
 elif [ "$DISTRO" = "win64" ]; then
