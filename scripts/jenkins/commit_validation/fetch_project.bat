@@ -1,13 +1,25 @@
 @REM Fetches a project by project name, path and Git ref
 @REM This script is normally used in conjunction with allcommits.py
-@REM ./allcommits.py <change-id>|xargs -n 3 ./fetchproject.sh
+@REM for /f "tokens=1-3" %%i in ('allcommits.py <change-id>') do (
+@REM     call fetch_project.bat %%i %%j %%k
+@REM )
 
 set PROJECT=%1
 set PROJECT_PATH=%2
 set REFSPEC=%3
 
+@IF NOT DEFINED GERRIT_HOST (
+    @echo "Error: Required environment variable 'GERRIT_HOST' not set."
+    @exit /b 1
+)
+
+@IF NOT DEFINED GERRIT_PORT (
+    @echo "Error: Required environment variable 'GERRIT_PORT' not set."
+    @exit /b 2
+)
+
 cd %PROJECT_PATH%
 git reset --hard HEAD
-git fetch ssh://review.couchbase.org:29418/%PROJECT% %REFSPEC%
+git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%PROJECT% %REFSPEC%
 git checkout FETCH_HEAD
 cd ..

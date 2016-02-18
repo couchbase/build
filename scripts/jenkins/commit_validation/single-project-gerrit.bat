@@ -21,8 +21,8 @@
     @exit /b 3
 )
 
-@IF NOT DEFINED GERRIT_REFSPEC (
-    @echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
+@IF NOT DEFINED GERRIT_PATCHSET_REVISION (
+    @echo "Error: Required environment variable 'GERRIT_PATCHSET_REVISION' not set."
     @exit /b 4
 )
 @IF NOT DEFINED target_arch (
@@ -73,27 +73,15 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 
 @echo.
 @echo ============================================
-@echo ===    update %GERRIT_PROJECT%           ===
+@echo ===       update all projects with       ===
+@echo ===          the same Change-Id          ===
 @echo ============================================
 
-@REM there are components (eg build) that don't get checked out
-@REM to the directory by the same name. Figure out the checkout
-@REM dir using repo (CBD-1587). All repo commands are not windows
-@REM compatible like repo forall. So we have use this method on
-@REM windows
-set CHECKOUT_DIR=%GERRIT_PROJECT%
-set BASE_DIR=%GERRIT_PROJECT%
-for /f "tokens=1-3" %%i in ('repo info %GERRIT_PROJECT% ^| findstr "Mount Path"') do (
-    set BASE_DIR=%%k
-)
-for /f %%i in ("%BASE_DIR%") do set CHECKOUT_DIR=%%~ni
+SET CURDIR=%~dp0
 
-pushd %CHECKOUT_DIR%
-@REM Both of these *must* succeed to continue; hence goto :error
-@REM if either fail.
-git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
-git checkout --force FETCH_HEAD || goto :error
-popd
+for /f "tokens=1-3" %%i in ('%CURDIR%\alldependencies.py %GERRIT_PATCHSET_REVISION%') do (
+    call %CURDIR%\fetch_project.bat %%i %%j %%k
+)
 
 @echo.
 @echo ============================================
