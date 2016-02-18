@@ -38,3 +38,8 @@ RUN wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add - && 
     apt-get update && \
     apt-get install --assume-yes clang-3.6 && \
     rm -fr /var/cache/apt/archives/*.deb
+
+# Install GDB - needed for detecting what program created a core file
+# & extracting the set of shared libraries.
+RUN apt-get install -y gdb && \
+    rm -f /var/cache/apt/archives/*.deb
