@@ -176,32 +176,73 @@ else
 EOF
 fi
 
-# Check for core files - if present then archive them (for
-# post-mortem) and fail the build.
+# Check for core files - if present then archive them and the
+# executable they are from (for post-mortem) and fail the build.
 core_files=$(find /tmp/ -maxdepth 1 -name 'core.*' -print)
 echo "'$core_files'"
 if [ -n "$core_files" ]; then
-    echo "ERROR: Core file(s) found at the end of the build:"
+    cat <<EOF
+
+*******************************************************
+***  ERROR: Core file(s) found at the end of the build:
+*******************************************************
+EOF
     for core in $core_files; do
-        echo -e "\t$(ls -l $core)"
+        echo $(ls -l $core)
     done
 
     echo ""
-    echo "Archiving core files to workspace:"
-    mkdir -p archived_core_dumps
-    # Wipe out any old cores in the archive.
-    rm -f archived_core_dumps/*
+    echo "Archiving core files and executables to workspace:"
+    archive_dir=archived_core_dumps
+    mkdir -p $archive_dir
+    # Wipe out any previous files in the archive.
+    rm -fr $archive_dir/*
 
     for core in $core_files; do
-        compressed_core=archived_core_dumps/$(basename ${core}).bz2
-        bzip2 --keep --stdout $core > $compressed_core
-        echo -e "\t$(ls -l ${compressed_core})"
+        cp --archive $core $archive_dir/
+
+        if ! (hash gdb 2>/dev/null); then
+            echo "Warning: gdb not found in PATH. Unable to determine which executable generated core file."
+            continue
+        fi
+
+        # Determine the executable the core is from.
+        prog_path=$(gdb --batch -ex "info auxv" --core $core 2>/dev/null \
+            | grep 'AT_EXECFN' \
+            | sed -e 's/.*"\([^"]\+\)"/\1/')
+        echo -e "Core file '$core' - created by $(basename $prog_path)"
+        echo -e "GDB command to debug (after extracting archive):"
+        echo -e ""
+        echo -e "    gdb ${prog_path#/} --core $(basename $core) -ex 'set debug-file-directory usr/lib/debug' -ex 'set sysroot .'"
+        echo ""
+        echo ""
+        cp --archive --parents $prog_path $archive_dir/
+
+        # Now determine all shared libraries which were loaded, and archive them,
+        # along with any seperate debuginfo files.
+        for lib in $(gdb --batch -ex "info sharedlibrary" $prog_path --core $core 2>/dev/null \
+            | grep -A999 'Shared Object Library' \
+            | grep -v 'Shared Object Library' \
+            | grep -v '(*): Shared library is missing debugging information.' \
+            | cut -c 50- ); do
+
+            cp --archive --parents --dereference $lib $archive_dir/
+            if [ -f "/usr/lib/debug/$lib" ]; then
+                cp --archive --parents /usr/lib/debug/$lib $archive_dir
+            fi
+        done
     done
+
+    # Compress the directory to save space on Jenkins
+    tar cjf ${archive_dir}.tar.bz2 ${archive_dir}/
+
+    echo "Archiving complete. Data for post-mortem saved to ${archive_dir}.tar.bz2"
 
     # Make a command exit with non-zero status, so overall script
     # status is failure (see deferred_error_handler)
     echo
     echo "*** Failing build due to presence of core files ***"
+    echo ""
     false
 fi
 
