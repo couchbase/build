@@ -73,10 +73,13 @@ call tlm\win32\environment
 @echo ===    clean                             ===
 @echo ============================================
 
-:: The CMake / Go integration doesn't always correctly rebuild
-:: modified source files on an incremental build. Therefore just
-:: wipe out Go's binary directories (and essentially always
-:: perform a clean build Go code).
+:: Windows build has no ccache, hence slower than Linux.
+:: To try to alleviate this, we *don't* perform a top-level clean,
+:: only for the project subdirectory and Go objects (as it's
+:: incremental build is a bit flaky).
+:: This should speed things up a little, but still ensures that the
+: :correct number of warnings are reported for this project.
+del /F/Q/S build\%GERRIT_PROJECT%
 del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 del /F/Q/S build\CMakeCache.txt
 
