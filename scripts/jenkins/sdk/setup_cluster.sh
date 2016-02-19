@@ -1,5 +1,18 @@
 #!/bin/bash
 
+which_rel=$1
+
+# which_rel evaluation -- not fail-proof, but will start with this
+if [ "x$which_rel" = "x" ]; then
+    which_rel=dev
+fi
+
+if [ "x$which_rel" = "dev" ]; then
+    # get latest dev version and install
+    latest_dev=$(curl http://server.jenkins.couchbase.com/view/build-sanity/job/build-sanity-watson/lastSuccessfulBuild/artifact/run_details | grep LAST_SUCCESSFUL | awk -F= '{print $2}')
+    which_rel="4.5.0-${latest_dev}"
+fi
+
 git pull https://github.com/couchbase/testrunner
 
 NODE_IP=${CPDSN:-127.0.0.1}
@@ -28,11 +41,8 @@ services:kv,index,n1ql
 1:_1
 " > node_conf.ini
 
-# get latest dev version and install
-watson_latest_good=$(curl http://server.jenkins.couchbase.com/view/build-sanity/job/build-sanity-watson/lastSuccessfulBuild/artifact/run_details | grep LAST_SUCCESSFUL | awk -F= '{print $2}')
-watson_version="4.5.0-${watson_latest_good}"
 pushd testrunner
-python scripts/install.py -i node_conf.ini -p version=${watson_version},product=cb
+python scripts/install.py -i node_conf.ini -p version=${which_rel},product=cb
 popd
 
 # create default bucket
