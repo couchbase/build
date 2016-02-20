@@ -2,6 +2,10 @@
 
 which_rel=$1
 NODE_IP=${CPDSN:-127.0.0.1}
+CB_USER=${CPUSER:-Administrator}
+CB_PASS=${CPPASS:-password}
+NODE_USER=root
+NODE_PASS=couchbase
 
 # which_rel evaluation -- not fail-proof, but will start with this
 if [ "x$which_rel" = "x" ]; then
@@ -20,12 +24,7 @@ if [ "${cur_install}" = "${which_rel}" ]; then
     exit 0
 fi
 
-git pull https://github.com/couchbase/testrunner
-
-CB_USER=${CPUSER:-Administrator}
-CB_PASS=${CPPASS:-password}
-NODE_USER=root
-NODE_PASS=couchbase
+pushd ${WORKSPACE}/testrunner
 
 echo "
 [global]
@@ -47,12 +46,11 @@ services:kv,index,n1ql
 1:_1
 " > node_conf.ini
 
-pushd testrunner
 python scripts/install.py -i node_conf.ini -p version=${which_rel},product=cb
 popd
 
 # create default bucket
 curl -X POST -u ${CB_USER}:${CB_PASS} \
     -d name=default -d ramQuotaMB=1024 -d authType=none \
-    -d proxyPort=11216 \
+    -d proxyPort=11215 \
     http://${NODE_IP}:8091/pools/default/buckets
