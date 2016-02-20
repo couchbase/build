@@ -1,6 +1,7 @@
 #!/bin/bash
 
 which_rel=$1
+NODE_IP=${CPDSN:-127.0.0.1}
 
 # which_rel evaluation -- not fail-proof, but will start with this
 if [ "x$which_rel" = "x" ]; then
@@ -13,9 +14,14 @@ if [ "x$which_rel" = "dev" ]; then
     which_rel="4.5.0-${latest_dev}"
 fi
 
+cur_install=$(curl --connect-timeout 10 --silent -X GET http://${NODE_IP}:8091/pools/default | sed 's|.*,"version":"\([0-9]\.[0-9]\.[0-9]-[0-9]*\)-.*|\1|g')
+if [ "${cur_install}" = "${which_rel}" ]; then
+    echo "${which_rel} already installed on ${NODE_IP}"
+    exit 0
+fi
+
 git pull https://github.com/couchbase/testrunner
 
-NODE_IP=${CPDSN:-127.0.0.1}
 CB_USER=${CPUSER:-Administrator}
 CB_PASS=${CPPASS:-password}
 NODE_USER=root
