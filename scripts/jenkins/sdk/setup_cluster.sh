@@ -52,5 +52,5 @@ popd
 # create default bucket
 curl -X POST -u ${CB_USER}:${CB_PASS} \
     -d name=default -d ramQuotaMB=1024 -d authType=none \
-    -d proxyPort=11215 \
+    -d proxyPort=11216 \
     http://${NODE_IP}:8091/pools/default/buckets
