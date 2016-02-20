@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 which_rel=$1
 NODE_IP=${CPDSN:-127.0.0.1}
