@@ -6,10 +6,18 @@ import datetime
 import time
 
 if len(sys.argv) == 1:
-    print 'No argument provided for the script. Expected instance id as the first argument'
+    print 'No argument provided for the script. '
+    print 'Usage: %s <instance_id> [number of hours]'
+    print 'where:'
+    print '    instance_id -- instance id to monitor. It should have the name/tag windows-sdkbb'
+    print '    num_hours   -- if the instance has been up for more than this number of hours'
+    print '                   the script will flag it. Default 24'
     sys.exit(1)
 
 iid = sys.argv[1]
+num_hours = 24
+if len(sys.argv) > 2:
+    num_hours = sys.argv[2]
 iname = 'windows-sdkbb'
 
 client = boto3.client('ec2')
@@ -48,7 +56,7 @@ launch_time_int = int(time.mktime(launch_time.timetuple()))
 utc_now_int = int(time.mktime(datetime.datetime.utcnow().timetuple()))
 up_since = (utc_now_int - launch_time_int) / 3600
 print 'The instance has been running for %d hours.' %up_since
-if up_since > 24:
+if up_since > num_hours:
     print 'The Windows SDK build instance %s on AWS has been' %iid
     print 'running for more than a day. Please shut it down'
     sys.exit(1)
