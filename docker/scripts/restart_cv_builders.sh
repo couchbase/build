@@ -1,6 +1,12 @@
 #!/bin/sh
 
-# No longer using these - cv.jenkins uses Docker plugin to spin
-# up instances on demand. The zz-lightweight one is still necessary.
-./restart_swarmdocker.py cv ubuntu-1204 3224 http://172.23.113.52:8081 10 cv-zz-lightweight lightweight
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160218 cv-zz-lightweight 3224 cv.jenkins.couchbase.com&
+sleep 2
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160218 ubuntu12-cv-01 2322 cv.jenkins.couchbase.com &
+sleep 2
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160218 ubuntu12-cv-02 2323 cv.jenkins.couchbase.com &
+sleep 2
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160218 ubuntu12-cv-03 2324 cv.jenkins.couchbase.com &
+sleep 2
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160218 ubuntu12-cv-04 2325 cv.jenkins.couchbase.com &
 
