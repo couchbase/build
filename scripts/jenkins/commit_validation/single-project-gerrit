@@ -25,6 +25,10 @@ if [ -z "$GERRIT_PATCHSET_REVISION" ]; then
     echo "Error: Required environment variable 'GERRIT_PATCHSET_REVISION' not set."
     exit 4
 fi
+if [ -z "$GERRIT_REFSPEC" ]; then
+    echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
+    exit 5
+fi
 # Optional env vars - how many jobs to run in parallel by default?
 PARALLELISM="${PARALLELISM:-8}"
 TEST_PARALLELISM="${TEST_PARALLELISM:-${PARALLELISM}}"
@@ -97,7 +101,8 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-${BASEDIR}/alldependencies.py $GERRIT_PATCHSET_REVISION | xargs -n 3 ${BASEDIR}/fetch_project.sh
+${BASEDIR}/alldependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_PROJECT $GERRIT_REFSPEC \
+ | xargs -n 3 ${BASEDIR}/fetch_project.sh
 
 cat <<EOF
 

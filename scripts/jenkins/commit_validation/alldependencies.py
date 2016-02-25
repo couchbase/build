@@ -18,7 +18,7 @@ from allopenparents import all_parent_change_ids
 from allcommits import all_commits
 
 
-def all_dependencies(sha1):
+def all_dependencies(sha1, curr_project, curr_ref):
     """Return dependencies of the current commit.
 
     Prints all projects that have a not yet merged commit with a
@@ -33,7 +33,7 @@ def all_dependencies(sha1):
     # The current commit is the first Change-Id in the list, the parents
     # come next
     for change_id in change_ids:
-        commits = all_commits(change_id)
+        commits = all_commits(change_id, curr_project, curr_ref)
         for project, path, ref in commits:
             # Use only the most recent Change-Id of a project
             if project not in dependencies:
@@ -42,12 +42,14 @@ def all_dependencies(sha1):
 
 
 def main():
-    if len(sys.argv) == 1:
-        print 'usage: ./alldependencies.py commit-sha-1'.format()
+    if len(sys.argv) != 4:
+        print 'usage: ./alldependencies.py sha project refspec'
         exit(1)
 
-    commit_sha1 = sys.argv[1]
-    dependencies = all_dependencies(commit_sha1)
+    dependencies = all_dependencies(*sys.argv[1:])
+    if not dependencies:
+        sys.stderr.write('No dependencies found for sha\n')
+        exit(1)
     for project, path, ref in dependencies.values():
         print '{} {} {}'.format(project, path, ref)
 

@@ -25,6 +25,10 @@
     @echo "Error: Required environment variable 'GERRIT_PATCHSET_REVISION' not set."
     @exit /b 4
 )
+@IF NOT DEFINED GERRIT_REFSPEC (
+    @echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
+    @exit /b 4
+)
 @IF NOT DEFINED target_arch (
     set target_arch=amd64
     @echo Notice: environment variable 'target_arch' not set. Defaulting to 'amd64'.
@@ -79,7 +83,7 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 
 SET CURDIR=%~dp0
 
-for /f "tokens=1-3" %%i in ('%CURDIR%\alldependencies.py %GERRIT_PATCHSET_REVISION%') do (
+for /f "tokens=1-3" %%i in ('%CURDIR%\alldependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_PROJECT% %GERRIT_REFSPEC%') do (
     call %CURDIR%\fetch_project.bat %%i %%j %%k
 )
 

@@ -18,6 +18,21 @@ set REFSPEC=%3
     @exit /b 2
 )
 
+@IF NOT DEFINED PROJECT (
+    @echo "Error: Required environment variable 'PROJECT' not set."
+    @exit /b 3
+)
+
+@IF NOT DEFINED PROJECT_PATH (
+    @echo "Error: Required environment variable 'PROJECT_PATH' not set."
+    @exit /b 4
+)
+
+@IF NOT DEFINED REFSPEC (
+    @echo "Error: Required environment variable 'REFSPEC' not set."
+    @exit /b 5
+)
+
 cd %PROJECT_PATH%
 git reset --hard HEAD
 git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%PROJECT% %REFSPEC%

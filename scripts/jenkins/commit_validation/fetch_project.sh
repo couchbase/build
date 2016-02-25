@@ -18,6 +18,18 @@ if [ -z "$GERRIT_PORT" ]; then
     echo "Error: Required environment variable 'GERRIT_PORT' not set."
     exit 2
 fi
+if [ -z "$PROJECT" ]; then
+    echo "Error: Required environment variable 'PROJECT' not set."
+    exit 3
+fi
+if [ -z "$PROJECT_PATH" ]; then
+    echo "Error: Required environment variable 'PROJECT_PATH' not set."
+    exit 4
+fi
+if [ -z "$REFSPEC" ]; then
+    echo "Error: Required environment variable 'REFSPEC' not set."
+    exit 5
+fi
 
 cd $PROJECT_PATH
 git reset --hard HEAD
