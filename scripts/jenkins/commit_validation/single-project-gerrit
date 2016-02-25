@@ -199,6 +199,7 @@ EOF
     echo ""
     echo "Archiving core files and executables to workspace:"
     archive_dir=archived_core_dumps
+    abs_archive_dir=$(pwd)/${archive_dir}
     mkdir -p $archive_dir
     # Wipe out any previous files in the archive.
     rm -fr $archive_dir/*
@@ -215,6 +216,15 @@ EOF
         prog_path=$(gdb --batch -ex "info auxv" --core $core 2>/dev/null \
             | grep 'AT_EXECFN' \
             | sed -e 's/.*"\([^"]\+\)"/\1/')
+
+        # Determine the current working directory of the core. This is needed
+        # as some of the shared libraries may have been loaded using relative paths.
+        core_pwd=$(gdb --batch -ex "set print array on" \
+                       -ex "p/s ((char***)&environ)[0][0]@100" \
+                       $prog_path --core $core 2>/dev/null \
+            | grep '"PWD=' \
+            | sed -e 's/.*"PWD=\([^"]\+\)",/\1/')
+
         echo -e "Core file '$core' - created by $(basename $prog_path)"
         echo -e "GDB command to debug (after extracting archive):"
         echo -e ""
@@ -225,17 +235,23 @@ EOF
 
         # Now determine all shared libraries which were loaded, and archive them,
         # along with any seperate debuginfo files.
+        pushd $core_pwd >/dev/null
         for lib in $(gdb --batch -ex "info sharedlibrary" $prog_path --core $core 2>/dev/null \
             | grep -A999 'Shared Object Library' \
             | grep -v 'Shared Object Library' \
             | grep -v '(*): Shared library is missing debugging information.' \
             | cut -c 50- ); do
 
-            cp --archive --parents --dereference $lib $archive_dir/
-            if [ -f "/usr/lib/debug/$lib" ]; then
-                cp --archive --parents /usr/lib/debug/$lib $archive_dir
+            cp --archive --parents --dereference $lib $abs_archive_dir/
+
+            # Debuginfo files use the real name of the library, not
+            # the symlink name.
+            real_lib=$(readlink -f $lib)
+            if [ -f "/usr/lib/debug/$real_lib" ]; then
+                cp --archive --parents /usr/lib/debug/$real_lib $abs_archive_dir
             fi
         done
+        popd >/dev/null
     done
 
     # Compress the directory to save space on Jenkins
