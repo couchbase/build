@@ -52,9 +52,6 @@ nmake EXTRA_CMAKE_OPTIONS="" || goto :error
     pushd build\couchdb
     nmake check || goto :error
     popd
-
-    cd testrunner
-    python scripts/start_cluster_and_run_tests.py b/resources/dev-4-nodes-xdcr.ini conf/simple.conf || goto :error
 ) ELSE (
     @echo ============================================
     @echo ===    SKIP_UNIT_TESTS set - skipping unit tests

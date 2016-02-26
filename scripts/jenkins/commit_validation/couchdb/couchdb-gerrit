@@ -62,11 +62,3 @@ then
     cp ${WORKSPACE}/build/couchdb/couchdb.plt /tmp/
 fi
 
-cat <<EOF
-============================================
-===           make simple-test           ===
-============================================
-EOF
-cd testrunner
-make simple-test
-cd ..
