@@ -1,29 +1,32 @@
 #!/bin/bash -ex
 #          
-#    run by jenkins sync_gateway jobs:
+#    run by jenkins sync_gateway jobs for version 1.3.0 and newer:
 #          
 #    with required paramters:
 #   
-#          branch_name    distro    version    bld_num    edition
+#          distro    version    bld_num    edition    REPO_SHA
 #             
-#    e.g.: master         centos    0.0.0      0000       community
-#          release/1.1.0  macosx    1.1.0      1234       enterprise
+#    e.g.: centos    0.0.0      0000       community    REPO_SHA
+#          macosx    1.1.0      1234       enterprise   REPO_SHA
 #
 #    and optional parameters:
 #    
-#        GO_REL    1.4.1  (non-Docker builders)
-#        OS        -- `uname -s`
-#        ARCH      -- `uname -m`
+#        TEST_OPTIONS       `-race 4 -cpu`
+#        GO_REL             1.5.3 (Currently supports 1.4.1, 1.5.2, 1.5.3)
 #          
-#    This script only supports branches 1.2.0 and older
+#    This script supports building branches 1.3.0 and newer that uses repo manifest.
+#    It will purely perform these 2 tasks:
+#        - build the executable
+#        - package the final binary installer
 #
 #    ErrorCode:
 #        11 = Incorrect input parameters
 #        22 = Unsupported DISTRO
 #        33 = Unsupported OS
-#        44 = Build sync_gateway failed
-#        45 = Build sg_accel failed
-#        55 = Unit test failed
+#        44 = Unsupported GO version
+#        55 = Build sync_gateway failed
+#        56 = Build sg_accel failed
+#        66 = Unit test failed
 #
 set -e
 
@@ -38,32 +41,24 @@ if [[ "$#" < 5 ]] ; then usage ; exit 11 ; fi
 # enable nocasematch
 shopt -s nocasematch
 
-GITSPEC=${1}
+DISTRO=${1}
 
-DISTRO=${2}
+VERSION=${2}
 
-VERSION=${3}
+BLD_NUM=${3}
 
-BLD_NUM=${4}
+EDITION=${4}
 
-EDITION=${5}
+REPO_SHA=${5}
 
 if [[ $6 ]] ; then  echo "setting TEST_OPTIONS to $6"   ; TEST_OPTIONS=$6   ; else TEST_OPTIONS="None"  ; fi
-if [[ $7 ]] ; then  echo "setting REPO_SHA to $7"       ; REPO_SHA=$7       ; else REPO_SHA="None"      ; fi
-if [[ $8 ]] ; then  echo "setting GO_REL to $8"         ; GO_REL=$8         ; else GO_REL=1.5.3         ; fi
+if [[ $7 ]] ; then  echo "setting GO_REL to $7"         ; GO_REL=$7         ; else GO_REL=1.5.3         ; fi
 
 OS=`uname -s`
 ARCH=`uname -m`
 
-export GITSPEC ; export DISTRO ; export VERSION ; export BLD_NUM ; export EDITION
+export DISTRO ; export VERSION ; export BLD_NUM ; export EDITION
 export OS ; export ARCH
-
-if [[ $GITSPEC =~ feature  ]]
-then
-    LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/0.0.1/${GITSPEC}/${VERSION}-${BLD_NUM}
-else
-    LATESTBUILDS_SGW=http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/${GITSPEC}/${VERSION}-${BLD_NUM}
-fi
 
 ARCHP=${ARCH}
 PARCH=${ARCHP}
@@ -134,16 +129,14 @@ shopt -u nocasematch
 if [[ $ARCHP =~ i386  ]] ; then PARCH=x86
 elif [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
 
-GOPLAT=${GOOS}-${GOARCH}
-
-# Require for builds not using Docker
+# Latest default GO version is 1.5.3
 GO_RELEASE=${GO_REL}
 if [ -d /usr/local/go/${GO_RELEASE} ]
 then
     GOROOT=/usr/local/go/${GO_RELEASE}/go
 else
     echo -e "\nNeed to specify correct GOLANG version: 1.4.1, 1.5.2, or 1.5.3\n"
-    exit 1
+    exit 44
 fi
 
 PATH=${PATH}:${GOROOT}/bin
@@ -153,17 +146,22 @@ export GO_RELEASE ; export GOROOT ; export PATH
 echo "Running GO version ${GO_RELEASE}"
 go version
 
-env | grep -iv password | grep -iv passwd | sort -u
+env | sort -u
 echo ============================================== `date`
 
-TARGET_DIR=${WORKSPACE}/${GITSPEC}/${EDITION}
-LIC_DIR=${TARGET_DIR}/build/license/sync_gateway
-AUT_DIR=${TARGET_DIR}/app-under-test
-SGW_DIR=${AUT_DIR}/sync_gateway
-BLD_DIR=${SGW_DIR}/build
+TARGET_DIR=${WORKSPACE}/${EDITION}
+BIN_DIR=${WORKSPACE}/${EDITION}/godeps/bin
+LIC_DIR=${TARGET_DIR}/cbbuild/license/sync_gateway
+
+if [[ ! -d ${TARGET_DIR} ]] ; then  mkdir -p ${TARGET_DIR} ; fi
+cd         ${TARGET_DIR}
 
 PREFIX=/opt/couchbase-sync-gateway
 PREFIXP=./opt/couchbase-sync-gateway
+
+MANIFEST_DIR=($(find . -name default.xml | xargs cat | grep couchbase/sync_gateway | awk -F\" '{ print $4 }'))
+SGW_DIR=${TARGET_DIR}/${MANIFEST_DIR}
+BLD_DIR=${SGW_DIR}/build
 STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
 
 if [[ -e ${PREFIX}  ]] ; then sudo rm -rf ${PREFIX}  ; fi
@@ -174,43 +172,16 @@ if [[ -e ${STAGING} ]] ; then      rm -rf ${STAGING} ; fi
                                                 #
 RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-sync-gateway_${VERSION}-${BLD_NUM}/rpmbuild/
 export RPM_ROOT_DIR
+env | grep RPM_ROOT_DIR
 
-if [[ ! -d ${AUT_DIR} ]] ; then  mkdir -p ${AUT_DIR} ; fi
-cd         ${AUT_DIR}
 echo ======== sync sync_gateway ===================
 pwd
-if [[ ! -d sync_gateway ]] ; then git clone https://github.com/couchbase/sync_gateway.git ; fi
-cd         sync_gateway
-
-# master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
-if [[ ${GITSPEC} =~ "0.0.0" ]]
-then
-    BRANCH=master
-else
-    BRANCH=${GITSPEC}
-    git checkout --track -B ${BRANCH} origin/${BRANCH}
-fi
-if [ ${REPO_SHA} == "None" ]
-then
-    git pull origin ${BRANCH}
-else
-    git checkout ${REPO_SHA}
-fi
-
-git submodule init
-git submodule update
-git show --stat
 
 if [[ ! -d ${STAGING}/bin/      ]] ; then mkdir -p ${STAGING}/bin/      ; fi
 if [[ ! -d ${STAGING}/examples/ ]] ; then mkdir -p ${STAGING}/examples/ ; fi
 if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
 
-REPO_SHA=`git log --oneline --pretty="format:%H" -1`
-
-#
-# Does not support releases 1.0.4 and older due to move from couchbaselab to couchbase
-#
-TEMPLATE_FILES="src/github.com/couchbase/sync_gateway/rest/api.go"
+TEMPLATE_FILES="${SGW_DIR}/rest/api.go"
 
 echo ======== insert build meta-data ==============
 for TF in ${TEMPLATE_FILES}
@@ -221,29 +192,10 @@ for TF in ${TEMPLATE_FILES}
     mv  ${TF}.new  ${TF}
 done
 
-cd ${SGW_DIR}
 echo ======== build ===============================
-rm -rf bin
-echo .................. ${PLAT_DIR}
-DEST_DIR=${SGW_DIR}/bin/${PLAT_DIR}
+DEST_DIR=${SGW_DIR}/bin
+rm -rf p ${DEST_DIR}
 mkdir -p ${DEST_DIR}
-
-GOPATH=${SGW_DIR}:${SGW_DIR}/vendor
-export GOPATH
-export CGO_ENABLED=1
-
-
-# prevent connection timed out:  https://google.com: dial tcp 74.125.239.97:443...
-# 
-# RANDOM in 1..32767
-
-#let STARTUP_DELAY=30+${RANDOM}/1000
-# Decrease to 1 sec to observe connection issue.  If no issue, then remove
-let STARTUP_DELAY=1
-sleep ${STARTUP_DELAY}
-echo ======== D O N E   S L E E P ================= `date`
-
-# ... caused by all builders running at once
 
 # clean up stale objects switching between GO version
 if [[ -d ${SGW_DIR}/pkg ]]
@@ -251,29 +203,25 @@ then
     rm -rf ${SGW_DIR}/pkg
 fi
 
-#
-# Does not support releases 1.0.4 and older due to move from couchbaselab to couchbase
-#
-GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway
+export CGO_ENABLED=1
+GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbase/sync_gateway/...
 
-if [[ -e ${SGW_DIR}/${EXEC} ]]
+if [[ -e ${BIN_DIR}/${EXEC} ]]
   then
-    mv   ${SGW_DIR}/${EXEC} ${DEST_DIR}
+    mv   ${BIN_DIR}/${EXEC} ${DEST_DIR}
     echo "..............................Sync-Gateway Success! Output is: ${DEST_DIR}/${EXEC}"
   else
-    echo "############################# Sync-Gateway FAIL! no such file: ${SGW_DIR}/${EXEC}"
-    exit 44
+    echo "############################# Sync-Gateway FAIL! no such file: ${BIN_DIR}/${EXEC}"
+    exit 55
 fi
 
-GOOS=${GOOS} GOARCH=${GOARCH} go build -v github.com/couchbase/sync_gateway/sg_accel
-
-if [[ -e ${SGW_DIR}/${ACCEL_EXEC} ]]
+if [[ -e ${BIN_DIR}/${ACCEL_EXEC} ]]
   then
-    mv   ${SGW_DIR}/${ACCEL_EXEC} ${DEST_DIR}
+    mv   ${BIN_DIR}/${ACCEL_EXEC} ${DEST_DIR}
     echo "..............................SG-ACCEL Success! Output is: ${DEST_DIR}/${ACCEL_EXEC}"
   else
-    echo "############################# SG-ACCEL FAIL! no such file: ${SGW_DIR}/${ACCEL_EXEC}"
-    exit 45
+    echo "############################# SG-ACCEL FAIL! no such file: ${BIN_DIR}/${ACCEL_EXEC}"
+    exit 56
 fi
 
 echo ======== remove build meta-data ==============
@@ -286,16 +234,16 @@ echo ======== test ================================ `date`
 echo ........................ running test.sh
 if [[ ${TEST_OPTIONS} =~ "None" ]]
 then
-    ./test.sh
+    GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test github.com/couchbase/sync_gateway/...
 else
-    ./test.sh ${TEST_OPTIONS} 
+    GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${TEST_OPTIONS} github.com/couchbase/sync_gateway/...
 fi
 
 test_result=$?
 if [ ${test_result} -ne "0" ]
 then
     echo "########################### FAIL! Unit test results = ${test_result}"
-    exit 55
+    exit 66
 fi
 
 echo ======== sync_gateway package =============================
@@ -367,7 +315,6 @@ else
     md5sum ${ACCEL_NEW_PKG_NAME}  > ${ACCEL_NEW_PKG_NAME}.md5
 fi
 
-sleep ${STARTUP_DELAY}
 echo ======== D O N E   S L E E P ================= `date`
 
 echo -------........................... uploading internally to ${LATESTBUILDS_SGW}/${NEW_PKG_NAME}

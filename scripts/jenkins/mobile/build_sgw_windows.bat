@@ -8,6 +8,8 @@
 ::
 ::          branch_name   git_commit  version  build_number  Edition  platform
 ::
+::    This script only supports branches 1.2.0 and older
+::
 ::    e.g.: master         123456   0.0.0 0000   community    windows-x64
 ::          release/1.0.0  123456   1.1.0 1234   enterprise   windows-x64
 ::
