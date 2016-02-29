@@ -31,7 +31,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-${curdir}/../alldependencies.py $GERRIT_PATCHSET_REVISION | xargs -n 3 ${curdir}/../fetch_project.sh
+${curdir}/../alldependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_PROJECT $GERRIT_REFSPEC | xargs -n 3 ${curdir}/../fetch_project.sh
 
 cat <<EOF
 ============================================

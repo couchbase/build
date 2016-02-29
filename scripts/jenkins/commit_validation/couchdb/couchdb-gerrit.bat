@@ -36,7 +36,7 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 @echo ============================================
 @echo ===    update %GERRIT_PROJECT%           ===
 @echo ============================================
-for /f "tokens=1-3" %%i in ('%CURDIR%..\alldependencies.py %GERRIT_PATCHSET_REVISION%') do (
+for /f "tokens=1-3" %%i in ('%CURDIR%..\alldependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_PROJECT% %GERRIT_REFSPEC%') do (
     call %CURDIR%..\fetch_project.bat %%i %%j %%k
 )
 
