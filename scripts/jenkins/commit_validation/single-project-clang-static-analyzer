@@ -69,8 +69,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-${BASEDIR}/alldependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_PROJECT $GERRIT_REFSPEC \
- | xargs -n 3 ${BASEDIR}/fetch_project.sh
+${BASEDIR}/checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_PROJECT $GERRIT_REFSPEC
 
 cat <<EOF
 

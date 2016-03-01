@@ -82,10 +82,7 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 @echo ============================================
 
 SET CURDIR=%~dp0
-
-for /f "tokens=1-3" %%i in ('%CURDIR%\alldependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_PROJECT% %GERRIT_REFSPEC%') do (
-    call %CURDIR%\fetch_project.bat %%i %%j %%k
-)
+python %CURDIR%\checkout_dependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
 
 @echo.
 @echo ============================================
