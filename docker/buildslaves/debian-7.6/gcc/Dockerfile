@@ -18,8 +18,16 @@ RUN mkdir /tmp/deploy && cd /tmp/deploy && \
     curl -O ftp://ftp.fu-berlin.de/unix/languages/gcc/releases/gcc-4.9.1/gcc-4.9.1.tar.bz2 && \
     cd /tmp/deploy &&  tar xjf gcc-4.9.1.tar.bz2 && \
     cd gcc-4.9.1 && \
-    ./configure --prefix=/usr/local --disable-multilib --enable-languages=c,c++ && \
+    ./configure --prefix=/usr/local --with-slibdir=/lib/x86_64-linux-gnu \
+        --disable-multilib --enable-languages=c,c++ && \
     make -j8 BOOT_CFLAGS='-O' bootstrap && \
     make install && \
     cd /tmp && rm -rf deploy
+
+# Create a "dummy" package that consumers can install so Debian doesn't
+# try to install the old GCC packages
+COPY gcc g++ /tmp/
+RUN apt-get install -y equivs
+RUN cd /tmp && equivs-build gcc && equivs-build g++ && \
+    mkdir /usr/local/debs && cp *.deb /usr/local/debs && rm g*
 

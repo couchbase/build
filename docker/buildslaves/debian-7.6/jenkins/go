@@ -1,10 +1,19 @@
 #!/bin/sh
 
 # Bump this when rebuilding with changes
-TAG=20151223
+TAG=20160229
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
+
+# Only copy this if it doesn't exist. Prevents re-running steps in
+# this Dockerfile. This does mean that if you need to update the
+# gcc, you need to manually delete this directory and rebuild.
+if [ ! -d build/local ]
+then
+    docker run -v $(pwd)/build:/output ceejatec/debian-gcc-build:7.6 cp -a /usr/local /output
+fi
+
 docker build -t ceejatec/debian-7-couchbase-build:$TAG .
 docker tag -f ceejatec/debian-7-couchbase-build:$TAG ceejatec/debian-7-couchbase-build:latest
 if [ "$1" = "--publish" ]

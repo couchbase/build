@@ -25,17 +25,25 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
 RUN apt-get update && apt-get install -y openjdk-7-jre-headless && \
     rm -f /var/cache/apt/archives/*.deb
 
+# GCC (from ceejatec/debian-gcc-build)
+COPY build/local /usr/local
+RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
+     mv /tmp/ld.so.conf /etc && ldconfig && \
+     ln -s gcc /usr/local/bin/cc && \
+     dpkg -i /usr/local/debs/*.deb && \
+     ln -s libgcc_s.so.1 /lib/x86_64-linux-gnu/libgcc_s.so
+
 # Install Couchbase build dependencies.
 # Note: lsb-release currently required for "cbdeps" third-party build
 # mechanism, but we hope to remove that requirement as it brings in
 # a lot of unnecessary packages.
-
-RUN apt-get update && apt-get install -y g++ ccache git-core tar libssl-dev libnuma-dev rubygems \
-    rake ncurses-dev python-dev devscripts debhelper ed man curl \
-    libc6-i386 lsb-release && \
+RUN apt-get update && apt-get install -y libmpc2 libmpfr4 libgmp10 \
+    ccache git-core tar libssl-dev libnuma-dev rubygems build-essential \
+    rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 lsb-release \
+    cpp-4.6- gcc-4.6- && \
     rm -f /var/cache/apt/archives/*.deb
 
-#paramiko for testrunner
+# paramiko for testrunner
 RUN apt-get update && apt-get install -y python-paramiko
 
 # Install third-party build dependencies (python 2.6 can hopefully be removed
@@ -74,4 +82,6 @@ ADD .ssh /home/couchbase/.ssh
 COPY build/couchbuilder_start.sh /usr/sbin/
 ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
 CMD [ "default" ]
+
+
 
