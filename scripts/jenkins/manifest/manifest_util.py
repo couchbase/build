@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+
 import os
 from subprocess import check_call
 import json
 import contextlib
+import argparse
+import pprint
 
 @contextlib.contextmanager
 def remember_cwd():
@@ -66,4 +70,14 @@ def scan_manifests(manifest_repo = "git://github.com/couchbase/manifest"):
               manifests[full_filename]["type"] = "production"
 
   return manifests
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument("-p", "--manifest-project", type=str,
+                      default="git://github.com/couchbase/manifest",
+                      help="Alternate git URL for manifest repository")
+  args = parser.parse_args()
+  pp = pprint.PrettyPrinter(indent=2)
+  pp.pprint(scan_manifests(args.manifest_project))
+
 

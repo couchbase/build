@@ -21,8 +21,8 @@ import tarfile
 # Command-line args
 parser = argparse.ArgumentParser()
 parser.add_argument("manifest", type=str, help="manifest path")
-parser.add_argument("--no-commit", action="store_true",
-                    help="Don't commit final manifest")
+parser.add_argument("--no-push", action="store_true",
+                    help="Don't push final build manifest")
 parser.add_argument("-p", "--manifest-project", type=str,
                     default="git://github.com/couchbase/manifest",
                     help="Alternate git URL for manifest repository")
@@ -34,6 +34,7 @@ args = parser.parse_args()
 MANIFEST = args.manifest
 MANIFEST_PROJECT = args.manifest_project
 BUILD_MANIFESTS_ORG = args.build_manifests_org
+NO_PUSH = args.no_push
 force = args.force
 
 # Determine product and release from manifest path
@@ -62,6 +63,9 @@ if os.path.exists(product_config_filename):
     product_config = json.load(product_config_file)
 else:
   product_config = {}
+
+# Override PRODUCT if specified in product-config.json
+PRODUCT = product_config.get("product", PRODUCT)
 
 # Load manifest metadata from JSON, if any
 manifests = product_config.get("manifests")
@@ -190,8 +194,9 @@ commit_msg = "{} {} '{}' build {}-{}\n\n{} {}{}".format(
 os.chdir("../build-team-manifests")
 check_call(["git", "add", build_manifest_filename])
 check_call(["git", "commit", "-m", commit_msg])
-check_call(["git", "push", "origin",
-  "{0}:refs/heads/{0}".format(PRODUCT_BRANCH)])
+if not NO_PUSH:
+  check_call(["git", "push", "origin",
+    "{0}:refs/heads/{0}".format(PRODUCT_BRANCH)])
 
 # Save the build manifest, current source tarball, and all computed
 # properties with consistent names in top-level directory
