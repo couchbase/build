@@ -32,7 +32,7 @@ def parent_commits(sha1):
     Return the parent commit only if it is not yet merged.
     """
     url = (GERRIT_ROOT + 'changes/?o=CURRENT_REVISION&o=CURRENT_COMMIT' +
-           '&q=status:open+' + sha1)
+           '&q=status:open+commit:' + sha1)
     resp = request.urlopen(url)
     try:
         change = parse_response(resp)[0]
@@ -61,9 +61,14 @@ def all_parent_commits_and_self(sha1):
 def commit_to_change_id(sha1):
     """Return the Change-Id to the corresponding commit.
     """
-    url = GERRIT_ROOT + 'changes/?q=' + sha1
+    url = GERRIT_ROOT + 'changes/?q=commit:' + sha1
     resp = request.urlopen(url)
-    change = parse_response(resp)[0]
+    try:
+        change = parse_response(resp)[0]
+    except IndexError:
+        # If for whatever reason the change id doesn't exist
+        # then return None.
+        return None
     return change['change_id']
 
 def all_parent_change_ids(sha1):
@@ -73,7 +78,9 @@ def all_parent_change_ids(sha1):
     """
     commits = all_parent_commits_and_self(sha1)
     change_ids = [commit_to_change_id(c) for c in commits]
-    return change_ids
+
+    # Filter out non-existent change ids
+    return [c for c in change_ids if c is not None]
 
 
 def main():
