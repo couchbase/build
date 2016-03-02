@@ -9,6 +9,12 @@ call %CURDIR%..\single-project-gerrit.bat %*
 
 @echo.
 @echo ============================================
+@echo ===          Install the build           ===
+@echo ============================================
+nmake || goto :error
+
+@echo.
+@echo ============================================
 @echo ===         Run viewmerge tests          ===
 @echo ============================================
 

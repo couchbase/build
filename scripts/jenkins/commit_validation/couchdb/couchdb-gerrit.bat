@@ -1,54 +1,27 @@
-@REM script for doing CV on windows for couchdb project
-@IF NOT DEFINED target_arch (
-    set target_arch=amd64
-    @echo Notice: environment variable 'target_arch' not set. Defaulting to 'amd64'.
-)
+@REM Script for doing CV on windows for couchdb project
+
+SET SKIP_UNIT_TESTS=1
+SET COUCHBASE_NUM_VBUCKETS=64
+SET PATH=%WORKSPACE%\install\bin;%PATH%
 
 SET CURDIR=%~dp0
+call %CURDIR%..\single-project-gerrit.bat %*
 
 @echo.
 @echo ============================================
-@echo ===    environment                       ===
+@echo ===          Install the build           ===
 @echo ============================================
+nmake || goto :error
 
-set
-@echo.
-set source_root=%WORKSPACE%
-call tlm\win32\environment
-@echo on
-
-@echo.
-@echo ============================================
-@echo ===    clean                             ===
-@echo ============================================
-
-@REM Windows build is serial and there is no ccache, hence very slow.
-@REM To try to alleviate this, we *don't* perform a top-level clean, only for
-@REM the project subdirectory and Go objects (as it's incremental build is a bit flaky).
-@REM This should speed things up a little, but still
-@REM ensures that the correct number of warnings are reported for this project.
-pushd build\couchdb
-nmake clean
-popd
-del /F/Q/S godeps\pkg goproj\pkg goproj\bin
-
-@echo.
-@echo ============================================
-@echo ===    update %GERRIT_PROJECT%           ===
-@echo ============================================
-for /f "tokens=1-3" %%i in ('%CURDIR%..\alldependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_PROJECT% %GERRIT_REFSPEC%') do (
-    call %CURDIR%..\fetch_project.bat %%i %%j %%k
-)
-
-@echo.
-@echo ============================================
-@echo ===               Build                  ===
-@echo ============================================
-
-nmake EXTRA_CMAKE_OPTIONS="" || goto :error
+@REM Enable unit tests (they'll also run dialyzer)
+SET SKIP_UNIT_TESTS=
 
 @echo.
 @IF NOT DEFINED SKIP_UNIT_TESTS (
+    @echo.
+    @echo ============================================
+    @echo ===     Run dialyzer and unit tests      ===
+    @echo ============================================
     pushd build\couchdb
     nmake check || goto :error
     popd
