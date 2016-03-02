@@ -149,8 +149,8 @@ go version
 env | sort -u
 echo ============================================== `date`
 
-TARGET_DIR=${WORKSPACE}/${EDITION}
-BIN_DIR=${WORKSPACE}/${EDITION}/godeps/bin
+TARGET_DIR=${WORKSPACE}/${VERSION}/${EDITION}
+BIN_DIR=${WORKSPACE}/${VERSION}/${EDITION}/godeps/bin
 LIC_DIR=${TARGET_DIR}/cbbuild/license/sync_gateway
 
 if [[ ! -d ${TARGET_DIR} ]] ; then  mkdir -p ${TARGET_DIR} ; fi
@@ -159,8 +159,8 @@ cd         ${TARGET_DIR}
 PREFIX=/opt/couchbase-sync-gateway
 PREFIXP=./opt/couchbase-sync-gateway
 
-MANIFEST_DIR=($(find . -name default.xml | xargs cat | grep couchbase/sync_gateway | awk -F\" '{ print $4 }'))
-SGW_DIR=${TARGET_DIR}/${MANIFEST_DIR}
+SRC_DIR=godeps/src/github.com/couchbase/sync_gateway
+SGW_DIR=${TARGET_DIR}/${SRC_DIR}
 BLD_DIR=${SGW_DIR}/build
 STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
 
