@@ -37,6 +37,20 @@ BUILD_MANIFESTS_ORG = args.build_manifests_org
 NO_PUSH = args.no_push
 force = args.force
 
+# Initialize output files
+properties_filename = os.path.abspath("build.properties")
+if os.path.exists(properties_filename):
+  os.remove(properties_filename)
+json_filename = os.path.abspath("build-properties.json")
+if os.path.exists(json_filename):
+  os.remove(json_filename)
+manifest_filename = os.path.abspath("build-manifest.xml")
+if os.path.exists(manifest_filename):
+  os.remove(manifest_filename)
+tarball_filename = os.path.abspath("source.tar.gz")
+if os.path.exists(tarball_filename):
+  os.remove(tarball_filename)
+
 # Determine product and release from manifest path
 PRODUCT, _, MANIFEST_PATH = MANIFEST.partition('/')
 if MANIFEST_PATH is '':
@@ -150,9 +164,10 @@ if (os.path.exists(build_manifest_filename)):
     if (not force):
       print "No changes since last build {}-{}; not executing new build".format(
         VERSION, BLD_NUM)
-      os.chdir("..")
-      with open("build-properties.json", "w") as prop:
+      with open(json_filename, "w") as prop:
         json.dump({}, prop)
+      with open(properties_filename, "w") as prop:
+        prop.write("")
       sys.exit(0)
     else:
       print "No changes since last build {}-{}, but forcing new build anyway".format(
@@ -202,7 +217,7 @@ if not NO_PUSH:
 # properties with consistent names in top-level directory
 os.chdir("..")
 print "Saving build manifest..."
-shutil.copy(build_manifest_filename, "build-manifest.xml")
+shutil.copy(build_manifest_filename, manifest_filename)
 # Also keep a copy of this build manifest in the tarball
 shutil.copy(build_manifest_filename, "{}/manifest.xml".format(PRODUCT))
 
@@ -218,11 +233,13 @@ properties = {
   "TYPE": TYPE,
   "FORCE": force
 }
-with open("build-properties.json", "w") as prop:
+with open(json_filename, "w") as prop:
   json.dump(properties, prop, indent=2, separators=(',', ': '))
+with open(properties_filename, "w") as prop:
+  prop.write("PRODUCT={PRODUCT}\nRELEASE={RELEASE}\nPRODUCT_BRANCH={PRODUCT_BRANCH}\nVERSION={VERSION}\nBLD_NUM={BLD_NUM}\nMANIFEST={MANIFEST}\nPARENT={PARENT}\nTYPE={TYPE}\nFORCE={FORCE}\n".format(**properties))
 
 print "Creating source tarball..."
-with tarfile.open("source.tar.gz", "w:gz") as tar:
+with tarfile.open(tarball_filename, "w:gz") as tar:
   os.chdir(PRODUCT)
   for root, dirs, files in os.walk("."):
     for name in files:
