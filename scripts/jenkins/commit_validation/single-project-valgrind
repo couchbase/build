@@ -47,6 +47,7 @@ cat <<EOF
 ============================================
 EOF
 echo_cmd make clean-xfd-hard
+echo_cmd rm -fr install
 
 cat <<EOF
 

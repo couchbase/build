@@ -86,6 +86,7 @@ cat <<EOF
 ============================================
 EOF
 echo_cmd make clean-xfd-hard
+echo_cmd rm -fr install
 
 # Zero ccache stats, so we can measure how much space this build is
 # consuming.
