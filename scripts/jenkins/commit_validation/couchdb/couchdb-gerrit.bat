@@ -11,7 +11,7 @@ call %CURDIR%..\single-project-gerrit.bat %*
 @echo ============================================
 @echo ===          Install the build           ===
 @echo ============================================
-nmake || goto :error
+cmake --build build --target install || goto :error
 
 @REM Enable unit tests (they'll also run dialyzer)
 SET SKIP_UNIT_TESTS=
