@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Fetches a project by project name, path and Git ref
 # This script is normally used in conjunction with allcommits.py:
@@ -31,8 +31,8 @@ if [ -z "$REFSPEC" ]; then
     exit 5
 fi
 
-pushd $PROJECT_PATH
+pushd $PROJECT_PATH > /dev/null
 git reset --hard HEAD
 git fetch ssh://$GERRIT_HOST:$GERRIT_PORT/$PROJECT $REFSPEC
 git checkout FETCH_HEAD
-popd
+popd > /dev/null
