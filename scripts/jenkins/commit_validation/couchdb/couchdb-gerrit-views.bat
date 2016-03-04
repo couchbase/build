@@ -19,8 +19,8 @@ cmake --build build --target install || goto :error
 @echo ============================================
 
 cd testrunner
-python scripts/start_cluster_and_run_tests.py nmake b/resources/dev-single-node.ini conf/view-conf/py-viewmerge.conf || goto :error
-python scripts/start_cluster_and_run_tests.py nmake b/resources/dev-4-nodes.ini conf/view-conf/py-viewmerge.conf || goto :error
+python scripts/start_cluster_and_run_tests.py "cmake --build ..\..\build --target" b/resources/dev-single-node.ini conf/view-conf/py-viewmerge.conf || goto :error
+python scripts/start_cluster_and_run_tests.py "cmake --build ..\..\build --target" b/resources/dev-4-nodes.ini conf/view-conf/py-viewmerge.conf || goto :error
 cd ..
 
 :end
