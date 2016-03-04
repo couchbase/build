@@ -43,3 +43,8 @@ RUN wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add - && 
 # & extracting the set of shared libraries.
 RUN apt-get install -y gdb && \
     rm -f /var/cache/apt/archives/*.deb
+
+# Install Lua - Needed for lua-based tests in Couchstore
+RUN apt-get update && \
+    apt-get install -y lua5.2 lua5.2-dev && \
+    rm -fr /var/cache/apt/archives/*.deb
