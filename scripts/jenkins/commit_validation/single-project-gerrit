@@ -225,12 +225,6 @@ EOF
             | grep '"PWD=' \
             | sed -e 's/.*"PWD=\([^"]\+\)",/\1/')
 
-        echo -e "Core file '$core' - created by $(basename $prog_path)"
-        echo -e "GDB command to debug (after extracting archive):"
-        echo -e ""
-        echo -e "    gdb ${prog_path#/} --core $(basename $core) -ex 'set debug-file-directory usr/lib/debug' -ex 'set sysroot .'"
-        echo ""
-        echo ""
         cp --archive --parents $prog_path $archive_dir/
 
         # Now determine all shared libraries which were loaded, and archive them,
@@ -251,6 +245,18 @@ EOF
                 cp --archive --parents /usr/lib/debug/$real_lib $abs_archive_dir
             fi
         done
+
+        echo -e "Core file '$core' - created by $(basename $prog_path)"
+        echo -e "GDB command to debug (after extracting archive):"
+        echo -e ""
+        echo -e "    gdb ${prog_path#/} --core $(basename $core) -ex 'set debug-file-directory usr/lib/debug' -ex 'set sysroot .'"
+        echo ""
+
+        # Finally, give people a "sneak peak" of where the crash was
+        # by dumping a backtrace.
+        echo "Backtrace of crashing thread:"
+        gdb --batch -ex "backtrace" $prog_path --core $core 2>/dev/null
+        echo ""
         popd >/dev/null
     done
 
