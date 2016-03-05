@@ -65,6 +65,7 @@ output = check_output(
      "--volume=/etc/timezone:/etc/timezone",
      "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
      "--volume=/home/couchbase/latestbuilds:/latestbuilds",
+     "--volume=/home/couchbase/releases:/releases",
      "--ulimit=core=-1",
      image])
 print "Result: {0}".format(output)
