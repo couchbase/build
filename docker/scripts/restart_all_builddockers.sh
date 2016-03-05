@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Old-school buildbot docker containers
-./restart_builddocker.py ceejatec/ubuntu-1004-couchbase-repodocker:latest ubuntu-1004-repodocker 2200
+./restart_builddocker.py ceejatec/ubuntu-1004-couchbase-repodocker:latest ubuntu-x64-1004-repo-builder 2200
 ./restart_builddocker.py ceejatec/ubuntu-1004-couchbase-builddocker:latest ubuntu-1004-builddocker-01 2202
 ./restart_builddocker.py ceejatec/ubuntu-1204-couchbase-builddocker:latest ubuntu-1204-builddocker-01 2205
 ./restart_builddocker.py ceejatec/centos-58-couchbase-builddocker:latest centos-5-builddocker-01 2204
