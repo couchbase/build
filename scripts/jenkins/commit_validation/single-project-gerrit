@@ -184,7 +184,6 @@ fi
 # Check for core files - if present then archive them and the
 # executable they are from (for post-mortem) and fail the build.
 core_files=$(find /tmp/ -maxdepth 1 -name 'core.*' -print)
-echo "'$core_files'"
 if [ -n "$core_files" ]; then
     cat <<EOF
 
@@ -192,10 +191,7 @@ if [ -n "$core_files" ]; then
 ***  ERROR: Core file(s) found at the end of the build:
 *******************************************************
 EOF
-    for core in $core_files; do
-        echo $(ls -l $core)
-    done
-
+    echo $core_files
     echo ""
     echo "Archiving core files and executables to workspace:"
     archive_dir=archived_core_dumps
@@ -204,6 +200,7 @@ EOF
     # Wipe out any previous files in the archive.
     rm -fr $archive_dir/*
 
+    IFS=$'\n'
     for core in $core_files; do
         cp --archive $core $archive_dir/
 
@@ -249,7 +246,7 @@ EOF
         echo -e "Core file '$core' - created by $(basename $prog_path)"
         echo -e "GDB command to debug (after extracting archive):"
         echo -e ""
-        echo -e "    gdb ${prog_path#/} --core $(basename $core) -ex 'set debug-file-directory usr/lib/debug' -ex 'set sysroot .'"
+        echo -e "    gdb ${prog_path#/} --core '$(basename $core)' -ex 'set debug-file-directory usr/lib/debug' -ex 'set sysroot .'"
         echo ""
 
         # Finally, give people a "sneak peak" of where the crash was
