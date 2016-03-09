@@ -5,6 +5,7 @@ import urllib2
 import json
 import time
 import os
+import shutil
 from subprocess import call, check_output
 
 if len(sys.argv) <= 3:
@@ -47,6 +48,13 @@ if result == 0:
     if output.strip() != slave:
         print "Stopped slave had wrong name, but continuing to start new..."
 
+# Create/empty slave Jenkins directory.
+slave_dir = "/home/couchbase/slaves/{0}".format(slave)
+print "Recreating out {0}...".format(slave_dir)
+if os.path.isdir(slave_dir):
+    shutil.rmtree(slave_dir)
+os.makedirs(slave_dir)
+
 # Finally, create new slave container.
 # Note: if you get an error about the "docker-default-ptrace" AppArmor profile
 # not existing, you can create it as follows (as root on the docker host) :
@@ -66,6 +74,7 @@ output = check_output(
      "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
      "--volume=/home/couchbase/latestbuilds:/latestbuilds",
      "--volume=/home/couchbase/releases:/releases",
+     "--volume=/home/couchbase/slaves/{0}:/home/couchbase/jenkins".format(slave),
      "--ulimit=core=-1",
      image])
 print "Result: {0}".format(output)
