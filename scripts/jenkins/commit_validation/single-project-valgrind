@@ -54,11 +54,14 @@ EOF
 echo_cmd make clean-xfd-hard
 echo_cmd rm -fr install
 
-cat <<EOF
-
 # Zero ccache stats, so we can measure how much space this build is
 # consuming.
 echo_cmd ccache -z
+
+# Wipe out any core files left from a previous run.
+echo_cmd rm -f /tmp/core.*
+
+cat <<EOF
 
 ============================================
 ===               Build                  ===
@@ -89,5 +92,10 @@ echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure \
 # programs Jenkins parses the results so we don't include
 # them.
 echo_cmd ${BASEDIR}/remove_irrelevant_memcheck_results.py memcheck.*.xml
+
+# Check for core files - if present then archive them and the
+# executable they are from (for post-mortem) and fail the build.
+echo_cmd ${BASEDIR}/archive_core_files.sh archived_core_dumps /tmp/core.*
+rm -f /tmp/core.*
 
 popd 2>&1 > /dev/null
