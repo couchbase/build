@@ -25,9 +25,13 @@ fi
 
 DISTRO=$1
 case "$DISTRO" in
-    centos*)
+    centos6)
         PKG=rpm
-        FLAVOR=redhat
+        FLAVOR=redhat6
+        ;;
+    centos7)
+        PKG=rpm
+        FLAVOR=redhat7
         ;;
     *suse*)
         PKG=rpm
