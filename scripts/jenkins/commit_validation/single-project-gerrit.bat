@@ -27,7 +27,11 @@
 )
 @IF NOT DEFINED GERRIT_REFSPEC (
     @echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
-    @exit /b 4
+    @exit /b 5
+)
+@IF NOT DEFINED GERRIT_CHANGE_ID (
+    @echo "Error: Required environment variable 'GERRIT_CHANGE_ID' not set."
+    @exit /b 6
 )
 @IF NOT DEFINED target_arch (
     set target_arch=amd64
@@ -82,7 +86,7 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 @echo ============================================
 
 SET CURDIR=%~dp0
-python %CURDIR%\checkout_dependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
+python %CURDIR%\checkout_dependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_CHANGE_ID% %GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
 
 @echo.
 @echo ============================================

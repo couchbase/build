@@ -19,8 +19,8 @@ else:
     FETCH_PROJECT = 'fetch_project.sh'
 
 def main():
-    if len(sys.argv) != 4:
-        print('usage: {} sha project refspec\n'.format(sys.argv[0]), file=sys.stderr)
+    if len(sys.argv) != 5:
+        print('usage: {} sha changeid project refspec\n'.format(sys.argv[0]), file=sys.stderr)
 
     script_dir = os.path.dirname(sys.argv[0])
     script_dir = os.path.sep.join(script_dir.split('/'))
