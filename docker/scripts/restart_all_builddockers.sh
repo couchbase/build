@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Currently these slaves are all hosted on mega
+
 # Old-school buildbot docker containers
 ./restart_builddocker.py ceejatec/ubuntu-1004-couchbase-repodocker:latest ubuntu-x64-1004-repo-builder 2200
 ./restart_builddocker.py ceejatec/ubuntu-1004-couchbase-builddocker:latest ubuntu-1004-builddocker-01 2202
@@ -11,26 +13,19 @@
 
 # New hotness Jenkins docker containers
 ./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20150618 sherlocker-centos6 2222 &
-sleep 2
+sleep 5
 ./restart_jenkinsdocker.py ceejatec/centos-70-couchbase-build:20150930 sherlocker-centos7 2227 &
-sleep 2
+sleep 5
 ./restart_jenkinsdocker.py ceejatec/debian-7-couchbase-build:20150927 sherlocker-debian7 2224 &
-sleep 2
+sleep 5
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest zz-lightweight 2223 &
-sleep 2
+sleep 5
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:20150927 sherlocker-ubuntu12.04-01 2225 &
-sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20151009 cv-sherlocker-ubuntu12.04-01 2229 &
-sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20151009 cv-sherlocker-ubuntu12.04-02 2230 &
-sleep 2
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20151009 cv-sherlocker-ubuntu12.04-03 2231 &
-sleep 2
+sleep 5
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1404-couchbase-build:20150927 sherlocker-ubuntu14.04 2226 &
-sleep 2
+sleep 5
 ./restart_jenkinsdocker.py ceejatec/suse-11-couchbase-build:20150927 sherlocker-suse11 2228 &
 
 wait
-
-echo "Done!"
+echo "All done!"
 
