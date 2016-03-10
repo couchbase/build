@@ -31,7 +31,12 @@ if [ -z "$GERRIT_REFSPEC" ]; then
 fi
 # Optional env vars - how many jobs to run in parallel by default?
 PARALLELISM="${PARALLELISM:-8}"
-TEST_PARALLELISM="${TEST_PARALLELISM:-${PARALLELISM}}"
+
+# Set default TEST_PARALLELISM to 4 - many of our tests are actually
+# multi-threaded (unlike the compiler) and hence running 8 tests in
+# parallel (each with multiple threads) can overload the CV machines
+# and cause test timeouts.
+TEST_PARALLELISM="${TEST_PARALLELISM:-4}"
 
 BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
 

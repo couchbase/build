@@ -39,7 +39,7 @@
     set PARALLELISM=8
 )
 @IF NOT DEFINED TEST_PARALLELISM (
-    set TEST_PARALLELISM=%PARALLELISM%
+    set TEST_PARALLELISM=4
 )
 
 :: Set default CMake generator
