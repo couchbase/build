@@ -28,11 +28,12 @@ _PLATFORM_PREFIX = {
     'centos7' : 'centos7.x86_64.rpm',
     'suse11'  : 'suse11.x86_64.rpm',  # name was opensuse11.3 until 2217; so we will not support anything less than 2217
     'debian7' : 'debian7_amd64.deb',
+    'debian8' : 'debian8_amd64.deb',
     'ubuntu12': 'ubuntu12.04_amd64.deb',
     'ubuntu14': 'ubuntu14.04_amd64.deb',
     'mac'     : 'macos_x86_64.zip',
-    'win32'   : 'windows_amd64.exe',
-    'win64'   : 'windows_x86.exe',
+    'win64'   : 'windows_amd64.exe',
+    'win32'   : 'windows_x86.exe',
 }
 
 _BUILD_NUMBER_RANGE = {
@@ -64,10 +65,12 @@ class Builds():
             code_name = 'sherlock'
             jenkins_url = _FACTORY
             build_job = 'sherlock-build'
+            self.supported_platforms.remove('debian8')
         elif version.startswith('4.5'):
             code_name = 'watson'
             jenkins_url = _SERV_JENKINS
             build_job = 'watson-build'
+            self.supported_platforms.remove('win32')
         elif version.startswith('4.7'):
             self.supported_platforms = ['centos7']
             code_name = 'spock'
