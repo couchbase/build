@@ -18,7 +18,7 @@ from allopenparents import all_parent_change_ids
 from allcommits import all_commits, GERRIT_ROOT
 
 
-def all_dependencies(sha1, change_id, curr_project, curr_ref):
+def all_dependencies(sha1, curr_project, curr_ref):
     """Return dependencies of the current commit.
 
     Returns all projects that have a not yet merged commit with a
@@ -34,7 +34,7 @@ def all_dependencies(sha1, change_id, curr_project, curr_ref):
 
     # The current commit is the first Change-Id in the list, the parents
     # come next
-    change_ids = all_parent_change_ids(sha1, change_id)
+    change_ids = all_parent_change_ids(sha1)
 
     dependencies = {}
     transitive = {}
@@ -58,8 +58,8 @@ def ref_to_url(ref):
     return "{}#/c/{}/{}".format(GERRIT_ROOT, parts[-2], parts[-1])
 
 def main():
-    if len(sys.argv) != 5:
-        print 'usage: ./alldependencies.py sha changeid project refspec'
+    if len(sys.argv) != 4:
+        print 'usage: ./alldependencies.py sha project refspec'
         exit(1)
 
     dependencies, transitive = all_dependencies(*sys.argv[1:])

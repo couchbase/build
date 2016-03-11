@@ -44,14 +44,14 @@ def parent_commits(sha1):
     commits = [c['commit'] for c in parents]
     return commits
 
-def all_parent_commits(sha1):
-    """Return all not yet merged parent commits.
+def all_parent_commits_and_self(sha1):
+    """Return all not yet merged parent commits and itself.
 
     The parents are traversed recursively breadth-first in case there
     are several parents.
     """
     pos = 0
-    commits = parent_commits(sha1)
+    commits = [sha1]
     while pos < len(commits):
         sha1 = commits[pos]
         commits += parent_commits(sha1)
@@ -71,30 +71,25 @@ def commit_to_change_id(sha1):
         return None
     return change['change_id']
 
-def all_parent_change_ids(sha1, curr_change_id):
+def all_parent_change_ids(sha1):
     """Return all Change-Ids of the current commit and its parents.
 
     It will only include changes that are not yet merged.
     """
-    commits = all_parent_commits(sha1)
-    change_ids = [curr_change_id]
-
-    if commits:
-        parent_change_ids = [commit_to_change_id(c) for c in commits]
-        change_ids = change_ids + parent_change_ids
+    commits = all_parent_commits_and_self(sha1)
+    change_ids = [commit_to_change_id(c) for c in commits]
 
     # Filter out non-existent change ids
     return [c for c in change_ids if c is not None]
 
 
 def main():
-    if len(sys.argv) != 3:
-        print 'usage: ./allopenparents.py commit-sha-1 change-id'.format()
+    if len(sys.argv) == 1:
+        print 'usage: ./allopenparents.py commit-sha-1'.format()
         exit(1)
 
     commit_sha1 = sys.argv[1]
-    change_id = sys.argv[2]
-    for change_id in all_parent_change_ids(commit_sha1, change_id):
+    for change_id in all_parent_change_ids(commit_sha1):
         print(change_id)
 
 
