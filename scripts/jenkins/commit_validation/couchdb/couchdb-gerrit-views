@@ -30,7 +30,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-${curdir}/../checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_PROJECT $GERRIT_REFSPEC
+${curdir}/../checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_CHANGE_ID $GERRIT_PROJECT $GERRIT_REFSPEC
 
 cat <<EOF
 ============================================

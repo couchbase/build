@@ -30,6 +30,10 @@ if [ -z "$GERRIT_REFSPEC" ]; then
     echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
     exit 5
 fi
+if [ -z "$GERRIT_CHANGE_ID" ]; then
+    echo "Error: Required environment variable 'GERRIT_CHANGE_ID' not set."
+    exit 6
+fi
 
 # Optional env vars - how many jobs to run in parallel by default?
 PARALLELISM="${PARALLELISM:-8}"
@@ -69,7 +73,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-${BASEDIR}/checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_PROJECT $GERRIT_REFSPEC
+${BASEDIR}/checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_CHANGE_ID $GERRIT_PROJECT $GERRIT_REFSPEC
 
 cat <<EOF
 
