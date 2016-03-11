@@ -31,7 +31,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-${curdir}/../alldependencies.py $GERRIT_PATCHSET_REVISION | xargs -n 3 ${curdir}/../fetch_project.sh
+${curdir}/../checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_PROJECT $GERRIT_REFSPEC
 
 cat <<EOF
 ============================================
@@ -71,12 +71,3 @@ make geocouch-build-for-testing -j4
 cd build/geocouch-for-tests
 make test
 cd ../../
-
-cat <<EOF
-============================================
-===           make simple-test           ===
-============================================
-EOF
-cd testrunner
-make simple-test
-cd ..
