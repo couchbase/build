@@ -58,12 +58,23 @@ then
     if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
     then
         BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "LiteServ" "LiteServ App" "CBLJSViewCompiler" "Documentation")
-    else
+    elif [[ ${VERSION} == 1.2.0 ]]
+    then
         BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "CBLJSViewCompiler" "Documentation")
         SDK="-sdk iphoneos"
+    else
+        SCHEME="CI iOS"  # Aggregated scheme for all targets (CBL iOS, CBL Listener iOS, CBLJSViewCompiler, Documentation)
+        BUILD_TARGETS=("${SCHEME}")
+        SDK="-sdk iphoneos"
     fi
-    RIO_SRCD=${BUILDDIR}/Release-ios-universal
-    REL_SRCD=${BUILDDIR}/Release-iphoneos
+    if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.1 ]]
+    then
+        RIO_SRCD=${BUILDDIR}/Release-ios-universal
+        REL_SRCD=${BUILDDIR}/Release-iphoneos
+    else
+        RIO_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products/Library/Frameworks
+        REL_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products
+    fi
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
     then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
@@ -71,22 +82,41 @@ then
     fi
 elif [[ $OS =~ tvos ]]
 then
-    BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "CBLJSViewCompiler" "Documentation")
-    RIO_SRCD=${BUILDDIR}/Release-tvos-universal
-    REL_SRCD=${BUILDDIR}/Release-appletvos
+    if [[ ${VERSION} == 1.2.0 ]]
+    then
+        BUILD_TARGETS=("CBL iOS" "CBL Listener iOS" "CBLJSViewCompiler" "Documentation")
+        RIO_SRCD=${BUILDDIR}/Release-tvos-universal
+        REL_SRCD=${BUILDDIR}/Release-appletvos
+    else
+        SCHEME="CI iOS"  # Aggregated scheme for all targets (CBL iOS, CBL Listener iOS, CBLJSViewCompiler, Documentation)
+        BUILD_TARGETS=("${SCHEME}")
+        REL_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products
+        RIO_SRCD="${BUILDDIR}/${SCHEME}.xcarchive/Products/Library/Frameworks"
+    fi
     SDK="-sdk appletvos"
     LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/tvos/libsqlcipher.a
     LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
 elif [[ $OS =~ macosx ]]
 then
-    BUILD_TARGETS=("CBL Mac" "CBL Listener Mac" "LiteServ" "LiteServ App")
+    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+    then
+        SCHEME="CI MacOS"  # Aggregated scheme for all targets (CBL Mac, CBL Listener Mac, LiteServ, LiteServ App, Documentation)
+        BUILD_TARGETS=("${SCHEME}")
+        REL_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products
+        RIO_SRCD="${BUILDDIR}/${SCHEME}.xcarchive/Products/Library/Frameworks"
+    else
+        BUILD_TARGETS=("CBL Mac" "CBL Listener Mac" "LiteServ" "LiteServ App")
+        RIO_SRCD=${BUILDDIR}/Release
+    fi
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]]
     then
-        BUILD_TARGETS=("${BUILD_TARGETS[@]}" "CBL Mac+SQLCipher")
+        if [[ ${VERSION} == 1.2.0 ]]
+        then
+            BUILD_TARGETS=("${BUILD_TARGETS[@]}" "CBL Mac+SQLCipher")
+            CBL_SQLCIPHER_SRCD=${BUILDDIR}/Release-sqlcipher
+        fi
         SDK=""
-        CBL_SQLCIPHER_SRCD=${BUILDDIR}/Release-sqlcipher
     fi
-    RIO_SRCD=${BUILDDIR}/Release
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]]
     then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/osx/libsqlcipher.a
@@ -117,20 +147,27 @@ README_D=${BASE_DIR}
 README_F=${README_D}/README.md
 RME_DEST=${ZIP_SRCD}
 
-RIO_DEST=${ZIP_SRCD}
-REL_DEST=${BUILDDIR}/Release
-
-LSA_SRCD=${BUILDDIR}/Release
-LSA_DEST=${ZIP_SRCD}
-
-LIB_DEST=${ZIP_SRCD}/Extras
-
-if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.0 ]]
+if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.1 ]]
 then
+    REL_DEST=${BUILDDIR}/Release
+    LSA_SRCD=${BUILDDIR}/Release
+    LIB_DEST=${ZIP_SRCD}/Extras
     LIB_FORESTDB=${BUILDDIR}/Release-CBLForestDBStorage-ios-universal/libCBLForestDBStorage.a
     LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
     LIB_JSVC=${LIB_SRCD}/libCBLJSViewCompiler.a
+else
+    REL_DEST=${REL_SRCD}
+    LSA_SRCD=${REL_SRCD}/Applications
+    LSA_BIND=${REL_SRCD}/usr/local/bin
+    LIB_SRCD=${BASE_DIR}/Source/API/Extras
+    LIB_DEST=${ZIP_SRCD}/Extras
+    CBL_LIB_SRCD=${REL_SRCD}/usr/local/lib
+    LIB_FORESTDB=${CBL_LIB_SRCD}/libCBLForestDBStorage.a
+    LIB_JSVC=${CBL_LIB_SRCD}/libCBLJSViewCompiler.a
 fi
+                                                                   # required by "Documentation" target
+DERIVED_FILE_DIR=${REL_SRCD}/Documentation                         #  where the doc files are generated
+DOC_ZIP_ROOT_DIR=${REL_DEST}/${REVISION}
 
 export TAP_TIMEOUT=120
 
@@ -175,15 +212,12 @@ git checkout      master
 git pull  origin  master
 git submodule update --init --recursive
 git show --stat
-                                                                   # required by "Documentation" target
-DERIVED_FILE_DIR=${REL_SRCD}/Documentation                         #  where the doc files are generated
-DOC_ZIP_ROOT_DIR=${REL_DEST}/${REVISION}
 
-if [[ $OS =~ ios  ]] || [[ $OS =~ tvos ]]
+if [[ $OS =~ ios  ]] || [[ $OS =~ tvos ]] || [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
 then
-    if [[ ! -e ${REL_DEST} ]] ; then mkdir -p ${REL_DEST} ; fi
+    if [[ ! -e "${REL_DEST}" ]] ; then mkdir -p "${REL_DEST}" ; fi
     TARGET_BUILD_DIR=${REL_DEST}/com.couchbase.CouchbaseLite.docset    #  where the doc set ends up
-    mkdir -p ${TARGET_BUILD_DIR}
+    mkdir -p "${TARGET_BUILD_DIR}"
 fi
 
 echo  ============================================== prepare ${ZIP_FILE}
@@ -218,7 +252,12 @@ for TARGET in "${BUILD_TARGETS[@]}"
     then
         ( ${XCODE_CMD} -target "${TARGET}"  2>&1 )	>>  ${LOG_FILE}
     else
-        ( ${XCODE_CMD} ${SDK} -target "${TARGET}"  2>&1 )	>>  ${LOG_FILE}
+        if [[ ${VERSION} == 1.2.0 ]]
+        then
+            ( ${XCODE_CMD} ${SDK} -target "${TARGET}" 2>&1 )	>>  ${LOG_FILE}
+        else
+            ( ${XCODE_CMD} ${SDK} -scheme "${TARGET}" archive -archivePath build/"${TARGET}" 2>&1 )	>>  ${LOG_FILE}
+        fi
     fi
     if  [[ -e ${LOGFILE} ]]
         then
@@ -229,15 +268,18 @@ for TARGET in "${BUILD_TARGETS[@]}"
     fi
 done
 
-if [[ $OS =~ ios  ]] || [[ $OS =~ tvos ]]
+# Documentation is supported for all products from version 1.2.1 onward
+if [[ $OS =~ ios  ]] || [[ $OS =~ tvos ]] || [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
 then 
     echo  ============================================== package ${DOC_ZIP_FILE}
     DOC_LOG=${WORKSPACE}/doc_zip.log
     if [[ -e ${DOC_LOG} ]] ; then rm -f ${DOC_LOG} ; fi
+   
+    
+    mv     "${DERIVED_FILE_DIR}" "${DOC_ZIP_ROOT_DIR}"
+    pushd  "${REL_DEST}"         2>&1 > /dev/null
 
-    mv     ${DERIVED_FILE_DIR} ${DOC_ZIP_ROOT_DIR}
-    pushd  ${REL_DEST}         2>&1 > /dev/null
-
+    echo  =================== creating ${DOC_ZIP_PATH}
     ( zip -ry ${DOC_ZIP_PATH} ${REVISION}  2>&1 )                                  >>  ${DOC_LOG}
     if  [[ -e ${DOC_LOG} ]]
         then
@@ -250,17 +292,24 @@ then
 fi
 
 echo  ============================================== update ${ZIP_FILE}
-cp  -R   ${RIO_SRCD}/*             ${RIO_DEST}
+cp  -R  "${RIO_SRCD}"/*            ${ZIP_SRCD}
 cp       ${README_F}               ${RME_DEST}
 cp       ${LICENSEF}               ${LIC_DEST}
 
 if [[ $OS =~ macosx ]]
 then
-    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+    if [[ ${VERSION} == 1.2.0 ]]
     then
         rm -f ${ZIP_SRCD}/libCouchbaseLite.a
         rm -rf ${ZIP_SRCD}/CouchbaseLite.framework
         cp -R ${CBL_SQLCIPHER_SRCD}/CouchbaseLite.framework ${ZIP_SRCD}
+        rm -rf ${ZIP_SRCD}/CouchbaseLite.framework/Versions/A/PrivateHeaders
+        rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/PrivateHeaders
+        rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/Versions/A/PrivateHeaders
+    elif [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+    then
+        cp -R "${LSA_BIND}"/LiteServ      ${ZIP_SRCD}
+        cp -R "${LSA_SRCD}"/LiteServ.app  ${ZIP_SRCD}
         rm -rf ${ZIP_SRCD}/CouchbaseLite.framework/Versions/A/PrivateHeaders
         rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/PrivateHeaders
         rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/Versions/A/PrivateHeaders
@@ -271,7 +320,12 @@ else
         rm -rf ${LSA_SRCD}/*.dSYM
         cp ${LIB_JSVC} ${LIB_DEST}
         cp ${LIB_FORESTDB} ${LIB_DEST}
-        cp  -R   ${LSA_SRCD}/LiteServ.app  ${LSA_DEST}
+        cp  -R   ${LSA_SRCD}/LiteServ.app  ${ZIP_SRCD}
+    elif [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+    then
+        cp -R "${LIB_SRCD}" "${LIB_DEST}"
+        cp "${LIB_JSVC}" "${LIB_DEST}"
+        cp "${LIB_FORESTDB}" "${LIB_DEST}"
     fi
 fi
 
@@ -280,12 +334,15 @@ rm -rf *.dSYM
 rm -rf CouchbaseLite.framework/PrivateHeaders
 if [[ $OS =~ ios ]] || [[ $OS =~ tvos ]]
 then
-    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+    if [[ ${VERSION} == 1.2.0 ]]
     then
         rm -f libCouchbaseLiteFat.a
         rm -f libCBLSQLiteStorage.a
         rm -f libCouchbaseLiteListener.a
-        mv ${ZIP_SRCD}/*.a ${LIB_DEST}
+        mv ${ZIP_SRCD}/*.a "${LIB_DEST}"
+    elif [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+    then
+        mv ${ZIP_SRCD}/*.a "${LIB_DEST}"
     fi
 fi
 
