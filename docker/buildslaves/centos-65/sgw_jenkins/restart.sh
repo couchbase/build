@@ -4,4 +4,7 @@ echo "docker stop mobile-sgw-centos65"
 docker stop mobile-sgw-centos65
 echo "docker rm mobile-sgw-centos65"
 docker rm mobile-sgw-centos65
-docker run --name="mobile-sgw-centos65" -v /home/couchbase/jenkinsdocker-ssh:/ssh -p 2322:22 -d ceejatec/centos-65-sgw-build:20160126
+docker run --name="mobile-sgw-centos6" -v /home/couchbase/jenkinsdocker-ssh:/ssh \
+        --volume=/home/couchbase/latestbuilds:/latestbuilds \
+        -p 2320:22 -d ceejatec/centos-65-sgw-build:20160126
+
