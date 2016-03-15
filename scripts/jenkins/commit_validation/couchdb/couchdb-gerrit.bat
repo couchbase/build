@@ -7,12 +7,6 @@ SET PATH=%WORKSPACE%\install\bin;%PATH%
 SET CURDIR=%~dp0
 call %CURDIR%..\single-project-gerrit.bat %*
 
-@echo.
-@echo ============================================
-@echo ===          Install the build           ===
-@echo ============================================
-cmake --build build --target install || goto :error
-
 @REM Enable unit tests (they'll also run dialyzer)
 SET SKIP_UNIT_TESTS=
 

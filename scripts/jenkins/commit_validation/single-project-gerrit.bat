@@ -96,7 +96,7 @@ python %CURDIR%\checkout_dependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_CHAN
 if not exist build mkdir build
 pushd build
 cmake -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% %EXTRA_CMAKE_OPTIONS% .. || goto :error
-cmake --build . || goto :error
+cmake --build . --target install || goto :error
 popd
 
 @echo.
