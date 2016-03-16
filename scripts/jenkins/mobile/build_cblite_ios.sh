@@ -127,7 +127,7 @@ else
     exit 555
 fi
 
-LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${GITSPEC}/${VERSION}/${OS}/${REVISION}
+LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${GITSPEC}/${OS}/${REVISION}
 
 LOG_FILE=${WORKSPACE}/build_${OS}_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
@@ -326,6 +326,9 @@ else
         cp -R "${LIB_SRCD}" "${LIB_DEST}"
         cp "${LIB_JSVC}" "${LIB_DEST}"
         cp "${LIB_FORESTDB}" "${LIB_DEST}"
+        cp ${BASE_DIR}/Source/API/CBLRegisterJSViewCompiler.h "${LIB_DEST}"
+        cp ${BASE_DIR}/Source/CBLJSONValidator.h "${LIB_DEST}"
+        cp ${BASE_DIR}/Source/CBLJSONValidator.m "${LIB_DEST}"
     fi
 fi
 
@@ -339,9 +342,6 @@ then
         rm -f libCouchbaseLiteFat.a
         rm -f libCBLSQLiteStorage.a
         rm -f libCouchbaseLiteListener.a
-        mv ${ZIP_SRCD}/*.a "${LIB_DEST}"
-    elif [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
-    then
         mv ${ZIP_SRCD}/*.a "${LIB_DEST}"
     fi
 fi
