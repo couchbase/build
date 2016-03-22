@@ -11,7 +11,7 @@ Source1:        couchbase-Base.repo
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildArch:     noarch
+BuildArch:     x86_64
 
 %description
 A package that configures access to couchbase yum repository.

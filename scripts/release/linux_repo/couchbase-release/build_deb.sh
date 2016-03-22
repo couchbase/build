@@ -11,4 +11,4 @@ git checkout deb/couchbase-release-1.0-0
 
 popd
 
-cp $thisdir/deb/couchbase-release*.deb .
+cp $thisdir/deb/couchbase-release-1.0-0.deb ./couchbase-release-1.0-0_amd64.deb
