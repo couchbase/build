@@ -75,7 +75,11 @@ then
         RIO_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products/Library/Frameworks
         REL_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products
     fi
-    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} == 1.2.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
+    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
+    then
+        LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
+        LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}/Extras
+    elif [[ ${VERSION} == 1.2.0 ]]
     then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
         LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
@@ -94,8 +98,14 @@ then
         RIO_SRCD="${BUILDDIR}/${SCHEME}.xcarchive/Products/Library/Frameworks"
     fi
     SDK="-sdk appletvos"
-    LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/tvos/libsqlcipher.a
-    LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
+    if [[ ${VERSION} == 1.2.0 ]]
+    then
+        LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/tvos/libsqlcipher.a
+        LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
+    else
+        LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
+        LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}/Extras
+    fi
 elif [[ $OS =~ macosx ]]
 then
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
