@@ -15,6 +15,10 @@ fi
 archive_dir=$1
 shift
 
+# Wipe out any previously existing archive directory (so any old
+# archive doesn't get detected as an artifact by Jenkins).
+rm -fr $archive_dir
+
 if [ "$#" -ne 0 ]; then
     cat <<EOF
 
@@ -25,8 +29,6 @@ EOF
     echo ""
     abs_archive_dir=$(pwd)/${archive_dir}
     mkdir -p $archive_dir
-    # Wipe out any previous files in the archive.
-    rm -fr $archive_dir/*
 
     for core; do
         cp --archive "$core" $archive_dir/
