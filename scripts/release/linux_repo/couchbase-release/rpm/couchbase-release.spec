@@ -42,7 +42,7 @@ then
 fi
 
 if grep -q -i "release 7" /etc/redhat-release >/dev/null 2>&1
-else
+then
   sed -e "s/%VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
 fi
 
