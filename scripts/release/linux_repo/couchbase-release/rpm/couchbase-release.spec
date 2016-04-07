@@ -38,12 +38,14 @@ rm -rf $RPM_BUILD_ROOT
 %post
 if grep -q -i "release 6" /etc/redhat-release >/dev/null 2>&1
 then
-  sed -e "s/%VERSION%/6.2/g" -i /etc/yum.repos.d/couchbase-Base.repo
+  sed -e "s/%SDK_VERSION%/6.2/g" -i /etc/yum.repos.d/couchbase-Base.repo
+  sed -e "s/%SERVER_VERSION%/6/g" -i /etc/yum.repos.d/couchbase-Base.repo
 fi
 
 if grep -q -i "release 7" /etc/redhat-release >/dev/null 2>&1
 then
-  sed -e "s/%VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
+  sed -e "s/%SDK_VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
+  sed -e "s/%SERVER_VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
 fi
 
 %postun
