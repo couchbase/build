@@ -13,3 +13,5 @@ curl -X GET http://sdkbuilds.couchbase.com/computer/winsdk-aws-01/config.xml -o 
 sed -e "s|\(.*<host>\).*\(</host>.*\)|\1$ip\2|g" sconfig.xml > sconfig.xml.new
 mv sconfig.xml.new sconfig.xml
 curl -X POST http://sdkbuilds.couchbase.com/computer/winsdk-aws-01/config.xml --data-binary "@sconfig.xml"
+sleep 2
+curl -X POST http://sdkbuilds.couchbase.com/computer/winsdk-aws-01/launchSlaveAgent
