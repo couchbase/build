@@ -11,7 +11,7 @@ if len(sys.argv) != 3:
 
 iid = sys.argv[1]
 cmd = sys.argv[2]
-wait_time = 360
+wait_time = 480
 
 client = boto3.client('ec2')
 response = client.describe_instances(InstanceIds=[iid])
