@@ -29,8 +29,15 @@ repo diffmanifests last-build.xml `pwd`/build-team-manifests/watson.xml > CHANGE
 repo init -m last-build.xml -g all
 bldnum=$(( `repo forall build -c 'echo $REPO__BLD_NUM'` + 1))
 
-# Update and commit the new build manifest
+# Ensure input manifest has a @BLD_NUM@ token.
 cd build-team-manifests
+if ! grep -q @BLD_NUM@ watson.xml
+then
+    echo "Input manifest missing @BLD_NUM@!!"
+    exit 5
+fi
+
+# Update and commit the new build manifest
 sed -i "s/@BLD_NUM@/${bldnum}/g" watson.xml
 git add watson.xml
 msg="Watson '${PRODUCT_BRANCH}' build ${VERSION}-${bldnum} at "`date`
