@@ -38,7 +38,7 @@ sed -i "s/@BLD_NUM@/${bldnum}/g" sherlock.xml
 git add sherlock.xml
 msg="Sherlock '${PRODUCT_BRANCH}' build ${VERSION}-${bldnum} at "`date`
 git commit --allow-empty -m "$msg"
-#git push origin HEAD:${PRODUCT_BRANCH}
+git push origin HEAD:${PRODUCT_BRANCH}
 
 # Also save it with the right name for uploading to latestbuilds.
 rm -f ${WORKSPACE}/*.xml
