@@ -25,13 +25,20 @@ repo manifest -r > build-team-manifests/sherlock.xml
 repo init -m last-build.xml -g all
 bldnum=$(( `repo forall build -c 'echo $REPO__BLD_NUM'` + 1))
 
-# Update and commit the new build manifest
+# Ensure input manifest has a @BLD_NUM@ token.
 cd build-team-manifests
+if ! grep -q @BLD_NUM@ sherlock.xml
+then
+    echo "Input manifest missing @BLD_NUM@!!"
+    exit 5
+fi
+
+# Update and commit the new build manifest
 sed -i "s/@BLD_NUM@/${bldnum}/g" sherlock.xml
 git add sherlock.xml
 msg="Sherlock '${PRODUCT_BRANCH}' build ${VERSION}-${bldnum} at "`date`
 git commit --allow-empty -m "$msg"
-git push origin HEAD:${PRODUCT_BRANCH}
+#git push origin HEAD:${PRODUCT_BRANCH}
 
 # Also save it with the right name for uploading to latestbuilds.
 rm -f ${WORKSPACE}/*.xml
