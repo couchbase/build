@@ -1,6 +1,8 @@
 #!/bin/bash
 thisdir=`dirname $0`
 
+VERSION=1.0-1
+
 rm -rf ~/rpmbuild
 mkdir ~/rpmbuild
 for x in BUILD BUILDROOT RPMS SOURCES SPECS SRPMS; do mkdir ~/rpmbuild/$x; done
@@ -13,4 +15,4 @@ rpmbuild -bb couchbase-release.spec
 
 popd
 
-cp ~/rpmbuild/RPMS/x86_64/couchbase-release-1.0-*.x86_64.rpm couchbase-release-1.0-*-x86_64.rpm
+cp ~/rpmbuild/RPMS/x86_64/couchbase-release-$VERSION.x86_64.rpm couchbase-release-$VERSION-x86_64.rpm
