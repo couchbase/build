@@ -41,10 +41,10 @@ VERSION=${4}
 
 BLD_NUM=${5}
 
-if [[ $6 ]] ; then  echo "setting REPO_SHA to $6"       ; REPO_SHA=$6       ; else REPO_SHA="no_sha"    ; fi
-if [[ $7 ]] ; then  echo "using TOOLCHAIN $7"       	; TOOLCHAIN=$7      ; else TOOLCHAIN="mono"     ; fi
-if [[ $8 ]] ; then  echo "using TARGET $8"              ; TARGET=$8         ; else TARGET="Release"     ; fi
-if [[ $9 ]] ; then  echo "setting TEST_OPTIONS to $9"   ; TEST_OPTIONS=$9   ; else TEST_OPTIONS="None"  ; fi
+if [[ $6 ]] ; then  echo "setting REPO_SHA to $6"       ; REPO_SHA=$6       ; else REPO_SHA="no_sha"            ; fi
+if [[ $7 ]] ; then  echo "using TARGET $7"              ; TARGET=$7         ; else TARGET="Release_Testing"     ; fi
+if [[ $8 ]] ; then  echo "using TOOLCHAIN $8"       	; TOOLCHAIN=$8      ; else TOOLCHAIN="mono"             ; fi
+if [[ $9 ]] ; then  echo "setting TEST_OPTIONS to $9"   ; TEST_OPTIONS=$9   ; else TEST_OPTIONS="None"          ; fi
 
 if [[ $BRANCH =~ feature  ]]
 then
