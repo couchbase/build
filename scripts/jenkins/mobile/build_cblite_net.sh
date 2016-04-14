@@ -4,9 +4,9 @@
 #          
 #    with required paramters:
 #   
-#          branch_name    framework   platform    version    bld_num   target    toolchain
+#          branch_name    framework   platform    version    bld_num   repo_sha  target            toolchain
 #             
-#    e.g.: master         net35       osx         1.3.0      0000      Release   mono
+#    e.g.: master         net35       osx         1.3.0      0000      no_sha    Release_Testing   mono
 #
 #    and optional parameters:
 #    
@@ -23,7 +23,7 @@ set -e
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  target  platform  version  bld_num  commit_sha\n\n"
+    echo -e "\nUsage:  ${0}   branch_name  framework  platform  version  bld_num  commit_sha target\n\n"
     }
 
 if [[ "$#" < 5 ]] ; then usage ; exit 11 ; fi
@@ -48,9 +48,9 @@ if [[ $9 ]] ; then  echo "setting TEST_OPTIONS to $9"   ; TEST_OPTIONS=$9   ; el
 
 if [[ $BRANCH =~ feature  ]]
 then
-    LATESTBUILDS=http://latestbuilds.hq.couchbase.com/couchbase-lite-net/0.0.1/${BRANCH}/${VERSION}-${BLD_NUM}
+    LATESTBUILDS=http://latestbuilds.hq.couchbase.com/couchbase-lite-net/0.0.1/${BRANCH}/${BLD_NUM}
 else
-    LATESTBUILDS=http://latestbuilds.hq.couchbase.com/couchbase-lite-net/${BRANCH}/${VERSION}-${BLD_NUM}
+    LATESTBUILDS=http://latestbuilds.hq.couchbase.com/couchbase-lite-net/${VERSION}/${BLD_NUM}
 fi
 
 echo ============================================== `date`
@@ -109,7 +109,7 @@ num_dirs=${#dirs[@]}            # size of array
 last_index=$(($num_dirs -1))    # calc index of last dir
 last_dir=${dirs[$last_index]}
 
-BUILD_OPTIONS=""
+BUILD_OPTIONS=/p:Platform="Any CPU"
 
 if [[ ${FRAMEWORK} =~ "Net45" ]] || [[ ${FRAMEWORK} =~ "Net35" ]] 
 then
@@ -140,7 +140,7 @@ LOG_FILE=build_results.log
 BUILD_CMD="xbuild /p:Configuration=${TARGET} /p:Archive=true"
 
 set +e
-${BUILD_CMD} ${BUILD_OPTIONS} ${BUILD_SLN} 2>&1 >> ${LOG_FILE}
+${BUILD_CMD} "${BUILD_OPTIONS}"  ${BUILD_SLN} 2>&1 >> ${LOG_FILE}
 
 echo ======== Verify Build =======================
 for bld_bin in "${BUILD_OUTPUT[@]}"
