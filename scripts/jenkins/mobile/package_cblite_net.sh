@@ -63,7 +63,7 @@ mkdir -p ${PROD_DIR}
 cd ${PROD_DIR}
 
 echo ======== sync couchbase-lite-net ===================
-if [[ ! -d couchbase-lite-net ]] ; then git clone https://github.com/couchbase/couchbase-lite-net.git ; fi
+if [[ ! -d couchbase-lite-net ]] ; then git clone --depth 1 https://github.com/couchbase/couchbase-lite-net.git ; fi
 
 cd ${BASE_DIR}
 if [ ${REPO_SHA} == "no_sha" ]
@@ -74,8 +74,6 @@ else
 fi
 
 git pull origin ${BRANCH}
-git submodule update --init --recursive
-git show --stat
 
 if [ ${REPO_SHA} == "no_sha" ]
 then
