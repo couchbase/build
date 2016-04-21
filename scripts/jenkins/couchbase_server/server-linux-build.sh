@@ -189,11 +189,11 @@ export LD_LIBRARY_PATH=/opt/couchbase/lib
 
 if [ "${PKG}" = "mac" ]
 then
-    cd ${WORKSPACE}/couchdbx-app
-    LICENSE=LICENSE-${EDITION}.txt make license
     # Xcode leaves stale precompiled headers and expects us to clean them up
     find /var/folders -type d -name SharedPrecompiledHeaders | xargs rm -rf
-    make couchbase-server-zip
+
+    cd ${WORKSPACE}/couchdbx-app
+    LICENSE=LICENSE-${EDITION}.txt make couchbase-server-zip
     cd ${WORKSPACE}
 fi
 
