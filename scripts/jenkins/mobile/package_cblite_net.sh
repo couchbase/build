@@ -101,7 +101,7 @@ echo ======== NUGET Packing =============================
 cd ${BASE_DIR}/packaging/nuget
 for nupkg in "${NUGET_PKGS[@]}"
   do
-    nuget pack -BasePath ${BASE_DIR} ${nupkg}.nuspec 
+    nuget pack -BasePath ${BASE_DIR} -Properties version=$NUGET_VERSION ${nupkg}.nuspec 
     result=$?
     if [ ${result} -ne "0" ]
     then
