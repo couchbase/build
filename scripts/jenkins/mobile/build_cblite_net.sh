@@ -133,6 +133,7 @@ then
     BUILD_OPTIONS=/p:Platform=iPhone
 fi
 
+set +e
 cd ${BASE_DIR}
 echo ================ Build Preparation ==========================
 MONO_TEXTTOOL="/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.TextTemplating/TextTransform.exe"
@@ -140,8 +141,8 @@ DASSEMBLYINFO_DIR=src/Couchbase.Lite.Shared/Properties
 DASSEMBLYINFO_TEMPLATE=DynamicAssemblyInfo.tt
 DASSEMBLYINFO_CSHARP=DynamicAssemblyInfo.cs
 
-cd ${ASSEMBLYINFO_DIR}
-mono ${MONO_TEXTTOOL} ${DASSEMBLYINFO_TEMPLATE} -out ${DASSEMBLYINFO_CSHARP}
+cd ${DASSEMBLYINFO_DIR}
+mono "${MONO_TEXTTOOL}" ${DASSEMBLYINFO_TEMPLATE} -out ${DASSEMBLYINFO_CSHARP}
 
 cd ${BASE_DIR}
 echo ================ Build ==========================
@@ -149,7 +150,6 @@ echo "Building product=${BUILD_FRAMEWORK} ${PLATFORM}"
 LOG_FILE=build_results.log
 BUILD_CMD="xbuild /p:Configuration=${TARGET} /p:Archive=true"
 
-set +e
 ${BUILD_CMD} "${BUILD_OPTIONS}"  ${BUILD_SLN} 2>&1 >> ${LOG_FILE}
 
 echo ======== Verify Build =======================
