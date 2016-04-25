@@ -44,9 +44,11 @@ do
 	--kind)
 	    change_kind=$1
 	    ;;
+	--newrev)
+	    newrev=$1
+	    ;;
 	*)
-	    echo "Unexpected arg:  $arg"
-	    exit 1
+	    echo "Unexpected arg:  $arg (but going forward anyway)"
 	    ;;
     esac
     shift
