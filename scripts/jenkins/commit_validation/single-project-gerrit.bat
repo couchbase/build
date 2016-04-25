@@ -64,7 +64,7 @@ IF "%CMAKE_GENERATOR%"=="Ninja" (
 
 set
 @echo.
-set source_root=%WORKSPACE%
+set "source_root=%WORKSPACE%"
 call tlm\win32\environment
 @echo on
 
@@ -85,7 +85,7 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 @echo ===          the same Change-Id          ===
 @echo ============================================
 
-SET CURDIR=%~dp0
+SET "CURDIR=%~dp0"
 python %CURDIR%\checkout_dependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_CHANGE_ID% %GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
 
 @echo.

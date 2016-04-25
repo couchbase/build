@@ -2,10 +2,10 @@
 
 SET SKIP_UNIT_TESTS=1
 SET COUCHBASE_NUM_VBUCKETS=64
-SET PATH=%WORKSPACE%\install\bin;%PATH%
+SET "PATH=%WORKSPACE%\install\bin;%PATH%"
 
 SET CURDIR=%~dp0
-call %CURDIR%..\single-project-gerrit.bat %*
+call "%CURDIR%..\single-project-gerrit.bat" %*
 
 @echo.
 @echo ============================================
