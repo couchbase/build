@@ -86,7 +86,7 @@ del /F/Q/S godeps\pkg goproj\pkg goproj\bin
 @echo ============================================
 
 SET "CURDIR=%~dp0"
-python %CURDIR%\checkout_dependencies.py %GERRIT_PATCHSET_REVISION% %GERRIT_CHANGE_ID% %GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
+python "%CURDIR%\checkout_dependencies.py" %GERRIT_PATCHSET_REVISION% %GERRIT_CHANGE_ID% %GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
 
 @echo.
 @echo ============================================
