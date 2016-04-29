@@ -1,0 +1,55 @@
+---
+- hosts: all
+  any_errors_fatal: true
+  become: yes
+
+  vars:
+
+    couchbase_server_package_name: 
+    couchbase_server_package_url: 
+
+    couchbase_server_admin: Administrator
+    couchbase_server_cluster_ram: "{{ ((ansible_memtotal_mb|int)*0.8)|int }}"
+    couchbase_server_admin_port: 8091
+    couchbase_server_home_path: /opt/couchbase
+
+    couchbase_server_bucket_type: couchbase
+    couchbase_server_bucket_port: 11211
+    couchbase_server_bucket_replica: 1
+    couchbase_server_bucket_ram: "{{ ((couchbase_server_cluster_ram|int)*0.5)|int }}"
+
+  tasks:
+    - debug: msg="Downloading Couchbase server v. {{ couchbase_server_package_url }}"
+
+    # Set password to instance id
+    - name: Set password to instance id
+      # The ec2 instance metadata is available at a special ip as described here:
+      # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
+      shell: curl http://169.254.169.254/latest/meta-data/instance-id
+      register: instance_id_response
+
+    # Download and install
+    - name: Download couchbase server
+      get_url: url={{ couchbase_server_package_url }} dest=/tmp/{{ couchbase_server_package_name }}
+    - name: Install Couchbase Server
+      yum: name=/tmp/{{ couchbase_server_package_name }} state=present
+
+    # Change system settings for Couchbase Server
+    - name: raise max file descriptors
+      get_url: url="https://raw.githubusercontent.com/couchbaselabs/mobile-testkit/master/libraries/provision/ansible/playbooks/files/security-nofiles-limit.conf" dest=/etc/security/limits.d/20-nofiles.conf mode=0644
+    - name: change owner to root for security limits file
+      file: path=/etc/security/limits.d/20-nofiles.conf owner=root group=root
+
+    - name: Disable Transparent Huge Pages
+      shell: echo 'for i in /sys/kernel/mm/*transparent_hugepage/enabled; do echo never > $i; done' >> /etc/rc.local
+      shell: echo 'for i in /sys/kernel/mm/*transparent_hugepage/defrag; do echo never > $i; done' >> /etc/rc.local
+      shell: for i in /sys/kernel/mm/*transparent_hugepage/enabled; do echo never > $i; done
+
+    # Configure
+    - debug: msg="Couchbase cluster RAM {{ couchbase_server_cluster_ram }}"
+    - debug: msg="Couchbase bucket RAM {{ couchbase_server_bucket_ram }}"
+
+    # Wait until it's listening on port 8091
+    - name: Wait for node to be listening on port 8091
+      wait_for: port=8091 delay=5 timeout=30
+

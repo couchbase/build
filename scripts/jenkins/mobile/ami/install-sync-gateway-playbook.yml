@@ -1,0 +1,34 @@
+---
+# Create sync_gateway user
+- hosts: all
+  any_errors_fatal: true
+  become: yes
+  tasks:
+  - name: Create sync gateway user
+    user: name=sync_gateway createhome=yes
+
+# Download sync_gateway package
+- hosts: all
+  any_errors_fatal: true
+
+  vars:
+    couchbase_sync_gateway_package_base_url:
+    couchbase_sync_gateway_package:
+    couchbase_sync_gateway_package_url: "{{ couchbase_sync_gateway_package_base_url }}/{{ couchbase_sync_gateway_package }}"
+
+  tasks:
+  - debug: msg="Downloading sync_gateway v. {{ couchbase_sync_gateway_package_url }}"
+  - name: Download sync_gateway rpm
+    get_url: url={{ couchbase_sync_gateway_package_url }} dest=/tmp/{{ couchbase_sync_gateway_package }}
+
+# Install and launch sync_gateway service
+- hosts: all
+  any_errors_fatal: true
+  become: yes
+  tasks:
+  # Install and start service
+  - name: Install sync_gateway rpm
+    shell: rpm -i /tmp/{{ couchbase_sync_gateway_package }}
+  - name: wait until sync gateway to listen on port
+    wait_for: port=4985 delay=2 timeout=120
+
