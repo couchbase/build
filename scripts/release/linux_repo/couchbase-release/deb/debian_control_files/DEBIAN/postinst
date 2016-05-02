@@ -3,4 +3,10 @@ gpg --import /etc/apt/trusted.gpg.d/GPG-KEY-COUCHBASE-1.0
 apt-key add /etc/apt/trusted.gpg.d/GPG-KEY-COUCHBASE-1.0
 
 repl=`lsb_release -c | awk '{print $2}'`
-sed -e "s/%DCODE%/$repl/g" -i /etc/apt/sources.list.d/couchbase.list
+if [ "$repl" = "precise" -o "$repl" = "trusty" -o "$repl" = "lucid" -o "$repl" = "wheezy" ]; then
+    sed -e "s/%DCODE_SERVER%/$repl/g" -i /etc/apt/sources.list.d/couchbase.list
+    sed -e "s/%DCODE_SDK%/$repl/g" -i /etc/apt/sources.list.d/couchbase.list
+elif [ "$repl" = "xenial" ]; then
+    sed -e "/%DCODE_SERVER%/d" -i /etc/apt/sources.list.d/couchbase.list
+    sed -e "s/%DCODE_SDK%/$repl/g" -i /etc/apt/sources.list.d/couchbase.list
+fi
