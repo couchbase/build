@@ -1,6 +1,6 @@
 #!/bin/bash
 distrib=`lsb_release -c | awk '{print $2}'`
-if [ "$distrib" = "precise" -o "$distrib" = "trusty" -o "$distrib" = "lucid" -o "$distrib" = "wheezy" -o "$distrib" - "xenial" ]; then
+if [ "$distrib" = "precise" -o "$distrib" = "trusty" -o "$distrib" = "lucid" -o "$distrib" = "wheezy" -o "$distrib" = "xenial" ]; then
     exit 0
 fi
 echo Supported platforms are: Debian/wheezy, Ubuntu/lucid,precise,trusty,xenial
