@@ -147,7 +147,7 @@ mono "${MONO_TEXTTOOL}" ${DASSEMBLYINFO_TEMPLATE} -out ${DASSEMBLYINFO_CSHARP}
 cd ${BASE_DIR}
 echo ================ Build ==========================
 echo "Building product=${BUILD_FRAMEWORK} ${PLATFORM}"
-LOG_FILE=build_results.log
+LOG_FILE=${FRAMEWORK}_build_results.log
 BUILD_CMD="xbuild /p:Configuration=${TARGET} /p:Archive=true"
 
 ${BUILD_CMD} "${BUILD_OPTIONS}"  ${BUILD_SLN} 2>&1 >> ${LOG_FILE}
