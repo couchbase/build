@@ -57,6 +57,7 @@ if result != "":
   print "Triggering manifest {}".format(result)
   with open(trigger_filename, "w") as trigger:
     trigger.write("MANIFEST={}\n".format(result))
+    trigger.write("MANIFEST_PROJECT={}\n".format(MANIFEST_PROJECT))
 else:
   print "No manifests need checking yet; not triggering build"
 with open(state_filename, "w") as state:
