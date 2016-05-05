@@ -4,13 +4,12 @@
 # command line short of installing wget for windows on the VM
 
 import sys
-import os
 import urllib2
 
-#if these env not set, just let it throw error
+#if these args are not set, just let it throw error
 #thus automatically failing the script
-url=os.environ['URL']
-local_file=os.environ['OUTPUT']
+url=sys.argv[1]
+local_file=sys.argv[2]
 
 try:
     f = urllib2.urlopen(url)
