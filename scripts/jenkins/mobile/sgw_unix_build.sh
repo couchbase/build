@@ -208,16 +208,19 @@ GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbas
 
 if [[ -e ${BIN_DIR}/${EXEC} ]]
   then
-    mv   ${BIN_DIR}/${EXEC} ${DEST_DIR}
+    mv -f ${BIN_DIR}/${EXEC} ${DEST_DIR}
     echo "..............................Sync-Gateway Success! Output is: ${DEST_DIR}/${EXEC}"
   else
     echo "############################# Sync-Gateway FAIL! no such file: ${BIN_DIR}/${EXEC}"
     exit 55
 fi
 
-if [[ -e ${BIN_DIR}/${ACCEL_EXEC} ]]
+GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbaselabs/sync-gateway-accel/...
+
+#if [[ -e ${BIN_DIR}/${ACCEL_EXEC} ]]
+if [[ -e ${BIN_DIR}/sync-gateway-accel ]]
   then
-    mv   ${BIN_DIR}/${ACCEL_EXEC} ${DEST_DIR}
+    mv -f ${BIN_DIR}/sync-gateway-accel ${DEST_DIR}/${ACCEL_EXEC}
     echo "..............................SG-ACCEL Success! Output is: ${DEST_DIR}/${ACCEL_EXEC}"
   else
     echo "############################# SG-ACCEL FAIL! no such file: ${BIN_DIR}/${ACCEL_EXEC}"
