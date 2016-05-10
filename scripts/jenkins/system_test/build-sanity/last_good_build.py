@@ -60,6 +60,7 @@ class Builds():
         build_job = ''
 
         self.supported_platforms = _PLATFORM_PREFIX.keys()
+        self.version = version
 
         if version.startswith('4.0') or version.startswith('4.1') or version.startswith('4.2'):
             code_name = 'sherlock'
@@ -92,6 +93,11 @@ class Builds():
             all_envs = json.loads(ret.read())
             if not all_envs.has_key('envMap'):
                 break
+
+            if all_envs['envMap'].has_key('VERSION'):
+                if all_envs['envMap']['VERSION'] != self.version:
+                    continue
+
             if all_envs['envMap'].has_key('BLD_NUM'):
                 build_num = int(all_envs['envMap']['BLD_NUM'])
             elif all_envs['envMap'].has_key('BUILD_NUMBER'):
