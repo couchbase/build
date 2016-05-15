@@ -91,6 +91,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
       -D CB_DOWNLOAD_DEPS=1 \
       -D SNAPPY_OPTION=Disable \
+      ${EXTRA_CMAKE_OPTIONS} \
       ..
 make -j8 install || (
     echo; echo; echo -------------
