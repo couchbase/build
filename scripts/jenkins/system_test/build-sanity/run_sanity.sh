@@ -136,7 +136,7 @@ if [ -n "${EXTRA_TEST_PARAMS}" ]; then
 fi
 
 echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True"
-if [ "$DISTRO" = "win64" -o "$DISTRO" = "macos" ]; then
+if [ "$DISTRO" = "macos" ]; then
     python testrunner.py -i node_conf.ini -c $TR_CONF 
 else
     python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=True${EXTRA_PARAMS}
