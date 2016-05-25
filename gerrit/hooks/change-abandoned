@@ -1,0 +1,2 @@
+curl "http://52.202.15.20:4455/gerrit?change-abandoned"
+

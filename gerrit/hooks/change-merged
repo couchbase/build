@@ -259,6 +259,9 @@ case $project in
     godbc)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    cbflag)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
@@ -276,3 +279,6 @@ echo "repo: $repo"
 git push $repo $branch:refs/heads/$branch
 git fetch --tags $repo
 git gc --auto
+
+curl "http://52.202.15.20:4455/gerrit?change-merged"
+

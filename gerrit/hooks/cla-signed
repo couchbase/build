@@ -1,5 +1,8 @@
 #!/bin/sh
 
-RCPTS="dustin@couchbase.com frank@couchbase.com matt@couchbase.com"
+RCPTS="brett@couchbase.com matt@couchbase.com"
 
 echo "$@" | mail -s 'A user has signed a CLA' $RCPTS
+
+curl "http://52.202.15.20:4455/gerrit?cla-signed"
+
