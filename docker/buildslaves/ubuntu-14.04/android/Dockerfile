@@ -49,7 +49,8 @@ RUN npm install ncp
 RUN echo yes | apt-get install zip
 
 # JDK for Jenkins.
-RUN apt-get install -y openjdk-7-jdk maven unzip && \
+RUN apt-get update && \
+    apt-get install -y openjdk-7-jdk maven unzip && \
     rm -f /var/cache/apt/archives/*.deb
 
 # CLANG compiler
@@ -62,7 +63,7 @@ RUN echo 'export ANDROID_NDK_HOME="/home/couchbase/jenkins/tools/android-ndk-r10
 USER couchbase
 RUN mkdir -p /home/couchbase/jenkins/tools && \
     cd /home/couchbase/jenkins/tools && \
-    curl -L http://dl.google.com/android/android-sdk_r23.0.2-linux.tgz -o android-sdk.tgz && \
+    curl -L http://dl.google.com/android/android-sdk_r24.4.1-linux.tgz -o android-sdk.tgz && \
     tar xzf android-sdk.tgz && \
     mv android-sdk-linux android-sdk && \
     chown -R couchbase:couchbase android-sdk && \
@@ -76,7 +77,10 @@ RUN . /etc/profile && \
     echo yes | android update sdk --filter platform-tools,android-22,extra --no-ui --force --all && \
     filter=`android list sdk --all | grep Build-tools | grep 22.0.1 | awk '{ print $1 }' | tr -d -` && \
     echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    echo yes | android update sdk --filter sys-img-armeabi-v7a-android-22 --no-ui --force --all
+    echo yes | android update sdk --filter sys-img-armeabi-v7a-android-22 --no-ui --force --all && \
+    filter=`android list sdk --all | grep Build-tools | grep 23.0.3 | awk '{ print $1 }' | tr -d -` && \
+    echo yes | android update sdk --filter $filter --no-ui --force --all && \
+    echo yes | android update sdk --filter platform-tools,android-23,extra --no-ui --force --all
 
 # Android NDK
 USER couchbase
