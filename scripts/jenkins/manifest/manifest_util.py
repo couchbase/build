@@ -48,7 +48,7 @@ def scan_manifests(manifest_repo = "git://github.com/couchbase/manifest"):
           if not "manifests" in config:
             continue
           for manifest in config["manifests"]:
-            manifests[os.path.join(root, manifest)[2:]] = config["manifests"][manifest]
+            manifests[manifest] = config["manifests"][manifest]
 
       # Identify each .xml file
       for filename in files:

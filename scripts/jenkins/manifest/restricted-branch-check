@@ -21,11 +21,8 @@ PROJECT=os.environ["GERRIT_PROJECT"]
 BRANCH=os.environ["GERRIT_BRANCH"]
 COMMIT_MSG=base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"])
 
-# Constants that may be set; useful for populating the error HTML
-APPROVAL_TICKET = None
-RELEASE_NAME = "Unknown"
-REASON = None
-MANIFEST = None
+# Values for outputting in HTML template (initialized with current globals)
+OUTPUT = globals().copy()
 
 def check_branch_in_manifest(manifest_filename, meta):
   """
@@ -52,12 +49,10 @@ def check_branch_in_manifest(manifest_filename, meta):
 
   return True
 
-def get_approved_tickets():
+def get_approved_tickets(approval_ticket):
   """
-  Given a Jira ticket ID, return all linked ticket IDs
+  Given a Jira approval ticket ID, return all linked ticket IDs
   """
-  global APPROVAL_TICKET
-  assert APPROVAL_TICKET is not None
   with open("{}/.ssh/jira.pem".format(os.environ["HOME"]), "r") as key_cert_file:
     key_cert_data = key_cert_file.read()
   oauth_dict = {
@@ -68,54 +63,61 @@ def get_approved_tickets():
   }
   jira = JIRA({"server": "https://issues.couchbase.com"}, oauth=oauth_dict)
   links = [link.outwardIssue.key
-    for link in jira.issue(APPROVAL_TICKET).fields.issuelinks
+    for link in jira.issue(approval_ticket).fields.issuelinks
     if hasattr(link, "outwardIssue")]
   return links
 
 
-def validate_change():
+def validate_change_in_ticket(meta):
   """
-  Checks the commit message for a ticket, and verifies it with the the
+  Checks the commit message for a ticket name, and verifies it with the the
   approval ticket for the restricted manifest
   """
-  global REASON, RELEASE_NAME, APPROVAL_TICKET, COMMIT_MSG
+  approval_ticket = meta.get("approval_ticket")
+  global COMMIT_MSG
   # First ensure topic line mentions tickets, and pull them out.
   topic = COMMIT_MSG.split('\n', 1)[0]
   fix_tickets = re.findall("[A-Z]{2,5}-[0-9]{1,6}", topic)
   if len(fix_tickets) == 0:
-    REASON = "the commit message does not name a ticket"
+    OUTPUT["REASON"] = "the commit message does not name a ticket"
     return False
 
-  # Now get list of approved tickets from master ticket, and ensure
+  # Now get list of approved tickets from approval ticket, and ensure
   # all "fixed" tickets are approved.
-  approved_tickets = get_approved_tickets()
+  approved_tickets = get_approved_tickets(approval_ticket)
   for tick in fix_tickets:
     if not tick in approved_tickets:
-      REASON = "ticket {} is not approved for {} (see approval ticket {})".format(
-        tick, RELEASE_NAME, APPROVAL_TICKET)
+      # Ok, this fixed ticket isn't approved in approval ticket. Populate the
+      # OUTPUT map for the HTML and email templates.
+      OUTPUT["REASON"] = "ticket {} is not approved for {} (see approval ticket {})".format(
+        tick, meta.get("release_name"), approval_ticket)
       return False
   return True
 
-def output_report():
+
+def output_report(meta):
   """
   Outputs report explaining why change was restricted, and exits
   with non-0 return value
   """
-  global REASON
-  data = globals().copy()
-  data.update(os.environ)
+  OUTPUT["RELEASE_NAME"] = meta.get("release_name")
+  OUTPUT["APPROVAL_TICKET"] = approval_ticket
+  OUTPUT.update(os.environ)
   # Specialized mailto: URL for new branch request
   tmpldir = os.path.dirname(os.path.abspath(__file__))
   with open(os.path.join(tmpldir, "mailto_url.tmpl")) as tmplfile:
-    mailto_url = tmplfile.read().strip().format(**data)
+    mailto_url = tmplfile.read().strip().format(**OUTPUT)
     print mailto_url
-    data["MAILTO_URL"] = urllib.quote(mailto_url, ":@=&?")
+    OUTPUT["MAILTO_URL"] = urllib.quote(mailto_url, ":@=&?")
   with open(html_filename, "w") as html:
     with open (os.path.join(tmpldir, "restricted.html.tmpl")) as tmplfile:
       tmpl = tmplfile.read()
-    html.write(tmpl.format(**data))
-    print "\n\n\n*********\nRESTRICTED: {}\n*********\n\n\n".format(REASON)
+    html.write(tmpl.format(**OUTPUT))
+    print "\n\n\n*********\nRESTRICTED: {}\n*********\n\n\n".format(OUTPUT["REASON"])
     sys.exit(5)
+
+
+# main()
 
 # Command-line args
 parser = argparse.ArgumentParser()
@@ -130,31 +132,51 @@ html_filename = "restricted.html"
 if os.path.exists(html_filename):
   os.remove(html_filename)
 
-# Iterate through restricted manifests
+# Collect all restricted manifests that reference this branch
 manifests = scan_manifests(MANIFEST_PROJECT)
-is_restricted = False
+print manifests
+restricted_manifests = []
 for manifest in manifests:
   meta = manifests[manifest]
   if meta.get("restricted"):
-    APPROVAL_TICKET = meta.get("approval_ticket")
-    RELEASE_NAME = meta.get("release_name", "Unknown")
-    if APPROVAL_TICKET is None:
+    approval_ticket = meta.get("approval_ticket")
+    if approval_ticket is None:
       print "no approval ticket for restricted manifest {}".format(manifest)
       continue
     if not check_branch_in_manifest(manifest, meta):
       continue
-    # Ok, this proposal is to a branch in a restricted manifest - validate it
-    is_restricted = True
+
+    # Ok, this proposal is to a branch in a restricted manifest
+    restricted_manifests.append(manifest)
     print "Project: {} Branch: {} is in restricted manifest: {}".format(
       PROJECT, BRANCH, manifest)
-    if not validate_change():
-      MANIFEST = manifest
-      output_report()
+
+# Now *remove* any restricted manifests that are the parent of any other
+# restricted manifests in the list. Logic: if a change is approved for a
+# branch manifest B, it is implicitly approved for its parent A.
+# Conversely, even if it's approved for A, it cannot go into B. Therefore
+# we don't care whether it's approved for A or not.
+restricted_children = list(restricted_manifests)
+for manifest in restricted_manifests:
+  print "....looking at {}".format(manifest)
+  parent = manifests[manifest].get("parent")
+  print "....parent is {}".format(parent)
+  if parent in restricted_children:
+    print "Not checking manifest {} because it is a parent of {}".format(
+      parent, manifest)
+    restricted_children.remove(parent)
+
+# Now, iterate through all restricted manifests that we have left, and ensure
+# this ticket is approved for each.
+for manifest in restricted_children:
+  if not validate_change_in_ticket(manifests[manifest]):
+    OUTPUT["MANIFEST"] = manifest
+    output_report(manifests[manifest])
 
 # If we get here, the change is allowed!
 # Output "all clear" message if no restricted branches were checked,
 # or if they were checked and approved.
-if is_restricted:
+if restricted_manifests:
   print "\n\n\n*********\nAPPROVED: Commit is approved for all restricted manifests\n*********\n\n\n"
 else:
   # This is the common case where the change was not to any restricted
