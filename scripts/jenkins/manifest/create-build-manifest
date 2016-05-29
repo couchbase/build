@@ -54,8 +54,9 @@ if os.path.exists(tarball_filename):
 # Determine product and release from manifest path
 PRODUCT, _, MANIFEST_PATH = MANIFEST.partition('/')
 if MANIFEST_PATH is '':
-  print "Manifest path must contain a slash"
-  sys.exit(2)
+  # For legacy reasons, "top-level" manifests are couchbase-server
+  PRODUCT="couchbase-server"
+  MANIFEST_PATH=MANIFEST
 
 # Sync manifest project
 if not os.path.isdir("manifest"):
