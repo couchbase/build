@@ -77,7 +77,7 @@ def create_stub_manifest(input_manifest, config, source_sha=None):
   # We don't really care about the contents of the new manifest other than
   # it being a legit repo manifest with a "build" project, so just use the
   # input manifest. Get the version number while we're there.
-  target_manifest = ET.parse(os.path.join(MANIFEST_DIR, PRODUCT, input_manifest))
+  target_manifest = ET.parse(os.path.join(MANIFEST_DIR, input_manifest))
   # Remove some other project to ensure there are repo diffs
   proj_element = target_manifest.find("./project[@name='ns_server']")
   target_manifest.getroot().remove(proj_element)
