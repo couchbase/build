@@ -119,6 +119,10 @@ mkdir -p ${REL_DIR}
 mv ${BASE_DIR}/packaging/nuget/*.nupkg ${REL_DIR}
 ls ${REL_DIR}
 
-echo ................................... upload ${FRAMEWORK} internally to ${LATESTBUILDS}
+# Temporary copy LiteServ for (QE) internal consumption while Jim B. look for a better solution
+echo ======== Copy LiteServ =============================
+cp -f ${STAGING_DIR}/LiteServ/LiteServ.zip ${REL_DIR}
+
+echo ................................... upload internally to ${LATESTBUILDS}
 
 echo ============================================== `date`
