@@ -89,7 +89,7 @@ echo ============================================== %DATE%
 :: Changes needed to support concurrent builds later
 set TARGET_DIR=%WORKSPACE%\%REL_VER%\%EDITION%
 set BIN_DIR=%TARGET_DIR%\godeps\bin
-set LIC_DIR=%TARGET%\cbbuild\license\sync_gateway
+set LIC_DIR=%TARGET_DIR%\cbbuild\license\sync_gateway
 
 if NOT EXIST %TARGET_DIR% (
     echo FATAL: Missing source...
