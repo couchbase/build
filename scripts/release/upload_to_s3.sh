@@ -18,7 +18,7 @@ function usage() {
     echo
 }
 
-DEFAULT_PLATFORMS=(centos6 centos7 debian7 macos oel6 suse11 ubuntu12.04 ubuntu14.04 windows)
+DEFAULT_PLATFORMS=(centos6 centos7 debian8 debian7 macos oel6 suse11 ubuntu12.04 ubuntu14.04 windows)
 MP=
 LIVE=false
 
@@ -108,13 +108,14 @@ fi
 # Compute destination directories
 S3CONFIG=~/.ssh/staging.s3cfg
 ROOT=s3://staging.packages.couchbase.com/releases/$RELEASE_DIRNAME
+RELEASE_DIR=${RELEASES_MOUNT}/staging/$RELEASE_DIRNAME
 if [[ "$LIVE" = "true" ]]
 then
     S3CONFIG=~/.ssh/live.s3cfg
     ROOT=s3://packages.couchbase.com/releases/$RELEASE_DIRNAME
+    RELEASE_DIR=${RELEASES_MOUNT}/$RELEASE_DIRNAME
 fi
 
-RELEASE_DIR=${RELEASES_MOUNT}/$RELEASE_DIRNAME
 # Create destination directory, including "hidden" ce subdir
 mkdir -p $RELEASE_DIR/ce
 
