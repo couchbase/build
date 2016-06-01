@@ -190,12 +190,19 @@ move  %TEMPLATE_FILE%.orig  %TEMPLATE_FILE%
 
 echo ======== test ================================
 echo ................... running unit tests
-::go test github.com\couchbase\sync_gateway\...
+echo ................... test options: %TEST_OPTIONS%
+if %TEST_OPTIONS% == "None" (
+    echo go test github.com\couchbase\sync_gateway\...
+    go test github.com\couchbase\sync_gateway\...
+) else (
+    echo go test %TEST_OPTIONS:"=% github.com\couchbase\sync_gateway\...
+    go test %TEST_OPTIONS:"=% github.com\couchbase\sync_gateway\...
+)
 
-::if %ERRORLEVEL% NEQ 0 (
-::    echo "########################### FAIL! Unit test results = %ERRORLEVEL%"
-::    exit 1
-::)
+if %ERRORLEVEL% NEQ 0 (
+    echo "########################### FAIL! Unit test results = %ERRORLEVEL%"
+    exit 1
+)
 
 echo ======== build service wrappers ==============
 set ACCEL_SERVICED=%SGW_DIR%\service\sg-windows
