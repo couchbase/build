@@ -101,7 +101,7 @@ def output_report(meta):
   with non-0 return value
   """
   OUTPUT["RELEASE_NAME"] = meta.get("release_name")
-  OUTPUT["APPROVAL_TICKET"] = approval_ticket
+  OUTPUT["APPROVAL_TICKET"] = meta.get("approval_ticket")
   OUTPUT.update(os.environ)
   # Specialized mailto: URL for new branch request
   tmpldir = os.path.dirname(os.path.abspath(__file__))
