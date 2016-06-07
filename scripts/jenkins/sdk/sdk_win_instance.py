@@ -115,8 +115,8 @@ class winsdk_instance():
             self.boto_inst_obj.reload()
             self.inst_state = self.boto_inst_obj.state['Name']
             self.inst_tags = self.boto_inst_obj.tags
-            print self.inst_state
-            print self.inst_tags
+            #print self.inst_state
+            #print self.inst_tags
         except botocore.exceptions.ClientError, e:
             if e.message.find('InvalidInstanceID') > 0:
                 print 'There is no such instance [%s] on AWS, perhaps we are given a wrong argument?' %self.iid
