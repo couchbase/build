@@ -79,7 +79,8 @@ if [[ ! -d ${FRAMEWORK_DIR} ]] ; then  mkdir -p ${FRAMEWORK_DIR} ; fi
 cd         ${FRAMEWORK_DIR}
 echo ======== sync couchbase-lite-net ===================
 pwd
-if [[ ! -d couchbase-lite-net ]] ; then git clone https://github.com/couchbase/couchbase-lite-net.git ; fi
+if [[ -d couchbase-lite-net ]] ; then rm -rf couchbase-lite-net ; fi
+git clone https://github.com/couchbase/couchbase-lite-net.git couchbase-lite-net
 cd         couchbase-lite-net
 
 git checkout --track -B ${BRANCH} origin/${BRANCH}
