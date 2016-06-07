@@ -75,9 +75,6 @@ BUILD_OUTPUT=("${LITE_BIN}" "${LSTNR_BIN}" "${LSTNR_BNJR_BIN}" "${SQLITE_BIN}" "
 # disable nocasematch
 shopt -u nocasematch
 
-# Clean old build output since xbuild clean is too fragile
-if [[ -d ${STAGING_DIR} ]] ; then rm -rf ${STAGING_DIR} ; fi
-
 if [[ ! -d ${FRAMEWORK_DIR} ]] ; then  mkdir -p ${FRAMEWORK_DIR} ; fi
 cd         ${FRAMEWORK_DIR}
 echo ======== sync couchbase-lite-net ===================
@@ -105,6 +102,9 @@ then
     echo "Missing native components at ${NATIVES_DIR}" 
     exit -2
 fi
+
+# Clean old build output since xbuild clean is too fragile
+if [[ -d ${STAGING_DIR} ]] ; then rm -rf ${STAGING_DIR} ; fi
 
 echo ======== Import Natives Dependency =============================
 cd ${NATIVES_DIR}
@@ -155,6 +155,9 @@ LOG_FILE=${FRAMEWORK}_build_results.log
 BUILD_CMD="xbuild /p:Configuration=${TARGET} /p:Archive=true"
 
 ${BUILD_CMD} "${BUILD_OPTIONS}"  ${BUILD_SLN} 2>&1 >> ${LOG_FILE}
+
+# Move build logs for archiving
+mv -f ${LOG_FILE} ${WORKSPACE}/${VERSION}
 
 echo ======== Verify Build =======================
 for bld_bin in "${BUILD_OUTPUT[@]}"
