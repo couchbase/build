@@ -75,12 +75,14 @@ BUILD_OUTPUT=("${LITE_BIN}" "${LSTNR_BIN}" "${LSTNR_BNJR_BIN}" "${SQLITE_BIN}" "
 # disable nocasematch
 shopt -u nocasematch
 
+# Clean old build output since xbuild clean is too fragile
+if [[ -d ${STAGING_DIR} ]] ; then rm -rf ${STAGING_DIR} ; fi
+
 if [[ ! -d ${FRAMEWORK_DIR} ]] ; then  mkdir -p ${FRAMEWORK_DIR} ; fi
 cd         ${FRAMEWORK_DIR}
 echo ======== sync couchbase-lite-net ===================
 pwd
-if [[ -d couchbase-lite-net ]] ; then rm -rf couchbase-lite-net ; fi
-git clone https://github.com/couchbase/couchbase-lite-net.git couchbase-lite-net
+if [[ ! -d couchbase-lite-net ]] ; then git clone https://github.com/couchbase/couchbase-lite-net.git ; fi
 cd         couchbase-lite-net
 
 git checkout --track -B ${BRANCH} origin/${BRANCH}
@@ -93,6 +95,7 @@ else
 fi
 
 git submodule update --init --recursive
+
 git show --stat
 
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
