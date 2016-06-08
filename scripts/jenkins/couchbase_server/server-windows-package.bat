@@ -16,7 +16,7 @@ cd v
 
 :package_win
 echo ======== package =============================
-ruby server-win.rb %WORKSPACE%\couchbase\install 5.10.4 couchbase_server %BUILD_NUMBER% %LICENSE% %ARCHITECTURE% %SRC_DIR_PREFIX%  || goto error
+ruby server-win.rb %WORKSPACE%\couchbase\install 5.10.4.0.0.1 couchbase_server %BUILD_NUMBER% %LICENSE% %ARCHITECTURE% %SRC_DIR_PREFIX%  || goto error
 
 set PKG_SRC_DIR=%WORKSPACE%\v\couchbase_server\%VERSION%\%BLD_NUM%
 set PKG_SRC_NAME=couchbase_server-%LICENSE%-windows-%ARCHITECTURE%-%BUILD_NUMBER%.exe
