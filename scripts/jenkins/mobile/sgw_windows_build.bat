@@ -51,6 +51,7 @@ set SGW_EXEC=sync_gateway.exe
 set SGW_NAME=sync-gateway
 set ACCEL_EXEC=sg_accel.exe
 set ACCEL_NAME=sg-accel
+set COLLECTINFO_NAME=sgcollect_info
 
 if "%PROC_ARCH%" == "x64" (
     set ARCH=amd64
@@ -112,6 +113,7 @@ echo ======== sync sync_gateway ===================
 
 if NOT EXIST %STAGING%           mkdir %STAGING%
 if NOT EXIST %STAGING%\bin       mkdir %STAGING%\bin
+if NOT EXIST %STAGING%\tools     mkdir %STAGING%\tools
 if NOT EXIST %STAGING%\examples  mkdir %STAGING%\examples
 if NOT EXIST %STAGING%\service   mkdir %STAGING%\service
 
@@ -229,13 +231,25 @@ GOTO skip_build_service_wrapper
 
 :skip_build_service_wrapper
 
-:: Jenkins seems to have a bug in the way how the slave starts (ssh vs jnlp)
-:: Starting via ssh caused an issue with parsing long strings with spaces.
-:: Temporary disable TEST_OPTIONS until slave can be started in jnlp mode.
+echo ======== build sgcollect_info ===============================
+set COLLECTINFO_DIR=%SGW_DIR%\tools
+set COLLECTINFO_DIST=%COLLECTINFO_DIR%\dist\%COLLECTINFO_NAME%.exe
+
+set CWD=%cwd%
+cd %COLLECTINFO_DIR%
+pyinstaller --onefile %COLLECTINFO_NAME%
+if EXIST %COLLECTINFO_DIST% (
+    echo "..............................SGCOLLECT_INFO Success! Output is: %COLLECTINFO_DIST%"
+) else (
+    echo "############################# SGCOLLECT-INFO FAIL! no such file: %COLLECTINFO_DIST%"
+    exit 1
+)
+cd %CWD%
 
 echo ======== sync-gateway package ==========================
 echo ".................staging sgw files to %STAGING%"
 copy  %DEST_DIR%\%SGW_EXEC%             %STAGING%\bin\
+copy  %COLLECTINFO_DIST%                %STAGING%\tools\
 copy  %BLD_DIR%\README.txt              %STAGING%\README.txt
 echo  %VERSION%                       > %STAGING%\VERSION.txt
 copy  %LIC_DIR%\LICENSE_%EDITION%.txt   %STAGING%\LICENSE.txt

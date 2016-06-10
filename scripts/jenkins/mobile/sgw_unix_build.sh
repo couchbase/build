@@ -66,6 +66,7 @@ PARCH=${ARCHP}
 EXEC=sync_gateway
 ACCEL_EXEC=sg_accel
 ACCEL_NAME=sg-accel
+COLLECTINFO_NAME=sgcollect_info
 
 if [[ $DISTRO =~ centos  ]]
 then
@@ -178,6 +179,7 @@ echo ======== sync sync_gateway ===================
 pwd
 
 if [[ ! -d ${STAGING}/bin/      ]] ; then mkdir -p ${STAGING}/bin/      ; fi
+if [[ ! -d ${STAGING}/tools/    ]] ; then mkdir -p ${STAGING}/tools/    ; fi
 if [[ ! -d ${STAGING}/examples/ ]] ; then mkdir -p ${STAGING}/examples/ ; fi
 if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
 
@@ -217,7 +219,6 @@ fi
 
 GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbaselabs/sync-gateway-accel/...
 
-#if [[ -e ${BIN_DIR}/${ACCEL_EXEC} ]]
 if [[ -e ${BIN_DIR}/sync-gateway-accel ]]
   then
     mv -f ${BIN_DIR}/sync-gateway-accel ${DEST_DIR}/${ACCEL_EXEC}
@@ -249,8 +250,24 @@ then
     exit 66
 fi
 
+echo ======== build sgcollect_info ===============================
+COLLECTINFO_DIR=${SGW_DIR}/tools
+COLLECTINFO_DIST=${COLLECTINFO_DIR}/dist/${COLLECTINFO_NAME}
+
+pushd ${COLLECTINFO_DIR}
+pyinstaller --onefile ${COLLECTINFO_NAME}
+if [[ -e ${COLLECTINFO_DIST} ]]
+  then
+    echo "..............................SGCOLLECT_INFO Success! Output is: ${COLLECTINFO_DIST}"
+  else
+    echo "############################# SGCOLLECT-INFO FAIL! no such file: ${COLLECTINFO_DIST}"
+    exit 77
+fi
+popd
+
 echo ======== sync_gateway package =============================
 cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
+cp    ${COLLECTINFO_DIST}                ${STAGING}/tools/
 cp    ${BLD_DIR}/README.txt              ${STAGING}
 echo  ${VERSION}-${BLD_NUM}            > ${STAGING}/VERSION.txt
 cp    ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
