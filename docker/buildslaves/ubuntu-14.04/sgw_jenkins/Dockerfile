@@ -24,18 +24,18 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
 RUN apt-get update
 
 # Install Couchbase build dependencies
-RUN apt-get update && apt-get install -y ccache g++ git-core tar libssl-dev ruby rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
+RUN apt-get update && apt-get install -y ccache g++ git-core tar libssl-dev ruby rake ncurses-dev python-dev python-pip devscripts debhelper ed man curl libc6-i386 libc-bin binutils && \
     rm -f /var/cache/apt/archives/*.deb
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 RUN ln -s /usr/bin/nodejs /usr/sbin/node
 RUN ln -s /usr/bin/nodejs /usr/local/bin/node
 RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
-#RUN mkdir /tmp/deploy && \
-#    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
-#    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo && \
     cd /tmp && rm -rf /tmp/deploy
+
+# PyInstaller is required by sgcollect_info
+RUN pip install -Iv PyInstaller==3.1
 
 # golang
 RUN mkdir -p /usr/local/go/1.4.1 && cd /usr/local/go/1.4.1 && \
@@ -57,19 +57,8 @@ RUN apt-get update && \
     apt-get install -y software-properties-common && \
     add-apt-repository ppa:fkrull/deadsnakes && \
     apt-get update && \
-    apt-get install -y m4 python2.6 python2.6-dev && \
+    apt-get install -y m4 python2.7 python2.7-dev && \
     rm -f /var/cache/apt/archives/*.deb
-RUN mkdir /tmp/deploy && \
-    curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
-    cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
-    cd autoconf-2.69 && ./configure --prefix=/usr/local && make && make install && \
-    curl -L http://ftpmirror.gnu.org/automake/automake-1.14.tar.gz -o /tmp/deploy/automake-1.14.tar.gz && \
-    cd /tmp/deploy && tar -xzf automake-1.14.tar.gz && \
-    cd automake-1.14 && ./configure --prefix=/usr/local && make && make install && \
-    curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
-    cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
-    cd libtool-2.4.2 && ./configure --prefix=/usr/local && make && make install && \
-    cd /tmp && rm -rf /tmp/deploy
 
 # JDK for Jenkins.
 RUN apt-get install -y openjdk-7-jre-headless && \

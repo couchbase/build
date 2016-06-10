@@ -48,6 +48,12 @@ RUN yum install --setopt=keepcache=0 -y \
                 which && \
     ln -s /usr/bin/python2.7 /usr/bin/python2.6
 
+# * Required for sgcollect_info
+RUN yum install --setopt=keepcache=0 -y epel-release.noarch
+RUN yum install --setopt=keepcache=0 -y python-pip
+RUN pip install --upgrade pip \
+                -Iv PyInstaller==3.1
+
 # * ccache (from source)
 RUN mkdir /tmp/deploy && \
     curl -L https://www.samba.org/ftp/ccache/ccache-3.1.9.tar.bz2 -o /tmp/deploy/ccache.tar.bz2 && \
