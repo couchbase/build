@@ -80,7 +80,10 @@ RUN . /etc/profile && \
     echo yes | android update sdk --filter sys-img-armeabi-v7a-android-22 --no-ui --force --all && \
     filter=`android list sdk --all | grep Build-tools | grep 23.0.3 | awk '{ print $1 }' | tr -d -` && \
     echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    echo yes | android update sdk --filter platform-tools,android-23,extra --no-ui --force --all
+    echo yes | android update sdk --filter platform-tools,android-23,extra --no-ui --force --all && \
+    filter=`android list sdk --all | grep Build-tools | grep "revision 24" | awk '{ print $1 }' | tr -d -` && \
+    echo yes | android update sdk --filter $filter --no-ui --force --all && \
+    echo yes | android update sdk --filter platform-tools,android-23.1,extra --no-ui --force --all
 
 # Android NDK
 USER couchbase
