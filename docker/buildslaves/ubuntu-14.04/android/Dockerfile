@@ -49,8 +49,15 @@ RUN npm install ncp
 RUN echo yes | apt-get install zip
 
 # JDK for Jenkins.
+# Software-properties-common is required for add-apt-repository
 RUN apt-get update && \
-    apt-get install -y openjdk-7-jdk maven unzip && \
+    apt-get install -y maven unzip && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:webupd8team/java -y && \
+    apt-get update && \
+    echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections && \
+    apt-get install oracle-java8-installer -y && \
+    apt-get install oracle-java8-set-default && \
     rm -f /var/cache/apt/archives/*.deb
 
 # CLANG compiler
@@ -82,6 +89,8 @@ RUN . /etc/profile && \
     echo yes | android update sdk --filter $filter --no-ui --force --all && \
     echo yes | android update sdk --filter platform-tools,android-23,extra --no-ui --force --all && \
     filter=`android list sdk --all | grep Build-tools | grep "revision 24" | awk '{ print $1 }' | tr -d -` && \
+    echo yes | android update sdk --filter $filter --no-ui --force --all && \
+    filter=`android list sdk --all | grep "SDK Platform Android" | grep "API 24" | awk '{ print $1 }' | tr -d -` && \
     echo yes | android update sdk --filter $filter --no-ui --force --all && \
     echo yes | android update sdk --filter platform-tools,android-23.1,extra --no-ui --force --all
 
