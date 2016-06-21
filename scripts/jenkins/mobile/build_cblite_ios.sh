@@ -75,7 +75,7 @@ then
         RIO_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products/Library/Frameworks
         REL_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products
     fi
-    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]] 
+    if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
     then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
         LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}/Extras
@@ -139,8 +139,10 @@ fi
 
 LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${GITSPEC}/${OS}/${REVISION}
 
-LOG_FILE=${WORKSPACE}/build_${OS}_results.log
+LOG_FILE=${WORKSPACE}/${OS}_${EDITION}_build_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
+
+rm -f ${BASE_DIR}/*.zip
 
 ZIP_FILE=couchbase-lite-${OS}-${EDITION}_${REVISION}.zip
 ZIP_PATH=${BASE_DIR}/${ZIP_FILE}
@@ -188,8 +190,10 @@ cd ${WORKSPACE}
 echo ============================================  sync couchbase-lite-ios
 echo ============================================  to ${GITSPEC} into ${WORKSPACE}/couchbase-lite-${OS}
 
-if [[ -d couchbase-lite-${OS} ]] ; then rm -rf couchbase-lite-${OS} ; fi
-git clone       https://github.com/couchbase/couchbase-lite-ios.git   couchbase-lite-${OS}
+if [[ ! -d couchbase-lite-${OS} ]]
+then
+    git clone https://github.com/couchbase/couchbase-lite-ios.git couchbase-lite-${OS}
+fi
 
 # master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
 if [[ ${GITSPEC} =~ "0.0.0" ]]
@@ -201,7 +205,7 @@ fi
 
 cd  couchbase-lite-${OS}
 if [[ !  `git branch | grep ${BRANCH}` ]]
-    then
+then
     git branch -t ${BRANCH} origin/${BRANCH}
 fi
 git fetch
@@ -210,18 +214,6 @@ git pull  origin  ${BRANCH}
 git submodule update --init --recursive
 git show --stat
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
-
-
-cd ${WORKSPACE}
-echo ============================================  sync cblite-build
-echo ============================================  to master into ${WORKSPACE}
-
-if [[ ! -d cblite-build ]] ; then git clone https://github.com/couchbaselabs/cblite-build.git ; fi
-cd  cblite-build
-git checkout      master
-git pull  origin  master
-git submodule update --init --recursive
-git show --stat
 
 if [[ $OS =~ ios  ]] || [[ $OS =~ tvos ]] || [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
 then
