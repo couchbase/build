@@ -207,8 +207,9 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 echo ======== build service wrappers ==============
-set ACCEL_SERVICED=%SGW_DIR%\service\sg-windows
-set ACCEL_SERVICE=%ACCEL_SERVICED%\sg-accel-service.exe
+set SG_SERVICED=%SGW_DIR%\service\sg-windows
+set SG_SERVICE=%SG_SERVICED%\sg-windows.exe
+set ACCEL_SERVICE=%SG_SERVICED%\sg-accel-service.exe
 
 if "%REL_VER%" == "0.0.0" GOTO build_service_wrapper
 if "%REL_VER%" GEQ "1.3.0" GOTO build_service_wrapper
@@ -216,11 +217,16 @@ if "%REL_VER%" GEQ "1.3.0" GOTO build_service_wrapper
 GOTO skip_build_service_wrapper
 
 :build_service_wrapper
-    if EXIST %ACCEL_SERVICED%\build.cmd (
-	cd %ACCEL_SERVICED%
-	call build.cmd
-	) else (
-	echo "############################# WINDOWS SERVICE WRAPPER build FAIL! no such file: %ACCEL_SERVICED%\build.cmd"
+    cd %SG_SERVICED%
+    if EXIST build.cmd (
+        call build.cmd
+    ) else (
+        echo "############################# WINDOWS SERVICE WRAPPER build FAIL! no such file: %SG_SERVICED%\build.cmd"
+        exit 1
+    )
+
+    if NOT EXIST %SG_SERVICE% (
+        echo "############################# SG-SERVICE FAIL! no such file: %SG_SERVICE%"
         exit 1
     )
 
