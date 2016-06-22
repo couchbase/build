@@ -2,7 +2,7 @@
 thisdir=`dirname $0`
 pushd $thisdir
 
-VERSION=1.0-2
+VERSION=1.0-3
 
 rm -rf deb/couchbase-release-$VERSION
 cp -rp deb/debian_control_files deb/couchbase-release-$VERSION
