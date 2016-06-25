@@ -50,8 +50,12 @@ EDN_PRFX=`echo ${OS} | tr '[a-z]' '[A-Z]'`
 
 BASE_DIR=${WORKSPACE}/couchbase-lite-${OS}
 BUILDDIR=${BASE_DIR}/build
-ZIPFILE_STAGING="zipfile_staging"
 SQLCIPHER="libsqlcipher"
+ZIPFILE_STAGING="zipfile_staging"
+ZIP_FILE=couchbase-lite-${OS}-${EDITION}_${REVISION}.zip
+ZIP_PATH=${BASE_DIR}/${ZIP_FILE}
+ZIP_SRCD=${BASE_DIR}/${ZIPFILE_STAGING}
+EXTRAS_DIR=${ZIP_SRCD}/Extras
 
 if [[ $OS =~ ios ]]
 then
@@ -66,6 +70,7 @@ then
         SCHEME="CI iOS"  # Aggregated scheme for all targets (CBL iOS, CBL Listener iOS, CBLJSViewCompiler, Documentation)
         BUILD_TARGETS=("${SCHEME}")
         SDK="-sdk iphoneos"
+        OPENID_SRC=${BASE_DIR}/Source/API/Extras/OpenIDConnectUI
     fi
     if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.1 ]]
     then
@@ -78,11 +83,11 @@ then
     if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
     then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
-        LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}/Extras
+        LIB_SQLCIPHER_DEST=${EXTRAS_DIR}
     elif [[ ${VERSION} == 1.2.0 ]]
     then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
-        LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
+        LIB_SQLCIPHER_DEST=${ZIP_SRCD}
     fi
 elif [[ $OS =~ tvos ]]
 then
@@ -114,6 +119,7 @@ then
         BUILD_TARGETS=("${SCHEME}")
         REL_SRCD=${BUILDDIR}/${SCHEME}.xcarchive/Products
         RIO_SRCD="${BUILDDIR}/${SCHEME}.xcarchive/Products/Library/Frameworks"
+        OPENID_SRC=${BASE_DIR}/Source/API/Extras/OpenIDConnectUI
     else
         BUILD_TARGETS=("CBL Mac" "CBL Listener Mac" "LiteServ" "LiteServ App")
         RIO_SRCD=${BUILDDIR}/Release
@@ -143,10 +149,6 @@ LOG_FILE=${WORKSPACE}/${OS}_${EDITION}_build_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
 
 rm -f ${BASE_DIR}/*.zip
-
-ZIP_FILE=couchbase-lite-${OS}-${EDITION}_${REVISION}.zip
-ZIP_PATH=${BASE_DIR}/${ZIP_FILE}
-ZIP_SRCD=${BASE_DIR}/${ZIPFILE_STAGING}
 
 DOC_ZIP_FILE=couchbase-lite-${OS}-${EDITION}_${REVISION}_Documentation.zip
 DOC_ZIP_PATH=${BASE_DIR}/${DOC_ZIP_FILE}
@@ -184,7 +186,6 @@ DOC_ZIP_ROOT_DIR=${REL_DEST}/${REVISION}
 export TAP_TIMEOUT=120
 
 echo ============================================ `date`
-env | grep -iv password | grep -iv passwd | sort
 
 cd ${WORKSPACE}
 echo ============================================  sync couchbase-lite-ios
@@ -331,6 +332,19 @@ else
         cp ${BASE_DIR}/Source/API/CBLRegisterJSViewCompiler.h "${LIB_DEST}"
         cp ${BASE_DIR}/Source/CBLJSONValidator.h "${LIB_DEST}"
         cp ${BASE_DIR}/Source/CBLJSONValidator.m "${LIB_DEST}"
+    fi
+fi
+
+# Stage OpenIDConnectUI for ios and macos
+if [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
+then
+    if [[ $OS =~ ios ]] || [[ $OS =~ macosx ]]
+    then
+        if [[ ! -e ${EXTRAS_DIR} ]] ; then mkdir -p ${EXTRAS_DIR} ; fi
+        cp -rf ${OPENID_SRC} ${EXTRAS_DIR}
+    elif [[ $OS =~ tvos ]]
+    then
+        if [[ -e ${EXTRAS_DIR}/OpenIDConnectUI ]] ; then rm -rf ${EXTRAS_DIR}/OpenIDConnectUI  ; fi
     fi
 fi
 
