@@ -5,7 +5,7 @@ NODE_IP=${CPDSN:-127.0.0.1}
 # phpunit needs 5.6 always
 PHP_DIR="${BBSDK}/php-files/build/${phpver}-${phpts}-${arch}"
 
-LCB_PATH="${BBSDK}/lcb-files/dist/2.5.3-${arch}/lib"
+LCB_PATH="${BBSDK}/lcb-files/dist/${LCBVER}-${arch}/lib"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LCB_PATH
 
 # Test
