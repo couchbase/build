@@ -8,6 +8,7 @@ PHP_DIR="${BBSDK}/php-files/build/${phpver}-${phpts}-${arch}"
 LCB_PATH="${BBSDK}/lcb-files/dist/${LCBVER}-${arch}/lib"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LCB_PATH
 
+rm -rf core*
 # allow to generate coredumps
 ulimit -c unlimited
 # display coredump pattern
