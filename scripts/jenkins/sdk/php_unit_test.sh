@@ -11,7 +11,9 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LCB_PATH
 # allow to generate coredumps
 ulimit -c unlimited
 # display coredump pattern
-sysctl kernel.core_pattern
+if [ -x /usr/sbin/sysctl ]; then
+  /usr/sbin/sysctl kernel.core_pattern
+fi
 
 # Test
 CPDSN=${NODE_IP} ${PHP_DIR}/bin/php -d extension=phar.so -d extension=./modules/couchbase.so ${PHP_DIR}/phpunit.phar tests/
