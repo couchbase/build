@@ -164,7 +164,7 @@ RME_DEST=${ZIP_SRCD}
 if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.2.1 ]]
 then
     REL_DEST=${BUILDDIR}/Release
-    LSA_SRCD=${BUILDDIR}/Release
+    LSA_SRCD=${REL_SRCD}
     LIB_DEST=${ZIP_SRCD}/Extras
     LIB_FORESTDB=${BUILDDIR}/Release-CBLForestDBStorage-ios-universal/libCBLForestDBStorage.a
     LIB_SRCD=${BUILDDIR}/Release-CBLJSViewCompiler-ios-universal
@@ -326,7 +326,7 @@ else
         cp  -R   ${LSA_SRCD}/LiteServ.app  ${ZIP_SRCD}
     elif [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
     then
-        cp -R "${LIB_SRCD}" "${LIB_DEST}"
+        cp -R "${LIB_SRCD}"/* "${LIB_DEST}"
         cp "${LIB_JSVC}" "${LIB_DEST}"
         cp "${LIB_FORESTDB}" "${LIB_DEST}"
         cp ${BASE_DIR}/Source/API/CBLRegisterJSViewCompiler.h "${LIB_DEST}"
