@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd `dirname $0`
+
 # New hostness Watson docker containers (currently hosted on mega3)
 ./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20151223 watson-centos6-01 2222 server.jenkins.couchbase.com &
 sleep 5

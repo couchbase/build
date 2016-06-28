@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd `dirname $0`
+
 # Currently these slaves are all hosted on mega
 
 # Old-school buildbot docker containers
