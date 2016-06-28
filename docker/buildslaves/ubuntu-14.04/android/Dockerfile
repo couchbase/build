@@ -49,6 +49,7 @@ RUN npm install ncp
 RUN echo yes | apt-get install zip
 
 # JDK for Jenkins.
+# JCE Unlimited Policy is not available by default from oracle-java8-installer
 # Software-properties-common is required for add-apt-repository
 RUN apt-get update && \
     apt-get install -y maven unzip && \
@@ -58,6 +59,7 @@ RUN apt-get update && \
     echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections && \
     apt-get install oracle-java8-installer -y && \
     apt-get install oracle-java8-set-default && \
+    apt-get install oracle-java8-unlimited-jce-policy && \
     rm -f /var/cache/apt/archives/*.deb
 
 # CLANG compiler

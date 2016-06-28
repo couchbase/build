@@ -2,7 +2,7 @@
 
 # Bump this when rebuilding with changes
 #TAG=`date +%Y%m%d`
-TAG=20150616
+TAG=20150628
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
