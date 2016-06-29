@@ -262,6 +262,12 @@ case $project in
     cbflag)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    nitro)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    asterix-opt)
+	repo="git@github.com:couchbaselabs/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
