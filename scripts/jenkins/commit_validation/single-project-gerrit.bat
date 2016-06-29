@@ -93,6 +93,11 @@ python "%CURDIR%\checkout_dependencies.py" %GERRIT_PATCHSET_REVISION% %GERRIT_CH
 @echo ===               Build                  ===
 @echo ============================================
 
+:: If we've checked out a specific version of the TLM
+:: then we'll need to bring our new CMakeLists.txt in manually
+del /f "CMakeLists.txt"
+copy "tlm\CMakeLists.txt" "CMakeLists.txt"
+
 if not exist build mkdir build
 pushd build
 cmake -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% %EXTRA_CMAKE_OPTIONS% .. || goto :error
