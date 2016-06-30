@@ -36,10 +36,18 @@ if not defined GO_RELEASE (
     set GO_RELEASE=1.5.3
 )
 
+set PKG_EDITION=""
 set VERSION=%REL_VER%-%BLD_NUM%
 set LATESTBUILDS_SGW="http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/0.0.1/%REL_VER%/%VERSION%"
-if "%REL_VER%" == "0.0.0" set LATESTBUILDS_SGW="http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/%REL_VER%/%VERSION%"
-if "%REL_VER%" GEQ "1.3.0" set LATESTBUILDS_SGW="http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/%REL_VER%/%VERSION%"
+
+if "%REL_VER%" == "0.0.0" (
+    set LATESTBUILDS_SGW="http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/%REL_VER%/%VERSION%"
+    set PKG_EDITION=%EDITION%
+)
+if "%REL_VER%" GEQ "1.3.0" (
+    set LATESTBUILDS_SGW="http://latestbuilds.hq.couchbase.com/couchbase-sync-gateway/%REL_VER%/%VERSION%"
+    set PKG_EDITION=%EDITION%
+)
 
 for /f "tokens=1-2 delims=-" %%A in ("%PLATFRM%") do (
     set OS=%%A
@@ -268,9 +276,9 @@ unix2dos  %STAGING%\README.txt
 unix2dos  %STAGING%\VERSION.txt
 unix2dos  %STAGING%\LICENSE.txt
 
-echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %SGW_NAME% %EDITION%
+echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %SGW_NAME% %PKG_EDITION%
 cd   %BLD_DIR%
-                     .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %SGW_NAME% %EDITION%
+                     .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %SGW_NAME% %PKG_EDITION%
 
 if %ERRORLEVEL% NEQ 0 (
     echo "############################# Sync-Gateway Installer warning!"
@@ -303,8 +311,8 @@ GOTO skip_package_sg_accel
     del /q %ACCEL_STAGING%\bin\%SGW_EXEC%
     copy %DEST_DIR%\%ACCEL_EXEC%                 %ACCEL_STAGING%\bin\
 
-    echo %BLD_DIR%' => ' .\%PKGR% %ACCEL_PREFIX% %ACCEL_PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %ACCEL_NAME%
-    .\%PKGR% %ACCEL_PREFIX% %ACCEL_PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %ACCEL_NAME%
+    echo %BLD_DIR%' => ' .\%PKGR% %ACCEL_PREFIX% %ACCEL_PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %ACCEL_NAME% %PKG_EDITION%
+    .\%PKGR% %ACCEL_PREFIX% %ACCEL_PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %ACCEL_NAME% %PKG_EDITION%
 
     if %ERRORLEVEL% NEQ 0 (
         echo "#############################  SG-ACCEL Installer warning!"
