@@ -268,9 +268,9 @@ unix2dos  %STAGING%\README.txt
 unix2dos  %STAGING%\VERSION.txt
 unix2dos  %STAGING%\LICENSE.txt
 
-echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %SGW_NAME%
+echo %BLD_DIR%' => ' .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %SGW_NAME% %EDITION%
 cd   %BLD_DIR%
-                     .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %SGW_NAME%
+                     .\%PKGR% %PREFIX% %PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %SGW_NAME% %EDITION%
 
 if %ERRORLEVEL% NEQ 0 (
     echo "############################# Sync-Gateway Installer warning!"
