@@ -47,7 +47,7 @@ ip:${NODE_1}
 port:8091
 n1ql_port:8093
 index_port:9102
-services:kv,index,n1ql
+services:kv,index,n1ql,fts
 " > node_conf.ini
 
 if [ $num_nodes -eq 1 ]; then
