@@ -139,5 +139,5 @@ echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect
 if [ "$DISTRO" = "macos" ]; then
     python testrunner.py -i node_conf.ini -c $TR_CONF 
 else
-    python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=True${EXTRA_PARAMS}
+    python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=False${EXTRA_PARAMS}
 fi
