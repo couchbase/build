@@ -55,6 +55,9 @@ do
 done
 
 case $project in
+    couchsterix-test)
+	repo="git@github.com:couchbaselabs/$project.git"
+	;;
     membase)
 	repo="git@github.com:couchbase/ep-engine.git"
 	;;
@@ -266,9 +269,6 @@ case $project in
 	repo="git@github.com:couchbase/$project.git"
 	;;
     asterix-opt)
-	repo="git@github.com:couchbaselabs/$project.git"
-	;;
-    couchsterix-test)
 	repo="git@github.com:couchbaselabs/$project.git"
 	;;
     *)
