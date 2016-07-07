@@ -1,5 +1,10 @@
 #!/bin/bash
 
+SERVICES="kv,index,n1ql,fts"
+if [[ $VERSION == 4.1* ]] || [[ $VERSION == 4.0* ]]; then
+    SERVICES="kv,index,n1ql"
+fi
+
 install_only="no"
 if [ "$1" = "-i" ]; then
     install_only="yes"
@@ -47,7 +52,7 @@ ip:${NODE_1}
 port:8091
 n1ql_port:8093
 index_port:9102
-services:kv,index,n1ql,fts
+services:${SERVICES}
 " > node_conf.ini
 
 if [ $num_nodes -eq 1 ]; then
