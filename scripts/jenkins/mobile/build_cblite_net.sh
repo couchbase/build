@@ -82,7 +82,10 @@ pwd
 if [[ ! -d couchbase-lite-net ]] ; then git clone https://github.com/couchbase/couchbase-lite-net.git ; fi
 cd         couchbase-lite-net
 
-git checkout --track -B ${BRANCH} origin/${BRANCH}
+if [[ ! ${BRANCH} =~ "master" ]]
+then
+    git checkout --track -B ${BRANCH} origin/${BRANCH}
+fi
 
 if [ ${REPO_SHA} == "no_sha" ]
 then
