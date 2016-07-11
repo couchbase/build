@@ -20,18 +20,21 @@ function usage
 if [[ ! ${1} ]] ; then usage ; exit 99 ; fi
 GITSPEC=${1}
 
-JOB_SUFX=${GITSPEC}
-                      vrs_rex='([0-9]{1,})\.([0-9]{1,})\.([0-9]{1,})(\.([0-9]{1,}))?'
-if [[ ${JOB_SUFX} =~ $vrs_rex ]]
-    then
-    JOB_SUFX=""
-    for N in 1 2 3 5; do
-        if [[ $N -eq 1 ]] ; then            JOB_SUFX=${BASH_REMATCH[$N]} ; fi
-        if [[ $N -eq 2 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
-        if [[ $N -eq 3 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
-        if [[ $N -eq 5 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
-    done
-fi
+# master branch maps to "0.0.0" for backward compatibility with pre-existing jobs
+if [[ ${GITSPEC} =~ "master" ]] ; then GITSPEC=0.0.0 ; fi
+
+#JOB_SUFX=${GITSPEC}
+#                      vrs_rex='([0-9]{1,})\.([0-9]{1,})\.([0-9]{1,})(\.([0-9]{1,}))?'
+#if [[ ${JOB_SUFX} =~ $vrs_rex ]]
+#    then
+#    JOB_SUFX=""
+#    for N in 1 2 3 5; do
+#        if [[ $N -eq 1 ]] ; then            JOB_SUFX=${BASH_REMATCH[$N]} ; fi
+#        if [[ $N -eq 2 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+#        if [[ $N -eq 3 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+#        if [[ $N -eq 5 ]] ; then JOB_SUFX=${JOB_SUFX}${BASH_REMATCH[$N]} ; fi
+#    done
+#fi
 
 if [[ ! ${2} ]] ; then usage ; exit 88 ; fi
 VERSION=${2}
@@ -196,7 +199,7 @@ then
     git clone https://github.com/couchbase/couchbase-lite-ios.git couchbase-lite-${OS}
 fi
 
-# master branch maps to "0.0.0" for backward compatibility with pre-existing jobs 
+# "0.0.0" maps to master branch
 if [[ ${GITSPEC} =~ "0.0.0" ]]
 then
     BRANCH=master
