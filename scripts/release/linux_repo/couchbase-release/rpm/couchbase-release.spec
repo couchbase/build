@@ -48,6 +48,12 @@ then
   sed -e "s/%SERVER_VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
 fi
 
+if grep -q -i ^"Amazon Linux" /etc/system-release >/dev/null 2>&1
+then
+  sed -e "s/%SDK_VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
+  sed -e "s/%SERVER_VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
+fi
+
 %postun
 
 %files

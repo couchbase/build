@@ -1,7 +1,7 @@
 #!/bin/bash
 thisdir=`dirname $0`
 
-VERSION=1.0-1
+VERSION=1.0-2
 
 rm -rf ~/rpmbuild
 mkdir ~/rpmbuild
