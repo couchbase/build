@@ -42,6 +42,10 @@ RUN apt-get update && \
                         --slave /usr/bin/gcov gcov /usr/bin/gcov-4.9 && \
     apt-get clean
 
+#s3cmd for upload script
+RUN apt-get update && \
+    apt-get install -y s3cmd
+
 #paramiko for testrunner
 RUN apt-get update && \
     apt-get install -y python-paramiko
