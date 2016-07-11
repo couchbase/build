@@ -316,6 +316,7 @@ then
     then
         cp -R "${LSA_BIND}"/LiteServ      ${ZIP_SRCD}
         cp -R "${LSA_SRCD}"/LiteServ.app  ${ZIP_SRCD}
+        rm -rf ${ZIP_SRCD}/*LinkMap*
         rm -rf ${ZIP_SRCD}/CouchbaseLite.framework/Versions/A/PrivateHeaders
         rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/PrivateHeaders
         rm -rf ${ZIP_SRCD}/LiteServ.app/Contents/Frameworks/CouchbaseLite.framework/Versions/A/PrivateHeaders
