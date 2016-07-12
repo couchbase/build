@@ -27,7 +27,7 @@
       "source_ami": "{{user `source_ami`}}",
       "instance_type": "t2.micro",
       "ssh_username": "{{user `ssh_username`}}",
-      "ami_name": "Couchbase Server {{user `couchbase_server_version`}} and Sync Gateway {{user `couchbase_sync_gateway_version`}}",
+      "ami_name": "Couchbase Server {{user `couchbase_server_edition`}} {{user `couchbase_server_version`}} and Sync Gateway {{user `sync_gateway_edition`}} {{user `couchbase_sync_gateway_version`}}",
       "ami_groups": "all",
       "ami_regions": [
           "us-west-1",
