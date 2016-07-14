@@ -66,7 +66,7 @@ RUN apt-get update && \
 RUN apt-get install -y clang-3.6
 
 # Android SDK/CLANG environment settings
-RUN echo 'export ANDROID_NDK_HOME="/home/couchbase/jenkins/tools/android-ndk-r10e"\nexport ANDROID_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport ANDROID_SDK_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport PATH="/usr/lib/llvm-3.6/bin:$ANDROID_NDK_HOME:$ANDROID_SDK_HOME:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
+RUN echo 'export ANDROID_NDK_HOME="/home/couchbase/jenkins/tools/android-ndk-r12b"\nexport ANDROID_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport ANDROID_SDK_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport PATH="/usr/lib/llvm-3.6/bin:$ANDROID_NDK_HOME:$ANDROID_SDK_HOME:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
 
 # Android SDK
 USER couchbase
@@ -99,11 +99,10 @@ RUN . /etc/profile && \
 # Android NDK
 USER couchbase
 RUN cd /home/couchbase/jenkins/tools && \
-    curl -L https://dl.google.com/android/ndk/android-ndk-r10e-linux-x86_64.bin -o android-ndk.bin && \
-    chmod a+x android-ndk.bin && \
-    ./android-ndk.bin && \
-    chown -R couchbase:couchbase android-ndk-r10e && \
-    chmod 755 android-ndk-r10e
+    curl -L https://dl.google.com/android/repository/android-ndk-r12b-linux-x86_64.zip -o android-ndk-r12b.zip && \
+    unzip -qq android-ndk-r12b.zip && \
+    chown -R couchbase:couchbase android-ndk-r12b && \
+    chmod 755 android-ndk-r12b
 
 # Revert so CMD will run as root.
 USER root
