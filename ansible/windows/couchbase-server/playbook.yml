@@ -1,0 +1,88 @@
+---
+- hosts: all
+
+  vars:
+    kbs:
+      - guid: 2/5/6/256CCCFB-5341-4A8D-A277-8A81B21A1E35
+        filename: clearcompressionflag.exe
+      - guid: D/6/0/D60ED3E0-93A5-4505-8F6A-8D0A5DA16C8A
+        filename: Windows8.1-KB2919442-x64.msu
+      - guid: 2/5/6/256CCCFB-5341-4A8D-A277-8A81B21A1E35
+        filename: Windows8.1-KB2919355-x64.msu
+      - guid: 2/5/6/256CCCFB-5341-4A8D-A277-8A81B21A1E35
+        filename: Windows8.1-KB2932046-x64.msu
+      - guid: 2/5/6/256CCCFB-5341-4A8D-A277-8A81B21A1E35
+        filename: Windows8.1-KB2959977-x64.msu
+      - guid: 2/5/6/256CCCFB-5341-4A8D-A277-8A81B21A1E35
+        filename: Windows8.1-KB2937592-x64.msu
+      - guid: 2/5/6/256CCCFB-5341-4A8D-A277-8A81B21A1E35
+        filename: Windows8.1-KB2938439-x64.msu
+      - guid: 2/5/6/256CCCFB-5341-4A8D-A277-8A81B21A1E35
+        filename: Windows8.1-KB2934018-x64.msu
+
+  tasks:
+    - name: "Install tools"
+      win_chocolatey:
+        name: "{{ item }}"
+      with_items:
+        - git
+        - cmake
+        - ninja
+        - MinGW
+        - python2
+        - ruby
+        - javaruntime
+        - googlechrome
+
+    - name: Create bin directory
+      win_file:
+        path: "C:\\bin"
+        state: directory
+
+    - name: "Install repo"
+      win_copy:
+        src: "repo.exe"
+        dest: "C:\\bin"
+
+    - name: Add tools to PATH.
+      include: extend-path.yml
+      with_items:
+        - C:\bin
+        - C:\Program Files (x86)\CMake\bin
+        - C:\Program Files\git\cmd
+
+# Next steps are all about installing Visual Studio
+
+    - name: Install pre-req Windows updates
+      include: install-kb.yml
+      with_items: "{{ kbs }}"
+
+    - name: Copy unattended.xml
+      win_copy:
+        src: "vs-unattended.xml"
+        dest: "C:\\vs-unattended.xml"
+
+    - name: Install Visual Studio Professional 2015 (takes a long time)
+      script: install-vs.ps1 -vskey {{ vskey }}
+      register: choco_output
+      changed_when: not "already installed" in choco_output.stdout
+      failed_when: not "Chocolatey installed 1/1" in choco_output.stdout
+
+    - name: Reboot Windows if necessary
+      win_reboot:
+        shutdown_timeout_sec: 3600
+        reboot_timeout_sec: 3600
+      when: '"reboot is necessary" in choco_output.stdout'
+
+# Do OpenSSH last so the service has the latest version of the path
+
+    - name: Install OpenSSH (for Jenkins)
+      script: openssh.ps1
+
+# Some of these files contain private information, so they're not all in git.
+
+    - name: Copy SSH config files
+      win_copy:
+        src: "ssh"
+        dest: "C:\\Users\\Administrator\\.ssh\\"
+

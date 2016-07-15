@@ -1,0 +1,3 @@
+[windows]
+172.23.113.137 ansible_user=Administrator  ansible_password=xxxx ansible_port=5986 ansible_connection=winrm
+

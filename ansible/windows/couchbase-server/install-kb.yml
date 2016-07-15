@@ -1,0 +1,50 @@
+---
+- name: Create kbs directory.
+  win_file:
+    path: "C:\\kbs"
+    state: directory
+
+- name: Get list of installed updates.
+  raw: "dism /online /get-packages"
+  register: kbs_list
+
+- name: Download KB file {{ item.filename }}.
+  win_get_url:
+    url: "https://download.microsoft.com/download/{{ item.guid }}/{{ item.filename }}"
+    dest: "C:\\kbs\\{{ item.filename }}"
+    force: no
+  when: "'{{ item.filename }}'[11:20] not in kbs_list.stdout"
+
+- name: Extract KB msu {{ item.filename }}.
+  raw: "wusa C:\\kbs\\{{ item.filename }} /quiet /extract:C:\\extract"
+  register: wusa_output
+  when: "'{{ item.filename }}'.endswith('.msu') and '{{ item.filename }}'[11:20] not in kbs_list.stdout"
+  changed_when: "true"
+
+- name: Install KB cab {{ item.filename }}.
+  raw: "dism /online /add-package /norestart /PackagePath:C:\\extract\\{{ item.filename | regex_replace('.msu', '.cab') }}"
+  register: dism_output
+  when: "'{{ item.filename }}'.endswith('.msu') and '{{ item.filename }}'[11:20] not in kbs_list.stdout"
+  changed_when: "true"
+  failed_when: "dism_output.rc > 1"
+
+- name: Execute KB exe {{ item.filename }}.
+  raw: "C:\\kbs\\{{ item.filename }}"
+  when: "'{{ item.filename }}'.endswith('.exe')"
+  changed_when: "true"
+
+- name: Clean up extracted cabs
+  win_file:
+    path: "C:\\extract"
+    state: absent
+
+- name: List packages
+  raw: "dism /online /get-packages"
+  register: package_output
+
+- name: Reboot Windows if necessary
+  win_reboot:
+    shutdown_timeout_sec: 3600
+    reboot_timeout_sec: 3600
+  when: "'Install Pending' in package_output.stdout"
+

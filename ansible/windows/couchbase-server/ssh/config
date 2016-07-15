@@ -1,0 +1,7 @@
+Host github.com
+        User git
+Host review.couchbase.org
+    User         buildbot
+    Port         29418
+    IdentityFile ~/.ssh/buildbot_id_dsa
+
