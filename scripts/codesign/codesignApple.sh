@@ -35,20 +35,36 @@ DOWNLOAD_NEW_PKG=${5}  # Get new build
 
 result="rejected"
 
-if [[ ${PKG_VERSION} =~ "4.5.0" ]]
+rel_code=""
+if [[ ${PKG_VERSION} == 4.7* ]]
 then
-    PKG_URL=http://172.23.120.24/builds/latestbuilds/couchbase-server/watson/${PKG_BUILD_NUM}
-    PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
-    PKG_DIR=couchbase-server-${EDITION}_4
-elif [[ ${PKG_VERSION} =~ "4.0.0" ]] || [[ ${PKG_VERSION} =~ "4.1.0" ]]
+    rel_code="spock"
+elif [[ ${PKG_VERSION} == 4.5* ]]
 then
-    PKG_URL=http://latestbuilds.hq.couchbase.com/couchbase-server/sherlock/${PKG_BUILD_NUM}
-    PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
-    PKG_DIR=couchbase-server-${EDITION}_4
-else
+    rel_code="watson"
+elif [[ ${PKG_VERSION} == 4.0* ]] || [[ ${PKG_VERSION} == 4.1* ]]
+then
+    rel_code="sherlock"
+elif [[ ${PKG_VERSION} == 3.* ]]
+then
+    rel_code="3"
+fi
+
+if [[ "x${rel_code}" == "x" ]]
+then
+    echo Unsupported version ${PKG_VERSION}
+    exit 1
+fi
+
+if [[ "${rel_code}" == "3" ]]
+then
     PKG_URL=http://latestbuilds.hq.couchbase.com
     PKG_NAME=couchbase-server-${EDITION}_x86_64_${PKG_VERSION}-${PKG_BUILD_NUM}-rel.zip
     PKG_DIR=couchbase-server-${EDITION}_x86_64_3
+else
+    PKG_URL=http://172.23.120.24/builds/latestbuilds/couchbase-server/${rel_code}/${PKG_BUILD_NUM}
+    PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
+    PKG_DIR=couchbase-server-${EDITION}_4
 fi
 
 
