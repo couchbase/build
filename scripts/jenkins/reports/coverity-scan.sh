@@ -11,7 +11,7 @@ download_tool() {
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   echo
   wget --no-check-certificate https://scan.coverity.com/download/linux-64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild" -O coverity_tool.tgz
-  rm -rf cov-analysis-linux64-*
+  rm -rf cov-analysis-linux64-* cov-analysis
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   echo Expanding coverity_tool archive...
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
