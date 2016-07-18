@@ -56,13 +56,14 @@ rm -rf *
 git config --global user.name "Couchbase Build Team"
 git config --global user.email "build-team@couchbase.com"
 git config --global color.ui false
-repo init -u git://github.com/couchbase/build-team-manifests -g all -m watson.xml
+repo init -u git://github.com/couchbase/build-team-manifests -g all -m couchbase-server/spock.xml
 repo sync --jobs=6
 BLD_NUM=`repo forall build -c 'echo $REPO__BLD_NUM'`
+VERSION=`repo forall build -c 'echo $REPO__VERSION'`
 
 echo
 echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-echo Building 4.5.0-${BLD_NUM}...
+echo Building ${VERSION}-${BLD_NUM}...
 echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 echo
 export CCACHE_DISABLE=true
@@ -82,7 +83,7 @@ curl --insecure \
   --form token="${TOKEN}" \
   --form email="ceej+github@lambda.nu" \
   --form file="@../couchbase-build.tgz" \
-  --form version="4.5.0-${BLD_NUM}" \
-  --form description="Couchbase Server Watson 4.5.0-${BLD_NUM}" \
+  --form version="${VERSION}-${BLD_NUM}" \
+  --form description="Couchbase Server Watson ${VERSION}-${BLD_NUM}" \
   https://scan.coverity.com/builds?project=couchbase%2Fbuild
 
