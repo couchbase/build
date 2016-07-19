@@ -50,7 +50,7 @@ if result == 0:
 
 # Create/empty slave Jenkins directory.
 slave_dir = "/home/couchbase/slaves/{0}".format(slave)
-print "Recreating out {0}...".format(slave_dir)
+print "Recreating local slave directory {0}...".format(slave_dir)
 if os.path.isdir(slave_dir):
     shutil.rmtree(slave_dir)
 os.makedirs(slave_dir)
