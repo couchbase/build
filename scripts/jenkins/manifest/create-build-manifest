@@ -242,13 +242,14 @@ with open(properties_filename, "w") as prop:
   prop.write("PRODUCT={PRODUCT}\nRELEASE={RELEASE}\nPRODUCT_BRANCH={PRODUCT_BRANCH}\nVERSION={VERSION}\nBLD_NUM={BLD_NUM}\nMANIFEST={MANIFEST}\nPARENT={PARENT}\nTYPE={TYPE}\nFORCE={FORCE}\n".format(**properties))
 
 print "Creating source tarball..."
+KEEP_GIT=manifest_config.get("keep_git", False)
 with tarfile.open(tarball_filename, "w:gz") as tar:
   os.chdir(PRODUCT)
   for root, dirs, files in os.walk("."):
     for name in files:
       tar.add(os.path.join(root, name)[2:])
     for name in dirs:
-      if name == ".repo" or name == ".git":
+      if KEEP_GIT == False and (name == ".repo" or name == ".git"):
         dirs.remove(name)
       else:
         tar.add(os.path.join(root, name)[2:], recursive=False)
