@@ -84,17 +84,14 @@ PRODUCT = product_config.get("product", PRODUCT)
 
 # Load manifest metadata from JSON, if any
 manifests = product_config.get("manifests")
-if manifests is not None and MANIFEST_PATH in manifests:
-  manifest_config = manifests[MANIFEST_PATH]
+if manifests is not None and MANIFEST in manifests:
+  manifest_config = manifests[MANIFEST]
 else:
   manifest_config = {}
 
 # Set values from branch config or defaults
-RELEASE = manifest_config.get("release")
-if RELEASE is None:
-  RELEASE, _ = os.path.splitext(MANIFEST_PATH)
 PRODUCT_BRANCH = manifest_config.get("branch", "master")
-START_BUILD = int(manifest_config.get("start_build", "1"))
+START_BUILD = manifest_config.get("start_build", 1)
 TYPE = manifest_config.get("type", "production")
 PARENT = manifest_config.get("parent")
 if PARENT is not None:
@@ -114,6 +111,9 @@ if version_annot is not None:
 else:
   VERSION = "0.0.0"
   print "Default to version 0.0.0"
+RELEASE = manifest_config.get("release")
+if RELEASE is None:
+  RELEASE = VERSION
 
 # At last, we are ready to pull the source code. Clean out old
 # source directories, leaving just .repo to avoid needing to suck
@@ -166,7 +166,7 @@ if (os.path.exists(build_manifest_filename)):
   if (len(output) == 0):
     if (not force):
       print "No changes since last build {}-{}; not executing new build".format(
-        VERSION, BLD_NUM)
+        VERSION, LAST_BUILD_NUM)
       with open(json_filename, "w") as prop:
         json.dump({}, prop)
       with open(properties_filename, "w") as prop:
@@ -174,7 +174,7 @@ if (os.path.exists(build_manifest_filename)):
       sys.exit(0)
     else:
       print "No changes since last build {}-{}, but forcing new build anyway".format(
-        VERSION, BLD_NUM)
+        VERSION, LAST_BUILD_NUM)
 
 # Ensure build manifest directory exists
 build_manifest_dir = os.path.dirname(build_manifest_filename)
