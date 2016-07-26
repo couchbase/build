@@ -2,5 +2,5 @@
 
 cd "${WORKSPACE}/asterixdb"
 mvn clean install -DskipTests
-mv asterixdb/asterix-installer/target/*.zip ${WORKSPACE}
+mv asterixdb/asterix-server/target/*.zip ${WORKSPACE}
 
