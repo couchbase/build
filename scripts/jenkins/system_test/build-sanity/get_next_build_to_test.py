@@ -3,6 +3,10 @@ import requests
 import json
 from optparse import OptionParser
 
+btm_manifest_map = {
+    'couchbase-server/watson/4.5.1.xml': ('watson-4.5.1', 'watson.xml'),
+}
+
 _RESTAPI_BASE_URL="http://172.23.123.43:8282"
 def main(ver, ttype):
     url = '{}/builds/totest?ver={}&type={}'.format(_RESTAPI_BASE_URL, ver, ttype)
@@ -18,7 +22,10 @@ def main(ver, ttype):
             F.write("VERSION={}\n".format(j['build_info']['version']))
             F.write("BLD_NUM={}\n".format(j['build_info']['build_num']))
             F.write("MANIFEST_SHA={}\n".format(j['build_info']['manifest_sha']))
-            F.write("MANIFEST_FILE={}\n".format(j['build_info']['manifest']))
+            mf = j['build_info']['manifest']
+            if btm_manifest_map.has_key(mf):
+                mf = btm_manifest_map[mf][1]
+            F.write("MANIFEST_FILE={}\n".format(mf))
     
 
 if __name__ == '__main__':
