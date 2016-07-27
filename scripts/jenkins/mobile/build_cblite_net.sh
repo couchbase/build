@@ -133,7 +133,7 @@ then
     cd ${last_dir}
     cp -rf x86 ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt/
     cp -rf x86_64 ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt/
-    cp -rf mips64 ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt/
+    cp -rf armeabi ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt/
     cp -rf arm64-v8a ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt/
     cp -rf armeabi-v7a ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt/
 elif [[ ${FRAMEWORK} =~ "iOS" ]]
