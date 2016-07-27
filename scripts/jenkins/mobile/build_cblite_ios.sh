@@ -1,12 +1,12 @@
-#!/bin/bash
-#          
+#!/bin/bash -x
+#
 #          run by jenkins jobs 'build_cblite_ios_master', 'build_cblite_ios_100'
-#          
+#
 #          with paramters:  branch_name  release_number  build_number  Edition
-#          
+#
 #                 e.g.:     master           0.0.0         1234       community
 #                           release/1.0.0    1.0.0         1234       enterprise
-#          
+#
 source ~jenkins/.bash_profile
 set -e
 
@@ -111,7 +111,7 @@ then
         LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/tvos/libsqlcipher.a
         LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}
     else
-        LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/ios/libsqlcipher.a
+        LIB_SQLCIPHER=${BASE_DIR}/${SQLCIPHER}/libs/tvos/libsqlcipher.a
         LIB_SQLCIPHER_DEST=${BASE_DIR}/${ZIPFILE_STAGING}/Extras
     fi
 elif [[ $OS =~ macosx ]]
@@ -194,8 +194,10 @@ cd ${WORKSPACE}
 echo ============================================  sync couchbase-lite-ios
 echo ============================================  to ${GITSPEC} into ${WORKSPACE}/couchbase-lite-${OS}
 
-if [[ ! -d couchbase-lite-${OS} ]]
+#if [[ ! -d couchbase-lite-${OS} ]]
+if [[ -d couchbase-lite-${OS} ]]
 then
+    rm -rf couchbase-lite-${OS}
     git clone https://github.com/couchbase/couchbase-lite-ios.git couchbase-lite-${OS}
 fi
 
@@ -276,12 +278,12 @@ done
 
 # Documentation is supported for all products from version 1.2.1 onward
 if [[ $OS =~ ios  ]] || [[ $OS =~ tvos ]] || [[ ${VERSION} == 0.0.0 ]] || [[ ${VERSION} > 1.2.0 ]]
-then 
+then
     echo  ============================================== package ${DOC_ZIP_FILE}
     DOC_LOG=${WORKSPACE}/doc_zip.log
     if [[ -e ${DOC_LOG} ]] ; then rm -f ${DOC_LOG} ; fi
-   
-    
+
+
     mv     "${DERIVED_FILE_DIR}" "${DOC_ZIP_ROOT_DIR}"
     pushd  "${REL_DEST}"         2>&1 > /dev/null
 
