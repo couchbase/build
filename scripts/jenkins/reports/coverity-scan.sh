@@ -10,7 +10,7 @@ download_tool() {
   echo Downloading coverity_tool...
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   echo
-  wget --no-check-certificate https://scan.coverity.com/download/linux-64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild" -O coverity_tool.tgz
+  wget --no-check-certificate https://scan.coverity.com/download/linux64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild" -O coverity_tool.tgz
   rm -rf cov-analysis-linux64-* cov-analysis
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   echo Expanding coverity_tool archive...
@@ -31,7 +31,7 @@ then
   echo Checking validity of coverity_tool.tgz...
   echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   echo
-  wget --no-check-certificate https://scan.coverity.com/download/linux-64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild&md5=1" -O coverity_tool.md5
+  wget --no-check-certificate https://scan.coverity.com/download/linux64 --post-data "token=${TOKEN}&project=couchbase%2Fbuild&md5=1" -O coverity_tool.md5
   echo "`cat coverity_tool.md5`  coverity_tool.tgz" | md5sum -c || {
     echo "MD5 checksum has changed! Re-downloading coverity_tool..."
     download_tool
