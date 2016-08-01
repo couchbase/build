@@ -18,7 +18,6 @@
 #                   VERSION       -- base of plugin build number (e.g., 1.0)
 #          
 #          
-source ~jenkins/.bash_profile
 set -e
 
 CURL_CMD="curl --fail --retry 10"
@@ -88,7 +87,7 @@ mkdir -p ${AND_DIR}
 
 # copy all jar files into the target directory
 cp ${DOWN_ADIR}/**/*.jar ${AND_DIR}
-if [[ ${VERSION} > 0.0.0 ]] || [[ ${VERSION} < 1.3.0 ]]
+if [[ ${VERSION} > 0.0.0 ]] && [[ ${VERSION} < 1.3.0 ]]
 then
     cp ${DOWN_ADIR}/**/couchbase-lite-android-${VERSION}.aar ${AND_DIR}
     cp ${DOWN_ADIR}/**/couchbase-lite-android-sqlite-default-${VERSION}.aar ${AND_DIR}
