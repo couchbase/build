@@ -51,7 +51,8 @@ if [[ ! ${5} ]] ; then usage ; exit 55 ; fi
 OS=${5}
 EDN_PRFX=`echo ${OS} | tr '[a-z]' '[A-Z]'`
 
-BASE_DIR=${WORKSPACE}/couchbase-lite-${OS}
+BASE_DIRNAME=couchbase-lite-${OS}-${EDITION}
+BASE_DIR=${WORKSPACE}/${BASE_DIRNAME}
 BUILDDIR=${BASE_DIR}/build
 SQLCIPHER="libsqlcipher"
 ZIPFILE_STAGING="zipfile_staging"
@@ -192,13 +193,11 @@ echo ============================================ `date`
 
 cd ${WORKSPACE}
 echo ============================================  sync couchbase-lite-ios
-echo ============================================  to ${GITSPEC} into ${WORKSPACE}/couchbase-lite-${OS}
+echo ============================================  to ${GITSPEC} into ${BASE_DIR}
 
-#if [[ ! -d couchbase-lite-${OS} ]]
-if [[ -d couchbase-lite-${OS} ]]
+if [[ ! -d ${BASE_DIRNAME} ]]
 then
-    rm -rf couchbase-lite-${OS}
-    git clone https://github.com/couchbase/couchbase-lite-ios.git couchbase-lite-${OS}
+    git clone https://github.com/couchbase/couchbase-lite-ios.git ${BASE_DIRNAME}
 fi
 
 # "0.0.0" maps to master branch
@@ -209,7 +208,7 @@ else
     BRANCH=${GITSPEC}
 fi
 
-cd  couchbase-lite-${OS}
+cd  ${BASE_DIRNAME}
 if [[ !  `git branch | grep ${BRANCH}` ]]
 then
     git branch -t ${BRANCH} origin/${BRANCH}
@@ -282,7 +281,6 @@ then
     echo  ============================================== package ${DOC_ZIP_FILE}
     DOC_LOG=${WORKSPACE}/doc_zip.log
     if [[ -e ${DOC_LOG} ]] ; then rm -f ${DOC_LOG} ; fi
-
 
     mv     "${DERIVED_FILE_DIR}" "${DOC_ZIP_ROOT_DIR}"
     pushd  "${REL_DEST}"         2>&1 > /dev/null
