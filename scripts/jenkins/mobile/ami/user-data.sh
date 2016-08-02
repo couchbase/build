@@ -34,7 +34,7 @@ initialize_couchbase_server() {
     # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
     instance_metadata_ip=169.254.169.254
     public_hostname=$(curl http://${instance_metadata_ip}/latest/meta-data/public-hostname)
-    couchbase_server_bucket_ram_mb=$(free -m | awk 'NR==2{printf "%.0f\n", $2*0.8 }')
+    couchbase_server_bucket_ram_mb=$(free -m | awk 'NR==2{printf "%.0f\n", $2*0.75 }')
     password=$(curl http://${instance_metadata_ip}/latest/meta-data/instance-id)
     export couchbase_server_bucket_type=couchbase
     export couchbase_server_bucket_port=11211
