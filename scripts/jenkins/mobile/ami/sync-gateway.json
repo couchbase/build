@@ -17,6 +17,12 @@
 	    "type": "ansible-local",
 	    "playbook_file": "./install-sync-gateway-playbook.yml",
 	    "extra_arguments": [ "--extra-vars", "\"couchbase_sync_gateway_package_base_url={{user `couchbase_sync_gateway_package_base_url`}} couchbase_sync_gateway_package={{user `couchbase_sync_gateway_package`}}\"" ]
+	},
+	{
+	    "type": "shell",
+	    "inline": [
+		"rm /home/ec2-user/.ssh/authorized_keys"
+	    ]
 	}	
   ],
   "builders": [{
