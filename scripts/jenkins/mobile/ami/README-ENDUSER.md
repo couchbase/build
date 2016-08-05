@@ -13,7 +13,7 @@ The Couchbase Mobile AMI has the following components included:
 * Choose AMI with the appropriate region
 * Click the "Launch with EC2 console" button
 * Configure Instance Details / Advanced Details
-* Paste the [user-data.sh](https://github.com/couchbase/build/blob/master/scripts/jenkins/mobile/ami/user-data.sh) script contents into the text area
+* Paste the [user-data.sh](https://raw.githubusercontent.com/couchbase/build/master/scripts/jenkins/mobile/ami/user-data.sh) script contents into the text area in Advanced Details
 * If you want to run a custom Sync Gateway configuration, you should customize the variables in the Customization section of the user-data.sh script you just pasted.  You can set the Sync Gateway config to any public URL and will need to update the Couchbase Server bucket name to match what's in your config.
 * Edit your Security Group to expose port 4984 to Anywhere
 
