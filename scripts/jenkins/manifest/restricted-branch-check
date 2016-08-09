@@ -5,11 +5,10 @@ import sys
 import xml.etree.ElementTree as ET
 import base64
 import argparse
-import re
 import urllib
 
-from jira import JIRA
 from manifest_util import scan_manifests
+from jira_util import connect_jira, get_tickets
 
 """
 Intended to run as a Gerrit trigger. The following environment variables
@@ -53,15 +52,7 @@ def get_approved_tickets(approval_ticket):
   """
   Given a Jira approval ticket ID, return all linked ticket IDs
   """
-  with open("{}/.ssh/jira.pem".format(os.environ["HOME"]), "r") as key_cert_file:
-    key_cert_data = key_cert_file.read()
-  oauth_dict = {
-    "access_token": "PrxvLiICry8gkXXPHqnorpRHjBCn3V0O",
-    "access_token_secret": "kNX06aseOyJx3GnWmRH1w14UQ4o7puiV",
-    "consumer_key": "ceej-ticket-key",
-    "key_cert": key_cert_data
-  }
-  jira = JIRA({"server": "https://issues.couchbase.com"}, oauth=oauth_dict)
+  jira = connect_jira()
   links = [link.outwardIssue.key
     for link in jira.issue(approval_ticket).fields.issuelinks
     if hasattr(link, "outwardIssue")]
@@ -77,7 +68,7 @@ def validate_change_in_ticket(meta):
   global COMMIT_MSG
   # First ensure topic line mentions tickets, and pull them out.
   topic = COMMIT_MSG.split('\n', 1)[0]
-  fix_tickets = re.findall("[A-Z]{2,5}-[0-9]{1,6}", topic)
+  fix_tickets = get_tickets(topic)
   if len(fix_tickets) == 0:
     OUTPUT["REASON"] = "the commit message does not name a ticket"
     return False
@@ -123,7 +114,7 @@ def output_report(meta):
 parser = argparse.ArgumentParser()
 parser.add_argument("-p", "--manifest-project", type=str,
                     default="git://github.com/couchbase/manifest",
-                    help="Alternate github.com account for manifest")
+                    help="Alternate Git project for manifest")
 args = parser.parse_args()
 MANIFEST_PROJECT = args.manifest_project
 
