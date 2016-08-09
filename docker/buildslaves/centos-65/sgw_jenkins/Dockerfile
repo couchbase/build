@@ -40,6 +40,13 @@ RUN yum install --setopt=keepcache=0 -y \
                 tar \
                 unzip \
                 which
+
+# * Required for sgcollect_info
+RUN yum install --setopt=keepcache=0 -y epel-release.noarch
+RUN yum install --setopt=keepcache=0 -y python-pip
+RUN pip install --upgrade pip \
+                -Iv PyInstaller==3.1
+
 # * C++11 compliant compiler and related tools from CentOS's port of RHEL's
 #    devtools (http://people.centos.org/tru/devtools-2/)
 RUN curl http://people.centos.org/tru/devtools-2/devtools-2.repo > \
