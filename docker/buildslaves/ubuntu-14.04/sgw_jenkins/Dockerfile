@@ -46,6 +46,9 @@ RUN mkdir -p /usr/local/go/1.4.1 && cd /usr/local/go/1.4.1 && \
     tar xzf go.tar.gz && \
     mkdir /usr/local/go/1.5.3 && cd /usr/local/go/1.5.3 && \
     curl https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz && \
+    mkdir /usr/local/go/1.6.3 && cd /usr/local/go/1.6.3 && \
+    curl https://storage.googleapis.com/golang/go1.6.3.linux-amd64.tar.gz -o go.tar.gz && \
     tar xzf go.tar.gz
 
 # Install third-party build dependencies. Note: software-properties-common
