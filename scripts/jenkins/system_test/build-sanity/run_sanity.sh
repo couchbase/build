@@ -140,6 +140,10 @@ if [ -n "${EXTRA_TEST_PARAMS}" ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS},${EXTRA_TEST_PARAMS}"
 fi
 
+if [ -n "${TESTRUNNER_TAG}" ]; then
+    git checkout ${TESTRUNNER_TAG}
+fi
+
 echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True"
 if [ "$DISTRO" = "macos" ]; then
     python testrunner.py -i node_conf.ini -c $TR_CONF 
