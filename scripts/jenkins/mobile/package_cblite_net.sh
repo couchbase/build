@@ -53,7 +53,7 @@ STAGING_DST=${BASE_DIR}/staging
 STAGING_SRC=/latestbuilds/couchbase-lite-net/${VERSION}/${BLD_NUM}/staging
 
 BUILD_PKGS=("Couchbase.Lite" "Couchbase.Lite.Listener" "Couchbase.Lite.Listener.Bonjour" "Couchbase.Lite.Storage.SystemSQLite" "Couchbase.Lite.Storage.SQLCipher" "Couchbase.Lite.Storage.ForestDB" "Couchbase.Lite.Storage.CustomSQLite")
-NUGET_PKGS=("couchbase-lite" "couchbase-lite-listener" "couchbase-lite-listener-bonjour" "couchbase-lite-storage-systemsqlite" "couchbase-lite-storage-sqlcipher" "couchbase-lite-storage-forestdb", "couchbase-lite-net-customsqlite")
+NUGET_PKGS=("couchbase-lite" "couchbase-lite-listener" "couchbase-lite-listener-bonjour" "couchbase-lite-storage-systemsqlite" "couchbase-lite-storage-sqlcipher" "couchbase-lite-storage-forestdb" "couchbase-lite-net-customsqlite")
 
 # disable nocasematch
 shopt -u nocasematch
