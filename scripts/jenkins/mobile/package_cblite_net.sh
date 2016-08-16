@@ -135,7 +135,13 @@ ls ${REL_DIR}
 
 # Temporary copy LiteServ for (QE) internal consumption while Jim B. look for a better solution
 echo ======== Copy LiteServ =============================
-cp -f ${BASE_DIR}/staging/LiteServ/net45/LiteServ.zip ${REL_DIR}
+if [[ ${VERSION} == 1.4.0 ]] || [[ ${VERSION} > 1.4.0 ]]
+then
+    cp -f ${BASE_DIR}/staging/LiteServ/net45/LiteServ.zip ${REL_DIR}
+else
+    cp -f ${BASE_DIR}/staging/LiteServ/LiteServ.zip ${REL_DIR}
+fi
+
 cp -f ${BASE_DIR}/staging/LiteServ/Android/LiteServ.apk ${REL_DIR}
 cp -f ${BASE_DIR}/staging/LiteServ/iOS/LiteServ.ipa ${REL_DIR}
 
