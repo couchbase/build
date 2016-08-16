@@ -63,9 +63,17 @@ mkdir -p ${PROD_DIR}
 cd ${PROD_DIR}
 
 echo ======== sync couchbase-lite-net ===================
-if [[ ! -d couchbase-lite-net ]] ; then git clone --depth 1 https://github.com/couchbase/couchbase-lite-net.git ; fi
-
+if [[ ! -d couchbase-lite-net ]] ; then git clone https://github.com/couchbase/couchbase-lite-net.git ; fi
 cd ${BASE_DIR}
+
+if [[ ${BRANCH} =~ "master" ]]
+then
+    echo "Packaging from ${BRANCH} branch"
+else
+    echo "Packaging from ${BRANCH} branch"
+    git checkout --track -B ${BRANCH} origin/${BRANCH}
+fi
+
 if [ ${REPO_SHA} == "no_sha" ]
 then
     git pull origin ${BRANCH}
