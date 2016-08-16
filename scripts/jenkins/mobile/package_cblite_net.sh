@@ -52,8 +52,14 @@ REL_DIR=${BASE_DIR}/release
 STAGING_DST=${BASE_DIR}/staging
 STAGING_SRC=/latestbuilds/couchbase-lite-net/${VERSION}/${BLD_NUM}/staging
 
-BUILD_PKGS=("Couchbase.Lite" "Couchbase.Lite.Listener" "Couchbase.Lite.Listener.Bonjour" "Couchbase.Lite.Storage.SystemSQLite" "Couchbase.Lite.Storage.SQLCipher" "Couchbase.Lite.Storage.ForestDB" "Couchbase.Lite.Storage.CustomSQLite")
-NUGET_PKGS=("couchbase-lite" "couchbase-lite-listener" "couchbase-lite-listener-bonjour" "couchbase-lite-storage-systemsqlite" "couchbase-lite-storage-sqlcipher" "couchbase-lite-storage-forestdb" "couchbase-lite-storage-customsqlite")
+BUILD_PKGS=("Couchbase.Lite" "Couchbase.Lite.Listener" "Couchbase.Lite.Listener.Bonjour" "Couchbase.Lite.Storage.SystemSQLite" "Couchbase.Lite.Storage.SQLCipher" "Couchbase.Lite.Storage.ForestDB")
+NUGET_PKGS=("couchbase-lite" "couchbase-lite-listener" "couchbase-lite-listener-bonjour" "couchbase-lite-storage-systemsqlite" "couchbase-lite-storage-sqlcipher" "couchbase-lite-storage-forestdb")
+
+if [[ ${VERSION} == 1.4.0 ]] || [[ ${VERSION} > 1.4.0 ]]
+then
+    BUILD_PKGS=("${BUILD_PKGS[@]}" "Couchbase.Lite.Storage.CustomSQLite")
+    NUGET_PKGS=("${BUILD_PKGS[@]}" "couchbase-lite-storage-customsqlite")
+fi
 
 # disable nocasematch
 shopt -u nocasematch
