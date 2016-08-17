@@ -25,7 +25,7 @@ function usage
     echo -e "\nUsage:  ${0}   branch_name  target  platform  version  bld_num  commit_sha\n\n"
     }
 
-if [[ "$#" < 3 ]] ; then usage ; exit -1 ; fi
+if [[ "$#" < 3 ]] ; then usage ; exit 1 ; fi
 
 shopt -s nocasematch
 
@@ -47,7 +47,8 @@ fi
 echo ============================================== `date`
 
 PROD_DIR=${WORKSPACE}/${VERSION}/packaging
-BASE_DIR=${PROD_DIR}/couchbase-lite-net
+BASE_DIRNAME=couchbase-lite-net
+BASE_DIR=${PROD_DIR}/${BASE_DIRNAME}
 REL_DIR=${BASE_DIR}/release
 STAGING_DST=${BASE_DIR}/staging
 STAGING_SRC=/latestbuilds/couchbase-lite-net/${VERSION}/${BLD_NUM}/staging
@@ -69,7 +70,7 @@ mkdir -p ${PROD_DIR}
 cd ${PROD_DIR}
 
 echo ======== sync couchbase-lite-net ===================
-if [[ ! -d couchbase-lite-net ]] ; then git clone https://github.com/couchbase/couchbase-lite-net.git ; fi
+if [[ ! -d couchbase-lite-net ]] ; then git clone https://github.com/couchbase/couchbase-lite-net.git ${BASE_DIRNAME}; fi
 cd ${BASE_DIR}
 
 if [[ ${BRANCH} =~ "master" ]]
@@ -107,7 +108,7 @@ for pkg in "${BUILD_PKGS[@]}"
     if [[ ! -d ${pkg} ]]
     then
         echo "..............................PACKAGING FAILED! Missing BUILD: ${pkg}"
-        exit -2
+        exit 2
     fi
 done
 
@@ -120,7 +121,7 @@ for nupkg in "${NUGET_PKGS[@]}"
     if [ ${result} -ne "0" ]
     then
         echo "########################### FAILED NUGET PACKING ${nupkg}: ${result}"
-        exit -3
+        exit 3
     fi
 done
 
@@ -138,12 +139,11 @@ echo ======== Copy LiteServ =============================
 if [[ ${VERSION} == 1.4.0 ]] || [[ ${VERSION} > 1.4.0 ]]
 then
     cp -f ${BASE_DIR}/staging/LiteServ/net45/LiteServ.zip ${REL_DIR}
+    cp -f ${BASE_DIR}/staging/LiteServ/Android/LiteServ.apk ${REL_DIR}
+    cp -f ${BASE_DIR}/staging/LiteServ/iOS/LiteServ.ipa ${REL_DIR}
 else
     cp -f ${BASE_DIR}/staging/LiteServ/LiteServ.zip ${REL_DIR}
 fi
-
-cp -f ${BASE_DIR}/staging/LiteServ/Android/LiteServ.apk ${REL_DIR}
-cp -f ${BASE_DIR}/staging/LiteServ/iOS/LiteServ.ipa ${REL_DIR}
 
 echo ................................... upload internally to ${LATESTBUILDS}
 
