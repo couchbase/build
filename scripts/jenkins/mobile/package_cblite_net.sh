@@ -59,7 +59,7 @@ NUGET_PKGS=("couchbase-lite" "couchbase-lite-listener" "couchbase-lite-listener-
 if [[ ${VERSION} == 1.4.0 ]] || [[ ${VERSION} > 1.4.0 ]]
 then
     BUILD_PKGS=("${BUILD_PKGS[@]}" "Couchbase.Lite.Storage.CustomSQLite")
-    NUGET_PKGS=("${BUILD_PKGS[@]}" "couchbase-lite-storage-customsqlite")
+    NUGET_PKGS=("${NUGET_PKGS[@]}" "couchbase-lite-storage-customsqlite")
 fi
 
 # disable nocasematch
