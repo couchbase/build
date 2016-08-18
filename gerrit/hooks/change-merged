@@ -274,6 +274,9 @@ case $project in
     go_json)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    docloader)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     asterix-opt)
 	repo="git@github.com:couchbaselabs/$project.git"
 	;;
