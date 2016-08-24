@@ -88,6 +88,7 @@ then
     git fetch
 else
     git checkout --track -B ${BRANCH} origin/${BRANCH}
+    git pull
 fi
 
 if [ ${REPO_SHA} == "no_sha" ]
@@ -106,7 +107,7 @@ REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 if [[ ! -d ${NATIVES_DIR} ]]
 then 
     echo "Missing native components at ${NATIVES_DIR}" 
-    exit -2
+    exit 2
 fi
 
 # Clean old build output since xbuild clean is too fragile
@@ -140,7 +141,12 @@ elif [[ ${FRAMEWORK} =~ "iOS" ]]
 then
     cd ${last_dir}
     cp -f libCBForest-Interop.a ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt
-    BUILD_OPTIONS=/p:Platform=iPhone
+    if [[ ${VERSION} < 1.4.0 ]]
+    then
+        BUILD_OPTIONS=/p:Platform=iPhone
+    else
+        BUILD_OPTIONS=/p:Platform=iPhoneSimulator
+    fi
 fi
 
 set +e
@@ -171,7 +177,7 @@ for bld_bin in "${BUILD_OUTPUT[@]}"
     if [[ ! -d ${bld_bin} ]]
     then
         echo "..............................BUILD FAILED! No Output: ${bld_bin}"
-        exit -2
+        exit 2
     fi
 done
 
@@ -191,7 +197,7 @@ test_result=$?
 if [ ${test_result} -ne "0" ]
 then
     echo "########################### Unit Test FAILED! Results = ${test_result}"
-    exit -3
+    exit 3
 fi
 
 echo ................................... upload ${FRAMEWORK} internally to ${LATESTBUILDS}
