@@ -125,7 +125,7 @@ os.chdir(PRODUCT)
 for entry in [f for f in os.listdir(".") if f != ".repo"]:
   shutil.rmtree(entry) if os.path.isdir(entry) else os.remove(entry)
 check_call(["repo", "init", "-u", "../manifest", "-g", "all", "-m", MANIFEST])
-check_call(["repo", "sync", "--jobs=6"])
+check_call(["repo", "sync", "--jobs=6", "--force-sync"])
 
 # Sync build-team-manifests project and checkout/create PRODUCT_BRANCH
 os.chdir("..")
