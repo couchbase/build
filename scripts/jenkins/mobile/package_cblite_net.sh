@@ -140,7 +140,7 @@ if [[ ${VERSION} == 1.4.0 ]] || [[ ${VERSION} > 1.4.0 ]]
 then
     cp -f ${BASE_DIR}/staging/LiteServ/net45/LiteServ.zip ${REL_DIR}
     cp -f ${BASE_DIR}/staging/LiteServ/Android/LiteServ.apk ${REL_DIR}
-    cp -f ${BASE_DIR}/staging/LiteServ/iOS/LiteServ.ipa ${REL_DIR}
+    cp -rf ${BASE_DIR}/staging/LiteServ/iOS/LiteServ.app ${REL_DIR}
 else
     cp -f ${BASE_DIR}/staging/LiteServ/LiteServ.zip ${REL_DIR}
 fi
