@@ -23,6 +23,7 @@ set -e
 CURL_CMD="curl --fail --retry 10"
 
 BLD_NUM=${1}
+if [[ $2 ]] ; then ANDROID_BUILD_NUM=$2   ; else ANDROID_BUILD_NUM=""  ; fi
 
 if [[ ! ${GITSPEC} ]] ; then GITSPEC=master ; fi
 if [[ ! ${VERSION} ]] ; then VERSION=0.0.0  ; fi
@@ -92,8 +93,8 @@ then
     cp ${DOWN_ADIR}/**/couchbase-lite-android-${VERSION}.aar ${AND_DIR}
     cp ${DOWN_ADIR}/**/couchbase-lite-android-sqlite-default-${VERSION}.aar ${AND_DIR}
 else
-    cp ${DOWN_ADIR}/**/couchbase-lite-android-${VERSION}.aar ${AND_DIR}
-    cp ${DOWN_ADIR}/**/couchbase-lite-android-sqlite-custom-${VERSION}.aar ${AND_DIR}
+    cp ${DOWN_ADIR}/**/couchbase-lite-android-${VERSION}*.aar ${AND_DIR}
+    cp ${DOWN_ADIR}/**/couchbase-lite-android-sqlite-custom-${VERSION}*.aar ${AND_DIR}
 fi
 
 popd                     2>&1 >/dev/null
@@ -114,7 +115,7 @@ cp -r src  ${STAGE_DIR}/src
 cp -r www  ${STAGE_DIR}/www
 mv ${STAGE_DIR}/src/README.md ${STAGE_DIR}
 
-/usr/local/bin/node  prepare_plugin.js  ${STAGE_DIR}
+/usr/local/bin/node  prepare_plugin.js ${STAGE_DIR} ${ANDROID_BUILD_NUM}
 
 echo ======== test ===========================================
 
