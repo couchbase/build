@@ -138,11 +138,20 @@ ls ${REL_DIR}
 echo ======== Copy LiteServ =============================
 if [[ ${VERSION} == 1.4.0 ]] || [[ ${VERSION} > 1.4.0 ]]
 then
-    cp -f ${BASE_DIR}/staging/LiteServ/net45/LiteServ.zip ${REL_DIR}
+    pushd ${BASE_DIR}/staging/LiteServ/net45
+    zip -ry LiteServ *
+    cp -f LiteServ.zip ${REL_DIR}
+    popd
+    pushd ${BASE_DIR}/staging/LiteServ/iOS/LiteServ.app
+    zip -ry LiteServ-iOS *
+    cp -f LiteServ-iOS.zip ${REL_DIR}
+    popd
     cp -f ${BASE_DIR}/staging/LiteServ/Android/LiteServ.apk ${REL_DIR}
-    cp -rf ${BASE_DIR}/staging/LiteServ/iOS/LiteServ.app ${REL_DIR}
 else
-    cp -f ${BASE_DIR}/staging/LiteServ/LiteServ.zip ${REL_DIR}
+    pushd ${BASE_DIR}/staging/LiteServ
+    zip -ry LiteServ *
+    cp -f LiteServ.zip ${REL_DIR}
+    popd
 fi
 
 echo ................................... upload internally to ${LATESTBUILDS}
