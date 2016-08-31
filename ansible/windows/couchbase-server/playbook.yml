@@ -83,6 +83,6 @@
 
     - name: Copy SSH config files
       win_copy:
-        src: "ssh"
+        src: "ssh/"
         dest: "C:\\Users\\Administrator\\.ssh\\"
 
