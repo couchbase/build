@@ -6,7 +6,7 @@ TAG=20160901
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
 docker build -t ceejatec/ubuntu-1404-analytics-build:$TAG .
-docker tag -f ceejatec/ubuntu-1404-analytics-build:$TAG ceejatec/ubuntu-1404-analytics-build:latest
+docker tag ceejatec/ubuntu-1404-analytics-build:$TAG ceejatec/ubuntu-1404-analytics-build:latest
 if [ "$1" = "--publish" ]
 then
   docker push ceejatec/ubuntu-1404-analytics-build:$TAG

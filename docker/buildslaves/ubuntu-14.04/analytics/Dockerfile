@@ -8,7 +8,7 @@ MAINTAINER ceej@couchbase.com
 
 USER root
 
-# Install SSH server (required to serve as Jenkins slave)
+# Install SSH server (required to serve as Jenkins slave).
 RUN apt-get update && \
     apt-get install -y openssh-server curl && \
     rm -f /var/cache/apt/archives/*.deb && \
@@ -41,12 +41,16 @@ RUN mkdir /tmp/deploy && \
     ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
     rm -rf /tmp/deploy
 
-# Go (for cbq).
-RUN mkdir -p /usr/local/go/1.6.3 && cd /usr/local/go/1.6.3 && \
-    curl https://storage.googleapis.com/golang/go1.6.3.linux-amd64.tar.gz -o go.tar.gz && \
-    tar xzf go.tar.gz && \
-    rm go.tar.gz && \
-    ln -s /usr/local/go/1.6.3/go/bin/go /usr/local/bin
+# CMake (for cbq).
+RUN mkdir /tmp/deploy && \
+    curl https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.sh -o /tmp/deploy/cmake.sh && \
+    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
+    rm -rf /tmp/deploy
+
+# C build essentials (required by C callouts from CBQ Go code).
+RUN apt-get update && \
+    apt-get install -y make gcc && \
+    rm -f /var/cache/apt/archives/*.deb
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
