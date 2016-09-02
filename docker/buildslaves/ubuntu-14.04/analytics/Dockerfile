@@ -41,6 +41,13 @@ RUN mkdir /tmp/deploy && \
     ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
     rm -rf /tmp/deploy
 
+# Go (for cbq).
+RUN mkdir -p /usr/local/go/1.6.3 && cd /usr/local/go/1.6.3 && \
+    curl https://storage.googleapis.com/golang/go1.6.3.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz && \
+    rm go.tar.gz && \
+    ln -s /usr/local/go/1.6.3/go/bin/go /usr/local/bin
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 RUN mkdir /home/couchbase/.ssh && chown couchbase:couchbase /home/couchbase/.ssh
