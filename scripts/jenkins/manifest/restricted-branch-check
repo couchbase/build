@@ -54,12 +54,15 @@ def get_approved_tickets(approval_ticket):
   """
   jira = connect_jira()
   jira_ticket = jira.issue(approval_ticket)
-  links = [link.outwardIssue.key
+  depends = [link.outwardIssue.key
     for link in jira_ticket.fields.issuelinks
     if hasattr(link, "outwardIssue")]
+  relates = [link.inwardIssue.key
+    for link in jira_ticket.fields.issuelinks
+    if hasattr(link, "inwardIssue")]
   subtasks = [subtask.key
     for subtask in jira_ticket.fields.subtasks]
-  return links + subtasks + [approval_ticket]
+  return depends + relates + subtasks + [approval_ticket]
 
 
 def validate_change_in_ticket(meta):
