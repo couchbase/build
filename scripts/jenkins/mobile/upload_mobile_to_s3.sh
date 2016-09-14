@@ -67,18 +67,28 @@ if [ ! -e ${LB_MOUNT} ]; then
     exit 4
 fi
 
+REL_MOUNT=/releases
+if [ ! -e ${REL_MOUNT} ]; then
+    echo "'releases' directory is not mounted"
+    exit 4
+fi
+
 # Compute S3 component dirname
 case "$RELEASE" in
     sync_gateway)
+        REL_DIRNAME=sync_gateway
         S3_REL_DIRNAME=couchbase-sync-gateway
         ;;
     *android*)
+        REL_DIRNAME=couchbase-lite/android
         S3_REL_DIRNAME=couchbase-lite/android
         ;;
     *java*)
+        REL_DIRNAME=couchbase-lite/java
         S3_REL_DIRNAME=couchbase-lite/java
         ;;
     *ios*)
+        REL_DIRNAME=couchbase-lite
         S3_REL_DIRNAME=couchbase-lite
         ;;
     *)
@@ -89,7 +99,8 @@ esac
 # Compute destination directories
 S3CONFIG=~/.ssh/live.s3cfg
 ROOT=s3://packages.couchbase.com/releases/$S3_REL_DIRNAME
-RELEASE_DIR=${LB_MOUNT}/$RELEASE/$VERSION
+BUILD_DIR=${LB_MOUNT}/$RELEASE/$VERSION
+RELEASE_DIR=${REL_MOUNT}/mobile/$VERSION/$REL_DIRNAME
 
 upload()
 {
@@ -97,7 +108,7 @@ upload()
     target=${2}
     echo src: $build
     echo dst: $target
-    echo ::::::::::::::::::::::::::::::::::::::
+    echo UPLOAD ::::::::::::::::::::::::::::::::::::::
 
     # Verify build exists
     if [ ! -e $build ]; then
@@ -108,6 +119,25 @@ upload()
     s3cmd -c $S3CONFIG sync -P $build $target
 }
 
+archive_rel()
+{
+    build=${1}
+    target=${2}
+    echo src: $build
+    echo dst: $target
+    echo ARCHIVE ::::::::::::::::::::::::::::::::::::::
+
+    # Verify build exists
+    if [ ! -e $build ]; then
+        echo "Given build doesn't exist: ${build}"
+        exit 5
+    fi
+
+    # Archive internal releaess
+    mkdir -p $target
+    rsync -au $build $target
+}
+
 OPWD=`pwd`
 finish() {
     cd $OPWD
@@ -115,19 +145,25 @@ finish() {
 }
 trap finish EXIT
 
-cd ${RELEASE_DIR}
+cd ${BUILD_DIR}
 
 if [[ $RELEASE =~ "couchbase-lite-ios" ]]
 then
     for platform in ${PLATFORMS[@]}
     do
-        SRC_DIR=$RELEASE_DIR/$platform/$BUILD/
-        DST_DIR=$ROOT/$platform/$VERSION/
-        upload $SRC_DIR $DST_DIR
+        SRC_DIR=$BUILD_DIR/$platform/$BUILD/
+        REL_DIR=$RELEASE_DIR/$platform/
+        S3_DIR=$ROOT/$platform/$VERSION/
+
+        archive_rel $SRC_DIR $REL_DIR
+        upload $SRC_DIR $S3_DIR
     done
 else
-    SRC_DIR=$RELEASE_DIR/$BUILD/
-    DST_DIR=$ROOT/$VERSION/
-    upload $SRC_DIR $DST_DIR
+    SRC_DIR=$BUILD_DIR/$BUILD/
+    REL_DIR=$RELEASE_DIR/
+    S3_DIR=$ROOT/$VERSION/
+
+    archive_rel $SRC_DIR $REL_DIR
+    upload $SRC_DIR $S3_DIR
 fi
 
