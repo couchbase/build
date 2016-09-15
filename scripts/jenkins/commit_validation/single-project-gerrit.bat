@@ -114,7 +114,7 @@ popd
         pushd build\%GERRIT_PROJECT%
         @REM  -j%PARALLELISM% : Run tests in parallel.
         @REM  -T Test   : Generate XML output file of test results.
-        ctest -j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test  --exclude-regex %TESTS_EXCLUDE%
+        ctest -j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test  --exclude-regex %TESTS_EXCLUDE% || goto :error
         popd
     ) ELSE (
         @echo ============================================
