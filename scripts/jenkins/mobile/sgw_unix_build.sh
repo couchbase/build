@@ -1,19 +1,19 @@
 #!/bin/bash -ex
-#          
+#
 #    run by jenkins sync_gateway jobs for version 1.3.0 and newer:
-#          
+#
 #    with required paramters:
-#   
+#
 #          distro    version    bld_num    edition    REPO_SHA
-#             
+#
 #    e.g.: centos    0.0.0      0000       community    REPO_SHA
 #          macosx    1.1.0      1234       enterprise   REPO_SHA
 #
 #    and optional parameters:
-#    
+#
 #        TEST_OPTIONS       `-race 4 -cpu`
 #        GO_REL             1.5.3 (Currently supports 1.4.1, 1.5.2, 1.5.3)
-#          
+#
 #    This script supports building branches 1.3.0 and newer that uses repo manifest.
 #    It will purely perform these 2 tasks:
 #        - build the executable
@@ -165,10 +165,17 @@ SGW_DIR=${TARGET_DIR}/${SRC_DIR}
 BLD_DIR=${SGW_DIR}/build
 STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
 
+ACCEL_PREFIX=/opt/couchbase-sg-accel
+ACCEL_PREFIXP=./opt/couchbase-sg-accel
+ACCEL_STAGING=${BLD_DIR}/opt/couchbase-sg-accel
+
 if [[ -e ${PREFIX}  ]] ; then sudo rm -rf ${PREFIX}  ; fi
 if [[ -e ${STAGING} ]] ; then      rm -rf ${STAGING} ; fi
 
-                                                #  needed by ~/.rpmmacros 
+if [[ -e ${ACCEL_PREFIX}  ]] ; then sudo rm -rf ${ACCEL_PREFIX}  ; fi
+if [[ -e ${ACCEL_STAGING}  ]] ; then     rm -rf ${ACCEL_STAGING}  ; fi
+
+                                                #  needed by ~/.rpmmacros
                                                 #  called by package-rpm.rb
                                                 #
 RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-sync-gateway_${VERSION}-${BLD_NUM}/rpmbuild/
@@ -265,15 +272,17 @@ if [[ -e ${COLLECTINFO_DIST} ]]
 fi
 popd
 
-echo ======== sync_gateway package =============================
-cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
+echo ======== Prep STAGING for packaging =============================
 cp    ${COLLECTINFO_DIST}                ${STAGING}/tools/
 cp    ${BLD_DIR}/README.txt              ${STAGING}
 echo  ${VERSION}-${BLD_NUM}            > ${STAGING}/VERSION.txt
 cp    ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
 cp -r ${SGW_DIR}/examples                ${STAGING}
 cp -r ${SGW_DIR}/service                 ${STAGING}
-rm -f ${STAGING}/${ACCEL_EXEC}_service*
+cp -rf ${STAGING} ${ACCEL_STAGING}
+
+echo ======== sync_gateway package =============================
+cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
 
 echo cd ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
@@ -285,32 +294,15 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
   then
     cd ${STAGING}
     rm -f ${PKG_NAME}
-    tar cvfz ${TAR_PKG_NAME} * 
+    tar cvfz ${TAR_PKG_NAME} *
     cp ${TAR_PKG_NAME} ${SGW_DIR}
 fi
 
 echo ======== sg_accel package =============================
-ACCEL_PREFIX=/opt/couchbase-sg-accel
-ACCEL_PREFIXP=./opt/couchbase-sg-accel
-ACCEL_STAGING=${BLD_DIR}/opt/couchbase-sg-accel
-
-cd ${BLD_DIR}
-if [[ -e ${ACCEL_PREFIX}  ]] ; then sudo rm -rf ${ACCEL_PREFIX}  ; fi
-if [[ -e ${ACCEL_STAGING}  ]] ; then     rm -rf ${ACCEL_STAGING}  ; fi
-cp -rf ${STAGING} ${ACCEL_STAGING}
-rm -f ${STAGING}/${EXEC}_service*
-cp -r ${SGW_DIR}/service/${ACCEL_EXEC}_service*                 ${STAGING}
+cp    ${DEST_DIR}/${ACCEL_EXEC}                     ${ACCEL_STAGING}/bin/
 
 RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}/rpmbuild/
 export RPM_ROOT_DIR
-
-if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
-  then
-    cd ${ACCEL_STAGING}
-    rm -f ${TAR_PKG_NAME}
-    rm -f ${ACCEL_STAGING}/bin/${EXEC}
-    cp    ${DEST_DIR}/${ACCEL_EXEC}                ${ACCEL_STAGING}/bin/
-fi
 
 cd   ${BLD_DIR}   ;   ./${PKGR} ${ACCEL_PREFIX} ${ACCEL_PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP} ${ACCEL_NAME} ${ACCEL_EXEC}
 
@@ -321,7 +313,7 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
   then
     cd ${ACCEL_STAGING}
     rm -f ${ACCEL_PKG_NAME}
-    tar cvfz ${ACCEL_TAR_PKG_NAME} * 
+    tar cvfz ${ACCEL_TAR_PKG_NAME} *
     cp ${ACCEL_TAR_PKG_NAME} ${SGW_DIR}
 fi
 
