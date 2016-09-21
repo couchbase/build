@@ -26,7 +26,7 @@ devnull = open(os.devnull, "w")
 
 # See if Jenkins thinks the slave is connected
 print "Seeing if {1} is connected to Jenkins master '{0}'...".format(jenkins, slave)
-slaveurl = 'http://{0}/computer/{1}/api/json?tree=offline,executors[idle]'
+slaveurl = 'http://{0}/computer/{1}/api/json?tree=offline,executors[idle],oneOffExecutors[idle]'
 while True:
     response = urllib2.urlopen(slaveurl.format(jenkins, slave))
     slavedata = json.load(response)
@@ -34,7 +34,8 @@ while True:
     # If slave is "offline", fine. Otherwise, if ALL executors are "idle", fine.
     if (slavedata["offline"]):
         break
-    if (not (False in [x["idle"] for x in slavedata["executors"]])):
+    executors = slavedata["executors"] + slavedata["oneOffExecutors"]
+    if (not (False in [x["idle"] for x in executors])):
         break
 
     print "Slave {0} is currently busy, waiting 30 seconds...".format(slave)
