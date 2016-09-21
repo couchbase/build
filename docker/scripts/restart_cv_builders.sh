@@ -7,13 +7,15 @@ cd `dirname $0`
 # cv.jenkins slaves
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 cv-zz-lightweight 3224 cv.jenkins.couchbase.com &
 sleep 5
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 ubuntu12-cv-01 2322 cv.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 ubuntu12-cv-01 2322 cv.jenkins.couchbase.com --ccache-dir /home/couchbase/slaves/shared_ccache &
 sleep 5
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 ubuntu12-cv-02 2323 cv.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 ubuntu12-cv-02 2323 cv.jenkins.couchbase.com --ccache-dir /home/couchbase/slaves/shared_ccache &
 sleep 5
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 ubuntu12-cv-03 2324 cv.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 ubuntu12-cv-03 2324 cv.jenkins.couchbase.com --ccache-dir /home/couchbase/slaves/shared_ccache &
 sleep 5
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 ubuntu12-cv-04 2325 cv.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 ubuntu12-cv-04 2325 cv.jenkins.couchbase.com --ccache-dir /home/couchbase/slaves/shared_ccache &
+sleep 5
+./restart_jenkinsdocker.py ceejatec/centos-70-couchbase-build:20151223 centos70-cv-build-01 2422 cv.jenkins.couchbase.com --ccache-dir /home/couchbase/slaves/shared_ccache &
 sleep 5
 
 # Factory CV slaves

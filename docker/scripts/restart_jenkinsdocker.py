@@ -5,20 +5,22 @@ import urllib2
 import json
 import time
 import os
+import argparse
 import shutil
 from subprocess import call, check_output
 
-if len(sys.argv) <= 3:
-    print "Usage: {0} <image name> <jenkins slave name> <ssh port> [ <jenkins host> ]".format(sys.argv[0])
-    sys.exit(2)
+parser = argparse.ArgumentParser()
+parser.add_argument("image", type=str, help="Docker image name")
+parser.add_argument("slave", type=str, help="Slave name")
+parser.add_argument("port", type=str, help="SSH Port to expose from container")
+parser.add_argument("jenkins", type=str, help="Jenkins to connect to", default="factory.couchbase.com")
+parser.add_argument("--ccache-dir", type=str, help="Host directory to mount as ~/.ccache")
+args = parser.parse_args()
 
-image = sys.argv[1]
-slave = sys.argv[2]
-port = sys.argv[3]
-try:
-    jenkins = sys.argv[4]
-except IndexError:
-    jenkins = "factory.couchbase.com"
+image = args.image
+slave = args.slave
+port = args.port
+jenkins = args.jenkins
 
 devnull = open(os.devnull, "w")
 
@@ -35,8 +37,8 @@ while True:
     if (not (False in [x["idle"] for x in slavedata["executors"]])):
         break
 
-    print "Slave {0} is currently busy, waiting 60 seconds...".format(slave)
-    time.sleep(60)
+    print "Slave {0} is currently busy, waiting 30 seconds...".format(slave)
+    time.sleep(30)
 
 # See if slave is running locally
 print "Checking if {0} is running locally...".format(slave)
@@ -63,8 +65,8 @@ os.makedirs(slave_dir)
 #    add a line containing "ptrace," (with the trailing comma) inside the block
 # 3. Run /etc/init.d/apparmor reload
 print "Creating new {0} container...".format(slave)
-output = check_output(
-    ["docker", "run", "--name={0}".format(slave), "--detach=true",
+run_args = [
+     "docker", "run", "--name={0}".format(slave), "--detach=true",
      "--security-opt=apparmor:docker-default-ptrace",
      "--publish={0}:22".format(port),
      "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
@@ -74,9 +76,18 @@ output = check_output(
      "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
      "--volume=/home/couchbase/latestbuilds:/latestbuilds",
      "--volume=/home/couchbase/releases:/releases",
-     "--volume=/home/couchbase/slaves/{0}:/home/couchbase/jenkins".format(slave),
+     "--volume=/home/couchbase/slaves/{0}:/home/couchbase/jenkins".format(slave)
+]
+if args.ccache_dir is not None:
+    if not os.path.isdir(args.ccache_dir):
+        os.makedirs(args.ccache_dir)
+    run_args.append(
+     "--volume={0}:/home/couchbase/.ccache".format(args.ccache_dir)
+    )
+run_args.extend([
      "--ulimit=core=-1",
-     image])
+     image
+])
+output = check_output(run_args)
 print "Result: {0}".format(output)
-
 
