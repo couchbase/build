@@ -19,6 +19,7 @@ class winsdk_instance():
         self.boto_inst_obj = self.boto_ec2_obj.Instance(iid)
         self.inst_state = None
         self.inst_tags = None
+        self.up_since = 0
 
     def start(self, jenk_job):
         self._get_current_state()
@@ -66,6 +67,19 @@ class winsdk_instance():
         self.boto_ec2_obj.create_tags(Resources=[self.iid], Tags=[{'Key': 'jenkins-job', 'Value': 'none'}])
         self.boto_inst_obj.wait_until_stopped()
         return
+
+    def status(self):
+        self._get_current_state()
+        if self.inst_state.lower() == 'stopped' or self.inst_state.lower() == 'stopping':
+            print 'Instance stopped/stopping'
+            return
+
+        job_name = self._get_job_name()
+        if job_name == 'none':
+            print 'Instance running for %d hours; but not used by any job currently' %self.up_since
+        else:
+            print 'Instance running for %d hours; but currently in use by %s' %(up_since, job_name)
+
 
     def monitor(self, idle_wait_time=900):
         self._get_current_state()
@@ -115,6 +129,10 @@ class winsdk_instance():
             self.boto_inst_obj.reload()
             self.inst_state = self.boto_inst_obj.state['Name']
             self.inst_tags = self.boto_inst_obj.tags
+            launch_time = self.boto_inst_obj.launch_time
+            launch_time_int = int(time.mktime(launch_time.timetuple()))
+            utc_now_int = int(time.mktime(datetime.datetime.utcnow().timetuple()))
+            self.up_since = (utc_now_int - launch_time_int) / 3600
             #print self.inst_state
             #print self.inst_tags
         except botocore.exceptions.ClientError, e:
@@ -133,7 +151,7 @@ if __name__ == '__main__':
     parser.add_option("-j", "--job-name", dest="job",
                       help="Jenkins job name. Applicable for start/done command", metavar="JOBNAME")
     parser.add_option("-c", "--command", dest="cmd",
-                      help="Valid values: start, done, monitor", metavar="COMMAND")
+                      help="Valid values: start, done, status, monitor", metavar="COMMAND")
     parser.add_option("-w", "--wait-time", dest="wait_time", default=900, type=int,
                       help="Applicable only for monitor command. Wait time to see if any build will get kicked within this time so we don't have to kill the instance.", metavar="SECONDS")
 
@@ -147,3 +165,5 @@ if __name__ == '__main__':
                 wsi.done(options.job)
             elif options.cmd == 'monitor':
                 wsi.monitor(options.wait_time)
+            elif options.cmd == 'status':
+                wsi.status()
