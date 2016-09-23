@@ -36,8 +36,8 @@ for inst in instances:
     priv_ips.append(inst.private_ip_address)
 
 with open('ec2.ips', 'w') as F:
-    print >>F, 'PUB_DNS=' + '"' + ' '.join(pub_dns) + '"'
-    print >>F, 'NODE_IPS=' + '"' + ' '.join(pub_ips) + '"'
-    print >>F, 'PRIV_IPS=' + '"' + ' '.join(priv_ips) + '"'
+    print >>F, 'PUB_DNS=' + ' '.join(pub_dns)
+    print >>F, 'NODE_IPS=' + ' '.join(pub_ips)
+    print >>F, 'PRIV_IPS=' + ' '.join(priv_ips)
     print >>F, 'SERVER_PUB_IP0=' + pub_ips[0]
     print >>F, 'SERVER_PRIV_IP0=' + priv_ips[0]
