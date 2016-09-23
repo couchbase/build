@@ -4,12 +4,15 @@ useradd -g jenkins jenkins
 yum -y install java-1.7.0-openjdk && yum clean packages
 yum -y install python-devel screen
 yum -y install screen
+yum -y install openssl-devel
+yum -y install libffi-devel
 cd /usr/local/bin
 curl https://storage.googleapis.com/git-repo-downloads/repo > repo
 chmod a+x repo
 easy_install paramiko
 easy_install httplib2
 easy_install requests
+easy_install pyyaml
 
 yum install -y http://latestbuilds.hq.couchbase.com/couchbase-release/35/couchbase-release-1.0-2-x86_64.rpm
 yum install -y libcouchbase2-core libcouchbase-devel libcouchbase2-bin
