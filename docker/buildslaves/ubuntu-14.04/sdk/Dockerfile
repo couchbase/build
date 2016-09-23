@@ -57,9 +57,15 @@ RUN mkdir /tmp/deploy && \
     (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
     cd /tmp && rm -rf /tmp/deploy
 
+ENV DEBIAN_FRONTEND noninteractive
+
+
+#paramiko for testrunner
+RUN apt-get update && \
+    apt-get install -y python-paramiko
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
-ADD .wgetrc /home/couchbase/.wgetrc
 ADD .ssh /home/couchbase/.ssh
 COPY build/couchbuilder_start.sh /usr/sbin/
 ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
