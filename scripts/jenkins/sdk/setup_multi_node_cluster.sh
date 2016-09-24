@@ -94,7 +94,7 @@ cat node_conf.ini
 
 # === install couchbase on the nodes
 url_param=""
-install_params="version=${which_rel},product=cb,vbuckets=64"
+install_params="version=${which_rel},product=cb,vbuckets=64,parallel=True"
 if [ "x$BIN_URL" != "x" ]; then
     install_params="${install_params},url=${BIN_URL}"
 fi
