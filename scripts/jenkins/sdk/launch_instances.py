@@ -43,6 +43,6 @@ with open('ec2.ips', 'w') as F:
     print >>F, 'PUB_DNS=' + ' '.join(pub_dns)
     print >>F, 'NODE_IPS=' + ' '.join(pub_ips)
     print >>F, 'PRIV_IPS=' + ' '.join(priv_ips)
-    print >>F, 'INSTANCE_IDS=' + ' '.join(iids)
+    print >>F, 'CLUSTER_INST_IDS=' + ' '.join(iids)
     print >>F, 'SERVER_PUB_IP0=' + pub_ips[0]
     print >>F, 'SERVER_PRIV_IP0=' + priv_ips[0]
