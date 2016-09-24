@@ -5,20 +5,22 @@ import botocore
 import datetime
 import time
 
-if len(sys.argv) == 1:
-    print 'No argument provided for the script. '
-    print 'Usage: %s <instance_id> [number of hours]'
+if len(sys.argv) < 3:
+    print 'The script takes at least 2 arguments'
+    print
+    print 'Usage: %s <instance_id> <instance_name> [number of hours]'
     print 'where:'
-    print '    instance_id -- instance id to monitor. It should have the name/tag windows-sdkbb'
-    print '    num_hours   -- if the instance has been up for more than this number of hours'
-    print '                   the script will flag it. Default 24'
+    print '    instance_id   -- instance id to monitor. It should have the name/tag windows-sdkbb'
+    print '    instance_name -- the instance should be tagged with this name'
+    print '    num_hours     -- if the instance has been up for more than this number of hours'
+    print '                     the script will flag it. Default 24'
     sys.exit(1)
 
 iid = sys.argv[1]
+iname = sys.argv[2]
 num_hours = 24
-if len(sys.argv) > 2:
-    num_hours = sys.argv[2]
-iname = 'windows-sdkbb'
+if len(sys.argv) > 3:
+    num_hours = sys.argv[3]
 
 client = boto3.client('ec2')
 
