@@ -37,8 +37,13 @@ if [ $need_install -eq 0 ]; then
     exit 0
 fi
 
-git clone https://github.com/couchbase/testrunner
-pushd testrunner
+if [ -e testrunner ]; then
+    pushd testrunner
+    git pull
+else
+    git clone https://github.com/couchbase/testrunner
+    pushd testrunner
+fi
 
 
 echo "[global]
