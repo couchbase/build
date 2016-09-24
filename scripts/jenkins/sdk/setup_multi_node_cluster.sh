@@ -123,7 +123,7 @@ done
 sleep 10
 
 url="http://${ip0}:8091/controller/rebalance"
-kn="knownNodes=ns_1@${pip0}"
+kn="knownNodes=ns_1@${priv_ip0}"
 for ip in ${priv_ip_list[@]:1}; do
     kn="${kn},ns_1@${ip}"
 done
