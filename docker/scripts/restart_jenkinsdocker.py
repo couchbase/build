@@ -13,7 +13,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("image", type=str, help="Docker image name")
 parser.add_argument("slave", type=str, help="Slave name")
 parser.add_argument("port", type=str, help="SSH Port to expose from container")
-parser.add_argument("jenkins", type=str, help="Jenkins to connect to", default="factory.couchbase.com")
+parser.add_argument("jenkins", type=str, help="Jenkins to connect to",
+    nargs='?', default="factory.couchbase.com")
 parser.add_argument("--ccache-dir", type=str, help="Host directory to mount as ~/.ccache")
 args = parser.parse_args()
 
