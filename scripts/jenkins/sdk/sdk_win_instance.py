@@ -68,6 +68,11 @@ class winsdk_instance():
         self.boto_inst_obj.wait_until_stopped()
         return
 
+    def terminate(self):
+        self.boto_inst_obj.terminate()
+        self.boto_inst_obj.wait_until_terminated()
+        return
+
     def status(self):
         self._get_current_state()
         if self.inst_state.lower() == 'stopped' or self.inst_state.lower() == 'stopping':
@@ -151,7 +156,7 @@ if __name__ == '__main__':
     parser.add_option("-j", "--job-name", dest="job",
                       help="Jenkins job name. Applicable for start/done command", metavar="JOBNAME")
     parser.add_option("-c", "--command", dest="cmd",
-                      help="Valid values: start, done, status, monitor", metavar="COMMAND")
+                      help="Valid values: start, done, status, monitor, terminate", metavar="COMMAND")
     parser.add_option("-w", "--wait-time", dest="wait_time", default=900, type=int,
                       help="Applicable only for monitor command. Wait time to see if any build will get kicked within this time so we don't have to kill the instance.", metavar="SECONDS")
 
@@ -167,3 +172,5 @@ if __name__ == '__main__':
                 wsi.monitor(options.wait_time)
             elif options.cmd == 'status':
                 wsi.status()
+            elif options.cmd == 'terminate':
+                wsi.terminate()
