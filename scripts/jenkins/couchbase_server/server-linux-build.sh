@@ -243,6 +243,10 @@ esac
 # Back to the top
 cd ${WORKSPACE}
 
+# Create .sha256 and .md5 checksums.
+md5sum ${INSTALLER_FILENAME} | cut -c1-32 > ${INSTALLER_FILENAME}.md5
+sha256sum ${INSTALLER_FILENAME} | cut -c1-64 > ${INSTALLER_FILENAME}.sha256
+
 # Support for Oracle Enterprise Linux. If we're building Centos 6, make
 # an exact copy with an oel6 filename.
 case "$DISTRO" in
