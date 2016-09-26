@@ -108,14 +108,18 @@ echo curl -v -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/sampleBuckets/i
 curl -v -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/sampleBuckets/install -d '["beer-sample"]'
 sleep 10
 
+echo curl -v -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/sampleBuckets/install -d '["travel-sample"]'
+curl -v -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/sampleBuckets/install -d '["travel-sample"]'
+sleep 10
+
 echo curl -v -X POST -u ${CB_USER}:${CB_PASS} http://${ip0}:8091/pools/default -d memoryQuota=900 -d indexMemoryQuota=900
 curl -v -X POST -u ${CB_USER}:${CB_PASS} http://${ip0}:8091/pools/default -d memoryQuota=900 -d indexMemoryQuota=900
 sleep 10
 
-echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=256 -d authType=none -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
-curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=256 -d authType=none -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
+echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=256 -d authType=sasl -d saslPassword="" -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
+curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=256 -d authType=sasl -d saslPassword="" -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
 echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default1 -d ramQuotaMB=256 -d authType=none -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
-curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default1 -d ramQuotaMB=256 -d authType=none -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
+curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default1 -d ramQuotaMB=256 -d authType=none -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
 sleep 10
 
 for ip in ${priv_ip_list[@]:1}; do
