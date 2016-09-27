@@ -52,7 +52,7 @@ if [ -z $build_number ]; then
 fi
 
 REL_CODE="sherlock"
-if [[ $VERSION_NUM = 4.5* ]]; then
+if [[ $VERSION_NUM = 4.5* || $VERSION_NUM = 4.6* ]]; then
     REL_CODE="watson"
 elif [[ $VERSION_NUM = 4.7* ]]; then
     REL_CODE="spock"
