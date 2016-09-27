@@ -69,7 +69,7 @@ class Builds():
             jenkins_url = _FACTORY
             build_job = 'sherlock-build'
             self.supported_platforms.remove('debian8')
-        elif version.startswith('4.5'):
+        elif version.startswith('4.5') or version.startswith('4.6'):
             code_name = 'watson'
             jenkins_url = _SERV_JENKINS
             build_job = 'watson-build'
@@ -161,7 +161,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     rel_code_name = ''
-    if not options.version[:3] in ['4.0', '4.1', '4.2', '4.5', '4.7']:
+    if not options.version[:3] in ['4.0', '4.1', '4.2', '4.5', '4.6', '4.7']:
         print 'Unsupported version %s' %options.version
         sys.exit(1)
 
