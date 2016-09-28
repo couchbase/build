@@ -49,6 +49,8 @@ services:kv,index,n1ql
 python scripts/install.py -i node_conf.ini -p version=${which_rel},product=cb
 popd
 
+curl -i -u ${CB_USER}:${CB_PASS} -X POST http://${NODE_IP}:8091/settings/indexes -d 'storageMode=memory_optimized'
+
 # create default bucket
 curl -X POST -u ${CB_USER}:${CB_PASS} \
     -d name=default -d ramQuotaMB=1024 -d authType=none \
