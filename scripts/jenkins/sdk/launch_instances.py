@@ -7,11 +7,20 @@ import boto3
 import botocore
 from optparse import OptionParser
 
-inst_use="cb-server-test-cluster"
-ami_id = 'ami-9e06d0fe'
-sg_id = ['sg-8cd93bf5']
+job = 'net-sdk'
+if len(sys.argv) > 1:
+    job = sys.argv[1]
+
+if job == 'cv-netclient':
+    ami_id = 'ami-9e06d0fe'
+    sg_id = ['sg-8cd93bf5']
+    num_instances = 4
+elif job == 'php-sdk'
+    ami_id = 'ami-394c0a2e'
+    sg_id = ['sg-db3367a1']
+    num_instances = 3
+
 inst_type = 'c4.xlarge'
-num_instances = 4
 
 boto_ec2_obj = boto3.resource('ec2')
 instances = boto_ec2_obj.create_instances(
@@ -37,7 +46,7 @@ for inst in instances:
     pub_ips.append(inst.public_ip_address)
     pub_dns.append(inst.public_dns_name)
     priv_ips.append(inst.private_ip_address)
-    boto_ec2_obj.create_tags(Resources=[inst.instance_id], Tags=[{'Key': 'use', 'Value': inst_use }])
+    boto_ec2_obj.create_tags(Resources=[inst.instance_id], Tags=[{'Key': 'use', 'Value': job}])
 
 with open('ec2.ips', 'w') as F:
     print >>F, 'PUB_DNS=' + ' '.join(pub_dns)
