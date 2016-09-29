@@ -46,7 +46,11 @@ services:kv,index,n1ql
 1:_1
 " > node_conf.ini
 
-python scripts/install.py -i node_conf.ini -p version=${which_rel},product=cb
+install_params="version=${which_rel},product=cb,vbuckets=64"
+if [ "x$BIN_URL" != "x" ]; then
+    install_params="${install_params},url=${BIN_URL}"
+fi
+python scripts/install.py -i node_conf.ini -p ${install_params}
 popd
 
 curl -i -u ${CB_USER}:${CB_PASS} -X POST http://${NODE_IP}:8091/settings/indexes -d 'storageMode=memory_optimized'
