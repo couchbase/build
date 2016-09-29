@@ -11,7 +11,7 @@ job = 'net-sdk'
 if len(sys.argv) > 1:
     job = sys.argv[1]
 
-if job == 'cv-netclient':
+if job == 'net-sdk':
     ami_id = 'ami-9e06d0fe'
     sg_id = ['sg-8cd93bf5']
     num_instances = 4
