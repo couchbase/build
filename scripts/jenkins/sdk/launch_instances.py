@@ -11,14 +11,16 @@ job = 'net-sdk'
 if len(sys.argv) > 1:
     job = sys.argv[1]
 
+num_instances = 4
+if len(sys.argv) > 2:
+    num_instances = int(sys.argv[2])
+
 if job == 'net-sdk':
     ami_id = 'ami-9e06d0fe'
     sg_id = ['sg-8cd93bf5']
-    num_instances = 4
 elif job == 'php-sdk':
     ami_id = 'ami-b580c6a2'
     sg_id = ['sg-db3367a1']
-    num_instances = 3
 
 inst_type = 'c4.xlarge'
 
