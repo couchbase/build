@@ -16,7 +16,7 @@ if job == 'net-sdk':
     sg_id = ['sg-8cd93bf5']
     num_instances = 4
 elif job == 'php-sdk':
-    ami_id = 'ami-394c0a2e'
+    ami_id = 'ami-b580c6a2'
     sg_id = ['sg-db3367a1']
     num_instances = 3
 
