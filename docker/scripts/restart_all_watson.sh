@@ -5,7 +5,7 @@ cd `dirname $0`
 # New hostness Watson docker containers (currently hosted on mega3)
 ./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20151223 watson-centos6-01 5222 server.jenkins.couchbase.com &
 sleep 5
-./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20151223 watson-centos6-02 2232 server.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20151223 watson-centos6-02 5232 server.jenkins.couchbase.com &
 sleep 5
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest zz-server-lightweight 5322 server.jenkins.couchbase.com &
 sleep 5
