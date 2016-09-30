@@ -46,6 +46,9 @@ for /f "tokens=1-2 delims=-" %%A in ("%PLATFRM%") do (
     set PROC_ARCH=%%B
 )
 
+set SG_PRODUCT_NAME="Couchbase Sync Gateway"
+set ACCEL_PRODUCT_NAME="Couchbase SG Accel"
+
 set GOOS=%OS%
 set SGW_EXEC=sync_gateway.exe
 set SGW_NAME=sync-gateway
@@ -135,9 +138,10 @@ for /F "usebackq tokens=1* delims=]" %%I in (`type %TEMPLATE_FILE% ^| find /V /N
     if "%%J"=="" (echo.>> %TEMPLATE_FILE%.new) else (
     set LINEA=%%J
     setlocal enabledelayedexpansion
-    set LINEB=!LINEA:@PRODUCT_VERSION@=%VERSION%!
-    set LINEC=!LINEB:@COMMIT_SHA@=%REPO_SHA%!
-    echo !LINEC!>> %TEMPLATE_FILE%.new
+    set LINEB=!LINEA:@PRODUCT_NAME@=%SG_PRODUCT_NAME%!
+    set LINEC=!LINEB:@PRODUCT_VERSION@=%VERSION%!
+    set LINED=!LINEC:@COMMIT_SHA@=%REPO_SHA%!
+    echo !LINED!>> %TEMPLATE_FILE%.new
     endlocal )
     )
 endlocal

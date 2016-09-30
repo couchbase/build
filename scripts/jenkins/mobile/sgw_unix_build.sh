@@ -63,6 +63,9 @@ export OS ; export ARCH
 ARCHP=${ARCH}
 PARCH=${ARCHP}
 
+SG_PRODUCT_NAME="Couchbase Sync Gateway"
+ACCEL_PRODUCT_NAME="Couchbase SG Accel"
+
 EXEC=sync_gateway
 ACCEL_EXEC=sg_accel
 ACCEL_NAME=sg-accel
@@ -195,7 +198,8 @@ TEMPLATE_FILES="${SGW_DIR}/rest/api.go"
 echo ======== insert build meta-data ==============
 for TF in ${TEMPLATE_FILES}
   do
-    cat ${TF} | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
+    cat ${TF} | sed -e "s,@PRODUCT_NAME@,${SG_PRODUCT_NAME},g" \
+              | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
               | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
     mv  ${TF}      ${TF}.orig
     mv  ${TF}.new  ${TF}
