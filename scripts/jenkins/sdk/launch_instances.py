@@ -18,11 +18,12 @@ if len(sys.argv) > 2:
 if job == 'net-sdk':
     ami_id = 'ami-9e06d0fe'
     sg_id = ['sg-8cd93bf5']
+    inst_type = 'c4.xlarge'
 elif job == 'php-sdk':
     ami_id = 'ami-b580c6a2'
     sg_id = ['sg-db3367a1']
+    inst_type = 'c4.2xlarge'
 
-inst_type = 'c4.xlarge'
 
 boto_ec2_obj = boto3.resource('ec2')
 instances = boto_ec2_obj.create_instances(
