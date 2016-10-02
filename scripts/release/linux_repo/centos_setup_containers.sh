@@ -1,9 +1,11 @@
 #!/bin/bash
 sudo yum install -y createrepo wget
 
-cd /etc/yum.repos.d
-wget http://s3tools.org/repo/RHEL_6/s3tools.repo
-yum install -y s3cmd
+pushd /etc/yum.repos.d
+sudo wget http://s3tools.org/repo/RHEL_6/s3tools.repo
+sudo yum install -y s3cmd
+popd 
+
 cp ~/.ssh/live.s3cfg ~/.s3cfg
 
 gpg --import ~/.ssh/79CF7903.priv.gpg 
