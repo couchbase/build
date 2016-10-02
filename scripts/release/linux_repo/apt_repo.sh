@@ -7,6 +7,7 @@
 
 edition=$1
 release=$2
+upload=$3
 
 function help() {
     cat <<HELP_STRING
@@ -57,5 +58,7 @@ done
 ./prep_deb.sh
 ./seed_deb.sh $edition
 ./import_deb.sh $release $edition
-./upload_deb.sh $edition --init
-./upload_meta.sh --init
+if [ "$upload" == "yes" ]; then
+    ./upload_deb.sh $edition --init
+    ./upload_meta.sh --init
+fi
