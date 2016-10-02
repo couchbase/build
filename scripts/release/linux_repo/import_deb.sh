@@ -28,7 +28,8 @@ function usage
 function fetch_deb
 {
     package=${1}
-    latestbuilds="http://latestbuilds.hq.couchbase.com/couchbase-server/sherlock"
+    rel_name=${2}
+    latestbuilds="http://172.23.120.24/builds/latestbuilds/couchbase-server/${rel_name}"
     if [[ ! -e ${package} ]] ; then echo "fetching ${package}" ; wget ${latestbuilds}/${package} ; else echo "alread have ${package}" ; fi
 }
 
@@ -36,10 +37,12 @@ function get_version_base
 {
     local __result_rel_num=$1
     local __result_bld_num=$2
+    local __result_release=$3
 
-    local versionarg=$3
+    local versionarg=$4
     local rel_num
     local bld_num
+    local rel_name
 
     vrs_rex='([0-9]\.[0-9]\.[0-9])-([0-9]{1,})'
 
@@ -56,14 +59,22 @@ function get_version_base
         exit
     fi
 
+    if [[ $rel_num == 4.0* || $rel_num == 4.1* ]]; then
+        rel_name=sherlock
+    elif [[ $rel_num == 4.5* || $rel_num == 4.6* ]]; then
+        rel_name=watson
+    fi
+
     eval $__result_rel_num="'$rel_num'"
     eval $__result_bld_num="'$bld_num'"
+    eval $__result_release="'$rel_name'"
 }
 
 VER_REX='[0-9]\.[0-9]\.[0-9]-[0-9]{1,}'
 
 VERSION=$1 ; shift ; if [[ ! ${VERSION} ]] ; then read -p "Release: "  VERSION ; fi
-get_version_base BASEVER BLDNUM ${VERSION}
+
+get_version_base BASEVER BLDNUM RELEASE ${VERSION}
 
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
 if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
@@ -72,14 +83,17 @@ REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb
 
 echo "Importing into local ${EDITION} repo at ${REPO}"
 
-fetch_deb ${BLDNUM}/couchbase-server-${EDITION}_${VERSION}-ubuntu12.04_amd64.deb
+fetch_deb ${BLDNUM}/couchbase-server-${EDITION}_${VERSION}-ubuntu12.04_amd64.deb $RELEASE
 reprepro -T deb -V --ignore=wrongdistribution --basedir ${REPO}  includedeb  precise couchbase-server-${EDITION}_${VERSION}-ubuntu12.04_amd64.deb
 
-fetch_deb ${BLDNUM}/couchbase-server-${EDITION}_${VERSION}-ubuntu14.04_amd64.deb
+fetch_deb ${BLDNUM}/couchbase-server-${EDITION}_${VERSION}-ubuntu14.04_amd64.deb $RELEASE
 reprepro -T deb -V --ignore=wrongdistribution --basedir ${REPO}  includedeb  trusty  couchbase-server-${EDITION}_${VERSION}-ubuntu14.04_amd64.deb
 
-fetch_deb ${BLDNUM}/couchbase-server-${EDITION}_${VERSION}-debian7_amd64.deb
+fetch_deb ${BLDNUM}/couchbase-server-${EDITION}_${VERSION}-debian7_amd64.deb $RELEASE
 reprepro -T deb -V --ignore=wrongdistribution --basedir ${REPO}  includedeb  wheezy  couchbase-server-${EDITION}_${VERSION}-debian7_amd64.deb
+
+fetch_deb ${BLDNUM}/couchbase-server-${EDITION}_${VERSION}-debian8_amd64.deb $RELEASE
+reprepro -T deb -V --ignore=wrongdistribution --basedir ${REPO}  includedeb  jessie couchbase-server-${EDITION}_${VERSION}-debian8_amd64.deb
 
 echo ""
 echo "local repo ready at ${REPO}"
