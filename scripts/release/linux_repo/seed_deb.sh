@@ -66,6 +66,15 @@ echo "Version: 7.0"                                                 >> ${OUTFILE
 echo "Components: wheezy/main"                                      >> ${OUTFILE}
 echo "Architectures: amd64 source"                                  >> ${OUTFILE}
 echo "Description: Couchbase ${EDITION_NAME} Repository "           >> ${OUTFILE}
+echo ""                                                             >> ${OUTFILE}
+echo "Origin: couchbase"                                            >> ${OUTFILE}
+echo "SignWith: ${KEY}"                                             >> ${OUTFILE}
+echo "Suite: jessie"                                                >> ${OUTFILE}
+echo "Codename: jessie"                                             >> ${OUTFILE}
+echo "Version: 7.0"                                                 >> ${OUTFILE}
+echo "Components: jessie/main"                                      >> ${OUTFILE}
+echo "Architectures: amd64 source"                                  >> ${OUTFILE}
+echo "Description: Couchbase ${EDITION_NAME} Repository "           >> ${OUTFILE}
 
 echo ""
 echo "Ready to import into repositories under ${LOCAL_REPO_ROOT}"

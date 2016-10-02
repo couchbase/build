@@ -77,7 +77,7 @@ function write_sources
             echo "deb  ${HTTP_PACKAGE_ROOT}/${EDITION}/deb/  ${UBUNTU}/${UBUNTU} main"           >> ${LISTFILE}
             echo "deb  http://security.ubuntu.com/ubuntu     ${UBUNTU}-security  main"           >> ${LISTFILE}
         done
-        for DEBIAN in wheezy
+        for DEBIAN in wheezy jessie
           do
             SRCL_DIR=${LOCAL_REPO_ROOT}/sources.list.d/${DEBIAN}/${EDITION}
             mkdir -p ${SRCL_DIR}
