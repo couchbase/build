@@ -24,7 +24,8 @@ function usage
 function fetch_rpm
 {
     package=${1}
-    latestbuilds="http://latestbuilds.hq.couchbase.com/couchbase-server/sherlock"
+    rel_name=${2}
+    latestbuilds="http://172.23.120.24/builds/latestbuilds/couchbase-server/${rel_name}"
     if [[ ! -e ${package} ]] ; then echo "fetching ${package}" ; wget ${latestbuilds}/${package} ; else echo "alread have ${package}" ; fi
 }
 
@@ -32,10 +33,12 @@ function get_version_base
 {
     local __result_rel_num=$1
     local __result_bld_num=$2
+    local __result_release=$3
 
-    local versionarg=$3
+    local versionarg=$4
     local rel_num
     local bld_num
+    local rel_name
 
     vrs_rex='([0-9]\.[0-9]\.[0-9])-([0-9]{1,})'
 
@@ -52,13 +55,20 @@ function get_version_base
         exit
     fi
 
+    if [[ $rel_num == 4.0* || $rel_num == 4.1* ]]; then
+        rel_name=sherlock
+    elif [[ $rel_num == 4.5* || $rel_num == 4.6* ]]; then
+        rel_name=watson
+    fi
+
     eval $__result_rel_num="'$rel_num'"
     eval $__result_bld_num="'$bld_num'"
+    eval $__result_release="'$rel_name'"
 }
 
 VERSION=$1 ; shift ; if [[ ! ${VERSION} ]] ; then read -p "Release: "  VERSION ; fi
 
-get_version_base BASEVER BLDNUM ${VERSION}
+get_version_base BASEVER BLDNUM RELEASE ${VERSION}
 
 
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
@@ -72,7 +82,7 @@ echo ""
 
 for CENTOS in 6 7
 do
-    fetch_rpm  ${BLDNUM}/couchbase-server-${EDITION}-${VERSION}-centos${CENTOS}.x86_64.rpm
+    fetch_rpm  ${BLDNUM}/couchbase-server-${EDITION}-${VERSION}-centos${CENTOS}.x86_64.rpm $RELEASE
     cp couchbase-server-${EDITION}-${VERSION}-centos${CENTOS}.x86_64.rpm  ${REPO}/${CENTOS}/x86_64/couchbase-server-${EDITION}-${BASEVER}-centos${CENTOS}.x86_64.rpm
 done
 
