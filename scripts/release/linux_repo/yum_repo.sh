@@ -7,6 +7,7 @@
 
 edition=$1
 release=$2
+upload=$3
 
 function help() {
     cat <<HELP_STRING
@@ -58,5 +59,7 @@ done
 ./seed_rpm.sh $edition
 ./import_rpm.sh $release $edition
 ./sign_rpm.sh $release $edition
-./upload_rpm.sh $edition --init
-./upload_meta.sh --init
+if [ "$upload" == "yes" ]; then
+    ./upload_rpm.sh $edition --init
+    ./upload_meta.sh --init
+fi
