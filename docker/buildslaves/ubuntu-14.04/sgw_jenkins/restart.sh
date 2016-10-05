@@ -12,4 +12,4 @@ fi
 # Port number 23xx used by SGW
 docker run --name=$container_name -v /home/couchbase/jenkinsdocker-ssh:/ssh \
         --volume=/home/couchbase/latestbuilds:/latestbuilds \
-        -p 2321:22 -d ceejatec/ubuntu1404-sgw-build:20160810
+        -p 2321:22 -d ceejatec/ubuntu1404-sgw-build:20161001
