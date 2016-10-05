@@ -1,4 +1,4 @@
--#!/bin/bash -e
+#!/bin/bash -e
 
 # Clean old artifacts
 workspace=`pwd`
@@ -54,6 +54,6 @@ echo "Success! Archiving CBQ ${CBQ_VER}-${latest_cbq}"
 mkdir "${workspace}/artifacts"
 cd "${CBQ_BUILDS}/${latest_cbq}"
 cp cbq-linux cbq-macos cbq-windows.exe "${workspace}/artifacts"
-chmod 755 "${workspace}/artifacts/*"
+chmod 755 "${workspace}/artifacts/"*
 
 
