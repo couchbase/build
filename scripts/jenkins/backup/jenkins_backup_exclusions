@@ -1,8 +1,6 @@
 backup/*
-config-history/*
 fingerprints/*
 jobs/*/workspace*
 jobs/*/builds/*/log
 jobs/*/builds/*/archive
-plugins/*/*
-plugins/*.bak
+
