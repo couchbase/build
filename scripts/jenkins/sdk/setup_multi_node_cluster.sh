@@ -58,7 +58,7 @@ rest_password:${CB_PASS}
 
 [_1]
 ip:${NODE_1}
-services:kv,index,n1ql
+services:kv,index,n1ql,fts
 " > node_conf.ini
 
 if [ $num_nodes -eq 1 ]; then
