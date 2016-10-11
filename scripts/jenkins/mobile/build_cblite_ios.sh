@@ -51,6 +51,17 @@ if [[ ! ${5} ]] ; then usage ; exit 55 ; fi
 OS=${5}
 EDN_PRFX=`echo ${OS} | tr '[a-z]' '[A-Z]'`
 
+if [[ ${6} ]] ; then LIBSQLCIPHER_BRANCH=${6} ; else LIBSQLCIPHER_BRANCH=${GITSPEC} ; fi
+
+if [[ ${7} ]] ; then REL_STAGE=${7} ; fi
+if [ -z $REL_STAGE ]
+then
+    CBL_VERSION=${VERSION}
+else
+    REVISION=${VERSION}${REL_STAGE}-${BLD_NUM}
+    CBL_VERSION=${VERSION}${REL_STAGE}
+fi
+
 BASE_DIRNAME=couchbase-lite-${OS}-${EDITION}
 BASE_DIR=${WORKSPACE}/${BASE_DIRNAME}
 BUILDDIR=${BASE_DIR}/build
@@ -147,7 +158,7 @@ else
     exit 555
 fi
 
-LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${GITSPEC}/${OS}/${REVISION}
+LATESTBUILDS_CBL=http://latestbuilds.hq.couchbase.com/couchbase-lite-ios/${VERSION}${REL_STAGE}/${OS}/${REVISION}
 
 LOG_FILE=${WORKSPACE}/${OS}_${EDITION}_build_results.log
 if [[ -e ${LOG_FILE} ]] ; then rm -f ${LOG_FILE} ; fi
@@ -209,12 +220,14 @@ else
 fi
 
 cd  ${BASE_DIRNAME}
-if [[ !  `git branch | grep ${BRANCH}` ]]
+if [[ ! `git branch | grep ${BRANCH}` ]]
 then
-    git branch -t ${BRANCH} origin/${BRANCH}
+    echo "Create ${BRANCH}"
+#    git branch -t ${BRANCH} origin/${BRANCH}
+    git checkout --track -B ${BRANCH} origin/${BRANCH}
 fi
-git fetch
-git checkout      ${BRANCH}
+
+git checkout -B ${BRANCH}
 git pull  origin  ${BRANCH}
 git submodule update --init --recursive
 git show --stat
@@ -238,15 +251,15 @@ then
     if [[ -e ${SQLCIPHER} ]] ; then rm -rf ${SQLCIPHER} ; fi
     git clone https://github.com/couchbaselabs/couchbase-lite-libsqlcipher.git ${SQLCIPHER}
     cd ${SQLCIPHER}
-    git checkout ${BRANCH}
-    git pull origin ${BRANCH}
+    git checkout ${LIBSQLCIPHER_BRANCH}
+    git pull origin ${LIBSQLCIPHER_BRANCH}
     cd ${BASE_DIR}
     if [[ ! -e ${LIB_SQLCIPHER_DEST} ]] ; then mkdir -p ${LIB_SQLCIPHER_DEST} ; fi
     cp ${LIB_SQLCIPHER} ${LIB_SQLCIPHER_DEST}
 fi
 
 echo "Building target=${OS} ${SDK}"
-XCODE_CMD="xcodebuild CURRENT_PROJECT_VERSION=${BLD_NUM} CBL_VERSION_STRING=${VERSION} CBL_SOURCE_REVISION=${REPO_SHA}"
+XCODE_CMD="xcodebuild CURRENT_PROJECT_VERSION=${BLD_NUM} CBL_VERSION_STRING=${CBL_VERSION} CBL_SOURCE_REVISION=${REPO_SHA}"
 
 echo "using command: ${XCODE_CMD}"
 echo "using command: ${XCODE_CMD}"                                            >>  ${LOG_FILE}
