@@ -128,7 +128,7 @@ curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=256
 sleep 10
 
 #set storage type
-curl -i -u ${CB_USER}:${CB_PASS} -X POST http://${p0}:8091/settings/indexes -d 'storageMode=memory_optimized'
+curl -i -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/settings/indexes -d 'storageMode=memory_optimized'
 sleep 2
 
 # create index for buckets
