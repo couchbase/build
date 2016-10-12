@@ -137,6 +137,9 @@ curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=
 echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `auth-index` ON `authenticated` USING GSI'
 curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `auth-index` ON `authenticated` USING GSI'
 
+echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `idx_travel` ON `travel-sample` USING GSI'
+curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `idx_travel` ON `travel-sample` USING GSI'
+
 
 # add the remainling 3 nodes
 for ip in ${priv_ip_list[@]:1}; do
