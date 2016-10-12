@@ -127,9 +127,11 @@ echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaM
 curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=256 -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
 sleep 10
 
-# create index for default bucket
-echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX default-index ON default USING GSI'
-curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX default-index ON default USING GSI'
+# create index for buckets
+echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `default-index` ON `default` USING GSI'
+curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `default-index` ON `default` USING GSI'
+echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `auth-index` ON `authenticated` USING GSI'
+curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `auth-index` ON `authenticated` USING GSI'
 
 
 # add the remainling 3 nodes
