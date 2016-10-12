@@ -119,13 +119,17 @@ curl -v -X POST -u ${CB_USER}:${CB_PASS} http://${ip0}:8091/pools/default -d mem
 sleep 10
 
 # create default bucket
-echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=256 -d authType=sasl -d saslPassword="" -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
-curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=256 -d authType=sasl -d saslPassword="" -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
+echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=100 -d bucketType=couchbase -d authType=none -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
+curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=100 -d bucketType=couchbase -d authType=none -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
 
 # create authenticated bucket
-echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=256 -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
-curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=256 -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
-sleep 10
+echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=100 -d bucketType=couchbase -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
+curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=100 -d bucketType=couchbase -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
+
+# create memcached bucket
+echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none http://${ip0}:8091/pools/default/buckets
+curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none http://${ip0}:8091/pools/default/buckets
+
 
 #set storage type
 curl -i -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/settings/indexes -d 'storageMode=memory_optimized'
@@ -139,6 +143,9 @@ curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=
 
 echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `idx_travel` ON `travel-sample` USING GSI'
 curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `idx_travel` ON `travel-sample` USING GSI'
+
+echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `idx_beer` ON `beer-sample` USING GSI'
+curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `idx_beer` ON `beer-sample` USING GSI'
 
 
 # add the remainling 3 nodes
