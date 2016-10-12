@@ -104,6 +104,7 @@ popd
 
 
 # ==== setup the cluster
+# sample buckets
 echo curl -v -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/sampleBuckets/install -d '["beer-sample"]'
 curl -v -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/sampleBuckets/install -d '["beer-sample"]'
 sleep 10
@@ -112,16 +113,26 @@ echo curl -v -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/sampleBuckets/i
 curl -v -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/sampleBuckets/install -d '["travel-sample"]'
 sleep 10
 
+# set memory quota
 echo curl -v -X POST -u ${CB_USER}:${CB_PASS} http://${ip0}:8091/pools/default -d memoryQuota=900 -d indexMemoryQuota=900
 curl -v -X POST -u ${CB_USER}:${CB_PASS} http://${ip0}:8091/pools/default -d memoryQuota=900 -d indexMemoryQuota=900
 sleep 10
 
+# create default bucket
 echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=256 -d authType=sasl -d saslPassword="" -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
 curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default -d ramQuotaMB=256 -d authType=sasl -d saslPassword="" -d replicaNumber=1 -d proxyPort=11221 http://${ip0}:8091/pools/default/buckets
-echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default1 -d ramQuotaMB=256 -d authType=none -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
-curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=default1 -d ramQuotaMB=256 -d authType=none -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
+
+# create authenticated bucket
+echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=256 -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
+curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=256 -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
 sleep 10
 
+# create index for default bucket
+echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX default-index ON default USING GSI'
+curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX default-index ON default USING GSI'
+
+
+# add the remainling 3 nodes
 for ip in ${priv_ip_list[@]:1}; do
     url="http://${ip0}:8091/controller/addNode"
     echo curl -v -u ${CB_USER}:${CB_PASS} $url -d "hostname=${ip}&user=${CB_USER}&password=${CB_PASS}&services=kv"
@@ -131,6 +142,7 @@ done
 
 sleep 10
 
+# rebalance
 url="http://${ip0}:8091/controller/rebalance"
 kn="knownNodes=ns_1@${priv_ip0}"
 for ip in ${priv_ip_list[@]:1}; do
