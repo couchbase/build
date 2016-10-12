@@ -127,13 +127,15 @@ echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaM
 curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=100 -d bucketType=couchbase -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
 
 # create memcached bucket
-echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none http://${ip0}:8091/pools/default/buckets
-curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none http://${ip0}:8091/pools/default/buckets
+echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none -d proxyPort=11223 http://${ip0}:8091/pools/default/buckets
+curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none -d proxyPort=11223 http://${ip0}:8091/pools/default/buckets
 
+sleep 5
 
 #set storage type
 curl -i -u ${CB_USER}:${CB_PASS} -X POST http://${ip0}:8091/settings/indexes -d 'storageMode=memory_optimized'
-sleep 2
+
+sleep 15
 
 # create index for buckets
 echo curl -v -u ${CB_USER}:${CB_PASS} http://${ip0}:8093/query/service -d 'statement=CREATE PRIMARY INDEX `default-index` ON `default` USING GSI'
