@@ -127,8 +127,8 @@ echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaM
 curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=authenticated -d ramQuotaMB=100 -d bucketType=couchbase -d authType=sasl -d saslPassword="secret" -d replicaNumber=1 -d proxyPort=11222 http://${ip0}:8091/pools/default/buckets
 
 # create memcached bucket
-echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none -d proxyPort=11223 http://${ip0}:8091/pools/default/buckets
-curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none -d proxyPort=11223 http://${ip0}:8091/pools/default/buckets
+echo curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none -d proxyPort=11223 -d flushEnabled=1 http://${ip0}:8091/pools/default/buckets
+curl -v -X POST -u ${CB_USER}:${CB_PASS} -d name=memcached -d ramQuotaMB=100 -d bucketType=memcached -d authType=none -d proxyPort=11223 -d flushEnabled=1 http://${ip0}:8091/pools/default/buckets
 
 sleep 5
 
