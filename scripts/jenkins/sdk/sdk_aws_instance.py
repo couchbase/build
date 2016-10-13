@@ -7,7 +7,7 @@ import boto3
 import botocore
 from optparse import OptionParser
 
-class winsdk_instance():
+class awssdk_instance():
     def __init__(self, iid):
         self.iid = iid
 
@@ -162,15 +162,15 @@ if __name__ == '__main__':
 
     (options, args) = parser.parse_args()
     if options.iid:
-        wsi = winsdk_instance(options.iid)
+        asi = awssdk_instance(options.iid)
         if options.cmd:
             if options.cmd == 'start' and options.job:
-                wsi.start(options.job)
+                asi.start(options.job)
             elif options.cmd == 'done' and options.job:
-                wsi.done(options.job)
+                asi.done(options.job)
             elif options.cmd == 'monitor':
-                wsi.monitor(options.wait_time)
+                asi.monitor(options.wait_time)
             elif options.cmd == 'status':
-                wsi.status()
+                asi.status()
             elif options.cmd == 'terminate':
-                wsi.terminate()
+                asi.terminate()
