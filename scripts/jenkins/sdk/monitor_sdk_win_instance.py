@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import sys
+import os
 import boto3
 import botocore
 import datetime
@@ -47,26 +48,39 @@ client = boto3.client('ec2')
 
 processed = []
 responses = client.describe_instances()
-gotinstance = 0
+gotinstance = []
 for resp in responses:
     for reserv in responses['Reservations']:
         for inst in reserv['Instances']:
             if inst['InstanceId'] in processed:
                 continue
-            tags = inst['Tags']
+            tags = inst.get('Tags', [])
             for t in tags:
                 if t['Key'] == 'Name':
                     if t['Value'] == iname:
                         if inst['InstanceId'] == iid:
                             if check(inst, int(num_hours), 'build'):
-                                gotinstance = 1
+                                gotinstance.append((inst['InstanceId'], 'build'))
                 # on my last week, due to lack of time, also hacking to monitor sdk test instances
                 # doesn't really make sense to take iid parameter for the build instance
                 # but also blindly check for instances; but...
                 if t['Key'] == 'use':
                     if t['Value'].find('-sdk') != -1:
                         if check(inst, int(num_hours), 'test'):
-                            gotinstance = 1
+                            gotinstance.append((inst['InstanceId'], 'test'))
             processed.append(inst['InstanceId'])
 
-sys.exit(gotinstance)
+if gotinstance:
+    print
+    print
+    print '===================================================================================='
+    print 'Following instance likely needs be stopped/terminated (check if they are being used)'
+    print 'AWS_PROFILE: %s' %(os.environ.get('AWS_PROFILE', 'Unknown'))
+    for i in gotinstance:
+        action = 'stop'
+        if i[1] == 'test':
+            action = 'terminate'
+        print 'InstanceId: %s (please %s)' %(i[0], action)
+    sys.exit(1)
+else:
+    sys.exit(0)
