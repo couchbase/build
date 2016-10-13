@@ -47,13 +47,13 @@ client = boto3.client('ec2')
 
 processed = []
 responses = client.describe_instances()
+gotinstance = 0
 for resp in responses:
     for reserv in responses['Reservations']:
         for inst in reserv['Instances']:
             if inst['InstanceId'] in processed:
                 continue
             tags = inst['Tags']
-            gotinstance = 0
             for t in tags:
                 if t['Key'] == 'Name':
                     if t['Value'] == iname:
