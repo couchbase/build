@@ -170,3 +170,76 @@ echo curl -v -u ${CB_USER}:${CB_PASS} -X POST $url -d "ejectedNodes=&${kn}"
 curl -v -u ${CB_USER}:${CB_PASS} -X POST $url -d "ejectedNodes=&${kn}"
 
 sleep 20
+
+# create fts index
+curl -u Administrator:password -XPUT -H "Content-Type: application/json" \
+ http://${ip0}:8094/api/index/idx_travel \
+ -d '{
+  "type": "fulltext-index",
+  "name": "idx_travel",
+  "sourceType": "couchbase",
+  "sourceName": "travel-sample",
+  "planParams": {
+    "maxPartitionsPerPIndex": 32,
+    "numReplicas": 0,
+    "hierarchyRules": null,
+    "nodePlanParams": null,
+    "pindexWeights": null,
+    "planFrozen": false
+  },
+  "params": {
+    "mapping": {
+      "byte_array_converter": "json",
+      "default_analyzer": "standard",
+      "default_datetime_parser": "dateTimeOptional",
+      "default_field": "_all",
+      "default_mapping": {
+        "display_order": "1",
+        "dynamic": true,
+        "enabled": false
+      },
+      "default_type": "_default",
+      "index_dynamic": true,
+      "store_dynamic": false,
+      "type_field": "type",
+      "types": {
+        "landmark": {
+          "display_order": "0",
+          "dynamic": false,
+          "enabled": true,
+          "properties": {
+            "content": {
+              "dynamic": false,
+              "enabled": true,
+              "fields": [
+                {
+                  "analyzer": "",
+                  "display_order": "0",
+                  "include_in_all": true,
+                  "include_term_vectors": true,
+                  "index": true,
+                  "name": "description",
+                  "store": true,
+                  "type": "text"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "store": {
+      "kvStoreName": "forestdb"
+    }
+  },
+  "sourceParams": {
+    "clusterManagerBackoffFactor": 0,
+    "clusterManagerSleepInitMS": 0,
+    "clusterManagerSleepMaxMS": 2000,
+    "dataManagerBackoffFactor": 0,
+    "dataManagerSleepInitMS": 0,
+    "dataManagerSleepMaxMS": 2000,
+    "feedBufferAckThreshold": 0,
+    "feedBufferSizeBytes": 0
+  }
+}'
