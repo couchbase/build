@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo yum install -y createrepo wget
+sudo yum install -y createrepo wget rpm-sign
 
 pushd /etc/yum.repos.d
 sudo wget http://s3tools.org/repo/RHEL_6/s3tools.repo
