@@ -53,8 +53,9 @@ echo
 echo "Success! Archiving CBQ ${CBQ_VER}-${latest_cbq}"
 mkdir "${workspace}/artifacts"
 cd "${CBQ_BUILDS}/${latest_cbq}"
-cp cbq-linux cbq-macos cbq-windows.exe "${workspace}/artifacts"
-chmod 755 "${workspace}/artifacts/cbq-"*
+cp cbq-linux cbq-macos "${workspace}/artifacts"
+cp cbq-windows.exe "${workspace}/artifacts/cbq.exe"
+chmod 755 "${workspace}/artifacts/cbq"*
 cp *-manifest.xml "${workspace}/artifacts/cbq-manifest.xml"
 cp *-properties.json "${workspace}/artifacts/cbq-properties.json"
 cp *.properties "${workspace}/artifacts/cbq.properties"
