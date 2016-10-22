@@ -46,7 +46,7 @@ tar xzf "${CBAS_BUILDS}/${latest_cbas}/analytics-${CBAS_VER}-${latest_cbas}-sour
 # Build and test
 echo "Building and testing CBQ interop"
 cd asterixdb
-mvn verify -Dtest=fffff -Dit.test=CbqInteropIT -Dcbq.exe.path="${workspace}/cbq"
+mvn -B verify -Dtest=fffff -Dit.test=CbqInteropIT -Dcbq.exe.path="${workspace}/cbq"
 
 # If we get here, all is well - archive this CBQ build
 echo
