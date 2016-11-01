@@ -69,7 +69,7 @@ os.makedirs(slave_dir)
 print "Creating new {0} container...".format(slave)
 run_args = [
      "docker", "run", "--name={0}".format(slave), "--detach=true",
-     "--security-opt=apparmor:docker-default-ptrace",
+     "--security-opt=seccomp=unconfined",
      "--publish={0}:22".format(port),
      "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
      "--volume=/etc/resolv.conf:/etc/resolv.conf",
