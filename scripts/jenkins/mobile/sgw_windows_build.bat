@@ -46,8 +46,8 @@ for /f "tokens=1-2 delims=-" %%A in ("%PLATFRM%") do (
     set PROC_ARCH=%%B
 )
 
-set SG_PRODUCT_NAME="Couchbase Sync Gateway"
-set ACCEL_PRODUCT_NAME="Couchbase SG Accel"
+set "SG_PRODUCT_NAME=Couchbase Sync Gateway"
+set "ACCEL_PRODUCT_NAME=Couchbase SG Accel"
 
 set GOOS=%OS%
 set SGW_EXEC=sync_gateway.exe
