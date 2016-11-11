@@ -60,17 +60,10 @@ if os.path.isdir(slave_dir):
 os.makedirs(slave_dir)
 
 # Finally, create new slave container.
-# Note: if you get an error about the "docker-default-ptrace" AppArmor profile
-# not existing, you can create it as follows (as root on the docker host) :
-# 1. Copy /etc/apparmor.d/docker to /etc/apparmor.d/docker-ptrace
-# 2. Edit this file to change the profile name to "docker-default-ptrace" and
-#    add a line containing "ptrace," (with the trailing comma) inside the block
-# 3. Run /etc/init.d/apparmor reload
 print "Creating new {0} container...".format(slave)
 run_args = [
      "docker", "run", "--name={0}".format(slave), "--detach=true",
-     "--security-opt=apparmor:docker-default-ptrace",
-     "--security-opt=seccomp=unconfined",
+     "--privileged",
      "--publish={0}:22".format(port),
      "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
      "--volume=/etc/resolv.conf:/etc/resolv.conf",
