@@ -1,0 +1,28 @@
+---
+- hosts: all
+
+  vars:
+    ansible_user: couchbase
+    ansible_pass: couchbase
+    
+  tasks:
+    - name: Update build repo
+      git:
+        repo: git://github.com/couchbase/build
+        dest: /home/couchbase/build
+
+    - name: Create directories
+      file:
+        name: "{{ item }}"
+        state: directory
+      with_items:
+        - /home/couchbase/slaves/shared_ccache
+
+    - name: Restart CV container
+      shell:
+        /home/couchbase/build/docker/scripts/restart_jenkinsdocker.py
+          ceejatec/ubuntu-1204-couchbase-cv:20160304
+          {{ slave_name }}
+          2222
+          cv.jenkins.couchbase.com
+          --ccache-dir /home/couchbase/slaves/shared_ccache

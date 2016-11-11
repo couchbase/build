@@ -1,0 +1,54 @@
+---
+- hosts: all
+
+  vars:
+    ansible_user: root
+    ansible_pass: couchbase
+
+  tasks:
+    - name: Apt Update
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Get kernel version
+      shell: uname -r
+      register: uname
+      changed_when: false
+
+    - name: Install additional packages for Docker
+      apt:
+        name: "{{ item }}"
+      with_items:
+        - linux-image-extra-{{ uname.stdout }}
+        - apt-transport-https
+        - ca-certificates
+        - python-pip
+        - build-essential
+        - git
+
+    - name: Add docker key
+      shell: >
+        apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+
+    - name: Add docker apt repository
+      shell: >
+        echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | tee /etc/apt/sources.list.d/docker.list
+      args:
+        creates: /etc/apt/sources.list.d/docker.list
+
+    - name: Install Docker
+      apt:
+        name: docker-engine
+        update_cache: yes
+
+    - name: Install docker-py
+      pip:
+        name: docker-py
+        version: 1.9.0
+
+    - name: Add couchbase user to docker group
+      user:
+        name: couchbase
+        group: docker
+        append: yes

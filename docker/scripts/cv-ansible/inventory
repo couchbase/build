@@ -1,0 +1,12 @@
+[cv]
+172.23.99.43 slave_name=ubuntu12-cv-05
+172.23.99.44 slave_name=ubuntu12-cv-06
+172.23.98.46 slave_name=ubuntu12-cv-07
+172.23.98.47 slave_name=ubuntu12-cv-08
+172.23.98.48 slave_name=ubuntu12-cv-09
+172.23.98.49 slave_name=ubuntu12-cv-10
+
+[all:vars]
+ansible_user=couchbase
+ansible_ssh_pass=couchbase
+
