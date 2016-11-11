@@ -36,11 +36,23 @@ RUN apt-get update && apt-get install -y php-pear s3cmd && \
     rm -f /var/cache/apt/archives/*.deb
 
 RUN apt-get update && \
-    apt-get install -y python-pip python-dev
+    apt-get install -y python-pip python-dev libgpgme11-dev libffi-dev libssl-dev && \
+    rm -f /var/cache/apt/archives/*.deb
 
-RUN pip install awscli
-RUN pip install boto3
+# libcouchbase for "couchbase" python interface
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -LO http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-2-amd64.deb && \
+    dpkg -i couchbase-release-1.0-2-amd64.deb && \
+    apt-get update && \
+    apt-get install -y libcouchbase-dev libcouchbase2-bin && \
+    cd /tmp && \
+    rm -rf deploy /var/cache/apt/archives/*.deb
 
+# Many python deps for tools and testrunner (see CBQE-3656 for some details)
+RUN pip install awscli boto3 decorator ecdsa Fabric iniparse mercurial \
+    paramiko pycurl pygpgme urlgrabber pycrypto \
+    httplib2 futures gevent greenlet btrc couchbase
 
 # Install third-party build dependencies. Note: software-properties-common
 # is only required for add-apt-repository
@@ -58,11 +70,6 @@ RUN mkdir /tmp/deploy && \
     cd /tmp && rm -rf /tmp/deploy
 
 ENV DEBIAN_FRONTEND noninteractive
-
-
-#paramiko for testrunner
-RUN apt-get update && \
-    apt-get install -y python-paramiko
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
