@@ -40,6 +40,8 @@ def main():
         u = subprocess.Popen(
                 [os.path.join(script_dir, FETCH_PROJECT), project, path, refspec])
         u.wait()
+        if u.returncode:
+            return u.returncode
 
     return p.returncode
 
