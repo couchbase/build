@@ -6,6 +6,8 @@
 
 set -x
 
+set -e
+
 PROJECT=$1
 PROJECT_PATH=$2
 REFSPEC=$3
