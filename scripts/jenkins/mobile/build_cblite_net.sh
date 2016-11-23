@@ -41,10 +41,11 @@ VERSION=${4}
 
 BLD_NUM=${5}
 
-if [[ $6 ]] ; then  echo "setting REPO_SHA to $6"       ; REPO_SHA=$6       ; else REPO_SHA="no_sha"            ; fi
-if [[ $7 ]] ; then  echo "using TARGET $7"              ; TARGET=$7         ; else TARGET="Release_Testing"     ; fi
-if [[ $8 ]] ; then  echo "using TOOLCHAIN $8"       	; TOOLCHAIN=$8      ; else TOOLCHAIN="mono"             ; fi
-if [[ $9 ]] ; then  echo "setting TEST_OPTIONS to $9"   ; TEST_OPTIONS=$9   ; else TEST_OPTIONS="None"          ; fi
+if [[ $6 ]] ; then  echo "setting CBLDEPS_VER to $6"    ; CBLDEPS_VER=$6    ; else CBLDEPS_VER=${VERSION}       ; fi
+if [[ $7 ]] ; then  echo "setting REPO_SHA to $7"       ; REPO_SHA=$7       ; else REPO_SHA="no_sha"            ; fi
+if [[ $8 ]] ; then  echo "using TARGET $8"              ; TARGET=$8         ; else TARGET="Release_Testing"     ; fi
+if [[ $9 ]] ; then  echo "using TOOLCHAIN $9"       	; TOOLCHAIN=$9      ; else TOOLCHAIN="mono"             ; fi
+if [[ $10 ]] ; then  echo "setting TEST_OPTIONS to $10" ; TEST_OPTIONS=$10  ; else TEST_OPTIONS="None"          ; fi
 
 if [[ $BRANCH =~ feature  ]]
 then
@@ -60,7 +61,7 @@ BASE_DIR=${FRAMEWORK_DIR}/couchbase-lite-net
 SRC_DIR=${BASE_DIR}/src
 BUILD_FRAMEWORK=Couchbase.Lite.${FRAMEWORK}
 BUILD_SLN=${SRC_DIR}/${BUILD_FRAMEWORK}.sln
-NATIVES_DIR=/latestbuilds/mobiledeps/cbforest/${VERSION}
+NATIVES_DIR=/latestbuilds/mobiledeps/cbforest/${CBLDEPS_VER}
 
 STAGING_DIR=${BASE_DIR}/staging
 LITE_BIN=${STAGING_DIR}/Couchbase.Lite
@@ -141,7 +142,7 @@ elif [[ ${FRAMEWORK} =~ "iOS" ]]
 then
     cd ${last_dir}
     cp -f libCBForest-Interop.a ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt
-    if [[ ${VERSION} < 1.4.0 ]]
+    if [[ ${VERSION} < 1.4 ]]
     then
         BUILD_OPTIONS=/p:Platform=iPhone
     else
