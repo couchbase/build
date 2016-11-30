@@ -280,6 +280,18 @@ case $project in
     asterix-opt)
 	repo="git@github.com:couchbaselabs/$project.git"
 	;;
+    gocb)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    couchbase-kafka-connector)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    kafka-connect-couchbase)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    eventing)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
