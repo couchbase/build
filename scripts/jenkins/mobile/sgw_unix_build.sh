@@ -168,6 +168,7 @@ SGW_DIR=${TARGET_DIR}/${SRC_DIR}
 BLD_DIR=${SGW_DIR}/build
 STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
 
+ACCEL_DIR=${TARGET_DIR}/godeps/src/github.com/couchbaselabs/sync-gateway-accel
 ACCEL_PREFIX=/opt/couchbase-sg-accel
 ACCEL_PREFIXP=./opt/couchbase-sg-accel
 ACCEL_STAGING=${BLD_DIR}/opt/couchbase-sg-accel
@@ -303,6 +304,11 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
 fi
 
 echo ======== sg_accel package =============================
+if [[ ${VERSION} == 1.4 ]] || [[ ${VERSION} > 1.4 ]]
+then
+    cp -f ${ACCEL_DIR}/examples/basic_sg_accel_config.json ${ACCEL_STAGING}/examples
+fi
+
 cp    ${DEST_DIR}/${ACCEL_EXEC}                     ${ACCEL_STAGING}/bin/
 
 RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}/rpmbuild/

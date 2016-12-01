@@ -284,6 +284,7 @@ echo  ======= prep sync-gateway upload ==============================
 copy %STAGING%\%PKG_NAME% %SGW_DIR%\%NEW_PKG_NAME%
 
 echo ======== sg-accel package step 1==========================
+set ACCEL_DIR=%TARGET_DIR%\godeps\src\github.com\couchbaselabs\sync-gateway-accel
 set ACCEL_PREFIX=\opt\couchbase-sg-accel
 set ACCEL_PREFIXP=.\opt\couchbase-sg-accel
 set ACCEL_STAGING=%BLD_DIR%\opt\couchbase-sg-accel
@@ -306,6 +307,10 @@ GOTO skip_package_sg_accel
     del /q %ACCEL_STAGING%\%PKG_NAME%
     del /q %ACCEL_STAGING%\bin\%SGW_EXEC%
     copy %DEST_DIR%\%ACCEL_EXEC%                 %ACCEL_STAGING%\bin\
+
+    if "%VERSION%" GEQ "1.4" (
+        copy /f/q %ACCEL_DIR%\examples\basic_sg_accel_config.json %ACCEL_STAGING%\examples
+    )
 
     echo %BLD_DIR%' => ' .\%PKGR% %ACCEL_PREFIX% %ACCEL_PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %ACCEL_NAME%
     .\%PKGR% %ACCEL_PREFIX% %ACCEL_PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %ACCEL_NAME%
