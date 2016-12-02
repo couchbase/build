@@ -308,8 +308,9 @@ GOTO skip_package_sg_accel
     del /q %ACCEL_STAGING%\bin\%SGW_EXEC%
     copy %DEST_DIR%\%ACCEL_EXEC%                 %ACCEL_STAGING%\bin\
 
-    if "%VERSION%" GEQ "1.4" (
-        copy /f/q %ACCEL_DIR%\examples\basic_sg_accel_config.json %ACCEL_STAGING%\examples
+    if "%REL_VER%" GEQ "1.4" (
+        echo ".................copy basic_sg_accel_config files to %ACCEL_STAGING%\examples"
+        copy /y %ACCEL_DIR%\examples\basic_sg_accel_config.json %ACCEL_STAGING%\examples\
     )
 
     echo %BLD_DIR%' => ' .\%PKGR% %ACCEL_PREFIX% %ACCEL_PREFIXP% %VERSION% %REPO_SHA% %PLATFORM% %ARCHP% %ACCEL_NAME%
