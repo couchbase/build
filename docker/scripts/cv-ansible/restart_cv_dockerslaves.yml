@@ -18,6 +18,16 @@
       with_items:
         - /home/couchbase/slaves/shared_ccache
 
+    - name: Remove old jenkinsdocker-ssh
+      file:
+        name: /home/couchbase/jenkinsdocker-ssh
+        state: absent
+
+    - name: Copy new jenkinsdocker-ssh
+      copy:
+        src: /home/couchbase/jenkinsdocker-ssh
+        dest: /home/couchbase
+
     - name: Restart CV container
       shell:
         /home/couchbase/build/docker/scripts/restart_jenkinsdocker.py

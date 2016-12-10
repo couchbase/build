@@ -52,3 +52,22 @@
         name: couchbase
         group: docker
         append: yes
+
+    - name: Create docker systemd drop-in directory
+      file:
+        path: /etc/systemd/system/docker.service.d
+        state: directory
+        mode: 0755
+
+    - name: Create docker systemd drop-in config file
+      copy:
+        src: docker-service.conf
+        dest: /etc/systemd/system/docker.service.d/docker-service.conf
+        backup: yes
+
+    - name: Restart docker systemd service
+      systemd:
+        daemon_reload: yes
+        name: docker
+        state: restarted
+

@@ -8,7 +8,7 @@ cd `dirname $0`
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 cv-zz-lightweight 3224 cv.jenkins.couchbase.com &
 
 # Launch additional CV slaves using Ansible; see cv-ansible/README
-docker run --rm -i -v `pwd`/cv-ansible:/mnt williamyeh/ansible:ubuntu16.04 /mnt/restart_cv_dockerslaves.sh &
+docker run --rm -i -v /home/couchbase/jenkinsdocker-ssh:/home/couchbase/jenkinsdocker-ssh -v `pwd`/cv-ansible:/mnt williamyeh/ansible:ubuntu16.04 /mnt/restart_cv_dockerslaves.sh &
 
 # Factory CV slaves
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20151009 cv-sherlocker-ubuntu12.04-01 2229 &
