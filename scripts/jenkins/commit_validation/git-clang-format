@@ -99,6 +99,8 @@ def main():
                        'excluding the period and case-insensitive')),
   p.add_argument('-f', '--force', action='store_true',
                  help='allow changes to unstaged files')
+  p.add_argument('-m', '--maintain', action='store_true',
+                 help='only select files which were already conforming')
   p.add_argument('-p', '--patch', action='store_true',
                  help='select hunks interactively')
   p.add_argument('-q', '--quiet', action='count', default=0,
@@ -125,6 +127,8 @@ def main():
   if opts.verbose >= 1:
     ignored_files = set(changed_lines)
   filter_by_extension(changed_lines, opts.extensions.lower().split(','))
+  if opts.maintain:
+    filter_non_conforming(changed_lines, commit, binary=opts.binary, style=opts.style)
   if opts.verbose >= 1:
     ignored_files.difference_update(changed_lines)
     if ignored_files:
@@ -302,6 +306,35 @@ def filter_by_extension(dictionary, allowed_extensions):
     base_ext = filename.rsplit('.', 1)
     if len(base_ext) == 1 or base_ext[1].lower() not in allowed_extensions:
       del dictionary[filename]
+
+
+def filter_non_conforming(changed_lines, commit, binary='clang-format',
+                          style=None):
+  """Remove every file from `changed_lines` that wasn't already
+  conforming in `commit`"""
+
+  for filename in changed_lines.keys():
+    cmd = ['git', 'show', commit + ':' + filename]
+    git_show = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+    git_show.stdin.close()
+
+    clang_format_cmd = [binary, '-output-replacements-xml']
+    try:
+      clang_format = subprocess.Popen(clang_format_cmd, stdin=git_show.stdout,
+                                      stdout=subprocess.PIPE)
+    except OSError as e:
+      if e.errno == errno.ENOENT:
+        die('cannot find executable "%s"' % binary)
+      else:
+        raise
+
+    git_show.stdout.close()
+    changes = clang_format.communicate()[0]
+
+    # Suggested at least one actual change
+    if '<replacement ' in changes:
+      del changed_lines[filename]
 
 
 def cd_to_toplevel():

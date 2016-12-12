@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# Common script run by various Jenkins builds to check the diff
+# for any code format changes as chosen by git-clang-format
+
+# Checks out all the gerrit changes with change-ids matching
+# $GERRIT_PATCHSET_REVISION in an appropriate branch for the current
+# manifest from Gerrit server GERRIT_HOST:GERRIT_PORT, and then
+# runs git-clang-format on the individual project.
+#
+# Triggered on patchset creation in a project's repo.
+
+if [ -z "$GERRIT_HOST" ]; then
+    echo "Error: Required environment variable 'GERRIT_HOST' not set."
+    exit 1
+fi
+if [ -z "$GERRIT_PORT" ]; then
+    echo "Error: Required environment variable 'GERRIT_PORT' not set."
+    exit 2
+fi
+if [ -z "$GERRIT_PROJECT" ]; then
+    echo "Error: Required environment variable 'GERRIT_PROJECT' not set."
+    exit 3
+fi
+if [ -z "$GERRIT_PATCHSET_REVISION" ]; then
+    echo "Error: Required environment variable 'GERRIT_PATCHSET_REVISION' not set."
+    exit 4
+fi
+if [ -z "$GERRIT_REFSPEC" ]; then
+    echo "Error: Required environment variable 'GERRIT_REFSPEC' not set."
+    exit 5
+fi
+if [ -z "$GERRIT_CHANGE_ID" ]; then
+    echo "Error: Required environment variable 'GERRIT_CHANGE_ID' not set."
+    exit 6
+fi
+
+BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
+PATH=$PATH:/usr/lib/llvm-3.8/bin/
+
+set -e
+
+function echo_cmd {
+    echo \# "$@"
+    "$@"
+}
+
+cat <<EOF
+
+============================================
+===    environment                       ===
+============================================
+EOF
+ulimit -a
+echo ""
+env | grep -iv password | grep -iv passwd | sort
+
+cat <<EOF
+
+============================================
+===       update all projects with       ===
+===          the same Change-Id          ===
+============================================
+EOF
+${BASEDIR}/checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_CHANGE_ID $GERRIT_PROJECT $GERRIT_REFSPEC
+
+cat <<EOF
+
+============================================
+===  Check ${GERRIT_PROJECT} under Clang Format   ===
+============================================
+EOF
+# If we've checked out a specific version of the TLM
+# then we'll need to bring our new .clang-format in manually
+echo_cmd cp -f 'tlm/dot-clang-format' './clang-format'
+
+pushd ${GERRIT_PROJECT} 2>&1 > /dev/null
+    format_diff=$(${BASEDIR}/git-clang-format HEAD^ --diff --maintain)
+    if [ "$format_diff" == "clang-format did not modify any files" ]
+    then
+        echo "clang-format did not suggest any changes"
+        exit 0
+    else
+        echo "clang-format suggested the following changes:"
+        echo "$format_diff"
+        exit 1
+    fi
+popd 2>&1 > /dev/null
