@@ -39,6 +39,13 @@ RUN wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add - && 
     apt-get install --assume-yes clang-3.6 && \
     rm -fr /var/cache/apt/archives/*.deb
 
+# Install clang-format from Clang 3.8 - needed for checking if formatting of patch is correct
+RUN wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add - && \
+    echo "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.8 main" > /etc/apt/sources.list.d/llvm.list && \
+    apt-get update && \
+    apt-get install --assume-yes --force-yes clang-format-3.8 && \
+    rm -fr /var/cache/apt/archives/*.deb
+
 # Install GDB - needed for detecting what program created a core file
 # & extracting the set of shared libraries.
 RUN apt-get install -y gdb && \
