@@ -31,7 +31,7 @@
     - name: Restart CV container
       shell:
         /home/couchbase/build/docker/scripts/restart_jenkinsdocker.py
-          ceejatec/ubuntu-1204-couchbase-cv:20161214
+          ceejatec/ubuntu-1204-couchbase-cv:20160304
           {{ slave_name }}
           2222
           cv.jenkins.couchbase.com
