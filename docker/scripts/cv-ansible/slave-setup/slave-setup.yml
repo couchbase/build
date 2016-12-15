@@ -16,6 +16,10 @@
       register: uname
       changed_when: false
 
+    - name: Enable coredumps in /tmp
+      shell: echo "/tmp/core.%e.%p" > /proc/sys/kernel/core_pattern
+      changed_when: true
+
     - name: Install additional packages for Docker
       apt:
         name: "{{ item }}"
