@@ -75,11 +75,11 @@ RUN mkdir -p /usr/local/go/1.4.1 && cd /usr/local/go/1.4.1 && \
     mkdir /usr/local/go/1.5.3 && cd /usr/local/go/1.5.3 && \
     curl https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz -o go.tar.gz && \
     tar xzf go.tar.gz && \
-    mkdir /usr/local/go/1.6.3 && cd /usr/local/go/1.6.3 && \
-    curl https://storage.googleapis.com/golang/go1.6.3.linux-amd64.tar.gz -o go.tar.gz && \
-    tar xzf go.tar.gz && \
     mkdir /usr/local/go/1.7.1 && cd /usr/local/go/1.7.1 && \
     curl https://storage.googleapis.com/golang/go1.7.1.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz && \
+    mkdir /usr/local/go/1.7.4 && cd /usr/local/go/1.7.4 && \
+    curl https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz -o go.tar.gz && \
     tar xzf go.tar.gz
 
 # * repo
