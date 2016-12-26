@@ -15,4 +15,4 @@ ulimit -c unlimited
 /sbin/sysctl kernel.core_pattern || /usr/sbin/sysctl kernel.core_pattern || sysctl kernel.core_pattern
 
 # Test
-CPDSN=${NODE_IP} ${PHP_DIR}/bin/php -d extension=phar.so -d extension=$(pwd)/modules/couchbase.so ${PHP_DIR}/phpunit.phar tests/
+CPDSN=${NODE_IP} ${PHP_DIR}/bin/php -d extension=phar.so  -d extension=pcs.so -d extension=$(pwd)/modules/couchbase.so ${PHP_DIR}/phpunit.phar tests/
