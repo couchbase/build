@@ -3,11 +3,13 @@
 function usage() {
     echo
     echo "$0 -r <release-code-name> -v <version-number> -b <build-number>"
-    echo "   [-m <MP-number> [-c <community-status>] [-p <platforms>] [-l] [-s]"
+    echo "   [-t <product>] [-m <MP-number> [-c <community-status>]"
+    echo "   [-p <platforms>] [-l] [-s]"
     echo "where:"
     echo "  -r: release code name; watson or sherlock"
     echo "  -v: version number; eg. 4.1.1"
     echo "  -b: build number"
+    echo "  -t: product; defaults to couchbase-server"
     echo "  -m: MP number; eg MP-1 [optional]"
     echo "  -c: community-status; defaults to 'private' to make it non-downloadable."
     echo "      set it to any other string to make it public [optional]"
@@ -29,11 +31,15 @@ COMMUNITY=private
 # (which will also prevent -community builds from being uploaded)
 STRIP_ENTERPRISE=false
 
-while getopts "r:v:b:m:c:p:lsh?" opt; do
+# Default product
+PRODUCT=couchbase-server
+
+while getopts "r:v:b:t:m:c:p:lsh?" opt; do
     case $opt in
         r) RELEASE=$OPTARG;;
         v) VERSION=$OPTARG;;
         b) BUILD=$OPTARG;;
+        t) PRODUCT=$OPTARG;;
         m) MP=$OPTARG;;
         c) COMMUNITY=$OPTARG;;
         p) PLATFORMS+=("$OPTARG");;
@@ -105,6 +111,12 @@ else
     FILENAME_VER=$VERSION-$MP
 fi
 
+# Add product super-directory, if not couchbase-server
+if [[ "${PRODUCT}" != "couchbase-server" ]]
+then
+    RELEASE_DIRNAME=${PRODUCT}/${RELEASE_DIRNAME}
+fi
+
 # Compute destination directories
 S3CONFIG=~/.ssh/staging.s3cfg
 ROOT=s3://staging.packages.couchbase.com/releases/$RELEASE_DIRNAME
@@ -121,8 +133,19 @@ mkdir -p $RELEASE_DIR/ce
 
 upload()
 {
+    echo ::::::::::::::::::::::::::::::::::::::
+
+    ext=${1##*.}
+    case $ext in
+        md5|sha256|properties)
+          echo "Skipping ${1} due to extension"
+          return
+          ;;
+    esac
+
     build=${1/.\//}
     target=${build/$VERSION-$BUILD/$FILENAME_VER}
+
     if [[ "$STRIP_ENTERPRISE" = "true" ]]
     then
         if [[ "$target" =~ "community" ]]
@@ -133,8 +156,6 @@ upload()
             target=${target/-enterprise/}
         fi
     fi
-
-    echo ::::::::::::::::::::::::::::::::::::::
 
     md5file=$RELEASE_DIR/$target.md5
     if [ ! -e $md5file -o $build -nt $md5file ]
@@ -177,22 +198,18 @@ finish() {
 }
 trap finish EXIT
 
-if [ ! -e ${LB_MOUNT}/couchbase-server/$RELEASE/$BUILD ]; then
-    echo "Given build doesn't exist: ${LB_MOUNT}/couchbase-server/$RELEASE/$BUILD"
+if [ ! -e ${LB_MOUNT}/${PRODUCT}/$RELEASE/$BUILD ]; then
+    echo "Given build doesn't exist: ${LB_MOUNT}/${PRODUCT}/$RELEASE/$BUILD"
     exit 5
 fi
 
-cd ${LB_MOUNT}/couchbase-server/$RELEASE/$BUILD
-upload couchbase-server-$VERSION-$BUILD-manifest.xml
+cd ${LB_MOUNT}/${PRODUCT}/$RELEASE/$BUILD
+upload ${PRODUCT}-$VERSION-$BUILD-manifest.xml
 
-for edition in enterprise community
+for platform in ${PLATFORMS[@]}
 do
-    for platform in ${PLATFORMS[@]}
+    for file in `find . -maxdepth 1 -name ${PRODUCT}\*${platform}\*`
     do
-        for file in `find . -maxdepth 1 -name couchbase-server-${edition}\*${platform}\*`
-        do
-            upload $file
-        done
+        upload $file
     done
 done
-
