@@ -44,6 +44,7 @@ _BUILD_NUMBER_RANGE = {
     '4.5.0' : (0, 3000),
     '4.6.0' : (3200, 6000),
     '4.7.0' : (1, 10000),
+    '5.0.0' : (1, 10000)
 }
 
 def check_if_file_exists(url):
@@ -74,7 +75,7 @@ class Builds():
             jenkins_url = _SERV_JENKINS
             build_job = 'watson-build'
             self.supported_platforms.remove('win32')
-        elif version.startswith('4.7'):
+        elif version.startswith('4.7') or version.startswith('5.0'):
             self.supported_platforms = ['centos7']
             code_name = 'spock'
             jenkins_url = _SERV_JENKINS
@@ -161,7 +162,7 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
 
     rel_code_name = ''
-    if not options.version[:3] in ['4.0', '4.1', '4.2', '4.5', '4.6', '4.7']:
+    if not options.version[:3] in ['4.0', '4.1', '4.2', '4.5', '4.6', '4.7', '5.0']:
         print 'Unsupported version %s' %options.version
         sys.exit(1)
 

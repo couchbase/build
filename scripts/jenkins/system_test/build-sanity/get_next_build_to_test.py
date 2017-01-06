@@ -30,7 +30,7 @@ def main(ver, ttype):
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option("-v", "--version", dest="version", help="eg 4.7.0")
+    parser.add_option("-v", "--version", dest="version", help="eg 5.0.0")
     parser.add_option("-t", "--test-type", dest="ttype", default="sanity", help="sanity or unit")
 
     (options, args) = parser.parse_args()

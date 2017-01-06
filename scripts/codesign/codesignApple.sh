@@ -36,7 +36,7 @@ DOWNLOAD_NEW_PKG=${5}  # Get new build
 result="rejected"
 
 rel_code=""
-if [[ ${PKG_VERSION} == 4.7* ]]
+if [[ ${PKG_VERSION} == 4.7* ]] || [[ ${PKG_VERSION} == 5.0* ]]
 then
     rel_code="spock"
 elif [[ ${PKG_VERSION} == 4.5* ]]

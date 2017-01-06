@@ -5,7 +5,7 @@ workspace=`pwd`
 rm -rf "${workspace}/artifacts"
 
 # Check for new version of CBQ
-CBQ_VER=${CBQ_VER-4.7.0}
+CBQ_VER=${CBQ_VER-5.0.0}
 CBQ_BUILDS=/latestbuilds/cbq/${CBQ_VER}
 
 latest_cbq=`ls -rt "${CBQ_BUILDS}" | tail -1`
