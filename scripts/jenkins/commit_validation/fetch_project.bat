@@ -33,8 +33,8 @@ set REFSPEC=%3
     @exit /b 5
 )
 
-pushd %PROJECT_PATH% || exit /b
-git reset --hard HEAD || exit /b
-git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%PROJECT% %REFSPEC% || exit /b
-git checkout FETCH_HEAD || exit /b
-popd || exit /b
+pushd %PROJECT_PATH% || exit /b 1
+git reset --hard HEAD || exit /b 1
+git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%PROJECT% %REFSPEC% || exit /b 1
+git checkout FETCH_HEAD || exit /b 1
+popd || exit /b 1
