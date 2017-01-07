@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <meta charset="utf-8">
+   <meta content="en" http-equiv="Content-Language">
+    <title>
+     Watson Build History
+    </title>
+    <meta content="300" http-equiv="refresh">
+     <style type="text/css">
+      a {text-decoration: none}
+     </style>
+     <link href="/static/buildTable.css" media="screen" rel="stylesheet" type="text/css"/>
+    </meta>
+   </meta>
+  </meta>
+ </head>
+{% extends "base.html" %}
+{% block content %}
+ <body class='buildHistory' style="font-family: 'Georgia',Trebuchet MS,sans-serif;">
+   <h2 style="color:#558CAD">
+    {{buildHistory[0].release}}-{{buildHistory[0].version}}
+   </h2>
+   <div>
+    <table class="build_table">
+     <tr>
+      <td style="width:7%;">
+       Build
+      </td>
+      <td style="width:9%;">
+       Date
+      </td>
+      <td style="width:10%;">
+       Modules
+      </td>
+      <td style="width:8%;">
+       Issues
+      </td>
+      <td style="width:10%;">
+       Commits
+      </td>
+      <td style="width:8%;">
+       Author
+      </td>
+      <td style="width:30%;">
+       Commit Message
+      </td>
+      <td style="width:10%;">
+       Build Result
+      </td>
+      <td style="width:10%;">
+       Unit Test
+      </td>
+      <td style="width:10%;">
+       Sanity
+      </td>
+     </tr>
+     {% for build in buildHistory %}
+     <tr>
+       <td><a href="buildDetails/{{build.version}}/{{build.build_num}}">{{build.build_num}}</a></td>
+       <td>{{build.timestamp}}</td>
+       <td>{{build.module}}</td>
+       <td>
+       {% for fix in build.fixes %}
+         <a href="{{build.jiraUrl}}{{fix}}">{{fix}}</a></td>
+       {% endfor %}
+       <td><a href={{build.commitUrl}}>{{build.commitId}}</a></td>
+       <td>{{build.author}}</td>
+       <td>{{build.message}}</td>
+       <td><a class={{build.bldResult}} href={{build.binUrl}}>{{build.bldResult}}</a></td>
+       <td class={{build.unitTest}}>{{build.unitTest}}</td>
+       <td class={{build.sanity}}>{{build.sanity}}</td>
+     </tr>
+     {% endfor %}
+    </table>
+   </div>
+ </body>
+{% endblock %}
+ <html>
+ </html>
+</html>

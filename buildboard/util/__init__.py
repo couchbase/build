@@ -23,6 +23,8 @@ import logging
 from couchbase.user_constants import *
 import couchbase._libcouchbase as _LCB
 
+__all__ = ["buildDBI", "buildHistory", "dashboard"]
+
 version = '1.0'
 
 def set_json_converters(encode, decode):

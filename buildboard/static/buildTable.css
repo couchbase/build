@@ -1,0 +1,82 @@
+.build_table{
+	margin:0px;padding:0px;
+	width:100%;
+	-moz-border-radius-bottomleft:9px;
+	-webkit-border-bottom-left-radius:9px;
+	-moz-border-radius-bottomright:9px;
+	-webkit-border-bottom-right-radius:9px;
+	-moz-border-radius-topright:9px;
+	-webkit-border-top-right-radius:9px;
+	-moz-border-radius-topleft:9px;
+	-webkit-border-top-left-radius:9px;
+	background-color:#fff;
+}.build_table table{
+	width:100%;
+	margin:0px;padding:0px;
+}.build_table tr:hover td{
+	background-color:#eee;
+}.build_table tr:first-child td{
+	background-color:#558CAD;
+	text-align:left;
+	font-size:16px;
+	font-family:Georgia;
+	font-weight:bold;
+	color:#fff;
+}.build_table td {
+	background-color:#fff;
+	text-align:left;
+	padding:7px;
+	font-size:15px;
+	font-family:calibri;
+	font-weight:bold;
+    color: #000000;
+}.build_table td.PASSED {
+    color: #1E7CB3;
+    font-size: 16px;
+}.build_table td.passed {
+    color: #1E7CB3;
+    font-size: 16px;
+}.build_table td.FAILED {
+    color: #ff0000;
+    font-size: 16px;
+}.build_table td.failed {
+    color: #ff0000;
+    font-size: 16px;
+}.build_table td.incomplete {
+    color: #bf360c;
+    font-size: 16px;
+}.build_table td.unstable {
+    color: #d7df00;
+    font-size: 16px;
+}.build_table td.timeout {
+    color: #bf000c;
+    font-size: 16px;
+}.build_table td.pending {
+    color: #8AC7EC;
+    font-size: 18px;
+}
+
+a.passed {
+    color: #1E7CB3;
+    font-size: 16px;
+}
+a.failed {
+    color: #ff0000;
+    font-size: 16px;
+}
+a.incomplete {
+    color: #bf360c;
+    font-size: 16px;
+}
+a.unstable {
+    color: #d7df00;
+    font-size: 16px;
+}
+a.timeout {
+    color: #bf000c;
+    font-size: 16px;
+}
+a.pending {
+    color: #8AC7EC;
+    font-size: 18px;
+}

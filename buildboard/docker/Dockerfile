@@ -24,98 +24,88 @@ RUN groupadd -g1000 couchbase && \
     echo 'Defaults:%wheel !requiretty' >> /etc/sudoers.d/wheel_group && \
     chmod 440 /etc/sudoers.d/wheel_group
 
-# * C++11 compliant compiler and related tools from CentOS's port of RHEL's
-#    devtools (http://people.centos.org/tru/devtools-2/)
-RUN curl http://people.centos.org/tru/devtools-2/devtools-2.repo > \
-         /etc/yum.repos.d/devtools-2.repo && \
-    yum install --setopt=keepcache=0 -y \
-                devtoolset-2-gcc-c++ \
-                devtoolset-2-binutils && \
-    ln -s /opt/rh/devtoolset-2/root/usr/bin/as /usr/local/bin/as && \
-    ln -s /opt/rh/devtoolset-2/root/usr/bin/gcc /usr/bin/gcc && \
-    ln -s /opt/rh/devtoolset-2/root/usr/bin/cc /usr/bin/cc && \
-    ln -s /opt/rh/devtoolset-2/root/usr/bin/g++ /usr/bin/g++ && \
-    ln -s /opt/rh/devtoolset-2/root/usr/bin/c++ /usr/bin/c++
-
-### Install Couchbase build dependencies ######################################
+### Install development tools ######################################
 # * Packages from the base CentOS repository
 RUN yum install --setopt=keepcache=0 -y \
                 ed \
+                gcc \
+                gcc-c++ \
+                git \
                 glibc.i686 \
                 make \
                 man \
                 ncurses-devel \
+                numactl-devel \
                 openssh-clients openssl-devel \
                 python-devel \
                 redhat-lsb-core \
-                rpm-build \
                 ruby rubygems rubygem-rake \
                 tar \
                 unzip \
                 which
 
+
+RUN yum install -y openssl098e 
+
 # * repo
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo
 
-# * git
-RUN curl http://people.centos.org/tru/devtools-2/devtools-2.repo > \
-         /etc/yum.repos.d/devtools-2.repo
-RUN yum install -y --setopt=keepcache=0 devtoolset-2-git && \
-    ln -s /opt/rh/devtoolset-2/root/usr/bin/git /usr/bin/git
-
 # Install third-party dependencies
 RUN yum install -y --setopt=keepcache=0 m4 file
 
-# JDK for Jenkins.
-RUN yum -y install java-1.7.0-openjdk && yum clean packages
-
 ### Disable Swappiness (part of Couchbase Server installation)  ############################
 # Set the value for the running system
-RUN echo '' >> /etc/sysctl.conf
-RUN echo '#Set swappiness to 0 to avoid swapping' >> /etc/sysctl.conf
-RUN echo 'vm.swappiness = 0' >> /etc/sysctl.conf
+#RUN echo '' >> /etc/sysctl.conf
+#RUN echo '#Set swappiness to 0 to avoid swapping' >> /etc/sysctl.conf
+#RUN echo 'vm.swappiness = 0' >> /etc/sysctl.conf
 
 ### 
 #
 # Include Couchbase Server Dependency 
 #
 ###
-RUN yum install -y perl
 RUN yum install -y pkgconfig
-#RUN yum install -y openssl098e 
+RUN yum install -y openssl098e 
 
 RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 RUN yum install -y python-pip
 RUN pip install --upgrade pip
 
 ###
-#
-# Buildboard Dependency
-#
+# Buildboard library helpers
 ###
+RUN yum install --setopt=keepcache=0 -y epel-release.noarch
+RUN yum install --setopt=keepcache=0 -y python-pip
+RUN pip install --upgrade pip
+
 RUN pip install BeautifulSoup \
     		beautifulsoup4 \
     		distribute \
-    		Flask \
-    		HTMLParser \
-    		Jinja \
-    		js.backbone \
-    		js.underscore \
-    		pycurl \
-    		PyGithub
-
+    		requests \
+     		Flask \
+     		rests['security'] \
+     		virtualenv \
+     		HTMLParser \
+     		Jinja \
+     		pycurl \
+     		gitpython \
+     		PyGithub
+ 
 VOLUME /opt/couchbase/var
 RUN export PATH=$PATH:/opt/couchbase/bin:/opt/couchbase/bin/tools:/opt/couchbase/bin/install
-
+ 
 ### 
+#
 # Install Couchbase C-SDK
-# Note: If licouchbase-devel failed, try libcouchbase-dev.  libcouchbase2-libev and libevent are optional
-RUN curl -o /etc/yum.repos.d/couchbase.repo http://packages.couchbase.com/rpm/couchbase-centos62-x86_64.repo
+#
+###
+RUN curl -O http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-2-x86_64.rpm
+RUN rpm -iv couchbase-release-1.0-2-x86_64.rpm
 RUN yum install -y \
-    libcouchbase2-libevent \
-    libcouchbase-devel \
-    libcouchbase2-bin
+	libcouchbase2-libevent \
+	libcouchbase-devel \
+	libcouchbase2-bin
 RUN pip install couchbase
 
 ### Include Apache HTTP Server ############################
@@ -130,9 +120,10 @@ EXPOSE 8080 8082
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
-#ADD util/.ssh /home/couchbase/.ssh
-#COPY util/couchserver_start.sh /usr/sbin/
+ADD util/.ssh /home/couchbase/.ssh
+COPY util/bb_start.sh /usr/sbin/
+ENTRYPOINT [ "/usr/sbin/bb_start.sh" ]
+CMD [ "default" ]
 
 # Start the services
-#ENTRYPOINT [ "/usr/sbin/couchserver_start.sh" ]
-ENTRYPOINT /usr/sbin/httpd -D FOREGROUND 
+#ENTRYPOINT /usr/sbin/httpd -D FOREGROUND 

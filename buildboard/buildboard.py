@@ -3,14 +3,25 @@
 
 import os
 import sys
+import io
+import re
+import stat
 import signal
+import json
+import traceback
+import requests
 import threading
-import collections
 import subprocess
+import collections
 import logging
 import time
-from optparse import OptionParser
 from datetime import datetime
+from subprocess import check_call
+from optparse import OptionParser
+from pprint import pprint
+
+from git import Repo
+import xml.etree.ElementTree as ET
 
 import urllib2
 import httplib
@@ -19,36 +30,36 @@ from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from SocketServer import ThreadingMixIn
 from bs4 import BeautifulSoup
 
-import json
-from pprint import pprint
+from util.dashboard import Dashboard
+from util.buildHistory import buildHistory
+from util.buildDBI import *
 
-from dashboard import Dashboard
-from buildHistory import buildHistory, buildJob
-from buildDB import buildDB
+__version__ = "1.1.0"
 
+FAKE_BLD_NUM = 3530
 
-__version__ = "1.0.0"
+#_JIRA_PATTERN = r'([A-Z]{2,5}-[0-9]{1,6})'
+_JIRA_PATTERN = r'(\b[A-Z]+-\d+\b)'
 
-BLDHISTORY_BUCKET = 'couchbase://buildboard-couchbase-server:8091/build-history'
+_GITHUB_TOKEN = ''
+with open(os.path.join(os.path.expanduser('~'), '.githubtoken')) as F:
+    _GITHUB_TOKEN = F.read().strip()
+
+#BUILDHISTORY_BUCKET = 'couchbase://buildboard-db:8091/build-history'
 
 class buildThreads(object):
     parent=None
     child=None
 
-class buildEvents(object):
-    eType=None
-    service=None
-    params=None
+# Dashboards (live builds)
+threadPools = []
+dashboardPool = []
 
 logger = logging.getLogger()
 log_file = "buildboard.log"
 
-threadPools = []
 issueLabels = ["CB", "MB", "SDK"]
 projPrivate = ["voltron", "cbbuild"]
-
-# Active dashboards
-dashboardPool = []
 
 def enable_logging(log_level):
     try:
@@ -75,16 +86,7 @@ def enable_logging(log_level):
     fh.setFormatter(formatter)
     logger.addHandler(fh)
 
-
-def findDashboardByName(name):
-    for dbrd in dashboardPool:
-        if dbrd.getName() == name:
-            break
-        else:
-            dbrd = None
-    return dbrd
-
-def findBuildThreads(thread):
+def findThread(thread):
     for t in threadPools:
         if thread == t.parent:
             return t
@@ -104,229 +106,69 @@ def findThreadByName(name):
     return None
 
 
-#################### HTML Template Engine #####################
+#################### HTML Templates #####################
 #
-# Need to ask Flask and (Backbone/underscore)
-#
-def html_update_buildboard (name):
-    return 0
+def html_update_dashboard_table (name):
+    filename = name + '.html'
 
-
-def html_generate_dashboard_page(name):
-    logger.debug("Not implemented")
-
-    filename = "dashboard.html"
+    logger.debug("To be implemented")
     htmlFile = os.path.dirname(os.path.abspath(__file__))+"/html/{0}".format(filename)
-    return htmlFile 
-
-
-def html_generate_buildHistory_page(name):
-
-    templateFile = "file://"+os.path.abspath("")+"/templates/build_template.html"
-
-    filename = name + ".html"
-    htmlFile = os.path.dirname(os.path.abspath(__file__))+"/html/{0}".format(filename)
-
-    if os.path.isfile(htmlFile): 
-        return filename
-
-    try:
-        rsp = urllib2.urlopen(templateFile, timeout=10)
-        template = rsp.read()
-        rsp.close()
-    except BaseException as e:
-        logger.warning("Unable to read {0} error {1}".format(templateFile, e))
-        return "error"
-    except socket.timeout: 
-        logger.warning("Can't open build history template {0}".format(templateFile))
-        return "error"
-
-    soup = BeautifulSoup(template, "html.parser")
-
-    # Add title per product branch
-    title = "Couchbase Buildboard {0} ".format(name) +"History"
-    soup.title.insert(0, title)
-
-    # Add table
-    table = "<br><h2 style=color:#086a87>{0}</h2> <div class=build_table> <table> <tr> <td style=width:7%;> Build ID </td> <td style=width:8%;> Date </td> <td style=width:8%;> Issue ID </td> <td style=width:8%;> Module </td> <td style=width:9%;> Change List </td> <td style=width:10%;> Author </td> <td style=width:42%;> Commit Summary </td> <td style=width:8%;> Build Result </td> </table> </div>".format(name)
-
-    chickenSoup = soup.findAll("body")
-    table = BeautifulSoup(table, "html.parser")
-    soup.body.insert(0, table)
-    soup = soup.prettify(soup.original_encoding)
-
-    try:
-        file = open(htmlFile, "wb")
-        file.write(soup)
-        file.close()
-    except BaseException as e:
-        logger.warning("Unable to write {0} error {1}".format(htmlFile, e))
-        return "error"
-
-    # Add new link to buildboard.html
-    html_update_buildboard(name)
-
-    return filename
-
-
-def html_buildHistory_update_status(name, status):
-    filename = name + ".html"
-    htmlFile = "file://"+os.path.abspath("")+"/html/{0}".format(filename)
-    try:
-        rsp = urllib2.urlopen(htmlFile, timeout=10)
-        html = rsp.read()
-        rsp.close()
-    except BaseException as e:
-        logger.warning("Unable to read {0} error {1}".format(filename, e))
-        return False
-    except socket.timeout: 
-        logger.warning("Can't open build history html {0}".format(filename))
-        return False
-
-    soup = BeautifulSoup(html, "html.parser")
-    col = soup.findAll("td")
-        
-    return True
-
-
-def html_buildHistory_report(name, data):
-    filename = name + ".html"
-    htmlFile = "file://"+os.path.abspath("")+"/html/{0}".format(filename)
-    try:
-        rsp = urllib2.urlopen(htmlFile, timeout=10)
-        html = rsp.read()
-        rsp.close()
-    except BaseException as e:
-        logger.warning("Unable to read {0} error {1}".format(filename, e))
-        return False
-    except socket.timeout: 
-        logger.warning("Can't open build history html {0}".format(filename))
-        return False
-
-    soup = BeautifulSoup(html, "html.parser")
-    table = soup.findAll("tr")
-
-    offset = 2
-    row = ""
-    first_row = True
-
-    if data["status"]:
-        status = data["status"]
-    else:
-        status = "pending" 
-
-    value = datetime.fromtimestamp(data["timestamp"] / 1e3)
-    timestamp = value.strftime('%Y-%m-%d %H:%M:%S')
-
-    if not data["changeSet"]:
-        # Top row for this build entry
-        row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td class={7}>{8}</td></tr>".format(data["buildNum"], timestamp, "NA", "NA", "NA", "NA", "NA", status, status)
-        row = BeautifulSoup(row, "html.parser")
-        soup.table.insert(offset, row)
-    else:
-        for i in data["changeSet"]:
-            commit  = bldDB.query_commit(i)
-            repo = commit['repo']
-            issueId = commit['issueId'] 
-            commitSHA = commit['commitId']
-            if "title" in commit:
-                commitTitle = commit['title'].encode('ascii', 'ignore')
-            else:
-                commitTitle = "NA"
-
-            if "author" in commit:
-                commitAuthor = commit['author'].encode('ascii', 'ignore')
-            else:
-                commitAuthor = "NA"
-
-            if first_row == True:
-                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td class={7}>{8}</td></tr>".format(data["buildNum"], timestamp, issueId, repo, commitSHA[:10], commitAuthor, commitTitle[:100], status, status)
-                first_row = False
-            else:
-                row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td><td>{4}</td><td>{5}</td><td>{6}</td><td>{7}</td></tr>".format("", "", issueId, repo, commitSHA[:10], commitAuthor, commitTitle[:100], "")
-                offset += 2
-
-            row = BeautifulSoup(row, "html.parser")
-            soup.table.insert(offset, row)
-
-    soup = soup.prettify(soup.original_encoding)
-
-    # Need to add a limit on display depth (max rows)
-    htmlFile = os.path.dirname(os.path.abspath(__file__))+"/html/{0}".format(filename)
-    try:
-        file = open(htmlFile, "wb")
-        file.write(soup)
-        file.close()
-    except BaseException as e:
-        logger.warning("Unable to write {0} error {1}".format(htmlFile, e))
-        return False
 
     return True
 
 
-def html_dashboard_report(name, data):
-    print "Not implemented..."
-    return 0
-
-
-####################### Jenkins Web Crawling  ########################
+####################### Jenkins Utility ########################
 #
 # Uses Jenkins REST API
 #
-def jenkins_fetch_envVars(url):
-    data = None
-    envVars_url = url + "injectedEnvVars/api/json?pretty=true"
-    try:
-        rsp = urllib2.urlopen(envVars_url, timeout=10)
-        data = json.load(rsp)
-        rsp.close()
-    except (httplib.BadStatusLine, urllib2.HTTPError, urllib2.URLError) as e:
-        logger.warning("Warning: Unable to read Jenkins {0} at {1}".format(e, envVars_url))
-    except socket.timeout: 
-        logger.warning("Jenkins request timeout {0}".format(envVars_url))
+def jenkins_get_contents(url, params={"depth" : 0}):
+    contents = None
+    res = None
 
-    return data
+    for x in range(5):
+        try:
+            res = requests.get("%s/%s" % (url, "api/json"), params = params, timeout=10)
+            if res:
+                contents = res.json()
+                break
+        except:
+            logger.error("url unreachable: %s" % url)
+            time.sleep(5)
 
-
-def jenkins_fetch_url(url):
-    data = None
-    jenkins_url = url + "api/json?pretty=true"
-    try:
-        rsp = urllib2.urlopen(jenkins_url, timeout=10)
-        data = json.load(rsp)
-        rsp.close()
-    except (httplib.BadStatusLine, urllib2.HTTPError, urllib2.URLError) as e:
-        logger.warning("Warning: Unable to read Jenkins {0} at {1}".format(e, jenkins_url))
-    except socket.timeout: 
-        logger.warning("Jenkins request timeout {0}".format(jenkins_url))
-
-    return data
+    return contents
 
 
-def jenkins_get_manifestSHA(url, buildNum):
-    manifestSHA = 0
+def jenkins_get_envVars(url):
+    contents = None
+    envVars_url = url + 'injectedEnvVars'
 
-    env_url = url + "{0}/".format(buildNum)
-    envVars = jenkins_fetch_envVars(env_url)
-    if envVars is None:
-        return manifestSHA
-    else:
-        if "envMap" in envVars:
-            envMap = envVars["envMap"] 
+    contents = jenkins_get_contents(envVars_url)
 
-    if "MANIFEST_SHA" in envVars["envMap"]: 
-        manifestSHA = envMap["MANIFEST_SHA"] 
-
-    return manifestSHA
+    return contents
 
 
-def jenkins_fetch_changeSet(dashbrd, buildNum, url):
+def jenkins_job_queue_empty(url):
+    contents = None
+
+    # Access issue so assume queue not empty
+    contents = jenkins_get_contents(url)
+    if contents is None:
+        return True
+
+#    if 'queueItem' in contents and contents['queueItem']:
+    if 'inQueue' in contents and contents['inQueue']:
+        return True
+
+    return False
+
+
+def jenkins_get_changeSet(dashbrd, url):
     items = []
-    result = {}
-    changeSet = []
+    commits = []
+    changeSet = {}
 
     # Build summary detail
-    jenkinsUrl = "{0}{1}/changes#detail0".format(url, buildNum)
+    jenkinsUrl = "{0}/changes#detail0".format(url)
 
     logger.debug("{0}".format(jenkinsUrl))
 
@@ -355,440 +197,943 @@ def jenkins_fetch_changeSet(dashbrd, buildNum, url):
 
     write_data = ""
     for i in items:
+        result = {}
         # Jenkins seem to have a bug
         if write_data == "repo":
-            if "Revision" in i:
+            if 'Revision' in i:
                 result["repo"] = i.replace("Revision", "")
                 write_data = "commitId"
             else:
-                result["repo"] = i
+                result['repo'] = i
                 write_data = ""
             # Need to handle private Project 
-            if "manifest" in result["repo"]: 
-                result["repo"] = u'manifest'
+            if 'manifest' in result['repo']: 
+                result['repo'] = u'manifest'
             else:
-                proj = result["repo"].split("/")
-                result["repo"] = proj[-1]
-            logger.debug("{0} Repo: {1}".format(dashbrd.getName(), result["repo"]))
+                proj = result['repo'].split("/")
+                result['repo'] = proj[-1]
+            logger.debug("{0} Repo: {1}".format(dashbrd.getName(), result['repo']))
             continue
         if write_data == "commitId":
-            if "Author" in i:
-                result["commitId"] = i.replace("Author", "")
+            if 'Author' in i:
+                result['commitId'] = i.replace("Author", "")
                 write_data = "author"
             else:
-                result["commitId"] = i
+                result['commitId'] = i
                 write_data = "Null"
-            logger.debug("{0} commitID: {1}".format(dashbrd.getName(), result["commitId"]))
-            changeSet.append(result.copy())
+            logger.debug("{0} commitID: {1}".format(dashbrd.getName(), result['commitId']))
+            commits.append(result)
             continue
 
-        if "Project" in i:
+        if 'Project' in i:
             write_data = "repo"
-        elif "Revision" in i:
+        elif 'Revision' in i:
             write_data = "commitId"
 
-    # Get the remaining history from GitHub (To-Do)
-    logger.debug(changeSet)
+    # Need to change to get history from GitHub.  Jenkins has has too many data formatting issues (To-Do)
+    logger.debug(commits)
+    changeSet['commits'] = commits
 
     return changeSet
 
 
-def jenkins_fetch_job_history(bldHistory, url):
-    """
-    :type: dict
-    """
-    history = {}
+def jenkins_get_test_results(url, sanity=False):
+    testResults = []
 
-    # Job entry point
-    jenkins_jobHistory = jenkins_fetch_url(url)
-    if jenkins_jobHistory is None:
+    jContents = jenkins_get_contents(url)
+    if jContents is None:
         return None
 
-    for action in jenkins_jobHistory["actions"]:
-        if "parameters" in action:
-            for params in action["parameters"]:
-                name = params["name"]
-                if name == "EDITION":
-                    history["edition"] = params["value"]
-                    logger.debug("{0}...{1}".format(name, params["value"]))
-                if name == "DISTRO" or name == "ARCHITECTURE" or name == "OS":
-                    if "platform" in history:
-                        platform = history["platform"]
-                        history["platform"] = platform + params["value"]
-                    else:
-                        history["platform"] = params["value"]
-                    logger.debug("{0}...{1}".format(name, params["value"]))
+    if 'suites' not in jContents:
+        return None
 
-    history["slave"] = jenkins_jobHistory["builtOn"]
-    history["duration"] = jenkins_jobHistory["duration"]
-    history["timestamp"] = jenkins_jobHistory["timestamp"]
-    if jenkins_jobHistory["result"] is None:
-        history["status"] = "pending" 
+    for s in jContents['suites']:
+        suite = {}
+        suite['suite'] = s['name']
+        suite['duration'] = s['duration']
+        cases = []
+        for c in s['cases']:
+            case = {}
+            if sanity:
+                n, p = c['name'].split(',', 1)
+                case['name'] = n
+                case['params'] = p
+            else:
+                case['name'] = c['name']
+                case['params'] = ''
+            case['duration'] = c['duration']
+            case['status'] = c['status']
+            case['failedSince'] = c['failedSince']
+            cases.append(case)
+        suite['cases'] = cases
+        testResults.append(suite)
+
+    return testResults
+
+
+def jenkins_get_unitTest(dashbrd, url):
+    testHistory = {}
+
+    # Job entry point
+    jContents = jenkins_get_contents(url)
+    if jContents is None:
+        return None
+  
+    jEnvVars = jenkins_get_envVars(url)
+    if jEnvVars is None:
+        return None
+
+    envVars = jEnvVars['envMap']
+
+    results = {}
+    results['docId'] = "" 
+    results['result'] = ""
+
+    for a in jContents['actions']:
+        if a.has_key('totalCount'):
+            testHistory['testCount'] = a['totalCount']
+            testHistory['failedTests'] = a['failCount']
+            testHistory['skipTests'] = a['skipCount']
+            testHistory['testReportUrl'] = (envVars['BUILD_URL'] + '/' + a['urlName']).format(envVars['BLD_NUM'])
+            break
+
+    if 'testReportUrl' not in  testHistory:
+        results['result'] = 'unknown'
+        logger.debug("Test report url error")
+        return results
+
+    if url.find('windows') != -1:
+        arch = 'amd64'
+        if envVars.has_key('ARCHITECTURE'):
+            arch = envVars['ARCHITECTURE']
+        testHistory['distro'] = 'win-' + arch
     else:
-        history["status"] = jenkins_jobHistory["result"]
+        if envVars.has_key('DISTRO'):
+            testHistory['distro'] = envVars['DISTRO']
+        elif envVars.has_key('PLATFORM'):
+            testHistory['distro'] = envVars['PLATFORM']
 
-    history["branch"] = bldHistory["branch"]
-    history["buildNum"] = bldHistory["buildNum"]
+    if 'EDITION' in envVars:
+        testHistory['edition'] = envVars['EDITION']
+    else:
+        testHistory['edition'] = "enterprise" 
 
-    logger.debug("{0}...{1}".format(history["branch"], history["status"]))
+    testHistory['branch'] = dashbrd.getBranch()
+    testHistory['build_num'] = int(envVars['BLD_NUM'])
+    testHistory['version'] = envVars['VERSION']
+    testHistory['jobType'] = "unit_test" 
+    testHistory['url'] = url
 
-    # Update DB Job History
-    docId = bldDB.insert_job_history(history)
+    # Work around naming inconsistency.  We seriously need a standard in our build process.
+    if 'ubuntu12' in testHistory['distro']:
+        testHistory['distro'] = 'ubuntu12.04'
+    elif 'ubuntu14' in testHistory['distro']:
+        testHistory['distro'] = 'ubuntu14.04'
 
-    bldJob = buildJob(bldHistory["buildNum"], url)
-    history["docId"] = docId 
-    bldJob.update_db_history(history)
+    jobId = testHistory['version']+'-'+str(testHistory['build_num'])+'-'+testHistory['distro']+'-'+testHistory['edition']
+    bldJob = db_doc_exists(jobId)
+    if not bldJob:
+        # Return empty test result to allow test job to stay in the queue
+        # This handles initial startup where the test info appears before the build job in DB
+        results['result'] = 'pending'
+        return results
 
-    return bldJob
+    if jContents['result']: 
+        if jContents['result'] == 'SUCCESS':
+            testHistory['result'] = 'PASSED'
+        else:
+            testHistory['result'] = 'FAILED'
+    else:
+        testHistory['result'] = "" 
+
+    docId = testHistory['version']+'-'+str(testHistory['build_num'])+'-'+testHistory['distro']+'-'+testHistory['jobType']
+
+    # If unitTest already in DB, check result for progress 
+    testDoc = db_doc_exists(docId)
+    if testDoc:
+        if testDoc.value['result']:
+            # Result is in so all done
+            testHistory['result'] = testDoc.value['result']
+        else:
+            testHistory['testReport'] = jenkins_get_test_results(testHistory['testReportUrl'])
+            testHistory['duration'] = jContents['duration']
+            db_update_test_result(testHistory)
+    else:
+        testHistory['timestamp'] = jContents['timestamp']
+        testHistory['duration'] = jContents['duration']
+        testHistory['slave'] = jContents['builtOn']
+        testHistory['testReport'] = jenkins_get_test_results(testHistory['testReportUrl'])
+        docId = db_insert_test_history(testHistory)
+        db_build_attach_unitTest(docId, testHistory['edition'])
+
+    results['url'] = testHistory['url']
+    results['version'] = testHistory['version']
+    results['build_num'] = testHistory['build_num']
+    results['distro'] = testHistory['distro']
+    results['jobType'] = testHistory['jobType']
+    results['result'] = testHistory['result']
+    return results
 
 
-def jenkins_find_downstream_jobs(url, parentBldNum):
+def jenkins_get_sanity(dashbrd, url):
+    testHistory = {}
+
+    results = {}
+    results['docId'] = "" 
+    results['result'] = ""
+
+    # Job entry point
+    jContents = jenkins_get_contents(url)
+    if jContents is None:
+        return None
+  
+    jEnvVars = jenkins_get_envVars(url)
+    if jEnvVars is None:
+        return None
+
+    envVars = jEnvVars['envMap']
+
+    curBldNum = e['envMap']['CURRENT_BUILD_NUMBER']
+    if "EDITION" in envVars:
+        edition = envVars['EDITION']
+    else:
+        edition = 'enterprise'
+
+    buildId = e['envMap']['VERSION'] + '-' + curBldNum
+
+    buildDoc = db_doc_exists(buildId)
+    if not buildDoc:
+        self.logger.warning('Could not find build {} in DB'.format(buildId))
+        return results 
+
+    buildHist = buildDoc.value
+    if buildHist.has_key('sanity_result'):
+        sres = buildHist['sanity_result']
+        if sres != 'INCOMPLETE':
+            self.logger.debug('_poll_build_sanity: reached the run that has already been saved')
+            return 'stop'
+        if sres == 'INCOMPLETE' and j['building']:
+            self.logger.debug('_poll_build_sanity: this is a run that is still running {}'.format(burl))
+            return 'continue'
+    elif j['building']:
+        bld_doc['sanity_result'] = 'INCOMPLETE'
+        bld_doc['sanity_url'] = burl
+        self.logger.debug('update db - incomplete build_sanity for {}'.format(version))
+        self.logger.debug(bld_doc)
+        self.bldDB.insert_build_history(bld_doc, True)
+        return 'continue'
+
+
+
+    results = {}
+    results['docId'] = "" 
+    results['result'] = ""
+
+    for a in jContents['actions']:
+        if a.has_key('totalCount'):
+            testHistory['testCount'] = a['totalCount']
+            testHistory['failedTests'] = a['failCount']
+            testHistory['skipTests'] = a['skipCount']
+            testHistory['testReportUrl'] = (envVars['BUILD_URL'] + '/' + a['urlName']).format(envVars['BLD_NUM'])
+            break
+
+    if 'testReportUrl' not in  testHistory:
+        results['result'] = 'unknown'
+        logger.debug("Test report url error")
+        return results
+
+    if url.find('windows') != -1:
+        arch = 'amd64'
+        if envVars.has_key('ARCHITECTURE'):
+            arch = envVars['ARCHITECTURE']
+        testHistory['distro'] = 'win-' + arch
+    else:
+        if envVars.has_key('DISTRO'):
+            testHistory['distro'] = envVars['DISTRO']
+        elif envVars.has_key('PLATFORM'):
+            testHistory['distro'] = envVars['PLATFORM']
+
+    if "EDITION" in envVars:
+        testHistory['edition'] = envVars['EDITION']
+    else:
+        testHistory['edition'] = "enterprise" 
+
+    testHistory['branch'] = dashbrd.getBranch()
+    testHistory['build_num'] = int(envVars['BLD_NUM'])
+    testHistory['version'] = envVars['VERSION']
+    testHistory['jobType'] = "unit_test" 
+    testHistory['url'] = url
+
+    jobId = testHistory['version']+'-'+str(testHistory['build_num'])+'-'+testHistory['distro']+'-'+testHistory['edition']
+    bldJob = db_doc_exists(jobId)
+    if not bldJob:
+        # Return empty test result to allow test job to stay in the queue
+        # This handles initial startup where the test info appears before the build job in DB
+        results['result'] = 'pending'
+        return results
+
+
+# Test results need to be uniform or standardized; Currently it is not.
+def jenkins_get_builtin_unitTest(dashbrd, url):
+    testHistory = {}
+
+    # Job entry point
+    jContents = jenkins_get_contents(url)
+    if jContents is None:
+        return None
+  
+    jEnvVars = jenkins_get_envVars(url)
+    if jEnvVars is None:
+        return None
+
+    envVars = jEnvVars['envMap']
+
+    results = {}
+    results['docId'] = "" 
+    results['result'] = ""
+
+    for a in jContents['actions']:
+        if a.has_key('totalCount'):
+            testHistory['testCount'] = a['totalCount']
+            testHistory['failedTests'] = a['failCount']
+            testHistory['skipTests'] = a['skipCount']
+            testHistory['testReportUrl'] = (envVars['BUILD_URL'] + '/' + a['urlName']).format(testHistory['build_num'])
+            break
+
+    if 'testReportUrl' not in  testHistory:
+        logger.debug("Missing test report url")
+        return results
+
+    if url.find('windows') != -1:
+        arch = 'amd64'
+        if envVars.has_key('ARCHITECTURE'):
+            arch = envVars['ARCHITECTURE']
+        testHistory['distro'] = 'win-' + arch
+    else:
+        if envVars.has_key('DISTRO'):
+            testHistory['distro'] = envVars['DISTRO']
+        elif envVars.has_key('PLATFORM'):
+            testHistory['distro'] = envVars['PLATFORM']
+
+    testHistory['edition'] = envVars['EDITION']
+    testHistory['branch'] = dashbrd.getBranch()
+    testHistory['build_num'] = int(envVars['BLD_NUM'])
+    testHistory['version'] = envVars['VERSION']
+    testHistory['jobType'] = "unit_test" 
+    testHistory['result'] = jContents['result']
+    testHistory['url'] = url
+
+    docId = testHistory['version']+'-'+str(testHistory['build_num'])+'-'+testHistory['distro']+'-'+testHistory['edition']+'-'+testHistory['jobType']
+
+    # If unitTest already in DB, check result for progress 
+    testDoc = db_doc_exists(docId)
+    if testDoc:
+        if testDoc.value['result']:
+            # Result is in so all done
+            testHistory['result'] = testDoc.value['result']
+        else:
+            testHistory['testReport'] = jenkins_get_test_results(testHistory['testReportUrl'])
+            testHistory['duration'] = jContents['duration']
+            docId = db_update_test_result(testHistory)
+    else:
+        testHistory['testReport'] = jenkins_get_test_results(testHistory['testReportUrl'])
+        testHistory['timestamp'] = jContents['timestamp']
+        testHistory['duration'] = jContents['duration']
+        testHistory['slave'] = jContents['builtOn']
+        testHistory['jobType'] = 'unit_test'
+        docId = db_insert_test_history(testHistory)
+
+    results['docId'] = docId 
+    results['version'] = testHistory['version']
+    results['build_num'] = testHistory['build_num']
+    results['distro'] = testHistory['distro']
+    results['jobType'] = testHistory['jobType']
+    results['result'] = testHistory['result']
+    return results
+
+
+def jenkins_get_build_job(dashbrd, url):
+    jobHistory = {}
+    stats = {}
+
+    # Job entry point
+    jContents = jenkins_get_contents(url)
+    if jContents is None:
+        return None
+
+    jEnvVars = jenkins_get_envVars(url)
+    if jEnvVars is None:
+        return None
+
+    envVars = jEnvVars['envMap']
+
+    if url.find('windows') != -1:
+        arch = 'amd64'
+        if envVars.has_key('ARCHITECTURE'):
+            arch = envVars['ARCHITECTURE']
+        jobHistory['distro'] = 'win-' + arch
+    else:
+        if envVars.has_key('DISTRO'):
+            jobHistory['distro'] = envVars['DISTRO']
+        elif envVars.has_key('PLATFORM'):
+            jobHistory['distro'] = envVars['PLATFORM']
+
+    jobHistory['edition'] = envVars['EDITION']
+    jobHistory['branch'] = dashbrd.getBranch()
+    jobHistory['build_num'] = int(envVars['BLD_NUM'])
+    jobHistory['version'] = envVars['VERSION']
+
+    docId = jobHistory['version']+'-'+str(jobHistory['build_num'])+'-'+jobHistory['distro']+'-'+jobHistory['edition'] 
+
+    # If UNIT_TEST is True, the state can transit to passed or failed
+    if envVars.has_key('UNIT_TEST') and envVars['UNIT_TEST']:
+        stats['unitTest'] = True 
+    else:
+        stats['unitTest'] = False 
+
+    # First verify if build is already in DB 
+    doc = db_doc_exists(docId)
+    if not doc:
+        jobHistory['unitTest'] = "" 
+        jobHistory['sanity'] = "" 
+        jobHistory['timestamp'] = jContents['timestamp']
+        jobHistory['slave'] = jContents['builtOn']
+        jobHistory['jobType'] = 'distro_level_build'
+        jobHistory['jenkinsUrl'] = envVars['BUILD_URL']
+
+        # Update DB Job History
+        docId = db_insert_job_history(jobHistory)
+        if not docId:
+            logger.debug("{0}...Failed to insert {1} into DB".format(jobHistory['branch'], jobHistory['build_num']))
+            return stats
+
+    stats['version'] = jobHistory['version']
+    stats['build_num'] = jobHistory['build_num']
+    stats['distro'] = jobHistory['distro']
+    stats['edition'] = jobHistory['edition']
+    stats['result'] = jContents['result']
+    stats['duration'] = int(jContents['duration'])
+
+    logger.debug("{0}-{1}...{2}".format(stats['version'], stats['build_num'], stats['result']))
+
+    return stats 
+
+
+# Traverse downstream and return the list of jobs discovered
+def jenkins_walk_downstream_jobs(parentUrl, parentBldNum):
     jobList = []
 
     logger.debug("{0}".format(parentBldNum))
 
-    parent_url = url + "{0}/".format(parentBldNum)
-    data = jenkins_fetch_url(parent_url)
-    if data is None or data["result"] == "FAILURE":
+    url = parentUrl + "{0}/".format(parentBldNum)
+    jContents = jenkins_get_contents(url)
+    if jContents is None:
         return jobList 
 
-    downstream_projs = jenkins_fetch_url(url)
-    if downstream_projs is None:
-        return None
-
-    for proj in downstream_projs["downstreamProjects"]:
-        if proj["url"]:
-            downstream_builds = jenkins_fetch_url(proj["url"])
+    for dp in jContents['downstreamProjects']:
+        if dp["url"]:
+            downstream_builds = jenkins_get_contents(dp['url'])
             if downstream_builds is None:
                 continue
 
             # Find downstream jobs with corresponding parentBldNum
-            for build in downstream_builds["builds"]:
-                jenkins_history = jenkins_fetch_url(build["url"])
-                if jenkins_history is None:
+            for build in downstream_builds['builds']:
+                jobData = jenkins_get_contents(build['url'])
+                if jobData is None:
                     continue
 
                 upstreamBldNum = 0
-                actions = jenkins_bldHistory["actions"]
-                for action in jenkins_bldHistory["actions"]:
+                actions = jobData['actions']
+                for action in jobData['actions']:
                     if "causes" in action:
-                        upstreamBldNum = action["causes"][0]["upstreamBuild"]
+                        upstreamBldNum = action['causes'][0]['upstreamBuild']
                         logger.debug(upstreamBldNum)
                         break
 
                 if parentBldNum == upstreamBldNum:
-                    if build["url"] is not None:
-                        jobList.append(build["url"])
-                        break
+                    jobList.append(build['url'])
+                    break
 
-            # Traverse downstream
-            if downstream_builds["downstreamProjects"]:
-                more_jobs = jenkins_find_downstream_jobs(proj["url"], jenkins_bldHistory["number"])
-                jobList.append(more_jobs)
+            # Walk downstream
+            if downstream_builds['downstreamProjects']:
+                nextJobs = jenkins_walk_downstream_jobs(dp['url'], jobData['number'])
+                jobList.append(nextJobs)
 
     return jobList
 
 
-def jenkins_find_multi_build_jobs(parentBldNum, buildUrl):
+def jenkins_get_matching_jobs(url, version, bldNum):
     #
-    # This handles multi-configuration Jenkins job. The matrix job triggered as part of Post-Build 
-    # Find and return list of matrix jobs tied to the parentBldNum
+    # Find and return list of jobs that match the bldNum
     #
-    jobLinks = []
+    jobUrls = []
     multiJobs = []
 
-    logger.debug("Parent buildNum {0}".format(parentBldNum))
+    logger.debug("Input bldNum {0}".format(bldNum))
 
-    downstream_builds = jenkins_fetch_url(buildUrl)
-    if downstream_builds is None: 
+    jContents = jenkins_get_contents(url)
+    if jContents is None: 
         return None
 
-    for downstream in downstream_builds["builds"]:
-        logger.debug("Downstream {0}".format(downstream["url"]))
-        buildNum = 0
-        # Find downstream jobs with corresponding parentBldNum
-        buildJob = jenkins_fetch_url(downstream["url"])
+    for build in jContents['builds']:
+        logger.debug("Downstream {0}".format(build['url']))
+        jenkinsBuildNum = 0
+        # Find downstream jobs with corresponding bldNum
+        buildJob = jenkins_get_contents(build['url'])
+
         if buildJob is not None:
-            for action in buildJob["actions"]:
-                if "parameters" in action:
-                    for i in action["parameters"]:
-                        if i["name"].upper() == "BLD_NUM":
-                            buildNum = i["value"]
-                            break
-                    break
-
-            logger.debug("{0} Found Job BLD_NUM {1}".format(parentBldNum, buildNum))
-
-            if buildNum == parentBldNum:
-                if downstream["url"] is not None:
-                    jobLinks.append(downstream["url"])
-                    continue
-            elif buildNum < parentBldNum:
+            jEnvVars = jenkins_get_envVars(build['url'])
+            if jEnvVars is None:
                 break
 
-    logger.debug("Build {0} running {1} downstream jobs".format(parentBldNum, len(jobLinks)))
+            if version != jEnvVars['envMap']['VERSION']:
+                continue
 
-    return jobLinks
+            jenkinsBuildNum = int(jEnvVars['envMap']['BLD_NUM'])
+
+            if jenkinsBuildNum == bldNum:
+                logger.debug("parentBuild {0} matches Job BLD_NUM {1}".format(bldNum, jenkinsBuildNum))
+                jobUrls.append(build['url'])
+                continue
+            elif jenkinsBuildNum < bldNum:
+                break
+
+    logger.debug("Build {0} has {1} matching jobs".format(bldNum, len(jobUrls)))
+
+    return jobUrls
 
 
-def jenkins_fetch_buildHistory(dashbrd, parentBuildNum, jenkinsBuildNum):
-    #
-    # Jenkins subprojects needs to be part of the build process in order to traverse the links
-    #
+def jenkins_get_parent_builds(dashbrd, parentBldNum, url):
+    name = dashbrd.getName()
+    jContents = {} 
+    hist = {}
 
-    logger.debug("parentBuildNum: {0}  jenkins: {1}".format(parentBuildNum, jenkinsBuildNum))
+    logger.debug("{0} parentBldNum: {1}".format(name, parentBldNum))
 
-    parentUrl = dashbrd.getJenkinsParentUrl()
-    jenkins_type = dashbrd.getJenkinsType()
-    jenkins_bldHistory = {} 
-    bldHistory = {}
-
-    # Build entry point
-    build_url = parentUrl + "{0}/".format(jenkinsBuildNum)
-    jenkins_bldHistory = jenkins_fetch_url(build_url)
-    if jenkins_bldHistory is None:
+    # Parent job entry point
+    jContents = jenkins_get_contents(url)
+    if jContents is None:
         return None
   
-    actions = jenkins_bldHistory["actions"]
-    for action in actions:
-        if "parameters" in action:
-            for i in action["parameters"]:
-                name = i["name"]
-                if name.upper() == "RELEASE":
-                    bldHistory["codename"] = i["value"]
-                    continue
-                if name.upper() == "VERSION":
-                    bldHistory["branch"] = i["value"]
-            break
+    jEnvVars = jenkins_get_envVars(url)
+    if jEnvVars is None:
+        return None
 
-    logger.debug("{0}...{1}".format(bldHistory["codename"], bldHistory["branch"]))
+    envVars = jEnvVars['envMap']
 
-    bldHistory["buildNum"] = parentBuildNum 
-    bldHistory["timestamp"] = jenkins_bldHistory["timestamp"]
-    bldHistory["duration"] = jenkins_bldHistory["duration"]
-    bldHistory["slave"] = jenkins_bldHistory["builtOn"]
-    bldHistory["manifestSHA"] = jenkins_get_manifestSHA(parentUrl, jenkinsBuildNum)
-    bldHistory["changeSet"] = [] 
-    bldHistory["bld_jobs"] = [] 
-    bldHistory["bldJobs_docId"] = [] 
+    hist['build_num'] = int(envVars['BLD_NUM'])
+    hist['timestamp'] = jContents['timestamp']
 
-    githubType = dashbrd.getGithubType()
-    githubUrl = dashbrd.getGithubUrl()
+    version = envVars ['VERSION']
+    if envVars.has_key('PRODUCT_BRANCH'):
+        branch = envVars['PRODUCT_BRANCH']     
+    elif envVars.has_key('BRANCH'):
+        branch = envVars['BRANCH']     
+ 
+    hist['branch'] = dashbrd.getBranch() 
+    hist['version'] = dashbrd.getVersion() 
+    docId = hist['version'] + '-' + envVars['BLD_NUM']
 
-    # Get changeSet from Jenkins summary
-    changeSet = jenkins_fetch_changeSet(dashbrd, jenkinsBuildNum, parentUrl)
-    logger.debug(changeSet)
+    # Only proceed if found matching branch and version
+    if hist['branch'] != branch or hist['version'] != version:
+        return None
 
-    nextItem = False
-    # Build commit history
-    for item in jenkins_bldHistory["changeSet"]["items"]:
-        commitHistory = {} 
-        msg = item["msg"]
-        issueMsg = msg.split("\n")
-        for line in issueMsg:
-            for label in issueLabels:
-                if label in line or "Change-Id" in line:
-                    commitHistory["issueId"] = "NA" 
-                    if "Change-Id" not in line:
-                        issue = line.split(":")
-                        issueArray = issue[0].split(" ")
-                        # Just get issue ID and get additional description from (JIRA)
-                        for i in issueArray:
-                            for label in issueLabels:
-                                if label in i:
-                                    commitHistory["issueId"] = i
-                                    break
-                            if commitHistory["issueId"] != "NA":
-                                break
-                        logger.debug("issueId: {0}".format(commitHistory["issueId"]))
+    # If build already in DB, check build result for progress 
+    buildDoc = db_doc_exists(docId)
+    if buildDoc:
+        params = buildDoc.value
+        if "result" in params and params['result']:
+            # Nothing to do if build result has final build status
+            return None
+        else:
+            logger.debug("{0} parentBuildNum: {1}  DB release {2}".format(name, parentBldNum, params['release']))
+            newBuild = buildHistory(params)
+            logger.debug("{0} parentBuildNum: {1}  dashboard buildHistory {2}".format(name, parentBldNum, newBuild))
+            return newBuild
 
-                    # Get complete changeSet from Jenkins and github
-                    if changeSet:
-                        commit = changeSet.pop(0)
-                        logger.debug("Repo: {0}".format(commit["repo"]))
-                        commitHistory["repo"] = commit["repo"]
-                        commitHistory["commitId"] = commit["commitId"]
-                        commitHistory["url"] = githubUrl+commit["repo"]+"/commit/"+commit["commitId"]
-                        commitHistory["codename"] = bldHistory["codename"]
-                        commitHistory["branch"] = bldHistory["branch"]
-                        commitLog = github_get_commit_log(dashbrd, commit["repo"], commit["commitId"])
-                        if commitLog:
-                            commitHistory["author"] = commitLog["author"]
-                            commitHistory["title"] = commitLog["title"]
-                            commitHistory["desc"] = commitLog["desc"]
-                        else:
-                            logger.debug("commitLog is empty {0}".format(commitHistory["url"]))
-                        docId = bldDB.insert_commit(commitHistory)
-                        bldHistory["changeSet"].append(docId)
+    hist['release'] = envVars['RELEASE']
+    hist['manifest'] = dashbrd.getManifest()
+    hist['binary'] = dashbrd.getBinPath()
 
-                    nextItem = True
-                    break
-            if nextItem == True:
-                nextItem = False
-                break
+    hist['manifest_sha'] = ""
+    if envVars.has_key('MANIFEST_SHA'):
+        hist['manifest_sha'] = envVars['MANIFEST_SHA']
+    else:
+        hist['manifest_sha'] = github_get_manifest_sha(hist['manifest'],
+                                                       hist['timestamp'],
+                                                       hist['version']+'-'+str(hist['build_num']))
+    hist['passed'] = []
+    hist['failed'] = []
+    hist['sanity'] = []
+    hist['unitTest'] = []
+    hist['jobType'] = "parent_build"
 
-    # Create new set of build history 
-    newBuild = buildHistory(parentBuildNum, build_url)
-    newBuild.update_db_history(bldHistory)
+    # Get commit change info
+    changeSet = {}
+    if dashbrd.getChangeRequestFrom() == "jenkins":
+        changeSet = jenkins_get_changeSet(dashbrd, url) 
+    else:
+        changeSet = github_get_changeSet(dashbrd, parentBldNum,
+                                                  hist['manifest'],
+                                                  hist['manifest_sha'])
+    logger.debug("{0} parentBuildNum: {1}  Getting commit info {2}".format(name, parentBldNum, changeSet))
 
-    dbHistory = newBuild.get_db_history()
-    logger.debug(dbHistory)
-    # Seems to have a BUG here 
-    docId = bldDB.insert_build_history(bldHistory)
+    hist['jenkinsUrl'] = url
+    hist['result'] = ""
+    hist['duration'] = int(jContents['duration'])
+    hist['released'] = "False"
+
+    hist["commits"] = [] 
+    if changeSet['commits']:
+        hist["commits"] = changeSet['commits'] 
+
+    hist["repo_deleted"] = []
+    if changeSet['repo_deleted']:
+        hist['repo_deleted'] = changeSet['repo_deleted'] 
+
+    # Create new instance of build history and write to DB
+    logger.debug("{0} parentBuildNum: {1}  Inserting build history to DB".format(name, parentBldNum))
+    newBuild = buildHistory(hist)
+    if newBuild:
+        db_insert_build_history(hist)
+    else:
+        logger.debug("{0} Build {1} Failed to create buildHistory for monitoring".format(name, parentBldNum))
+        newBuild = None
+    logger.debug("{0} parentBuildNum: {1}  dashboard buildHistory {2}".format(name, parentBldNum, newBuild))
 
     return newBuild
 
 
-def jenkins_find_new_builds(dashbrd):
+def jenkins_get_new_jobs(url, version, buildNum, gitType, manifest):
     #
-    # Scan for all new builds since last build 
+    # Find and return list of jobs newer than the specified bldNum
+    # List returned in ascending order
+    # buildNum is our BLD_NUM, not the jenkins (job) build number
     #
-    parentUrl = dashbrd.getJenkinsParentUrl()
-    jenkins_type = dashbrd.getJenkinsType()
     bldList = []
-    buildCount = 0
 
-    logger.debug("{0}".format(parentUrl))
+    logger.debug("{0} {1}".format(url, buildNum))
 
-    # Parent build history 
-    bld_list = jenkins_fetch_url(parentUrl)
-    if bld_list is None:
-        return buildCount
+    jContents = jenkins_get_contents(url)
+    if not jContents:
+        return bldList
  
-    count = 0
-    max_count = 40 
-    # Scan all available builds
-    for build in bld_list["builds"]:
-        parentBldNum = 0
-        if "number" in build:
-            jenkinsBldNum = build["number"]
-        else:
-            return buildCount
+    if not jContents.has_key('builds'):
+        logger.warning("Build information not available from Jenkins")
+        return bldList
 
-        if jenkins_type == "multi-build":
-            envVars = jenkins_fetch_envVars(build["url"])
-            if envVars is None:
-                return buildCount
-
-            # Get from trigger properties     
-            if "BLD_NUM" in envVars["envMap"]:
-                parentBldNum = envVars["envMap"]["BLD_NUM"]
-            else:
-                return buildCount
+    # Scan for new and active builds
+    for build in jContents['builds']: 
+        job = {}
+        if build.has_key('number'):
+            jenkinsJobNum = build['number']
         else:
-            parentBldNum = jenkinsBldNum 
-
-        if dashbrd.build_is_new(parentBldNum) == True: 
-            newBuild = jenkins_fetch_buildHistory(dashbrd, parentBldNum, jenkinsBldNum)
-            if newBuild:
-                dashbrd.add_build(newBuild)
-                buildCount += 1
-                logger.debug("{0} Found new build #{1}".format(dashbrd.getName(), newBuild.getBuildNum()))
-            else:
-                logger.warning("Build #{0} failed to start at {1}".format(parentBldNum, build["url"]))
-        else:
-            break 
-        
-        # Number of builds to fetch at initial startup
-        count += 1         
-        if count > max_count or parentBldNum == dashbrd.getCurrBuildNum(): 
             break
 
-    logger.debug("{0} Discovered {1} builds...fetching new {2}".format(dashbrd.getName(), count, buildCount))
+        if build.has_key('url'):
+            job['url'] = build['url'] 
+        else:
+            break
 
-    return buildCount
+        jEnvVars = jenkins_get_envVars(build['url'])
+        if jEnvVars is None:
+            break
+
+        envVars = jEnvVars['envMap'] 
+        if gitType == "repo":
+            if manifest != envVars['MANIFEST']:
+                continue 
+
+        if envVars.has_key('VERSION') and version != envVars['VERSION']:
+            continue
+
+        if envVars.has_key('BLD_NUM'):
+            bldNum = int(envVars['BLD_NUM'])
+        else:
+            bldNum = int(jenkinsJobNum)
+
+        job['bldNum'] = bldNum 
+        if bldNum >= buildNum:
+            bldList.append(job)
+
+        if bldNum < buildNum:
+            break
+
+    bldList.reverse()
+    return bldList
+
+
+def jenkins_scan_unitTest(dashbrd):
+    #
+    # Scan for all new sanity jobs up to the last completed job
+    #
+    name = dashbrd.getName()
+    version = dashbrd.getVersion()
+    unitTestUrls = dashbrd.getUnitTestUrls()
+    gitType = ""
+    manifest = "" 
+    job_list = []
+    unitTest = {}
+
+    logger.debug("{0}: {1}".format(name, unitTestUrls))
+
+    # Service pending jobs
+    jobQueue = dashbrd.getPendingUnitTest()
+    for job in jobQueue:
+        unitTest = jenkins_get_unitTest(dashbrd, job['url'])
+        if unitTest['result']:
+            dashbrd.update_unitTest(unitTest)
+            db_update_test_result(unitTest)
+            logger.debug("{0} unit tests {1} completed".format(name, unitTest['url']))
+
+    # Scan for new jobs
+    curUnitTestBldNum = dashbrd.getCurUnitTestBldNum()
+    logger.debug("{0} Current unit tests {1}".format(name, curUnitTestBldNum))
+
+    # Temporarily hardcode to help with debugging; Remove on final deploy
+    if not curUnitTestBldNum:
+        curUnitTestBldNum = FAKE_BLD_NUM
+
+    job_list = jenkins_get_new_jobs(unitTestUrls, version, curUnitTestBldNum, gitType, manifest)
+    logger.debug("{0} Found new unit tests {1}".format(name, job_list))
+
+    # Create and record new unit tests into database
+    for job in job_list: 
+        logger.debug("{0} parsing unit tests {1}".format(name, job['url']))
+        unitTest = jenkins_get_unitTest(dashbrd, job['url'])
+        if not unitTest['result']:
+            qlen = dashbrd.add_unitTest(unitTest)
+            logger.debug("{0} Found new unit tests #{1} total in queue {2}".format(name, unitTest['build_num'], qlen))
+        elif unitTest['result'] != 'pending' and unitTest['result'] != 'unknown':
+            dashbrd.advance_curUnitTestBldNum(unitTest['build_num'])
+            logger.debug("{0} new unit tests {1} result already in DB".format(name, unitTest['build_num']))
+
+
+def jenkins_scan_builds(dashbrd):
+    #
+    # Scan for new builds from parent build job up to the last build
+    #
+    name = dashbrd.getName()
+    version = dashbrd.getVersion()
+    parentUrl = dashbrd.getParentUrl()
+    gitType = dashbrd.getGitType()
+    manifest = dashbrd.getManifest()
+    curBldNum = dashbrd.getCurBuildNum()
+    qlen = 0
+    bld_list = []
+
+    logger.debug("{0}: {1}".format(name, parentUrl))
+
+    dashbrd.scanning()
+
+    # Temporarily hardcode to help with debugging; Remove on final deploy
+    if not curBldNum:
+        curBldNum = FAKE_BLD_NUM
+
+    # Scan for new and active jobs
+    bld_list = jenkins_get_new_jobs(parentUrl, version, curBldNum, gitType, manifest)
+
+    # Create and enter each build into our database
+    for build in bld_list: 
+        newBuild = jenkins_get_parent_builds(dashbrd, build['bldNum'], build['url'])
+        if newBuild:
+            qlen = dashbrd.add_build(newBuild)
+            logger.debug("{0} Found new build #{1} total {2} builds".format(name, newBuild.getBuildNum(), qlen))
+        else:
+            logger.warning("{0} Build #{1} completed and entered in DB".format(name, build['bldNum']))
+        
+    logger.debug("{0} Scanned {1} incomplete builds".format(name, qlen))
+
+    dashbrd.idle()
+
+    return qlen
 
 
 #################### GITHUB Utility #####################
 #
-# Need to add support for Python Git module
+# Need Python Git module
 #
-def github_fetch_commit(url):
-    commitLog = None
-    try:
-        rsp = urllib2.urlopen(url, timeout=10)
-        data = rsp.read()
-        commitLog = BeautifulSoup(data, "html.parser") 
-        rsp.close()
-    except (httplib.BadStatusLine, urllib2.HTTPError, urllib2.URLError) as e:
-        logger.warning("Warning: {0} query github at {1}".format(e, url))
-    except socket.timeout: 
-        logger.warning("Github request timeout {0}".format(url))
+def github_read(url, params={"depth" : 0}):
+    data = None
+    res = None
 
-    return commitLog
+    token={'Authorization': 'token {0}'.format(_GITHUB_TOKEN)}
 
-
-def github_get_commit_log(dashbrd, repo, commitId):
-    commitLog = {}
-    githubUrl = dashbrd.getGithubUrl()
-    url = githubUrl+"{0}/commit/{1}".format(repo, commitId)
-
-    # Need alternate method
-    if repo in projPrivate:
-        return commitLog
- 
-    log = github_fetch_commit(url)
-    if log is not None:
-        commitLog["desc"] = log.find("div", {"class": "commit-desc"}).text.strip()
-        title = log.find("div", {"class": "commit"}).text.strip()
-        title = title.split("\n")
-        commitLog["title"] = title[2].lstrip()
-
+    for x in range(3):
         try:
-            commitLog["author"] = log.find("a", {"rel": "contributor"}).text.strip()
-        except AttributeError:
-            try:
-                commitLog["author"] = log.find("span", {"class": "user-mention"}).text.strip()
-            except AttributeError:
-                commitLog["author"] = "NA"
+            res = requests.get(url, headers=token, params=params, timeout=10)
+            if res:
+                data = res.json()
+                break
+        except:
+            logger.error("url unreachable: %s" % url)
+            time.sleep(5)
 
-    logger.debug("{0}".format(commitLog))
+    return data
 
-    return commitLog
-    
 
-def github_get_manifest_changes(url, manifestSHA):
-    # changeSet : [ 
-    #    {
-    #        "repo" : "",
-    #        "commitId" : "" 
-    #    }, 
-    # ]
-    values = []
-    changeSet = []
+def github_scan_builds(dashbrd):
+    nBuilds = 0
+    name = dashbrd.getName()
 
-    manifest_url = url+"build-team-manifests/commit/"+manifestSHA
+    dashbrd.scanning()
+    logger.debug("{0} Discovered {1} builds".format(name, nBuilds))
+    dashbrd.idle()
 
-    try:
-        rsp = urllib2.urlopen(manifest_url, timeout=10)
-        html = rsp.read()
-        manifest = BeautifulSoup(html, "html.parser") 
-        rsp.close()
-    except (httplib.BadStatusLine, urllib2.HTTPError, urllib2.URLError) as e:
-        logger.warning("Warning: {0} query github at {1}".format(e, manifest_url))
-        return changeSet
-    except socket.timeout: 
-        logger.warning("Github request timeout {0}".format(manifest_url))
-        return changeSet
+    return nBuilds
 
-    for td in manifest.findAll("td", {"class": "blob-code blob-code-addition"}):
-        for span in td.findAll("span", {"class": "blob-code-inner"}):
-            if "project" == span.find("span", {"class": "pl-ent"}).text.strip():
-                for val in span.findAll("span", {"class": "pl-s"}):
-                    val = val.text.strip()
-                    if "master" not in val:
-                        values.append(val)
 
-    for i in range(len(values)):
-        if i % 2:
-            changeSet[i/2].update({"commitId": changes[i]})
-        else:
-            changeSet.append({"repo": changes[i]})
+def github_get_fixed_issues(msg, issueType):
+    issues = []
+
+    title = msg.split('\n', 1)[0]
+    if issueType == "jira":
+        matches = re.findall(_JIRA_PATTERN, title)
+
+    if matches:
+        for tix in matches:
+            issues.append(tix)
+    return issues
+
+
+def github_get_changeSet(dashbrd, bldNum, manifest, manifest_sha):
+    changeSet = {}
+
+    _GITREPO = dashbrd.getPyGitRepo()
+
+    version = dashbrd.getVersion()
+    prv_bnum = bldNum - 1
+
+    logger.debug('Build: #{0}, manifest {1}, manifest_sha {2}'.format(bldNum, manifest, manifest_sha))
+
+    docId = dashbrd.getVersion() + '-' + str(prv_bnum)
+    doc = db_doc_exists(docId)
+    if doc: 
+        prv_sha = doc.value['manifest_sha']
+        if not prv_sha: 
+            prv_sha = manifest_sha+'~1'
+    else:
+        prv_sha = manifest_sha+'~1'
+
+    _GITREPO.git.checkout(dashbrd.getBranch())
+    o = _GITREPO.remotes.origin
+    o.pull()
+    m1 = _GITREPO.git.show("%s:%s" % (manifest_sha, manifest))
+    m2 = _GITREPO.git.show("%s:%s" % (prv_sha, manifest))
+    mxml1 = ET.fromstring(m1)
+    mxml2 = ET.fromstring(m2)
+    p1list = {}
+    p2list = {}
+    proj1 = mxml1.findall('project')
+    proj2 = mxml2.findall('project')
+    for p in proj1:
+        n = p.get('name')
+        v = p.get('revision')
+        r = p.get('remote') or 'couchbase'
+        p1list[n] = (v,r)
+    for p in proj2:
+        n = p.get('name')
+        v = p.get('revision')
+        r = p.get('remote') or 'couchbase'
+        p2list[n] = (v,r)
+
+    p1projs = p1list.keys()
+    p2projs = p2list.keys()
+    added = [x for x in p1projs if x not in p2projs]
+    deleted = [x for x in p2projs if x not in p1projs]
+    common = [x for x in p1projs if x not in added]
+
+    changeSet = {}
+    repo_changes = []
+    repo_added = []
+    repo_deleted = []
+
+    REMOTES = dashbrd.getGithubRemotes()
+
+    in_build = dashbrd.getVersion() + '-' + str(bldNum)
+
+    for k in common:
+        if p1list[k][0] == p2list[k][0]:
+            continue
+        giturl = REMOTES[p1list[k][1]] + k + '/compare/' + p2list[k][0] + '...' + p1list[k][0]
+        j = github_read(giturl) 
+        if not j:
+            return ""
+
+        commits = j['commits']
+        for c in commits:
+            commit = {}
+            commit['in_build'] = [in_build]
+            commit['repo'] = k
+            commit['sha'] = c['sha']
+            commit['committer'] = c['commit']['committer']
+            commit['author'] = c['commit']['author']
+            commit['url'] = c['html_url']
+            commit['message'] = c['commit']['message']
+            commit['type'] = 'commit'
+            commit['fixes'] = github_get_fixed_issues(commit['message'], "jira")
+
+            logger.debug("Insert commit {0}-{1} into DB".format(k, c['sha']))
+            ret = db_insert_commit(commit)
+            if ret:
+                repo_changes.append(ret)
+
+    for k in added:
+        giturl = REMOTES[p1list[k][1]] + k + '/commits?sha=' + p1list[k][0]
+        j = github_read(giturl) 
+        if not j:
+            return ""
+
+        for c in j:
+            commit = {}
+            commit['in_build'] = [in_build]
+            commit['repo'] = k
+            commit['sha'] = c['sha']
+            commit['committer'] = c['commit']['committer']
+            commit['author'] = c['commit']['author']
+            commit['url'] = c['html_url']
+            commit['message'] = c['commit']['message']
+            commit['type'] = 'commit'
+            commit['fixes'] = github_get_fixed_issues(commit['message'], "jira")
+
+            logger.debug("Insert commit {0}-{1} into db".format(k, c['sha']))
+            ret = db_insert_commit(commit)
+            if ret:
+                repo_added.append(ret)
+
+    for k in deleted:
+        logger.debug("Repo {0} was removed in this commit".format(k))
+        repo_deleted.append(k)
+
+    changeSet['commits'] = repo_changes + repo_added
+    changeSet['repo_deleted'] = repo_deleted
 
     return changeSet
 
 
-######################## Buildboard Server ##############################
+def github_get_manifest_sha(dashbrd, man_file, build_time, version):
+    gitProj = dashbrd.getBuildProject()
+
+    logger.debug('github_get_manifest_sha: polling github for SHA: man_file {0} and version {1}'.format(man_file, version))
+
+    btime = datetime.datetime.fromtimestamp(build_time/1000)
+    until = btime.isoformat()
+
+    giturl = 'https://api.github.com/repos/couchbase/{0}' + '/commits?until={1}&&path={3}'.format(gitProj, until, man_file)
+    j = github_read(giturl) 
+    if not j:
+        return ""
+
+    for c in j:
+        msg = c['commit']['message']
+        if msg.find(version) != -1:
+            logger.debug('{0}: github_get_manifest_sha: got SHA from github: {1}'.format(dashbrd.getName(), c['sha']))
+            return c['sha']
+
+    return ""
+
+
+######################## Buildboard Services ##############################
 
 def shutdown ():
     logger.info("Buildboard cleanup and saving data!")
@@ -803,191 +1148,137 @@ def shutdown ():
         dashbrd.close()
 
 
-def dashboard_watch_build_job(dashbrd, buildJob):
-    jobHistory = {}
-    result = "pending"
-    build_url = buildJob.getJenkinsUrl()
-    timer = 600
-    timeout = timer
-#    timeout_limit = dashbrd.getTimeout()
-    timeout_limit = 3600
-    data = None
-
-    dashbrd.build_job_start(buildJob, result)
-    logger.debug("{0} Start watching...{1}...{2}".format(dashbrd.getName(), build_url, dashbrd.getTimeout()))
-
-    while result == "" or result == "pending":
-        # Monitor each set of running jobs
-        logger.warning("Watching...{0} timeout in {1} seconds".format(build_url, timeout_limit))
-        data = jenkins_fetch_url(build_url)
-        if data is not None and data["result"]:
-            result = data["result"]
-        else:
-            # Get build job duration to determine timeout value 
-            if timeout <= timeout_limit:
-                time.sleep(timer)
-                timeout += timer
-            else:
-                # Need to diagnose or flash alert due to posible hang in Jenkins 
-                logger.warning("Job timeout: {0}".format(build_url))
-                logger.warning("{0} Job RESULT: {1}".format(dashbrd.getName(), data["result"]))
-                result = "TIMEOUT" 
-
-    # Build job ended
-    logger.debug("{0} Stop watching...{1}".format(dashbrd.getName(), build_url))
-    dashbrd.build_job_end(buildJob, result)
-
-    buildJob.setDuration(data["duration"])
-    jobHistory = buildJob.get_db_history()
-    bldDB.update_job_history(jobHistory)
-
+def dashboard_watch_job(dashbrd, buildJob):
     # Update Dashboard
-    logger.debug("Need to update Dashboard")
+    logger.debug("Watch a particular job out of band")
 
 
 def dashboard_monitor(dashbrd):
     # 
-    # Monitor threads per build job 
+    # Monitor build (per thread) 
     #   - process live running data
     #   - health of active builds
-    #   - update web contents
+    #   - update build result in DB
     # 
-    currBuild = dashbrd.get_next_build()
-    (state, buildStatus) = dashbrd.start(currBuild)
-    parentBuildNum = currBuild.getBuildNum()
- 
+    dashbrd.start_monitor()
+
+    gitType = dashbrd.getGitType()
+    parentUrl = dashbrd.getParentUrl()
+    buildUrls = dashbrd.getBuildUrl()
+
     t = threading.currentThread()
+    ct = findThread(t)
     tname = t.getName()
-    name = dashbrd.getName()
-    logger.debug("{0} thread {1} {2} {3}".format(name, tname, t, state))
+    dname = dashbrd.getName()
+    logger.debug("{0} thread {1} {2} {3}".format(dname, tname, t, dashbrd.getState()))
 
-    tp = findBuildThreads(t)
-    tp.child = []
-    
-    jenkins_type = dashbrd.getJenkinsType()
-    parentUrl = dashbrd.getJenkinsParentUrl()
-    buildUrls = dashbrd.getJenkinsBuildUrl()
+    completedJobs = []
+    curBuild = dashbrd.get_current_build()
+    parentBldNum = dashbrd.getCurBuildNum()
 
-    count = 0 
-    jobList = []
-    pendingJobs = []
-
-    # Need to check for thread Queue for incoming build 
-    while state == "running" and buildStatus == "pending":
-        count += 1 
-        logger.debug("{0} Sanity check...loop: {1}".format(name, count))
-
-        # Downstream jobs discovery 
-        if jenkins_type == "multi-build":
-            bldHistory = currBuild.get_db_history()   
+    # Monitor all build jobs in queue
+    while dashbrd.getState() == "monitoring":
+        jobList = []
+        if gitType == "repo":
             for url in buildUrls:
-                jobList = jenkins_find_multi_build_jobs(parentBuildNum, url)
-                for job_url in jobList:
-                    if currBuild.job_is_new(job_url):
-                        newJob = jenkins_fetch_job_history(bldHistory, job_url)
-                        if newJob is not None:
-                            currBuild.add_job(newJob)
-        elif jenkins_type == "single-build":
-            jobList = jenkins_find_downstream_jobs(parentUrl, parentBuildNum)
-            if jobList:
-                for job in jobList:
-                    if currBuild.job_is_new(job_url):
-                        newJob = jenkins_fetch_job_history(bldHistory, job["url"])
-                        if newJob is not None:
-                            currBuild.add_job(newJob)
+                jobUrls = []
+                jobUrls = jenkins_get_matching_jobs(url, dashbrd.getVersion(), parentBldNum)
+                jobList += [job for job in jobUrls if job not in completedJobs]
+            for job_url in jobList:
+                stats = jenkins_get_build_job(dashbrd, job_url)
+                # Check for unit tests only after job has completed 
+                if stats and stats['result']: 
+                    docId = stats['version']+'-'+str(stats['build_num'])+'-'+stats['distro']+'-'+stats['edition'] 
+                    testResults = jenkins_get_builtin_unitTest(dashbrd, job_url)
+                    if testResults['result']:
+                        db_update_test_result(testResults)
+                        db_build_attach_unitTest(testResults['docId'], stats['edition'])
+                    jobResult = dashbrd.update_build_job_result(curBuild, docId, stats['result'], stats['duration'], testResults)
+                    db_update_build_job_result(docId, jobResult, stats['duration'], testResults['docId'])
+                    completedJobs.append(job_url)
+                    logger.debug("{0} Completed Jenkins job {1} result={2}".format(dname, len(completedJobs), stats['result']))
+        elif gitType == "git":
+            jobUrls = jenkins_walk_downstream_jobs(parentUrl, parentBldNum)
+            jobList = [job for job in jobUrls if job['url'] not in completedJobs]
+            for job in jobList:
+                stats = jenkins_get_build_job(dashbrd, job['url'])
+                if stats and stats['result']: 
+                    docId = stats['version']+'-'+str(stats['build_num'])+'-'+stats['distro']+'-'+stats['edition'] 
+                    testResults = jenkins_get_builtin_unitTest(dashbrd, job['url'])
+                    if testResults['result']:
+                        db_update_test_result(testResults)
+                        db_build_attach_unitTest(testResults['docId'], stats['edition'])
+                    jobResult = dashbrd.update_build_job_result(curBuild, docId, stats['result'], stats['duration'], testResults)
+                    db_update_build_job_result(docId, jobResult, stats['duration'], testResults['docId'])
+                    completedJobs.append(job['url'])
+                    logger.debug("{0} Completed Jenkins job {1} result={2}".format(dname, len(completedJobs), stats['result']))
         else:
-            logger.info("{0} Unknown Jenkins build type {1}".format(name, jenkins_type))
+            logger.info("{0} Unsupported Jenkins job type {1}".format(dname, gitType))
 
-        if jobList:
-            del jobList[:]
-
-        pendingJobs = currBuild.get_pending_jobs()
-        logger.debug("{0} Pending Jobs: {1}".format(name, len(pendingJobs)))
-
-        if pendingJobs:
-            # Monitor each running job
-            for job in pendingJobs:
-                data = None
-                # Don't schedule if job is already being watched 
-                if dashbrd.watching(job) == False:
-                    data = jenkins_fetch_url(job.getJenkinsUrl())
-                    if data is None or not data["result"] or data["result"] == "":
-                        t = threading.Thread(target=dashboard_watch_build_job, args=(dashbrd, job))
-                        tp.child.append(t)
-                        t.start()
-            for child in tp.child:
-                if child.isAlive():
-                    t.join(float(dashbrd.getTimeout()))
-            if tp.child:
-                del tp.child[:]
-
-            # Allow Jenkins queue jobs to transition from pending state. Ideally query Jenkins job queue
-            del pendingJobs[:]
-            time.sleep(360)
+        # Health check for irregular failure such as hang and stop monitor current set of builds
+        health = "" 
+        health = dashbrd.health_check(curBuild)
+        if health:
+            logger.debug("{0} Build {1} health issue: {2}".format(dname, parentBldNum, health)) 
         else:
-            # checkpoint
-            buildStatus = dashbrd.update_build_status(currBuild)
+            logger.debug("{0} Build {1} no health issue".format(dname, parentBldNum)) 
 
-            if buildStatus == "pending": 
-                # Corresponding build jobs no longer availabe in Jenkins 
-                # Set to "unknown" if build does not already exist in DB
-                dbHistory = bldDB.query_buildHistory(bldHistory)
-                if dbHistory and "status" in dbHistory:
-                    buildStatus = dbHistory['status']
-                else:
-                    buildStatus = "unknown"
-                dashbrd.setBuildStatus(buildStatus)
+        if health == 'pending':
+            inQueue = False
+            jobs = []
+            for url in buildUrls:
+                if jenkins_job_queue_empty(url):
+                   inQueue = True
+                   break
+            if inQueue:
+                # Allow Jenkins queued jobs to transition to running state 
+                logger.debug("{0} Build job transitioning sleep 60 secs...".format(dname))
+                time.sleep(60)
+                continue
+            else:
+                # Jenkins jobs possibly in transition or Jenkins job history no longer exists
+                # Need to handle the corner case between these 2 cases and proceed
+                logger.debug("{0} Jenkins jobs in transition or history has possibly aged".format(dname))
+                health = 'finished'
 
-            dashbrd.finish(currBuild)
+        if not jobList and health != 'pending':
+            # checkpoint - make sure build jobs are completed
+            bldResult = dashbrd.update_build_result(curBuild)
+            if bldResult == "incomplete":
+                logger.warning("{0} Build {1} is missing some jobs".format(dname, parentBldNum))
+            else:
+                logger.debug("{0} Build {1} finished result: {2}".format(dname, parentBldNum, bldResult))
 
-            # Update DB and Web contents 
-            currBuild.setStatus(buildStatus)
-            bldHistory = currBuild.get_db_history()
-            bldDB.update_build_history(bldHistory)
-            html_buildHistory_report(dashbrd.getName(), bldHistory)
+            del completedJobs[:]
 
-            # If more build pending in queue, continue to next build 
-            currBuild = dashbrd.get_next_build()
-            if currBuild is not None:
-                (state, buildStatus) = dashbrd.start(currBuild)
-                parentBuildNum = currBuild.getBuildNum()
-                logger.debug("{0} Next build {1}  state: {2}  status: {3}".format(name, parentBuildNum, state, buildStatus))
+            # Update parent build in DB
+            db_update_build_result(curBuild, bldResult)
 
-    logger.debug("{0} thread ended...".format(tp))
-    threadPools.remove(tp)
+            # If still has build in queue, then continue to next build 
+            nextBuildNum = dashbrd.get_next_build()
+            if nextBuildNum:
+                curBuild = dashbrd.get_current_build()
+                parentBldNum = nextBuildNum 
+            else:
+                dashbrd.stop_monitor()
+
+            dashbrd.reset_build_result()
+
+            logger.debug("{0} Next build {1}  dashboard: {2}".format(dname, nextBuildNum, dashbrd.getState()))
+        else:
+            # Jenkins jobs in progress 
+            logger.debug("{0} Build job in progress sleep 60 secs...".format(dname))
+            time.sleep(60)
+
+    logger.debug("{0} thread ended...".format(ct))
+    threadPools.remove(ct)
 
 
-def httpPostHandler():
-    return 0
-
-
-def buildboard_handler(service, params):
-    return 0
-
-
-def dashboard_handler(service, params):
-    #
-    # :param service - action to perform
-    #
-    count = 0
-
-    dashbrd = findDashboardByName(params[0])
-    logger.debug("{0}...{1}".format(service, dashbrd.getName()))
-
-    #
-    # params["name"] = dashboard name
-    #
-    if dashbrd is None:
-        return "unknown"
-
-    if (service == "SCAN_BUILD"):
-        count = jenkins_find_new_builds(dashbrd)
-    else:
-        return "Unknown event service" 
-
-    # Spin up one monitoring daemon per dashboard
-    if count:
-        if dashbrd.getState() == "ready":
+def dashboard_spinup(dashbrd):
+    # Spin up one monitoring thread per dashboard instance
+    dname = dashbrd.getName()
+    logger.debug("{0} dashboard spin up state {1}".format(dname, dashbrd.getState()))
+    if dashbrd.getState() != "monitoring":
             dname = dashbrd.getName()
             t = findThreadByName(dname)
             if t is None:
@@ -997,94 +1288,81 @@ def dashboard_handler(service, params):
                 nt.parent = d
                 threadPools.append(nt)
                 d.start()
+                logger.debug("{0} dashboard started".format(dname))
 
 
-def dashboard_startup(cfg):
-    # Create dashboard
-    dashbrd = Dashboard(cfg["name"], cfg["init-param"])
-    dashboardPool.append(dashbrd)
+def buildboard_reload_config(configJson):
+    result = True
+    # Reload and update configuration changes
+    return result
 
-    # Create dashboard
+
+# Add a Dashboard instance per build product
+def buildboard_startup(cfg):
+    dashbrd = Dashboard(cfg)
+
+    name = dashbrd.getName()
+    branch = dashbrd.getBranch()
+    logger.info("name: {0}  branch: {1}".format(name, branch)) 
+
+    # Initialize git repo
+    repo = dashbrd.getRepo()
+    gitProj = dashbrd.getBuildProject()
+    if gitProj:
+        if not os.path.exists(gitProj):
+            check_call(["git", "clone", repo+'/'+ gitProj])
+        gitRepo = Repo(gitProj)
+        if gitRepo:
+            dashbrd.setPyGitRepo(gitRepo)
+        else:
+            print ("Error: Unable to clone {0}".format(cfg['gitProj']))
+            return None
+    else:
+        print ("Error: Need to specify the github project")
+        return None
+
+
     #
-    name = html_generate_dashboard_page(cfg["name"])
-    if name:
-        dashbrd.setHtmlDashboard(name)
-
-    # Find and load recent incomplete builds in DB and update dashboard
+    # Add build product to dashboard.html
     #
-    bldDB.retrieve_incomplete_builds(cfg["name"])
-
-    # Find and load last successful build in DB if not exist 
-    if dashbrd.getLastSuccessfulBuild() == 0:
-        bldNum = bldDB.find_prev_build(cfg["name"], "lastSuccessfulBuild")
-        if bldNum != 0:
-            dashbrd.setLastSuccessfulBuild(bldNum)
-
-    # Find and load last build that passed validation in DB
-
-    dashbrd.start()
+    ret = html_update_dashboard_table(cfg['name'])
+    if ret:
+        # Load last build from DB and update dashboard instance
+        # Load last build from DB and start monitoring
+        # Do nothing for now 
+        print ("DEBUG: Created table {0} in Dashboard".format(cfg['name']))
+    else:
+        print ("WARNING: Can't add {0} to Dashboard".format(cfg['name']))
+        return None
 
     return dashbrd
 
 
-def buildValiation_handler(service, params):
-    #
-    # :param service - action to perform
-    # :param params - list of input parameters 
-    #
-    return 0
+def buildboard_init(configJson):
+    config = []
 
+    # Parse config file for each build instance
+    logger.debug(configJson)
+    cfgFile = os.path.abspath(configJson)
+    if os.path.exists(cfgFile):
+        with io.open(cfgFile) as cfg:
+            config = json.load(cfg)
+    else:
+        logger.error("Error reading configuration file {0}".format(configFile))
+        sys.exit(1)
 
-def check_for_events():
-    # 
-    # In general, check incoming events/messages and defer processing to actual monitoring threads 
-    #     :param event_type (dashboard, buildHistory, build_validation, diagnostics, etc...)
-    #     :param service (ADD_BUILD, ADD_JOB, ADD_COMMIT, etc...)
-    # 
-    # For now, actively query Jenkins for new builds and related jobs. 
-    # 
+    dashboard_cfg = config['dashboard']
 
-    eventQ = [] 
-    eventMsgs = [] 
+    logger.info("Total dashboard instances detected: {0}".format(len(dashboard_cfg)))
 
-    # 
-    # Check and store incoming messages 
-    # 
-
-    # Check dashboard events
-    for dbrd in dashboardPool:
-        logger.debug(dbrd.getName())
-
-    for i in range(len(dashboardPool)):
-        method = dashboardPool[i].getMethod()
-        name = dashboardPool[i].getName()
-        if method == "pull":
-            eventQ.append(buildEvents())
-            eventQ[i].eType = "dashboard" 
-            eventQ[i].service = "SCAN_BUILD" 
-            eventQ[i].params = []
-            eventQ[i].params.append(name)
-            logger.debug("Event notification {0}: {1} {2} {3}".format(i, eventQ[i].params, eventQ[i].eType, eventQ[i].service))
-        elif method == "push":
-            # Read incoming messages in evenMsgs and put in eventQ
-            logger.debug("Check incoming messages for {0}".format(name))
-        else:
-            logger.debug("No event detected for {0}".format(name))
-        
-    return eventQ
-
-
-def buildboard_init(cfg_data):
-    dashboard_cfg = cfg_data["dashboard"]
-
-    logger.info("Number of dashboards: {0}".format(len(dashboard_cfg)))
-
-    # Generate html files from template if not exist
+    # Create dashboard instance and setup for monitoring
     for cfg in dashboard_cfg:
-        dashbrd = dashboard_startup(cfg)
-        filename = html_generate_buildHistory_page(cfg["name"])
-        if filename:
-            dashbrd.setHtmlBuildHistory(filename)
+        dashbrd = buildboard_startup(cfg)
+        if dashbrd:
+            dashboardPool.append(dashbrd)
+
+    logger.info("Total dashboard instances created: {0}".format(len(dashboardPool)))
+    return (len(dashboardPool))
 
 
 def signal_term_handler(signal, frame):
@@ -1092,51 +1370,40 @@ def signal_term_handler(signal, frame):
     sys.exit(0)
 
 
-def main (configFile):
-    cfgData = []
-    # Parse from config file and allow adding new dashboard instance dynamically
-    logger.debug(configFile)
-    try:
-        cfg = open(configFile)
-        cfgData = json.load(cfg)
-        logger.debug(cfgData)
-        cfg.close()
-    except BaseException as e:
-        logger.error("Error reading {0} error {1}".format(configFile, e))
-        raise
+def main (configJson):
+    nBuilds = 0
 
     # Initialize each dashboard instance
-    buildboard_init(cfgData)
+    nBoards = buildboard_init(configJson)
+    if nBoards == 0:
+        sys.exit(0)
 
-    for dbrd in dashboardPool:
-        name = dbrd.getName()
-        htmlDashboard = dbrd.getHtmlDashboard()
-        htmlBuildHistory = dbrd.getHtmlBuildHistory()
-        jenkinsParentUrl = dbrd.getJenkinsParentUrl()
-        jenkinsBuildUrl = dbrd.getJenkinsBuildUrl()
-        logger.debug("{0}...{1}...{2}...{3}".format(name, htmlDashboard, htmlBuildHistory, jenkinsParentUrl))
+    for dshbrd in dashboardPool:
+        name = dshbrd.getName()
+        parentUrl = dshbrd.getParentUrl()
+        buildUrl = dshbrd.getBuildUrl()
+        logger.debug("{0} ParentUrl: {1}".format(name, parentUrl))
+        logger.debug("{0} BuildsUrl: {1}".format(name, buildUrl))
 
-    # Spin up a daemon
     try:
         signal.signal(signal.SIGTERM, signal_term_handler)
         while (True):
-            event_queue = check_for_events()
-            for event in event_queue:
-                logger.debug("Incoming event...{0}".format(event.params[0]))
-                if event.eType == "buildboard":
-                    buildboard_handler(event.service, event.params)
-                elif event.eType == "dashboard":
-                    dashboard_handler(event.service, event.params)
-                elif event.eType == "build_validation":
-                    buildValidation_handler(event.service, event.params)
-                else:
-                    logger.info("Unknown event...")
+            for dshbrd in dashboardPool:
+                mode = dshbrd.getMode()
+                method = dshbrd.getMethod()
+                if mode == "poll":
+                    if method == "jenkins":
+                        nBuilds = jenkins_scan_builds(dshbrd)
+                    else:
+                        nBuilds = github_scan_builds(dshbrd)
+                if nBuilds:
+                    dashboard_spinup(dshbrd)
+                    nBuilds = 0
 
-            if event_queue:
-                del event_queue[:]
-
-            logger.debug("Sleeping 1200...")
-            time.sleep(1200)
+                jenkins_scan_unitTest(dshbrd)
+                  
+            logger.debug("Main Sleeping 600...")
+            time.sleep(20)
             
     except KeyboardInterrupt:
         shutdown()
@@ -1151,5 +1418,4 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     enable_logging(options.log_level)
-    bldDB = buildDB(BLDHISTORY_BUCKET)
     main(options.config_file)

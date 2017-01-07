@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <meta charset="utf-8">
+   <meta content="en" http-equiv="Content-Language">
+    <title>
+     Detailed Build History
+    </title>
+     <style type="text/css">
+      a {text-decoration: none}
+     </style>
+     <link href="/static/buildTable.css" media="screen" rel="stylesheet" type="text/css"/>
+    </meta>
+   </meta>
+  </meta>
+ </head>
+{% extends "base.html" %}
+{% block content %}
+ <body class='buildHistory' style="font-family: 'Georgia',Trebuchet MS,sans-serif;">
+   <h2 style="color:#558CAD">
+    <br>
+   </h2>
+   <div>
+    <table class="build_table">
+     <tr>
+      <td style="width:5%;">
+       Build
+      </td>
+      <td style="width:7%;">
+       Date
+      </td>
+      <td style="width:12%;">
+       Platforms
+      </td>
+      <td style="width:12%;">
+       Editions
+      </td>
+      <td style="width:8%;">
+       Build Result
+      </td>
+      <td style="width:8%;">
+       Unit Test
+      </td>
+      <td style="width:8%;">
+       Sanity
+      </td>
+     </tr>
+     {% for build in buildHistory %}
+     <tr>
+       <td><a href="{{build.parentUrl}}">{{build.build_num}}</a></td>
+       <td>{{build.timestamp}}</td>
+       <td><a href="{{build.jenkinsUrl}}">{{build.platform}}</a></td>
+       <td><a href="{{build.jenkinsUrl}}">{{build.edition}}</a></td>
+       <td><a class={{build.bldResult}} href={{build.binUrl}}>{{build.bldResult}}</a></td>
+       <td><a class={{build.unitTest}} href={{build.unitTestReportUrl}}>{{build.unitTest}}</a></td>
+       <td class={{build.sanity}}>{{build.sanity}}</td>
+     </tr>
+     {% endfor %}
+    </table>
+   </div>
+ </body>
+{% endblock %}
+ <html>
+ </html>
+</html>

@@ -1,32 +1,37 @@
 {
 "dashboard": [
         {
-             "name": "Watson",
-             "init-param": {
-                 "jenkinsParentUrl": "http://server.jenkins.couchbase.com/job/watson-build/",
-                 "jenkinsBuildUrls": [ 
-                     "http://server.jenkins.couchbase.com/job/watson-unix/",
-                     "http://server.jenkins.couchbase.com/job/watson-windows/"
-                 ],
-                 "jenkinsType": "multi-build",
-                 "githubType": "repo-manifest",
-                 "githubUrl": "https://github.com/couchbase/",
-                 "method": "pull",
-                 "timeout": "5400"}
-        },
-        {
-             "name": "Sherlock",
-             "init-param": {
-                 "jenkinsParentUrl": "http://factory.couchbase.com/view/build/view/couchbase_server/view/Sherlock/job/sherlock-build/",
-                 "jenkinsBuildUrls": [ 
-                     "http://factory.couchbase.com/view/build/view/couchbase_server/view/Sherlock/job/sherlock-unix/",
-                     "http://factory.couchbase.com/view/build/view/couchbase_server/view/Sherlock/job/sherlock-windows/"
-                 ],
-                 "jenkinsType": "multi-build",
-                 "githubType": "repo-manifest",
-                 "githubUrl": "https://github.com/couchbase/",
-                 "method": "pull",
-                 "timeout": "5400"}
+            "name": "Watson",
+            "branch": "master",
+            "version": "4.6.0",
+            "jenkinsParams": {
+                "parentUrl": "http://server.jenkins.couchbase.com/view/All/job/watson-build/",
+                "buildUrls": [ 
+                    "http://server.jenkins.couchbase.com/view/All/job/watson-windows/",
+                    "http://server.jenkins.couchbase.com/view/All/job/watson-unix/"
+                ],
+                "unitTestUrls": "http://cv.jenkins.couchbase.com/view/All/job/unit-simple-test",
+                "sanityUrls": "http://server.jenkins.couchbase.com/view/All/job/build_sanity_matrix",
+                "buildJobs": "18"
+            },
+            "githubParams": {
+                "type": "repo",
+                "repo": "git://github.com/couchbase",
+                "project": "build-team-manifests",
+                "manifest": "watson.xml", 
+                "remotes": {
+                    "blevesearch": "https://api.github.com/repos/blevesearch/",
+                    "couchbase": "https://api.github.com/repos/couchbase/",
+                    "couchbase-priv": "https://api.github.com/repos/couchbase/",
+                    "couchbasedeps": "https://api.github.com/repos/couchbasedeps/",
+                    "couchbaselabs": "https://api.github.com/repos/couchbaselabs/"
+                }
+            },
+            "mode": "poll",
+            "method": "jenkins",
+            "changeRequest": "github",
+            "timeout": "115200000",
+            "binPath": "http://172.23.120.24/builds/latestbuilds/couchbase-server/watson"
         }
     ]
 }

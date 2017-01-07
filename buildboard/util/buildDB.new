@@ -1,0 +1,116 @@
+#!/usr/bin/python
+
+import os
+import logging
+
+from couchbase.bucket import Bucket
+from couchbase.n1ql import N1QLQuery
+from couchbase.views.params import Query
+from couchbase.bucket import LOCKMODE_WAIT
+from couchbase.exceptions import CouchbaseError, KeyExistsError, NotFoundError
+from couchbase.views.iterator import RowProcessor
+
+
+logger = logging.getLogger()
+
+class buildDB(object):
+    def __init__(self, bucket):
+        self.bucket = bucket
+        self.db = Bucket(bucket, lockmode=LOCKMODE_WAIT)
+
+    def doc_exists(self, docId):
+        result = {} 
+        try:
+            result = self.db.get(docId)
+        except CouchbaseError as e:
+            return False
+        return result
+
+    def insert_build_history(self, build):
+        #
+        # param: bldHistory
+        # type: dict
+        #
+        # Job history should be inserted prior to this
+        #
+        docId = build['version']+"-"+str(build['build_num'])
+        try:
+            result = self.db.insert(docId, build)
+            logger.debug("{0}".format(result))
+        except CouchbaseError as e:
+            if e.rc == 12: 
+                logger.warning("Couldn't create build history {0} due to error: {1}".format(docId, e))
+            docId = 0
+        return docId
+
+    def insert_job_history(self, job):
+        docId = job['version']+"-"+str(job['build_num'])+"-"+job['distro']+"-"+job['edition']
+        try:
+            result = self.db.insert(docId, job)
+            logger.debug("{0}".format(result))
+        except CouchbaseError as e:
+            if e.rc == 12: 
+                logger.warning("Couldn't create job history {0} due to error: {1}".format(docId, e))
+            docId = 0
+        return docId
+
+    def update_build_result(self, docId, result, duration):
+        bldHistory = self.db.get(docId).value
+        if result:
+            bldHistory['result'] = result 
+        bldHistory['duration'] = duration 
+        loop = 3
+        while loop:
+            try:
+                result = self.db.upsert(docId, bldHistory)
+                logger.debug("{0}".format(result))
+            except CouchbaseError as e:
+                if e.rc == 13: 
+                    logger.error("Attempt: {0} Couldn't update docId {1} does not exist {2}".format(loop, docId, e))
+                loop -= 1
+
+    def insert_commit(self, commit):
+        docId = commit['repo']+"-"+str(commit['sha'])
+        build = commit['in_build'][0]
+        try:
+            if self.doc_exists(docId):
+                result = self.db.get(docId)
+                val = result.value
+                if not build in val['in_build']:
+                    val['in_build'].append(build)
+                    result = self.db.upsert(docId, val)
+            else:
+                result = self.db.insert(docId, commit)
+                logger.debug("{0}".format(result))
+        except CouchbaseError as e:
+            if e.rc == 12: 
+                logger.error("Couldn't create commit history {0} due to error: {1}".format(docId, e))
+            docId = 0
+        return docId
+
+    def get_incomplete_builds(self):
+        q = N1QLQuery("select url from `build-history` where type = 'parent_build' and result is NULL")
+        urls = []
+        for row in self.db.n1ql_query(q):
+            urls.append(row['url'])
+        return urls
+
+    def get_incomplete_sanity_runs(self):
+        q = N1QLQuery("select sanity_url from `build-history` where type = 'parent_build' and sanity_result = 'INCOMPLETE'")
+        urls = []
+        for row in self.db.n1ql_query(q):
+            urls.append(row['sanity_url'])
+        return urls
+
+    def get_incomplete_unit_runs(self):
+        q = N1QLQuery("select unit_urls from `build-history` where type = 'parent_build' and unit_result = 'INCOMPLETE'")
+        urls = []
+        for row in self.db.n1ql_query(q):
+            ulist = row['unit_urls']
+            for u in ulist:
+                if u['result'] == 'INCOMPLETE':
+                    urls.append(u['url'])
+        return urls
+
+    def __repr__(self):
+        return ("buildDB(history, num_jobs)".format(self))
