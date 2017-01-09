@@ -4,7 +4,7 @@
 # construction of the base image.
 
 FROM ceejatec/ubuntu-1204-couchbase-build
-MAINTAINER hari.kodungallur@couchbase.com
+MAINTAINER build-team@couchbase.com
 
 USER root
 
@@ -55,3 +55,11 @@ RUN apt-get install -y gdb && \
 RUN apt-get update && \
     apt-get install -y lua5.2 lua5.2-dev && \
     rm -fr /var/cache/apt/archives/*.deb
+
+# Keep this stuff at the end, because the ARG declaration breaks Docker build caching
+RUN echo "PermitUserEnvironment yes" >> /etc/ssh/sshd_config
+ARG CONTAINER_TAG_ARG
+ENV CONTAINER_TAG=${CONTAINER_TAG_ARG}
+RUN echo "CONTAINER_TAG=${ARGY}" > /home/couchbase/.ssh/environment
+RUN chown couchbase:couchbase /home/couchbase/.ssh/environment
+
