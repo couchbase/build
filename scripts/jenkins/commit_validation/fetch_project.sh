@@ -36,5 +36,6 @@ fi
 pushd $PROJECT_PATH > /dev/null
 git reset --hard HEAD
 git fetch ssh://$GERRIT_HOST:$GERRIT_PORT/$PROJECT $REFSPEC
+git clean -d --force -x
 git checkout FETCH_HEAD
 popd > /dev/null
