@@ -76,7 +76,8 @@ echo_cmd cp -f 'tlm/dot-clang-format' './clang-format'
 
 pushd ${GERRIT_PROJECT} 2>&1 > /dev/null
     format_diff=$(${BASEDIR}/git-clang-format HEAD^ --diff --maintain)
-    if [ "$format_diff" == "clang-format did not modify any files" ]
+    if [ "$format_diff" == "clang-format did not modify any files" ] || \
+       [ "$format_diff" == "no modified files to format" ]
     then
         echo "clang-format did not suggest any changes"
         exit 0
