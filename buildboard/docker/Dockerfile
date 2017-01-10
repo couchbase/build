@@ -94,6 +94,13 @@ RUN pip install BeautifulSoup \
  
 VOLUME /opt/couchbase/var
 RUN export PATH=$PATH:/opt/couchbase/bin:/opt/couchbase/bin/tools:/opt/couchbase/bin/install
+
+RUN yum -y update
+RUN yum -y install wget
+RUN yum groupinstall -y 'Development tools'
+RUN yum install -y zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel
+RUN wget --no-check-certificate https://www.python.org/ftp/python/Python-3.3.3.tar.xz
+RUN tar xvf Python-3.3.3.tar.xz && cd Python-3.3.3 && ./configure --prefix=/usr/local && make && make altinstall
  
 ### 
 #

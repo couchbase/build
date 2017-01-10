@@ -32,6 +32,39 @@
             "changeRequest": "github",
             "timeout": "115200000",
             "binPath": "http://172.23.120.24/builds/latestbuilds/couchbase-server/watson"
+        },
+        {
+            "name": "Spock",
+            "branch": "master",
+            "version": "5.0.0",
+            "jenkinsParams": {
+                "parentUrl": "http://server.jenkins.couchbase.com/view/All/job/couchbase-server-build/",
+                "buildUrls": [ 
+                    "http://server.jenkins.couchbase.com/view/All/job/couchbase-server-windows/",
+                    "http://server.jenkins.couchbase.com/view/All/job/couchbase-server-unix/"
+                ],
+                "unitTestUrls": "http://cv.jenkins.couchbase.com/view/All/job/unit-simple-test",
+                "sanityUrls": "http://server.jenkins.couchbase.com/view/All/job/build_sanity_matrix",
+                "buildJobs": "18"
+            },
+            "githubParams": {
+                "type": "repo",
+                "repo": "git://github.com/couchbase",
+                "project": "build-team-manifests",
+                "manifest": "couchbase-server/spock.xml", 
+                "remotes": {
+                    "blevesearch": "https://api.github.com/repos/blevesearch/",
+                    "couchbase": "https://api.github.com/repos/couchbase/",
+                    "couchbase-priv": "https://api.github.com/repos/couchbase/",
+                    "couchbasedeps": "https://api.github.com/repos/couchbasedeps/",
+                    "couchbaselabs": "https://api.github.com/repos/couchbaselabs/"
+                }
+            },
+            "mode": "poll",
+            "method": "jenkins",
+            "changeRequest": "github",
+            "timeout": "115200000",
+            "binPath": "http://172.23.120.24/builds/latestbuilds/couchbase-server/spock"
         }
     ]
 }

@@ -36,7 +36,8 @@ from util.buildDBI import *
 
 __version__ = "1.1.0"
 
-FAKE_BLD_NUM = 3530
+SPOCK_FAKE_BLD_NUM = 1615
+WATSON_FAKE_BLD_NUM = 3530
 
 #_JIRA_PATTERN = r'([A-Z]{2,5}-[0-9]{1,6})'
 _JIRA_PATTERN = r'(\b[A-Z]+-\d+\b)'
@@ -759,7 +760,8 @@ def jenkins_get_parent_builds(dashbrd, parentBldNum, url):
     if envVars.has_key('MANIFEST_SHA'):
         hist['manifest_sha'] = envVars['MANIFEST_SHA']
     else:
-        hist['manifest_sha'] = github_get_manifest_sha(hist['manifest'],
+        hist['manifest_sha'] = github_get_manifest_sha(dashbrd,
+                                                       hist['manifest'],
                                                        hist['timestamp'],
                                                        hist['version']+'-'+str(hist['build_num']))
     hist['passed'] = []
@@ -892,7 +894,10 @@ def jenkins_scan_unitTest(dashbrd):
 
     # Temporarily hardcode to help with debugging; Remove on final deploy
     if not curUnitTestBldNum:
-        curUnitTestBldNum = FAKE_BLD_NUM
+        if name == "watson":
+            curUnitTestBldNum = WATSON_FAKE_BLD_NUM
+        else:
+            curUnitTestBldNum = SPOCK_FAKE_BLD_NUM
 
     job_list = jenkins_get_new_jobs(unitTestUrls, version, curUnitTestBldNum, gitType, manifest)
     logger.debug("{0} Found new unit tests {1}".format(name, job_list))
@@ -928,7 +933,10 @@ def jenkins_scan_builds(dashbrd):
 
     # Temporarily hardcode to help with debugging; Remove on final deploy
     if not curBldNum:
-        curBldNum = FAKE_BLD_NUM
+        if name == "watson":
+            curUnitTestBldNum = WATSON_FAKE_BLD_NUM
+        else:
+            curUnitTestBldNum = SPOCK_FAKE_BLD_NUM
 
     # Scan for new and active jobs
     bld_list = jenkins_get_new_jobs(parentUrl, version, curBldNum, gitType, manifest)
@@ -1116,10 +1124,16 @@ def github_get_manifest_sha(dashbrd, man_file, build_time, version):
 
     logger.debug('github_get_manifest_sha: polling github for SHA: man_file {0} and version {1}'.format(man_file, version))
 
-    btime = datetime.datetime.fromtimestamp(build_time/1000)
+    btime = datetime.fromtimestamp(build_time/1000)
     until = btime.isoformat()
+    logger.debug('{0}: {1} {2}'.format(dashbrd.getName(), btime, until))
 
-    giturl = 'https://api.github.com/repos/couchbase/{0}' + '/commits?until={1}&&path={3}'.format(gitProj, until, man_file)
+    gitProjUrl = 'https://api.github.com/repos/couchbase/{0}'.format(gitProj)
+#    gitApiParams = '/commits?until={0}&&path={1}'.format(until, man_file)
+    gitApiParams = '/commits?until={0}'.format(until)
+    giturl = gitProjUrl + gitApiParams
+
+#    giturl = 'https://api.github.com/repos/couchbase/{0}' + '/commits?until={1}&&path={3}'.format(gitProj, until, man_file)
     j = github_read(giturl) 
     if not j:
         return ""
