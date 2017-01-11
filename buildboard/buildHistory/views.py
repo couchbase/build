@@ -10,8 +10,9 @@ from util.buildDBI import *
 
 JIRA_URL = "https://issues.couchbase.com/browse/"
 
+@buildHistory.route('/' )
 @buildHistory.route('/<release>/<version>')
-def spock(release, version):
+def builds(release='spock', version='5.0.0'):
     bh = []
     title = {}
     bh = get_recent_build_history(version, 10)
@@ -21,8 +22,8 @@ def spock(release, version):
         bh.append(title)
     return render_template('buildHistory.html', buildHistory=bh)
 
-@buildHistory.route('<release>/buildDetails/<version>/<build_num>')
-def buildDetails(release, version, build_num):
+@buildHistory.route('/builds/buildDetails/<version>/<build_num>')
+def buildDetails(version, build_num):
     bh = []
     bh = get_build_details(version, build_num)
     return render_template('buildDetails.html', buildHistory=bh)

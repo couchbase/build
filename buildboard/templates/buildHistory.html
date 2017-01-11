@@ -55,7 +55,7 @@
      </tr>
      {% for build in buildHistory %}
      <tr>
-       <td><a href="buildDetails/{{build.version}}/{{build.build_num}}">{{build.build_num}}</a></td>
+       <td><a href="/builds/buildDetails/{{build.version}}/{{build.build_num}}">{{build.build_num}}</a></td>
        <td>{{build.timestamp}}</td>
        <td>{{build.module}}</td>
        <td>
