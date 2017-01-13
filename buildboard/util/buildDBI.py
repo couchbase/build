@@ -210,10 +210,27 @@ def db_get_builds_by_number(version, buildNum):
     return buildList
 
 def db_get_incomplete_builds():
-    q = N1QLQuery("SELECT url from `build-history` WHERE jobType = 'parent_build' and result = 'incomplete'")
+    q = N1QLQuery("SELECT url from `build-history` WHERE type = 'parent_build' and result = 'incomplete'")
     urls = []
     for row in db.n1ql_query(q):
         urls.append(row['jenkinsUrl'])
+    return urls
+
+def db_get_incomplete_sanity_runs():
+    q = N1QLQuery("SELECT sanity_url from `build-history` WHERE type = 'parent_build' and sanity_result = 'incomplete'")
+    urls = []
+    for row in db.n1ql_query(q):
+        urls.append(row['sanity_url'])
+    return urls
+
+def db_get_incomplete_unit_runs():
+    q = N1QLQuery("SELECT unit_urls from `build-history` WHERE type = 'parent_build' and unit_result = 'incomplete'")
+    urls = []
+    for row in db.n1ql_query(q):
+        ulist = row['unit_urls']
+        for u in ulist:
+            if u['result'] == 'incomplete':
+                urls.append(u['unit_test_url'])
     return urls
 
 

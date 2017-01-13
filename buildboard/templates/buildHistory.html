@@ -60,8 +60,9 @@
        <td>{{build.module}}</td>
        <td>
        {% for fix in build.fixes %}
-         <a href="{{build.jiraUrl}}{{fix}}">{{fix}}</a></td>
+         <a href="{{build.jiraUrl}}{{fix}}">{{fix}}</a>
        {% endfor %}
+       </td>
        <td><a href={{build.commitUrl}}>{{build.commitId}}</a></td>
        <td>{{build.author}}</td>
        <td>{{build.message}}</td>

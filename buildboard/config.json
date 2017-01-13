@@ -45,7 +45,7 @@
                 ],
                 "unitTestUrls": "http://cv.jenkins.couchbase.com/view/All/job/unit-simple-test",
                 "sanityUrls": "http://server.jenkins.couchbase.com/view/All/job/build_sanity_matrix",
-                "buildJobs": "18"
+                "buildJobs": "9"
             },
             "githubParams": {
                 "type": "repo",

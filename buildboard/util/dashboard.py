@@ -60,6 +60,7 @@ class Dashboard(object):
         self.timeout = params['timeout']
         self.buildList = []
         self.unitTestList = []
+        self.sanityList = []
 
         """
         :param buildResult (current in-build status)
@@ -105,6 +106,9 @@ class Dashboard(object):
 
     def getPendingUnitTest(self):
         return self.unitTestList
+
+    def getPendingSanity(self):
+        return self.sanityList
 
     def getManifest(self):
         return self.manifest
@@ -249,6 +253,20 @@ class Dashboard(object):
         logger.debug("Total unitTest in queue {0}".format(qlen))
         return qlen
 
+    def add_sanity(self, sanity):
+        if sanity in self.sanityList:
+            return len(self.sanityList)
+
+        self.sanityList.append(sanity)
+
+        # If starting with an empty queue 
+        qlen = len(self.sanityList)
+        if qlen == 1:
+            self.curSanityBldNum = sanity['build_num']
+
+        logger.debug("Total sanity in queue {0}".format(qlen))
+        return qlen
+
     def update_unitTest(self, testResults):
         for test in self.unitTestList:
             if test['build_num'] == testResults['build_num']:
@@ -257,9 +275,21 @@ class Dashboard(object):
         if self.unitTestList and self.curUnitTestBldNum == testResults['build_num']:
             self.curUnitTestBldNum = self.unitTestList[0]['build_num'] 
 
+    def update_sanity(self, testResults):
+        for test in self.sanityList:
+            if test['build_num'] == testResults['build_num']:
+                self.sanityList.remove(test)
+                break
+        if self.sanityList and self.cursanityBldNum == testResults['build_num']:
+            self.curSanityBldNum = self.sanityList[0]['build_num'] 
+
     def advance_curUnitTestBldNum(self, buildNum):
         if self.curUnitTestBldNum < buildNum:
             self.curUnitTestBldNum = buildNum
+
+    def advance_curSanityBldNum(self, buildNum):
+        if self.curSanityBldNum < buildNum:
+            self.curSanityBldNum = buildNum
 
     def close(self):
         # Check for pending jobs
