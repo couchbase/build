@@ -246,7 +246,7 @@ class Dashboard(object):
         if qlen == 1:
             self.curUnitTestBldNum = unitTest['build_num']
 
-        logger.debug("Total builds in queue {0}".format(qlen))
+        logger.debug("Total unitTest in queue {0}".format(qlen))
         return qlen
 
     def update_unitTest(self, testResults):

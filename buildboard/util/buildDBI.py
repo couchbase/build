@@ -210,26 +210,26 @@ def db_get_builds_by_number(version, buildNum):
     return buildList
 
 def db_get_incomplete_builds():
-    q = N1QLQuery("select url from `build-history` where type = 'parent_build' and result is NULL")
+    q = N1QLQuery("SELECT url from `build-history` WHERE jobType = 'parent_build' and result = 'incomplete'")
     urls = []
     for row in db.n1ql_query(q):
         urls.append(row['jenkinsUrl'])
     return urls
 
-def db_get_incomplete_sanity_runs():
-    q = N1QLQuery("select sanity_url from `build-history` where type = 'parent_build' and sanity_result = 'INCOMPLETE'")
-    urls = []
-    for row in db.n1ql_query(q):
-        urls.append(row['sanity_url'])
-    return urls
 
-def db_get_incomplete_unit_runs():
-    q = N1QLQuery("select unit_urls from `build-history` where type = 'parent_build' and unit_result = 'INCOMPLETE'")
-    urls = []
-    for row in db.n1ql_query(q):
-        ulist = row['unit_urls']
-        for u in ulist:
-            if u['result'] == 'INCOMPLETE':
-                urls.append(u['unit_test_url'])
-    return urls
+#########################
+# REST API support
+#########################
+
+def db_get_last_successful_build(version):
+    builds = []
+    q = N1QLQuery("SELECT max(build_num) FROM `build-history` WHERE version = '{0}' AND jobType = 'parent_build' AND result = 'passed'".format(version))
+    rows = db.n1ql_query(q)
+    for row in rows:
+        builds.append(row['$1'])
+        break
+    if builds:
+        return builds[0]
+    else:
+        return 0
 

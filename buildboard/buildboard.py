@@ -49,8 +49,8 @@ with open(os.path.join(os.path.expanduser('~'), '.githubtoken')) as F:
 #BUILDHISTORY_BUCKET = 'couchbase://buildboard-db:8091/build-history'
 
 class buildThreads(object):
-    parent=None
-    child=None
+    parent=[]
+    child=[]
 
 # Dashboards (live builds)
 threadPools = []
@@ -1246,14 +1246,23 @@ def dashboard_monitor(dashbrd):
                    break
             if inQueue:
                 # Allow Jenkins queued jobs to transition to running state 
-                logger.debug("{0} Build job transitioning sleep 60 secs...".format(dname))
-                time.sleep(60)
+                logger.debug("{0} Build job transitioning sleep 2 min...".format(dname))
+                time.sleep(120)
                 continue
             else:
                 # Jenkins jobs possibly in transition or Jenkins job history no longer exists
-                # Need to handle the corner case between these 2 cases and proceed
-                logger.debug("{0} Jenkins jobs in transition or history has possibly aged".format(dname))
-                health = 'finished'
+                # Need to handle these 2 corner cases
+                logger.debug("{0} Retry - Jenkins jobs in transition".format(dname))
+                time.sleep(300)
+                for url in buildUrls:
+                    if jenkins_job_queue_empty(url):
+                       inQueue = True
+                       break
+                if inQueue:
+                    continue
+                else:
+                    logger.debug("{0} Jenkins job history has possibly aged".format(dname))
+                    health = 'finished'
 
         if not jobList and health != 'pending':
             # checkpoint - make sure build jobs are completed

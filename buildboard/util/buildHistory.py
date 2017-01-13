@@ -86,7 +86,7 @@ class buildHistory(object):
 
     def update_build_result(self, result, totalJobs):
         nJobs = len(self.failed) + len(self.passed)
-        if totalJobs == nJobs: 
+        if totalJobs <= nJobs: 
             self.result = result 
         else:
             self.result = "incomplete" 
