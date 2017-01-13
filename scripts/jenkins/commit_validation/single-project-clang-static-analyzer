@@ -65,6 +65,7 @@ cat <<EOF
 EOF
 echo_cmd make clean-xfd-hard
 echo_cmd rm -fr install
+echo_cmd rm -f build/CMakeCache.txt
 
 cat <<EOF
 

@@ -97,6 +97,7 @@ cat <<EOF
 EOF
 echo_cmd make clean-xfd-hard
 echo_cmd rm -fr install
+echo_cmd rm -f build/CMakeCache.txt
 
 # Zero ccache stats, so we can measure how much space this build is
 # consuming.

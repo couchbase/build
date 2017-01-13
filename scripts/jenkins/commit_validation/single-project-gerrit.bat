@@ -78,6 +78,7 @@ call tlm\win32\environment
 :: wipe out Go's binary directories (and essentially always
 :: perform a clean build Go code).
 del /F/Q/S godeps\pkg goproj\pkg goproj\bin
+del /F/Q/S build\CMakeCache.txt
 
 @echo.
 @echo ============================================
