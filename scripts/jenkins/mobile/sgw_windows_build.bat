@@ -131,14 +131,16 @@ set  TEMPLATE_FILE="godeps\src\github.com\couchbase\sync_gateway\rest\api.go"
 if EXIST %TEMPLATE_FILE%.orig	del %TEMPLATE_FILE%.orig
 if EXIST %TEMPLATE_FILE%.new	del %TEMPLATE_FILE%.new
 
-echo ======== insert build meta-data ==============
+set PRODUCT_NAME=%SG_PRODUCT_NAME%
+
+echo ======== insert %PRODUCT_NAME% build meta-data ==============
 
 setlocal disabledelayedexpansion
 for /F "usebackq tokens=1* delims=]" %%I in (`type %TEMPLATE_FILE% ^| find /V /N ""`) do (
     if "%%J"=="" (echo.>> %TEMPLATE_FILE%.new) else (
     set LINEA=%%J
     setlocal enabledelayedexpansion
-    set LINEB=!LINEA:@PRODUCT_NAME@=%SG_PRODUCT_NAME%!
+    set LINEB=!LINEA:@PRODUCT_NAME@=%PRODUCT_NAME%!
     set LINEC=!LINEB:@PRODUCT_VERSION@=%VERSION%!
     set LINED=!LINEC:@COMMIT_SHA@=%REPO_SHA%!
     echo !LINED!>> %TEMPLATE_FILE%.new
@@ -150,7 +152,7 @@ dos2unix %TEMPLATE_FILE%.new
 move     %TEMPLATE_FILE%       %TEMPLATE_FILE%.orig
 move     %TEMPLATE_FILE%.new   %TEMPLATE_FILE%
 
-echo ======== build ===============================
+echo ======== build %PRODUCT_NAME% ===============================
 set    DEST_DIR=%SGW_DIR%\bin
 if EXIST %DEST_DIR%     del /s/f/q %DEST_DIR%
 mkdir %DEST_DIR%
@@ -179,6 +181,33 @@ if "%REL_VER%" GEQ "1.3.0" GOTO build_sg_accel
 GOTO skip_build_sg_accel
 
 :build_sg_accel
+
+    set PRODUCT_NAME=%ACCEL_PRODUCT_NAME%
+
+    echo ======== remove build meta-data ==============
+    move  %TEMPLATE_FILE%.orig  %TEMPLATE_FILE%
+
+    echo ======== insert %PRODUCT_NAME% build meta-data ==============
+
+    setlocal disabledelayedexpansion
+    for /F "usebackq tokens=1* delims=]" %%I in (`type %TEMPLATE_FILE% ^| find /V /N ""`) do (
+        if "%%J"=="" (echo.>> %TEMPLATE_FILE%.new) else (
+        set LINEA=%%J
+        setlocal enabledelayedexpansion
+        set LINEB=!LINEA:@PRODUCT_NAME@=%PRODUCT_NAME%!
+        set LINEC=!LINEB:@PRODUCT_VERSION@=%VERSION%!
+        set LINED=!LINEC:@COMMIT_SHA@=%REPO_SHA%!
+        echo !LINED!>> %TEMPLATE_FILE%.new
+        endlocal )
+        )
+    endlocal
+
+    dos2unix %TEMPLATE_FILE%.new
+    move     %TEMPLATE_FILE%       %TEMPLATE_FILE%.orig
+    move     %TEMPLATE_FILE%.new   %TEMPLATE_FILE%
+
+    echo ======== build %PRODUCT_NAME% ===============================
+    
     echo go install github.com\couchbaselabs\sync-gateway-accel\...
     go install github.com\couchbaselabs\sync-gateway-accel\...
 

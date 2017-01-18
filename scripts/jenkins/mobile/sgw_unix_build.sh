@@ -195,18 +195,19 @@ if [[ ! -d ${STAGING}/examples/ ]] ; then mkdir -p ${STAGING}/examples/ ; fi
 if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
 
 TEMPLATE_FILES="${SGW_DIR}/rest/api.go"
+PRODUCT_NAME=${SG_PRODUCT_NAME}
 
-echo ======== insert build meta-data ==============
+echo ======== insert ${PRODUCT_NAME} build meta-data ==============
 for TF in ${TEMPLATE_FILES}
   do
-    cat ${TF} | sed -e "s,@PRODUCT_NAME@,${SG_PRODUCT_NAME},g" \
+    cat ${TF} | sed -e "s,@PRODUCT_NAME@,${PRODUCT_NAME},g" \
               | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
               | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
     mv  ${TF}      ${TF}.orig
     mv  ${TF}.new  ${TF}
 done
 
-echo ======== build ===============================
+echo ======== build ${PRODUCT_NAME} ===============================
 DEST_DIR=${SGW_DIR}/bin
 rm -rf p ${DEST_DIR}
 mkdir -p ${DEST_DIR}
@@ -223,20 +224,50 @@ GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbas
 if [[ -e ${BIN_DIR}/${EXEC} ]]
   then
     mv -f ${BIN_DIR}/${EXEC} ${DEST_DIR}
-    echo "..............................Sync-Gateway Success! Output is: ${DEST_DIR}/${EXEC}"
+    echo ".............................. ${PRODUCT_NAME} Success! Output is: ${DEST_DIR}/${EXEC}"
   else
-    echo "############################# Sync-Gateway FAIL! no such file: ${BIN_DIR}/${EXEC}"
+    echo "############################# ${PRODUCT_NAME} FAIL! no such file: ${BIN_DIR}/${EXEC}"
     exit 55
 fi
+
+echo ======== remove build meta-data ==============
+for TF in ${TEMPLATE_FILES}
+  do
+    mv  ${TF}.orig ${TF}
+done
+
+PRODUCT_NAME=${ACCEL_PRODUCT_NAME}
+
+echo ======== insert ${PRODUCT_NAME} build meta-data ==============
+for TF in ${TEMPLATE_FILES}
+  do
+    cat ${TF} | sed -e "s,@PRODUCT_NAME@,${PRODUCT_NAME},g" \
+              | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
+              | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
+    mv  ${TF}      ${TF}.orig
+    mv  ${TF}.new  ${TF}
+done
+
+echo ======== build ${PRODUCT_NAME} ===============================
+DEST_DIR=${SGW_DIR}/bin
+rm -rf p ${DEST_DIR}
+mkdir -p ${DEST_DIR}
+
+# clean up stale objects switching between GO version
+if [[ -d ${SGW_DIR}/pkg ]]
+then
+    rm -rf ${SGW_DIR}/pkg
+fi
+
 
 GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbaselabs/sync-gateway-accel/...
 
 if [[ -e ${BIN_DIR}/sync-gateway-accel ]]
   then
     mv -f ${BIN_DIR}/sync-gateway-accel ${DEST_DIR}/${ACCEL_EXEC}
-    echo "..............................SG-ACCEL Success! Output is: ${DEST_DIR}/${ACCEL_EXEC}"
+    echo ".............................. ${PRODUCT_NAME} Success! Output is: ${DEST_DIR}/${ACCEL_EXEC}"
   else
-    echo "############################# SG-ACCEL FAIL! no such file: ${BIN_DIR}/${ACCEL_EXEC}"
+    echo "############################# ${PRODUCT_NAME} FAIL! no such file: ${BIN_DIR}/${ACCEL_EXEC}"
     exit 56
 fi
 
