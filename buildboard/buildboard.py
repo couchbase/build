@@ -36,9 +36,6 @@ from util.buildDBI import *
 
 __version__ = "1.1.0"
 
-SPOCK_FAKE_BLD_NUM = 1615
-WATSON_FAKE_BLD_NUM = 3530
-
 #_JIRA_PATTERN = r'([A-Z]{2,5}-[0-9]{1,6})'
 _JIRA_PATTERN = r'(\b[A-Z]+-\d+\b)'
 
@@ -148,7 +145,7 @@ def jenkins_get_envVars(url):
     return contents
 
 
-def jenkins_job_queue_empty(url):
+def jenkins_job_queue_not_empty(url):
     contents = None
 
     # Access issue so assume queue not empty
@@ -696,7 +693,8 @@ def jenkins_get_matching_jobs(url, version, bldNum):
                 logger.debug("parentBuild {0} matches Job BLD_NUM {1}".format(bldNum, jenkinsBuildNum))
                 jobUrls.append(build['url'])
                 continue
-            elif jenkinsBuildNum < bldNum:
+            elif jenkinsBuildNum < (bldNum - 3):
+                # Avoid searching through the entire Jenkins job history every time
                 break
 
     logger.debug("Build {0} has {1} matching jobs".format(bldNum, len(jobUrls)))
@@ -764,6 +762,7 @@ def jenkins_get_parent_builds(dashbrd, parentBldNum, url):
                                                        hist['manifest'],
                                                        hist['timestamp'],
                                                        hist['version']+'-'+str(hist['build_num']))
+
     hist['passed'] = []
     hist['failed'] = []
     hist['sanity'] = []
@@ -892,13 +891,6 @@ def jenkins_scan_unitTest(dashbrd):
     curUnitTestBldNum = dashbrd.getCurUnitTestBldNum()
     logger.debug("{0} Current unit tests {1}".format(name, curUnitTestBldNum))
 
-    # Temporarily hardcode to help with debugging; Remove on final deploy
-    if not curUnitTestBldNum:
-        if name == "watson":
-            curUnitTestBldNum = WATSON_FAKE_BLD_NUM
-        else:
-            curUnitTestBldNum = SPOCK_FAKE_BLD_NUM
-
     job_list = jenkins_get_new_jobs(unitTestUrls, version, curUnitTestBldNum, gitType, manifest)
     logger.debug("{0} Found new unit tests {1}".format(name, job_list))
 
@@ -930,13 +922,6 @@ def jenkins_scan_builds(dashbrd):
     logger.debug("{0}: {1}".format(name, parentUrl))
 
     dashbrd.scanning()
-
-    # Temporarily hardcode to help with debugging; Remove on final deploy
-    if not curBldNum:
-        if name == "watson":
-            curUnitTestBldNum = WATSON_FAKE_BLD_NUM
-        else:
-            curUnitTestBldNum = SPOCK_FAKE_BLD_NUM
 
     # Scan for new and active jobs
     bld_list = jenkins_get_new_jobs(parentUrl, version, curBldNum, gitType, manifest)
@@ -1042,6 +1027,8 @@ def github_get_changeSet(dashbrd, bldNum, manifest, manifest_sha):
     for p in proj2:
         n = p.get('name')
         v = p.get('revision')
+        if v is None:
+            v = p1list[n][0]
         r = p.get('remote') or 'couchbase'
         p2list[n] = (v,r)
 
@@ -1133,7 +1120,6 @@ def github_get_manifest_sha(dashbrd, man_file, build_time, version):
     gitApiParams = '/commits?until={0}'.format(until)
     giturl = gitProjUrl + gitApiParams
 
-#    giturl = 'https://api.github.com/repos/couchbase/{0}' + '/commits?until={1}&&path={3}'.format(gitProj, until, man_file)
     j = github_read(giturl) 
     if not j:
         return ""
@@ -1241,7 +1227,7 @@ def dashboard_monitor(dashbrd):
             inQueue = False
             jobs = []
             for url in buildUrls:
-                if jenkins_job_queue_empty(url):
+                if jenkins_job_queue_not_empty(url):
                    inQueue = True
                    break
             if inQueue:
@@ -1251,17 +1237,12 @@ def dashboard_monitor(dashbrd):
                 continue
             else:
                 # Jenkins jobs possibly in transition or Jenkins job history no longer exists
-                # Need to handle these 2 corner cases
-                logger.debug("{0} Retry - Jenkins jobs in transition".format(dname))
+                # Need to handle the corner case between these 2 cases and proceed
                 time.sleep(300)
-                for url in buildUrls:
-                    if jenkins_job_queue_empty(url):
-                       inQueue = True
-                       break
-                if inQueue:
+                if dashbrd.build_empty(curBuild):
+                    logger.debug("{0} Retry - Zero jobs executed for build {1}".format(dname, parentBldNum))
                     continue
                 else:
-                    logger.debug("{0} Jenkins job history has possibly aged".format(dname))
                     health = 'finished'
 
         if not jobList and health != 'pending':
@@ -1436,7 +1417,7 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("-c", "--config", dest="config_file", default="config.json",
                       metavar="JSON FILE", help="JSON FILE settings for each codename/branch")
-    parser.add_option("-l", "--log_level", dest="log_level", default="DEBUG",
+    parser.add_option("-l", "--log_level", dest="log_level", default="ERROR",
                       help="Supported levels are ERROR, WARNING, INFO, DEBUG")
 
     (options, args) = parser.parse_args()

@@ -158,6 +158,13 @@ class Dashboard(object):
         if self.state != 'scanning':
             self.state = 'idle'
 
+    def build_empty(self, build):
+        result = 'False'
+        nJobs = len(build.getPassedBuilds()) + len(build.getFailedBuilds())
+        if nJobs == 0: 
+            result = 'True'
+        return result
+
     def health_check(self, build):
         result = ""
         nJobs = len(build.getPassedBuilds()) + len(build.getFailedBuilds())
@@ -166,7 +173,7 @@ class Dashboard(object):
 # Need to fix this
 #        if self.duration > self.timeout:
 #            result = "timeout"
-        return (result)
+        return result
 
     def update_build_job_result(self, build, docId, bldResult, duration, testResults):
         # Check for issues such as hang

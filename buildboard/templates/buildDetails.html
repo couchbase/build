@@ -23,25 +23,31 @@
    <div>
     <table class="build_table">
      <tr>
-      <td style="width:5%;">
+      <td style="width:8%;">
        Build
       </td>
-      <td style="width:7%;">
+      <td style="width:9%;">
        Date
       </td>
-      <td style="width:12%;">
+      <td style="width:8%;">
+       Issues
+      </td>
+      <td style="width:24%;">
+       Commits
+      </td>
+      <td style="width:15%;">
        Platforms
       </td>
-      <td style="width:12%;">
+      <td style="width:15%;">
        Editions
       </td>
-      <td style="width:8%;">
+      <td style="width:9%;">
        Build Result
       </td>
-      <td style="width:8%;">
+      <td style="width:12%;">
        Unit Test
       </td>
-      <td style="width:8%;">
+      <td style="width:9%;">
        Sanity
       </td>
      </tr>
@@ -49,6 +55,16 @@
      <tr>
        <td><a href="{{build.parentUrl}}">{{build.build_num}}</a></td>
        <td>{{build.timestamp}}</td>
+       <td>
+       {% for fix in build.fixes %}
+         <a href="{{build.jiraUrl}}{{fix}}">{{fix}}</a><br>
+       {% endfor %}
+       </td>
+       <td>
+       {% for id in build.commits %}
+         <a href="{{build.commitUrl}}">{{id}}</a><br>
+       {% endfor %}
+       </td>
        <td><a href="{{build.jenkinsUrl}}">{{build.platform}}</a></td>
        <td><a href="{{build.jenkinsUrl}}">{{build.edition}}</a></td>
        <td><a class={{build.bldResult}} href={{build.binUrl}}>{{build.bldResult}}</a></td>

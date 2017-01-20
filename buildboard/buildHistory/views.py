@@ -39,23 +39,48 @@ def get_build_details(version, build_num):
     nBuilds = 0 
     for build in buildList:
         # First index is the only parent build 
-        if build['jobType'] == 'parent_build': 
+        if build['jobType'] == 'parent_build':
             pbh['build_num'] = build['version']+'-'+build_num
             pbh['binUrl'] = build['binary']
             pbh['parentUrl'] = build['jenkinsUrl']
-        elif build['jobType'] == 'distro_level_build': 
+            if build['commits']:
+                pbh['commits'] = []
+                pbh['commitUrl'] = []
+                pbh['fixes'] = []
+                pbh['jiraUrl'] = JIRA_URL
+                for c in build['commits']:
+                    commit = db_doc_exists(c).value
+                    if commit:
+                        pbh['commits'].append(commit['repo']+'-'+commit['sha'][:10])
+                        pbh['commitUrl'].append(commit['url'])
+                        for fix in commit['fixes']:
+                            pbh['fixes'].append(str(fix))
+            else:
+                pbh['commits'] = ""
+                pbh['commitURL'] = ""
+                pbh['fixes'] = ""
+                pbh['jiraUrl'] = ""
+        elif build['jobType'] == 'distro_level_build':
             bh = {}
-            nBuilds += 1 
+            nBuilds += 1
             if nBuilds > 1:
                 bh['build_num'] = ""
                 bh['parentUrl'] = "" 
                 bh['timestamp'] = "" 
+                bh['commits'] = ""
+                bh['commitURL'] = ""
+                bh['fixes'] = ""
+                bh['jiraUrl'] = ""
             else:
                 bh['build_num'] = pbh['build_num']
                 bh['parentUrl'] = pbh['parentUrl']
                 # Time conversion readable format
                 ts = datetime.fromtimestamp(build['timestamp'] / 1e3)
                 bh['timestamp'] = ts.strftime('%Y-%m-%d %H:%M:%S')
+                bh['commits'] = pbh['commits']
+                bh['commitURL'] = pbh['commitUrl'] 
+                bh['fixes'] = pbh['fixes']
+                bh['jiraUrl'] = pbh['jiraUrl']
 
             bh['binary'] = ""
             if "result" in build and build['result']:
@@ -110,7 +135,7 @@ def get_recent_build_history(version, limit):
             if bh['bldResult'] != "failed":
                 bh['binUrl'] = build['binary']+'/'+str(bh['build_num'])
 
-        bh['unitTest'] = "NA" 
+        bh['unitTest'] = "NA"
         if 'unitTest' in build and build['unitTest']:
             for test in build['unitTest']:
                 testDoc = db_doc_exists(test)
@@ -127,13 +152,13 @@ def get_recent_build_history(version, limit):
             for c in build['commits']:
                 commit = db_doc_exists(c).value
                 if commit:
-                    nCommits += 1 
-                    bh['commitId'] = commit['sha'][:10] 
-                    bh['author'] = commit['author']['name'] 
-                    bh['module'] = commit['repo'] 
+                    nCommits += 1
+                    bh['commitId'] = commit['sha'][:10]
+                    bh['author'] = commit['author']['name']
+                    bh['module'] = commit['repo']
                     bh['commitUrl'] = commit['url']
                     bh['message'] = commit['message'][:100]
-                    bh['jiraUrl'] = JIRA_URL 
+                    bh['jiraUrl'] = JIRA_URL
                     bh['fixes'] = []
                     for fix in commit['fixes']:
                         bh['fixes'].append(str(fix))
@@ -157,4 +182,3 @@ def get_recent_build_history(version, limit):
             buildHistory.append(bh.copy())
 
     return buildHistory
-
