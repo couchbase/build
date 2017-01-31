@@ -7,5 +7,4 @@ also contains copies of internal server configuration, such as for Gerrit.
 
 _Credentials for build robots and for access to resources will be kept in a separate, private repository._
 
-
 ----
