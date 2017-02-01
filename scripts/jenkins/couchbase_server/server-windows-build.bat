@@ -10,9 +10,8 @@ set LICENSE=%4
 set ARCHITECTURE=%5
 
 :: In addition to the above arguments, this scripts expects
-:: to be launched from the top level of a sherlock repo directory.
+:: to be launched from the top level of a Server repo directory.
 set
-@echo ======== %DATE% =============================
 
 if not exist install mkdir install
 repo manifest -r > install/manifest.txt
@@ -69,7 +68,19 @@ rem Archive all Windows debug files for future reference.
 rem Pre-clean all unnecessary files
 ruby voltron\cleanup.rb %WORKSPACE%\couchbase\install
 
-@echo ============================================== %DATE%
+rem Skip remaining steps on older platforrmm.
+:: QQQ Remove this when old platforms gone!
+if not "%PLATFORM%" == "windows_msvc2015" (
+    goto eof
+)
+
+@echo ==================== package =================
+
+cd voltron
+ruby server-win2015.rb %WORKSPACE%\install 5.10.4.0.0.1 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
+cd wix-installer
+call create-installer.bat %WORKSPACE%\install || goto error
+move Server.msi %WORKSPACE%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%_windows_amd64.msi
 goto eof
 
 :error

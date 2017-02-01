@@ -33,6 +33,8 @@
         - MinGW
         - python2
         - ruby
+        - wixtoolset
+        - 7zip.commandline
         - javaruntime
         - googlechrome
 
@@ -52,6 +54,7 @@
         - C:\bin
         - C:\Program Files (x86)\CMake\bin
         - C:\Program Files\git\cmd
+        - C:\Program Files (x86)\WiX Toolset v3.10\bin
 
 # Next steps are all about installing Visual Studio
 
