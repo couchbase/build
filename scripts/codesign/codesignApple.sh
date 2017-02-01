@@ -92,10 +92,14 @@ else
     pushd ${PKG_DIR} 
 fi
 
-sign_flags="--force --verbose --preserve-metadata=identifier,entitlements,requirements"
-echo options: $sign_flags -----
+echo ------- Unlocking keychain -----------
+set +x
+security unlock-keychain -p `cat ~/.ssh/security-password.txt` /Users/jenkins/Library/Keychains/login.keychain
+set -x
 
 echo -------- Must sign Sparkle framework all versions ----------
+sign_flags="--force --verbose --preserve-metadata=identifier,entitlements,requirements"
+echo options: $sign_flags -----
 codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/A/Sparkle
 codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/A
 
