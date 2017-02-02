@@ -70,7 +70,7 @@ ruby voltron\cleanup.rb %WORKSPACE%\couchbase\install
 
 rem Skip remaining steps on older platforrmm.
 :: QQQ Remove this when old platforms gone!
-if not "%PLATFORM%" == "windows_msvc2015" (
+if not "%PLAT_TYPE%" == "windows_msvc2015" (
     goto eof
 )
 
