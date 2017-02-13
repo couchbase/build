@@ -53,6 +53,7 @@ cmake -G %MAKETYPE% ^
       -D CMAKE_PREFIX_PATH=";%source_root%\install" ^
       -D PRODUCT_VERSION=%VERSION%-%BLD_NUM% ^
       -D BUILD_ENTERPRISE=%BUILD_ENTERPRISE% ^
+      -D CB_DEVELOPER_BUILD=True ^
       -D CMAKE_BUILD_TYPE=RelWithDebInfo ^
       -D CMAKE_ERL_LIB_INSTALL_PREFIX=lib ^
       %EXTRA_CMAKE_OPTIONS% ^

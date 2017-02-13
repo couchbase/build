@@ -89,6 +89,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CMAKE_BUILD_TYPE=RelWithDebInfo \
       -D PRODUCT_VERSION=${PRODUCT_VERSION} \
       -D BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
+      -D CB_DEVELOPER_BUILD=True \
       -D CB_DOWNLOAD_DEPS=1 \
       -D SNAPPY_OPTION=Disable \
       ${EXTRA_CMAKE_OPTIONS} \
