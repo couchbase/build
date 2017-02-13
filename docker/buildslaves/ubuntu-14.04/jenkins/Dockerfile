@@ -21,16 +21,11 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     echo 'couchbase:couchbase' | chpasswd && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
-# JDK for Jenkins.
-RUN apt-get update && \
-    apt-get install -y openjdk-7-jre-headless && \
-    rm -f /var/cache/apt/archives/*.deb
-
 # Install Couchbase build dependencies
 RUN apt-get update && apt-get install -y ccache g++ git-core tar libssl-dev libnuma-dev ruby rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
     rm -f /var/cache/apt/archives/*.deb
 
-#paramiko for testrunner
+# paramiko for testrunner
 RUN apt-get update && \
     apt-get install -y python-paramiko
 
@@ -67,6 +62,28 @@ RUN mkdir /tmp/deploy && \
     curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo && \
     cd /tmp && rm -rf /tmp/deploy
+
+# Oracle JDK (for Jenkins and Analytics).
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
+    http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jdk-8u91-linux-x64.tar.gz -o jdk.tgz && \
+    cd /usr/local && \
+    tar xvzf /tmp/deploy/jdk.tgz && \
+    ln -s jdk* java && \
+    for file in /usr/local/java/bin/*; do ln -s $file /usr/local/bin; done && \
+    rm -rf /tmp/deploy
+ENV JAVA_HOME=/usr/local/java
+
+# Maven (for Analytics).
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -L http://mirror.cogentco.com/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
+       -o maven.tar.gz && \
+    cd /usr/local && \
+    tar xzf /tmp/deploy/maven.tar.gz && \
+    ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
+    rm -rf /tmp/deploy
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
