@@ -313,6 +313,9 @@ case $project in
     analytics-dcp-client)
         repo="git@github.com:couchbaselabs/$project.git"
         ;;
+    ghistogram)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
