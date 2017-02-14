@@ -295,6 +295,24 @@ case $project in
     sdkd-go)
         repo="git@github.com:couchbaselabs/$project.git"
         ;;
+    sdkd-net)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    sdkd-cpp)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    sdkd-java)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    karajan)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    sdkdclient-ng)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    analytics-dcp-client)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
