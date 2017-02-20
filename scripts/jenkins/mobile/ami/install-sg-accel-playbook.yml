@@ -26,9 +26,10 @@
   any_errors_fatal: true
   become: yes
   tasks:
-  # Install and start service
+  # Install and start service.  Don't try to wait on the service to be listening on port 4985
+  # because it's actually expected NOT to be able to run w/ the default config
+  # See 
   - name: Install sg_accel rpm
     shell: rpm -i /tmp/{{ couchbase_sg_accel_package }}
-  - name: wait until sync gateway to listen on port
-    wait_for: port=4985 delay=2 timeout=120
+
 
