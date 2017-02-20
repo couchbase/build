@@ -174,6 +174,7 @@ adb forward  tcp:${LITESERV_PORT}  tcp:${LITESERV_PORT}
 
 echo ============================================ npm test
 export TAP_TIMEOUT=20000
+export CONF_FILE=local_android
 npm test 2>&1 | tee  ${WORKSPACE}/npm_test_results.log
 
 echo ============================================ killing any child processes
