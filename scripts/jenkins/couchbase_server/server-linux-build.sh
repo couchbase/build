@@ -106,6 +106,8 @@ make -j8 install || (
     make
     exit 2
 )
+# QQQ workaround to do Analytics build when it exists, and ignore it otherwise
+make analytics || true
 
 # couchdbx-app on MacOS depends on this:
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
