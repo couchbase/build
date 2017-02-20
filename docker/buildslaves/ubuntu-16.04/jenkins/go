@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Bump this when rebuilding with changes
+TAG=20170220
+
+mkdir -p build
+cp -a ../../util/couchbuilder_start.sh build
+docker build -t ceejatec/ubuntu-1604-couchbase-build:$TAG .
+docker tag ceejatec/ubuntu-1604-couchbase-build:$TAG ceejatec/ubuntu-1604-couchbase-build:latest
+if [ "$1" = "--publish" ]
+then
+  docker push ceejatec/ubuntu-1604-couchbase-build:$TAG
+  docker push ceejatec/ubuntu-1604-couchbase-build:latest
+fi
+

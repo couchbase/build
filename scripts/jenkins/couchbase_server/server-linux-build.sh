@@ -37,8 +37,13 @@ case "$DISTRO" in
         PKG=rpm
         FLAVOR=suse
         ;;
+    ubuntu16.04)
+        PKG=deb
+        FLAVOR=systemd
+        ;;
     debian*|ubuntu*)
         PKG=deb
+        FLAVOR=initd
         ;;
     macos)
         PKG=mac
@@ -145,6 +150,17 @@ then
         cp -R server-overlay-${PKG}/${FLAVOR}/* /opt/couchbase
         cp server-rpm.${FLAVOR}.spec.tmpl server-rpm.spec.tmpl
         cp moxi-rpm.${FLAVOR}.spec.tmpl moxi-rpm.spec.tmpl
+    fi
+
+    if [ "${PKG}" = "deb" ]
+    then
+        cp server-deb/rules.${FLAVOR}.tmpl server-deb/rules.tmpl
+        if [ "${FLAVOR}" = "systemd" ]
+        then
+            # Needs to be named .tmpl so server-deb.rb will copy it
+            cp server-deb/couchbase-server.service.systemd.tmpl \
+              server-deb/couchbase-server.service.tmpl
+        fi
     fi
 fi
 

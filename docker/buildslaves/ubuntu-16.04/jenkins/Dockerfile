@@ -1,0 +1,91 @@
+# Docker container for Ubuntu 16.04
+
+FROM ubuntu:16.04
+MAINTAINER ceej@couchbase.com
+
+USER root
+
+# Install SSH server and sudo
+RUN apt-get update && \
+    apt-get install -y openssh-server sudo && \
+    rm -f /var/cache/apt/archives/*.deb && \
+    mkdir /var/run/sshd
+
+# Create couchbase user with password-less sudo privs, and give
+# ownership of /opt/couchbase
+RUN useradd couchbase -G sudo -m -s /bin/bash && \
+    mkdir -p /opt/couchbase && chown -R couchbase:couchbase /opt/couchbase && \
+    echo 'couchbase:couchbase' | chpasswd && \
+    sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
+
+# Install Couchbase build dependencies
+RUN apt-get update && apt-get install -y ccache g++ git-core tar libssl-dev libnuma-dev ruby rake ncurses-dev python-dev devscripts debhelper dh-systemd ed man curl libc6-i386 && \
+    rm -f /var/cache/apt/archives/*.deb
+
+# paramiko for testrunner
+RUN apt-get update && \
+    apt-get install -y python-paramiko
+
+# Install third-party build dependencies. Note: software-properties-common
+# is only required for add-apt-repository; add-apt-repository is only
+# required to get python2.6; and python2.6 is only required for gyp, which
+# is part of the v8 build. python2.6 is also required for our compiling of
+# pysqlite and pysnappy, and for that we even need python2.6-dev.
+RUN apt-get update && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository ppa:fkrull/deadsnakes && \
+    apt-get update && \
+    apt-get install -y m4 python2.6 python2.6-dev && \
+    rm -f /var/cache/apt/archives/*.deb
+RUN mkdir /tmp/deploy && \
+    curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
+    cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
+    cd autoconf-2.69 && ./configure --prefix=/usr/local && make && make install && \
+    curl -L http://ftpmirror.gnu.org/automake/automake-1.14.tar.gz -o /tmp/deploy/automake-1.14.tar.gz && \
+    cd /tmp/deploy && tar -xzf automake-1.14.tar.gz && \
+    cd automake-1.14 && ./configure --prefix=/usr/local && make && make install && \
+    curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
+    cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
+    cd libtool-2.4.2 && ./configure --prefix=/usr/local && make && make install && \
+    cd /tmp && rm -rf /tmp/deploy
+
+RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
+RUN mkdir /tmp/deploy && \
+    curl https://cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
+    curl https://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
+    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
+    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
+    curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
+    chmod a+x /usr/local/bin/repo && \
+    cd /tmp && rm -rf /tmp/deploy
+
+# Oracle JDK (for Jenkins and Analytics).
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
+    http://download.oracle.com/otn-pub/java/jdk/8u91-b14/jdk-8u91-linux-x64.tar.gz -o jdk.tgz && \
+    cd /usr/local && \
+    tar xvzf /tmp/deploy/jdk.tgz && \
+    ln -s jdk* java && \
+    for file in /usr/local/java/bin/*; do ln -s $file /usr/local/bin; done && \
+    rm -rf /tmp/deploy
+ENV JAVA_HOME=/usr/local/java
+
+# Maven (for Analytics).
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -L http://mirror.cogentco.com/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
+       -o maven.tar.gz && \
+    cd /usr/local && \
+    tar xzf /tmp/deploy/maven.tar.gz && \
+    ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
+    rm -rf /tmp/deploy
+
+# Expose SSH daemon and run our builder startup script
+EXPOSE 22
+ADD .ssh /home/couchbase/.ssh
+COPY build/couchbuilder_start.sh /usr/sbin/
+ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
+CMD [ "default" ]
+
