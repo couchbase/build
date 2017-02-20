@@ -98,6 +98,8 @@ if PARENT is not None:
   PARENT_BRANCH = manifests[PARENT].get("branch", "master")
 else:
   PARENT_BRANCH = "master"
+# Allow individual manifests to have different PRODUCT as well
+PRODUCT = manifest_config.get("product", PRODUCT)
 
 # Set values from input manifest or defaults
 build_element = input_manifest.find("./project[@name='build']")
