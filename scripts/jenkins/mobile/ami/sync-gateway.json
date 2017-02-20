@@ -10,11 +10,6 @@
 	},
 	{
 	    "type": "ansible-local",
-	    "playbook_file": "./install-couchbase-server-playbook.yml",
-	    "extra_arguments": [ "--extra-vars", "\"couchbase_server_package_name={{user `couchbase_server_package_name`}} couchbase_server_package_url={{user `couchbase_server_package_url`}}\"" ]
-	},
-	{
-	    "type": "ansible-local",
 	    "playbook_file": "./install-sync-gateway-playbook.yml",
 	    "extra_arguments": [ "--extra-vars", "\"couchbase_sync_gateway_package_base_url={{user `couchbase_sync_gateway_package_base_url`}} couchbase_sync_gateway_package={{user `couchbase_sync_gateway_package`}}\"" ]
 	},
@@ -34,16 +29,7 @@
       "source_ami": "{{user `source_ami`}}",
       "instance_type": "t2.micro",
       "ssh_username": "{{user `ssh_username`}}",
-      "ami_name": "Couchbase Server {{user `couchbase_server_edition`}} {{user `couchbase_server_version`}} and Sync Gateway {{user `sync_gateway_edition`}} {{user `couchbase_sync_gateway_version`}}",
-      "ami_groups": "all",
-      "ami_regions": [
-          "us-west-1",
-	  "us-west-2",
-	  "eu-west-1",
-	  "eu-central-1",
-	  "ap-northeast-1",
-	  "ap-southeast-1",
-	  "sa-east-1"
-      ]
+      "ami_name": "{{user `sync_gateway_server_type`}} {{user `sync_gateway_edition`}} {{user `couchbase_sync_gateway_version`}}",
+      "ami_groups": "all"
   }]
 }
