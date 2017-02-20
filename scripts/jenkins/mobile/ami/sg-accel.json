@@ -10,8 +10,8 @@
 	},
 	{
 	    "type": "ansible-local",
-	    "playbook_file": "./install-sync-gateway-playbook.yml",
-	    "extra_arguments": [ "--extra-vars", "\"couchbase_sync_gateway_package_base_url={{user `couchbase_sync_gateway_package_base_url`}} couchbase_sync_gateway_package={{user `couchbase_sync_gateway_package`}}\"" ]
+	    "playbook_file": "./install-sg-accel-playbook.yml",
+	    "extra_arguments": [ "--extra-vars", "\"couchbase_sg_accel_package_base_url={{user `couchbase_sg_accel_package_base_url`}} couchbase_sg_accel_package={{user `couchbase_sg_accel_package`}}\"" ]
 	},
 	{
 	    "type": "shell",
@@ -30,7 +30,7 @@
       "source_ami": "{{user `source_ami`}}",
       "instance_type": "t2.micro",
       "ssh_username": "{{user `ssh_username`}}",
-      "ami_name": "Couchbase Sync Gateway {{user `sync_gateway_edition`}} {{user `couchbase_sync_gateway_version`}}",
+      "ami_name": "Couchbase Sync Gateway Accelerator Enterprise {{user `couchbase_sg_accel_version`}}",
       "ami_groups": "all"
   }]
 }
