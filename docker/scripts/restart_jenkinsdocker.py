@@ -64,6 +64,7 @@ print "Creating new {0} container...".format(slave)
 run_args = [
      "docker", "run", "--name={0}".format(slave), "--detach=true",
      "--privileged",
+     "--restart=unless-stopped",
      "--publish={0}:22".format(port),
      "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
      "--volume=/etc/resolv.conf:/etc/resolv.conf",

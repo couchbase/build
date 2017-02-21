@@ -5,6 +5,10 @@
 172.23.98.47 slave_name=ubuntu12-cv-08
 172.23.98.48 slave_name=ubuntu12-cv-09
 172.23.98.49 slave_name=ubuntu12-cv-10
+172.23.98.159 slave_name=ubuntu12-cv-11
+172.23.98.160 slave_name=ubuntu12-cv-12
+172.23.98.162 slave_name=ubuntu12-cv-13
+172.23.98.163 slave_name=ubuntu12-cv-14
 
 [all:vars]
 ansible_user=couchbase
