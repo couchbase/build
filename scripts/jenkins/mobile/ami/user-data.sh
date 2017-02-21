@@ -1,133 +1,157 @@
-#!/bin/bash
+#!/usr/bin/env python
 
-set -x
+"""
 
-# --------------- Customization Settings/Variables ---------------------
-#
-# You should change the variables below as follows:
-#
-# - enable_sync_gateway: setting this to true will cause the script to initialize and
-#                        configure Sync Gateway.  If set to false, it will shut down the
-#                        Sync Gateway process, which is useful if you are only interested
-#                        in running Couchbase Server
-# - enable_couchbase_server: setting this to true will cause the script to initialize and
-#                            configure Couchbase Server.  If set to false, it will shut down
-#                            the Couchbase Server service on the machine, which is useful if
-#                            your Sync Gateway config only uses in-memory buckets
-# - sg_config_url: should point to a URL where your Sync Gateway configuration is stored
-# - couchbase_bucket_name: should contain the name of the Couchbase Server bucket required by
-#                          your Sync Gateway configuration
-#
-enable_couchbase_server=true
-enable_sync_gateway=true
-sg_config_url=https://raw.githubusercontent.com/couchbase/sync_gateway/master/examples/basic-couchbase-bucket.json
-couchbase_bucket_name=default
+This is "relaunch script" intended to be used for EC2 instances.
 
-# ----------------------------- Functions -------------------------------
-initialize_couchbase_server() {
+It restarts the Sync Gateway or Sync Gateway Accelerator service with
+the custom configuration that you provide.
 
-    echo "Initializing Couchbase Server"
-    couchbase_server_home_path=/opt/couchbase
-    couchbase_server_admin=Administrator
-    couchbase_server_admin_port=8091
-    # The ec2 instance metadata is available at a special ip as described here:
-    # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html
-    instance_metadata_ip=169.254.169.254
-    public_hostname=$(curl http://${instance_metadata_ip}/latest/meta-data/public-hostname)
-    couchbase_server_bucket_ram_mb=$(free -m | awk 'NR==2{printf "%.0f\n", $2*0.75 }')
-    password=$(curl http://${instance_metadata_ip}/latest/meta-data/instance-id)
-    export couchbase_server_bucket_type=couchbase
-    export couchbase_server_bucket_port=11211
-    export couchbase_server_bucket_replica=1
+Instructions:
 
-    echo "Init Couchbase Cluster + Set RAM"
-    ${couchbase_server_home_path}/bin/couchbase-cli cluster-init -c ${public_hostname} \
-				 --user=${couchbase_server_admin} \
-				 --password=${password} \
-				 --cluster-init-username=${couchbase_server_admin} \
-				 --cluster-init-password=${password} \
-				 --cluster-init-port=${couchbase_server_admin_port} \
-				 --cluster-init-ramsize=${couchbase_server_bucket_ram_mb} || exit 1
+- Customize either the default_sync_gateway_config or the default_sg_accel_config triple quoted string, depending on which type of Sync Gateway you are running.
+- Paste the entire contents of this file into the user-data textbox when launching an EC2 instance.
 
-    echo "Init primary Couchbase Node"
-    ${couchbase_server_home_path}/bin/couchbase-cli node-init -c ${public_hostname} \
-				 --user=${couchbase_server_admin} \
-				 --password=${password} \
-				 --cluster-init-username=${couchbase_server_admin} \
-				 --node-init-hostname=${public_hostname} || exit 1
+"""
 
-    echo "Create new Couchbase buckets"
-    # NOTE: if your Sync Gateway configuration requires more Couchbase Server buckets
-    # you can create them by copying and pasting this line and hardcoding the --bucket parameter
-    ${couchbase_server_home_path}/bin/couchbase-cli bucket-create -c ${public_hostname} \
-				 --user=${couchbase_server_admin} \
-				 --password=${password} \
-				 --bucket=${couchbase_bucket_name} \
-				 --enable-flush=1 \
-				 --bucket-type=${couchbase_server_bucket_type} \
-				 --bucket-port=${couchbase_server_bucket_port} \
-				 --bucket-ramsize=${couchbase_server_bucket_ram_mb} \
-				 --bucket-replica=${couchbase_server_bucket_replica} --wait || exit 1
+# If you are running Sync Gateway, customize your configuration here
+default_sync_gateway_config = """
+{
+    "log":[
+        "HTTP+"
+    ],
+    "adminInterface":"127.0.0.1:4985",
+    "interface":"0.0.0.0:4984",
+    "databases":{
+        "db":{
+            "server":"walrus:data",
+            "users":{
+                "GUEST":{
+                    "disabled":false,
+                    "admin_channels":[
+                        "*"
+                    ]
+                }
+            }
+        }
+    }
+}
+"""
 
-    echo "Waiting until Couchbase responding on port 8091"
-    COUNTER=0
-    until $(curl --output /dev/null --silent --head --fail http://localhost:8091); do
-	if [  $COUNTER -gt 10 ]; then
-	    echo "Giving up after several retries"
-	    exit 1
-	fi
-	printf '.'
-	sleep 5
-	let COUNTER=COUNTER+1
-    done
+# If you are running Sync Gateway Acceletor, customize your configuration here
+default_sg_accel_config = """
+{
+    "log":[
+        "HTTP+"
+    ],
+    "adminInterface":"127.0.0.1:4985",
+    "interface":"0.0.0.0:4984",
+    "databases":{
+        "default":{
+            "server":"http://localhost:8091",
+            "bucket":"default",
+            "channel_index":{
+                "server":"http://localhost:8091",
+                "bucket":"channel_bucket",
+                "writer":true
+            }
+        }
+    }
+}
+"""
+
+import pwd
+import os
+
+SERVER_TYPE_SYNC_GATEWAY = "SERVER_TYPE_SYNC_GATEWAY"
+SERVER_TYPE_SG_ACCEL = "SERVER_TYPE_SG_ACCEL"
+
+def main():
+
+    sg_server_type = discover_sg_server_type()
+
+    write_custom_config(sg_server_type)
+
+    restart_service(sg_server_type)
 
 
-    echo "Sleeping to wait until Couchbase Server is ready"
-    # When testing, I saw a case where these messages appeared in the Sync Gateway logs:
-    # 2016/04/27 22:27:52 Non-healthy node; node details:
-    # Hostname=ec2-54-173-225-77.compute-1.amazonaws.com:8091, Status=warmup, ...
-    # TODO: this should query the Couchbase Server REST API to check the node is healthy
-    # instead of sleeping
-    sleep 30
+def discover_sg_server_type():
+    """
+    This figures out whether this script is running on a Sync Gateway or an SG Accel
+    """
+
+    is_sync_gateway = False
+    is_sg_accel = False
     
-}
+    try:
+        pwd.getpwnam('sync_gateway')
+        is_sync_gateway = True 
+    except KeyError:
+        pass
 
-initialize_sync_gateway() {
+    try:
+        pwd.getpwnam('sg_accel')
+        is_sg_accel = True
+    except KeyError:
+        pass
 
-    echo "Configuring and restarting Sync Gateway"
-    curl ${sg_config_url} > /opt/sync_gateway/etc/sync_gateway.json
-    chown sync_gateway:sync_gateway /opt/sync_gateway/etc/sync_gateway.json
-    ls -alh /opt/sync_gateway/etc/sync_gateway.json
-    cat /opt/sync_gateway/etc/sync_gateway.json
-    /etc/init.d/sync_gateway stop
-    /etc/init.d/sync_gateway start
-    cat /var/log/sync_gateway/sync_gateway_error.log
+    if not is_sync_gateway and not is_sg_accel:
+        # Something is wrong
+        raise Exception("Failed to determine server type.  Did not find either expected user on system")
 
-}
+    if is_sync_gateway and is_sg_accel:
+        # This is unexpected, log a warning
+        print("WARNING: both Sync Gateway and Sync Gateway Accelerator appear to be installed.  Defaulting to Sync Gateway")
 
-stop_couchbase_server() {
-    echo "Stopping Couchbase Server since it has been explicitly disabled"
-    service couchbase-server stop
-}
+    if is_sync_gateway:
+        return SERVER_TYPE_SYNC_GATEWAY
 
-stop_sync_gateway() {
-    echo "Stopping Sync Gateway since it has been explicitly disabled"
-    /etc/init.d/sync_gateway stop
-}
+    if is_sg_accel:
+        return SERVER_TYPE_SG_ACCEL
+
+    
+def write_custom_config(sg_server_type):
+
+    config_contents = "Error"
+    target_config_file = "Error"
+    
+    if sg_server_type is SERVER_TYPE_SYNC_GATEWAY:
+        config_contents = default_sync_gateway_config
+        target_config_file = "/opt/sync_gateway/etc/sync_gateway.json"
+    elif sg_server_type is SERVER_TYPE_SG_ACCEL:
+        config_contents = default_sg_accel_config
+        target_config_file = "/opt/sg_accel/etc/sg_accel.json"
+    else:
+        raise Exception("Unrecognized server type: {}".format(sg_server_type))
+
+    # Write the file contents to the target config file
+    with open(target_config_file, 'w') as f:
+        f.write(config_contents)
+        
+    
+def restart_service(sg_server_type):
+
+    binary_name = "Error"
+    if sg_server_type is SERVER_TYPE_SYNC_GATEWAY:
+        binary_name = "sync_gateway"
+    elif sg_server_type is SERVER_TYPE_SG_ACCEL:
+        binary_name = "sg_accel"
+    else:
+        raise Exception("Unrecognized server type: {}".format(sg_server_type))
+
+    cmd = "service {} restart".format(binary_name)
+
+    print("Restarting service: {}".format(cmd))
+    
+    os.system(cmd)
+
+    
+if __name__ == "__main__":
+   main()
 
 
-# ----------------------------- Main -------------------------------
-if [ "$enable_couchbase_server" = true ] ; then
-    initialize_couchbase_server
-else
-    stop_couchbase_server
-fi
 
-if [ "$enable_sync_gateway" = true ] ; then
-    initialize_sync_gateway
-else
-    stop_sync_gateway
-fi
+
 
 
 
