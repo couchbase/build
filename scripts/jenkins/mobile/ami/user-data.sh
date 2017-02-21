@@ -50,12 +50,18 @@ default_sg_accel_config = """
         "default":{
             "server":"http://localhost:8091",
             "bucket":"default",
+            "feed_type":"DCPSHARD",
             "channel_index":{
                 "server":"http://localhost:8091",
                 "bucket":"channel_bucket",
                 "writer":true
             }
         }
+    },
+    "cluster_config":{
+        "server":"http://localhost:8091",
+        "bucket":"default",
+        "data_dir":"."
     }
 }
 """
