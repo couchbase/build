@@ -5,20 +5,15 @@
 	{
 	    "type": "shell",
 	    "inline": [
-		"sudo yum install -y gcc python-devel python-setuptools python-setuptools-devel",
-		"sudo easy_install pip",
-		"sudo pip install ansible"
+		"sudo yum install -y wget",
+		"wget {{user `couchbase_sg_accel_package_base_url`}}/{{user `couchbase_sg_accel_package`}}",		
+		"sudo rpm -i {{user `couchbase_sg_accel_package`}}"
 	    ]
-	},
-	{
-	    "type": "ansible-local",
-	    "playbook_file": "./install-sync-gateway-playbook.yml",
-	    "extra_arguments": [ "--extra-vars", "\"couchbase_sync_gateway_package_base_url={{user `couchbase_sync_gateway_package_base_url`}} couchbase_sync_gateway_package={{user `couchbase_sync_gateway_package`}}\"" ]
 	},
 	{
 	    "type": "shell",
 	    "inline": [
-		"rm /home/ec2-user/.ssh/authorized_keys",
+		"rm ~/.ssh/authorized_keys",
 		"sudo rm /root/.ssh/authorized_keys"
 	    ]
 	}	
