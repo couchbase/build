@@ -6,8 +6,8 @@
 	    "type": "shell",
 	    "inline": [
 		"sudo yum install -y wget",
-		"wget {{user `couchbase_sg_accel_package_base_url`}}/{{user `couchbase_sg_accel_package`}}",		
-		"sudo rpm -i {{user `couchbase_sg_accel_package`}}"
+		"wget {{user `couchbase_sync_gateway_package_base_url`}}/{{user `couchbase_sync_gateway_package`}}",		
+		"sudo rpm -i {{user `couchbase_sync_gateway_package`}}"
 	    ]
 	},
 	{
