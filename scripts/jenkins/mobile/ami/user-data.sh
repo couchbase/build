@@ -70,7 +70,9 @@ def main():
 
     sg_server_type = discover_sg_server_type()
 
-    write_custom_config(sg_server_type)
+    target_config_file = discover_target_config(sg_server_type)
+
+    write_custom_config(sg_server_type, target_config_file)
 
     restart_service(sg_server_type)
 
@@ -109,18 +111,48 @@ def discover_sg_server_type():
     if is_sg_accel:
         return SERVER_TYPE_SG_ACCEL
 
+def discover_target_config(sg_server_type):
+
+    sg_config_candidate_directories = [
+        "/opt/sync_gateway/etc",
+        "/home/sync_gateway",
+    ]
+    sg_accel_config_candidate_directories = [
+        "/opt/sg_accel/etc",
+        "/home/sg_accel",
+    ]
     
-def write_custom_config(sg_server_type):
+    if sg_server_type is SERVER_TYPE_SYNC_GATEWAY:
+        return find_existing_file_in_directories(
+            sg_config_candidate_directories,
+            "sync_gateway.json"
+        )
+    elif sg_server_type is SERVER_TYPE_SG_ACCEL:
+        return find_existing_file_in_directories(
+            sg_accel_config_candidate_directories,
+            "sg_accel.json"
+        )
+    else:
+        raise Exception("Unrecognized server type: {}".format(sg_server_type))
+    
+def find_existing_file_in_directories(directories, filename):
+    
+    for dir in directories:
+        path_to_file = os.path.join(dir, filename)
+        if os.path.exists(path_to_file):
+            return path_to_file
+    raise Execption("Did not find {} in {}".format(filename, directories))
+        
+
+    
+def write_custom_config(sg_server_type, target_config_file):
 
     config_contents = "Error"
-    target_config_file = "Error"
     
     if sg_server_type is SERVER_TYPE_SYNC_GATEWAY:
         config_contents = default_sync_gateway_config
-        target_config_file = "/opt/sync_gateway/etc/sync_gateway.json"
     elif sg_server_type is SERVER_TYPE_SG_ACCEL:
         config_contents = default_sg_accel_config
-        target_config_file = "/opt/sg_accel/etc/sg_accel.json"
     else:
         raise Exception("Unrecognized server type: {}".format(sg_server_type))
 
