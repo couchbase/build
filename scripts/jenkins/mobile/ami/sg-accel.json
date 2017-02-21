@@ -5,6 +5,8 @@
 	{
 	    "type": "shell",
 	    "inline": [
+		"sudo yum install -y python-setuptools python-setuptools-devel",
+		"sudo easy_install pip",		
 		"sudo pip install ansible"
 	    ]
 	},
