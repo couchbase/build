@@ -30,7 +30,7 @@
       "source_ami": "{{user `source_ami`}}",
       "instance_type": "t2.micro",
       "ssh_username": "{{user `ssh_username`}}",
-      "ami_name": "Couchbase Sync Gateway Accelerator Enterprise {{user `couchbase_sg_accel_version`}}",
+      "ami_name": "Couchbase Sync Gateway Accelerator Enterprise {{user `couchbase_sg_accel_version`}} {{user `base_ami_name`}}",
       "ami_groups": "all"
   }]
 }
