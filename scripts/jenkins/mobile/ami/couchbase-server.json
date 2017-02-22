@@ -5,7 +5,7 @@
 	{
 	    "type": "shell",
 	    "inline": [
-		"sudo yum install -y wget",
+		"sudo yum install -y wget openssl",
 		"wget {{user `couchbase_server_package_base_url`}}/{{user `couchbase_server_package`}}",		
 		"sudo rpm -i {{user `couchbase_server_package`}}"
 	    ]
