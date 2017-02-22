@@ -1,0 +1,34 @@
+{
+    "variables": {
+    },
+    "provisioners": [
+	{
+	    "type": "shell",
+	    "inline": [
+		"sudo yum install -y wget",
+		"wget {{user `couchbase_server_package_base_url`}}/{{user `couchbase_server_package`}}",		
+		"sudo rpm -i {{user `couchbase_server_package`}}"
+	    ]
+	},
+	{
+	    "type": "shell",
+	    "inline": [
+		"rm ~/.ssh/authorized_keys",
+		"sudo rm /root/.ssh/authorized_keys"
+	    ]
+	}	
+  ],
+  "builders": [{
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "us-east-1",
+      "force_deregister": true,
+      "source_ami": "{{user `source_ami`}}",
+      "instance_type": "t2.micro",
+      "ssh_username": "{{user `ssh_username`}}",
+      "ssh_pty": true,
+      "ami_name": "Couchbase Server {{user `couchbase_server_edition`}} {{user `couchbase_server_version`}} {{user `base_ami_name`}}",
+      "ami_groups": "all"
+  }]
+}
