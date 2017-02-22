@@ -83,12 +83,9 @@ def main():
 
     for i in range(30):
 
-        if is_service_running(sg_server_type):
-            # the service is running, we're done
-            print("Service is running.  Finished.")
-            return
-
         restart_service(sg_server_type)
+
+        time.sleep(5)  # Give it a few seconds to bind to port
 
         if is_service_running(sg_server_type):
             # the service is running, we're done
