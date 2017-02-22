@@ -50,7 +50,6 @@ default_sg_accel_config = """
         "default":{
             "server":"http://localhost:8091",
             "bucket":"default",
-            "feed_type":"DCPSHARD",
             "channel_index":{
                 "server":"http://localhost:8091",
                 "bucket":"channel_bucket",
@@ -68,6 +67,8 @@ default_sg_accel_config = """
 
 import pwd
 import os
+import time
+import urllib2
 
 SERVER_TYPE_SYNC_GATEWAY = "SERVER_TYPE_SYNC_GATEWAY"
 SERVER_TYPE_SG_ACCEL = "SERVER_TYPE_SG_ACCEL"
@@ -80,7 +81,22 @@ def main():
 
     write_custom_config(sg_server_type, target_config_file)
 
-    restart_service(sg_server_type)
+    for i in range(30):
+
+        if is_service_running(sg_server_type):
+            # the service is running, we're done
+            print("Service is running.  Finished.")
+            return
+
+        restart_service(sg_server_type)
+
+        if is_service_running(sg_server_type):
+            # the service is running, we're done
+            print("Service is running.  Finished.")
+            return
+
+        print("Service not up yet, sleeping {} seconds and retrying".format(i)) 
+        time.sleep(i)
 
 
 def discover_sg_server_type():
@@ -140,6 +156,19 @@ def discover_target_config(sg_server_type):
         )
     else:
         raise Exception("Unrecognized server type: {}".format(sg_server_type))
+
+def is_service_running(sg_server_type):
+
+    try:
+        
+        contents = urllib2.urlopen("http://localhost:4985").read()
+        if "Couchbase" in contents:
+            return True
+        return False
+
+    except Exception as e:
+        return False
+
     
 def find_existing_file_in_directories(directories, filename):
     
