@@ -249,9 +249,6 @@ for TF in ${TEMPLATE_FILES}
 done
 
 echo ======== build ${PRODUCT_NAME} ===============================
-DEST_DIR=${SGW_DIR}/bin
-rm -rf p ${DEST_DIR}
-mkdir -p ${DEST_DIR}
 
 # clean up stale objects switching between GO version
 if [[ -d ${SGW_DIR}/pkg ]]
