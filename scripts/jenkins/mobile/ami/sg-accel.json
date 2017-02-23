@@ -5,9 +5,11 @@
 	{
 	    "type": "shell",
 	    "inline": [
-		"sudo yum install -y wget",
+		"sudo yum install -y wget awscli",
 		"wget {{user `couchbase_sg_accel_package_base_url`}}/{{user `couchbase_sg_accel_package`}}",		
-		"sudo rpm -i {{user `couchbase_sg_accel_package`}}"
+		"sudo rpm -i {{user `couchbase_sg_accel_package`}}",
+		"echo '* hard nofile 500000' | sudo tee -a /etc/security/limits.d/20-nofiles.conf",
+		"echo '* soft nofile 500000' | sudo tee -a /etc/security/limits.d/20-nofiles.conf"
 	    ]
 	},
 	{

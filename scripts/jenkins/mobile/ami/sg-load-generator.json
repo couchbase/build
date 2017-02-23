@@ -7,13 +7,15 @@
 	    "inline": [
 		"sudo ethtool -K eth0 sg off",
 		"sudo yum install -y wget git emacs-nox",
+		"sudo yum install -y https://dl.influxdata.com/telegraf/releases/telegraf-1.0.0.x86_64.rpm",
 		"wget https://storage.googleapis.com/golang/go1.7.3.linux-amd64.tar.gz",
 		"sudo tar -C /usr/local -xzf go1.7.3.linux-amd64.tar.gz",
 		"sudo ln -s /usr/local/go/bin/go /usr/bin/go",
 		"mkdir ${HOME}/go",
 		"GOPATH=${HOME}/go go get -u -v -t github.com/couchbaselabs/sgload",
-		"GOPATH=${HOME}/go go get -u -v -t github.com/couchbaselabs/gateload"
-		
+		"GOPATH=${HOME}/go go get -u -v -t github.com/couchbaselabs/gateload",
+		"echo '* hard nofile 500000' | sudo tee -a /etc/security/limits.d/20-nofiles.conf",
+		"echo '* soft nofile 500000' | sudo tee -a /etc/security/limits.d/20-nofiles.conf"		
 	    ]
 	},
 	{
