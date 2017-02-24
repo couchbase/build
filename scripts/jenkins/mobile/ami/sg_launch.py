@@ -72,6 +72,8 @@ import urllib2
 
 SERVER_TYPE_SYNC_GATEWAY = "SERVER_TYPE_SYNC_GATEWAY"
 SERVER_TYPE_SG_ACCEL = "SERVER_TYPE_SG_ACCEL"
+SERVER_TYPE_LOAD_GEN = "SERVER_TYPE_LOAD_GEN"
+SERVER_TYPE_COUCHBASE_SERVER = "SERVER_TYPE_COUCHBASE_SERVER"
 
 def main(sync_gateway_config, sg_accel_config):
     
@@ -111,29 +113,25 @@ def discover_sg_server_type():
     
     try:
         pwd.getpwnam('sync_gateway')
-        is_sync_gateway = True 
+        return SERVER_TYPE_SYNC_GATEWAY
     except KeyError:
         pass
 
     try:
         pwd.getpwnam('sg_accel')
-        is_sg_accel = True
+        return SERVER_TYPE_SG_ACCEL
     except KeyError:
         pass
 
-    if not is_sync_gateway and not is_sg_accel:
-        # Something is wrong
-        raise Exception("Failed to determine server type.  Did not find either expected user on system")
+    try:
+        pwd.getpwnam('couchbase')
+        return SERVER_TYPE_COUCHBASE_SERVER
+    except KeyError:
+        pass
 
-    if is_sync_gateway and is_sg_accel:
-        # This is unexpected, log a warning
-        print("WARNING: both Sync Gateway and Sync Gateway Accelerator appear to be installed.  Defaulting to Sync Gateway")
-
-    if is_sync_gateway:
-        return SERVER_TYPE_SYNC_GATEWAY
-
-    if is_sg_accel:
-        return SERVER_TYPE_SG_ACCEL
+    # if none of the other types, assume it's a load generator
+    return SERVER_TYPE_LOAD_GEN
+        
 
 def discover_target_config(sg_server_type):
 
