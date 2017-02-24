@@ -79,6 +79,10 @@ def main(sync_gateway_config, sg_accel_config):
     
     sg_server_type = discover_sg_server_type()
 
+    if sg_server_type in [SERVER_TYPE_LOAD_GEN, SERVER_TYPE_COUCHBASE_SERVER]:
+        # For load generators and couchbase servers, nothing else to do
+        return 
+
     target_config_file = discover_target_config(sg_server_type)
 
     write_custom_config(
