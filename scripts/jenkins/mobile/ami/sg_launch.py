@@ -73,13 +73,18 @@ import urllib2
 SERVER_TYPE_SYNC_GATEWAY = "SERVER_TYPE_SYNC_GATEWAY"
 SERVER_TYPE_SG_ACCEL = "SERVER_TYPE_SG_ACCEL"
 
-def main():
-
+def main(sync_gateway_config, sg_accel_config):
+    
     sg_server_type = discover_sg_server_type()
 
     target_config_file = discover_target_config(sg_server_type)
 
-    write_custom_config(sg_server_type, target_config_file)
+    write_custom_config(
+        sg_server_type,
+        target_config_file,
+        sync_gateway_config,
+        sg_accel_config,
+    )
 
     for i in range(30):
 
@@ -177,14 +182,14 @@ def find_existing_file_in_directories(directories, filename):
         
 
     
-def write_custom_config(sg_server_type, target_config_file):
-
+def write_custom_config(sg_server_type, target_config_file, sync_gateway_config, sg_accel_config):
+    
     config_contents = "Error"
     
     if sg_server_type is SERVER_TYPE_SYNC_GATEWAY:
-        config_contents = default_sync_gateway_config
+        config_contents = sync_gateway_config
     elif sg_server_type is SERVER_TYPE_SG_ACCEL:
-        config_contents = default_sg_accel_config
+        config_contents = sg_accel_config
     else:
         raise Exception("Unrecognized server type: {}".format(sg_server_type))
 
@@ -211,7 +216,7 @@ def restart_service(sg_server_type):
 
     
 if __name__ == "__main__":
-   main()
+   main(default_sync_gateway_config, default_sg_accel_config)
 
 
 
