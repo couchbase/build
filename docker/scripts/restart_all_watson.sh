@@ -22,6 +22,9 @@ sleep 5
 ./restart_jenkinsdocker.py ceejatec/centos-70-couchbase-build:20151223 watson-centos7-02 5237 server.jenkins.couchbase.com &
 sleep 5
 ./restart_jenkinsdocker.py ceejatec/debian-8-couchbase-build:20160112 watson-debian8 5229 server.jenkins.couchbase.com &
+sleep 5
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20170220 spock-ubuntu16.04 5238 server.jenkins.couchbase.com &
+sleep 5
 
 # Temporary cbdeps slave based on Ubuntu 12.04 CV image
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 watson-ubuntu12.04-cv 5233 server.jenkins.couchbase.com &
