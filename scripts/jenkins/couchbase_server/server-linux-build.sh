@@ -266,10 +266,10 @@ cd ${WORKSPACE}
 md5sum ${INSTALLER_FILENAME} | cut -c1-32 > ${INSTALLER_FILENAME}.md5
 sha256sum ${INSTALLER_FILENAME} | cut -c1-64 > ${INSTALLER_FILENAME}.sha256
 
-# Support for Oracle Enterprise Linux. If we're building Centos 6, make
-# an exact copy with an oel6 filename.
+# Support for Oracle Enterprise Linux. If we're building Centos 6 or 7, make
+# an exact copy with an oel6/oel7 filename.
 case "$DISTRO" in
-    centos6)
+    centos6|centos7)
         for rpm in *.rpm
         do
             cp ${rpm} ${rpm//centos/oel}
