@@ -1,6 +1,8 @@
 #!/bin/bash -xe
 
 NODE_IP=${CPDSN:-127.0.0.1}
+ADMIN_NAME=${CPUSER:-Administrator}
+ADMIN_PASSWORD=${CPPASS:-password}
 
 # phpunit needs 5.6 always
 PHP_DIR="${BBSDK}/php-files/build/${phpver}-${phpts}-${arch}"
@@ -15,4 +17,7 @@ ulimit -c unlimited
 /sbin/sysctl kernel.core_pattern || /usr/sbin/sysctl kernel.core_pattern || sysctl kernel.core_pattern
 
 # Test
-CPDSN=${NODE_IP} ${PHP_DIR}/bin/php -d extension=phar.so -d extension=igbinary.so -d extension=$(pwd)/modules/couchbase.so ${PHP_DIR}/phpunit.phar tests/
+CPUSER=${ADMIN_NAME} CPPASS=${ADMIN_PASSWORD} CPDSN=${NODE_IP} \
+        ${PHP_DIR}/bin/php -d extension=phar.so -d extension=zlib.so -d extension=igbinary.so \
+                           -d extension=$(pwd)/modules/couchbase.so -d couchbase.log_level=TRACE \
+                           ${PHP_DIR}/phpunit.phar tests/
