@@ -60,6 +60,6 @@ RUN apt-get update && \
 RUN echo "PermitUserEnvironment yes" >> /etc/ssh/sshd_config
 ARG CONTAINER_TAG_ARG
 ENV CONTAINER_TAG=${CONTAINER_TAG_ARG}
-RUN echo "CONTAINER_TAG=${ARGY}" > /home/couchbase/.ssh/environment
+RUN echo "CONTAINER_TAG=${CONTAINER_TAG}" > /home/couchbase/.ssh/environment
 RUN chown couchbase:couchbase /home/couchbase/.ssh/environment
 
