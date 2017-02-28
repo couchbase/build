@@ -20,4 +20,4 @@ ulimit -c unlimited
 CPUSER=${ADMIN_NAME} CPPASS=${ADMIN_PASSWORD} CPDSN=${NODE_IP} \
         ${PHP_DIR}/bin/php -d extension=phar.so -d extension=zlib.so -d extension=igbinary.so \
                            -d extension=$(pwd)/modules/couchbase.so -d couchbase.log_level=TRACE \
-                           ${PHP_DIR}/phpunit.phar tests/
+                           ${PHP_DIR}/phpunit.phar --verbose tests/
