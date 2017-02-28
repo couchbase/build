@@ -22,7 +22,7 @@
       "type": "amazon-ebs",
       "access_key": "{{user `aws_access_key`}}",
       "secret_key": "{{user `aws_secret_key`}}",
-      "region": "us-west-1",
+      "region": "us-east-1",
       "force_deregister": true,
       "source_ami": "{{user `source_ami`}}",
       "instance_type": "t2.micro",
@@ -31,6 +31,7 @@
       "ami_name": "Couchbase Server {{user `couchbase_server_edition`}} {{user `couchbase_server_version`}} {{user `base_ami_name`}}",
       "ami_groups": "all",
       "ami_regions": [
+          "us-west-1",
 	  "us-west-2"
       ]      
   }]
