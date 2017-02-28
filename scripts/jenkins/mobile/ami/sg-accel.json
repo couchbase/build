@@ -31,6 +31,10 @@
       "ssh_username": "{{user `ssh_username`}}",
       "ssh_pty": true,
       "ami_name": "Couchbase Sync Gateway Accelerator Enterprise {{user `couchbase_sg_accel_version`}} {{user `base_ami_name`}}",
-      "ami_groups": "all"
+      "ami_groups": "all",
+      "ami_regions": [
+          "us-west-1",
+	  "us-west-2"
+      ]
   }]
 }

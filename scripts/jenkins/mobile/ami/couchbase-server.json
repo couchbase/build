@@ -29,6 +29,10 @@
       "ssh_username": "{{user `ssh_username`}}",
       "ssh_pty": true,
       "ami_name": "Couchbase Server {{user `couchbase_server_edition`}} {{user `couchbase_server_version`}} {{user `base_ami_name`}}",
-      "ami_groups": "all"
+      "ami_groups": "all",
+      "ami_regions": [
+          "us-west-1",
+	  "us-west-2"
+      ]      
   }]
 }
