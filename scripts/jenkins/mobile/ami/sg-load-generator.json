@@ -38,8 +38,7 @@
       "ami_name": "Sync Gateway Load Generator {{user `base_ami_name`}}",
       "ami_groups": "all",
       "ami_regions": [
-          "us-west-1",
-	  "us-west-2"
+          "us-west-1"
       ]
   }]
 }

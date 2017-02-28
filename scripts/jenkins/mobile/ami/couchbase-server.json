@@ -31,8 +31,7 @@
       "ami_name": "Couchbase Server {{user `couchbase_server_edition`}} {{user `couchbase_server_version`}} {{user `base_ami_name`}}",
       "ami_groups": "all",
       "ami_regions": [
-          "us-west-1",
-	  "us-west-2"
+          "us-west-1"
       ]      
   }]
 }

@@ -33,8 +33,7 @@
       "ami_name": "Couchbase Sync Gateway {{user `sync_gateway_edition`}} {{user `couchbase_sync_gateway_version`}} {{user `base_ami_name`}}",
       "ami_groups": "all",
       "ami_regions": [
-          "us-west-1",
-	  "us-west-2"
+          "us-west-1"
       ]      
   }]
 }
