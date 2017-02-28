@@ -220,15 +220,8 @@ else
 fi
 
 cd  ${BASE_DIRNAME}
-if [[ ! `git branch | grep ${BRANCH}` ]]
-then
-    echo "Create ${BRANCH}"
-#    git branch -t ${BRANCH} origin/${BRANCH}
-    git checkout --track -B ${BRANCH} origin/${BRANCH}
-fi
-
-git checkout -B ${BRANCH}
-git pull  origin  ${BRANCH}
+git fetch --all
+git checkout -B ${BRANCH} --track origin/${BRANCH}
 git submodule update --init --recursive
 git show --stat
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
