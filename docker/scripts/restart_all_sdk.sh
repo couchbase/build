@@ -1,9 +1,11 @@
 #!/bin/sh
 
+# These currently run on mega3
 start_dock() {
     docker run \
         --name=$2 \
         --detach=true \
+        --restart=unless-stopped \
         --publish=$3:22 \
         --volume=/etc/resolv.conf:/etc/resolv.conf \
         --volume=/etc/localtime:/etc/localtime \
