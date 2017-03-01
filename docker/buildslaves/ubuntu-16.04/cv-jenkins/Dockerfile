@@ -27,20 +27,20 @@ RUN apt-get update && apt-get install -y python-setuptools && \
     rm -f /var/cache/apt/archives/*.deb && \
     easy_install paramiko
 
-# Install Clang 3.6 (current stable) - needed for building with ThreadSanitizer.
+# Install Clang 3.9 (current stable) - needed for building with ThreadSanitizer.
 # (Note: This doesn't change the default compiler; users must explicitly
-# select clang-3.6 / clang++-3.6).
+# select clang-3.9 / clang++-3.9).
 RUN wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add - && \
-    echo "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.6 main" > /etc/apt/sources.list.d/llvm.list && \
+    echo "deb http://llvm.org/apt/xenial/ llvm-toolchain-xenial-3.9 main" > /etc/apt/sources.list.d/llvm.list && \
     apt-get update && \
-    apt-get install --assume-yes clang-3.6 && \
+    apt-get install --assume-yes clang-3.9 && \
     rm -fr /var/cache/apt/archives/*.deb
 
-# Install clang-format from Clang 3.8 - needed for checking if formatting of patch is correct
+# Install clang-format from Clang 3.9 - needed for checking if formatting of patch is correct
 RUN wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add - && \
-    echo "deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.8 main" > /etc/apt/sources.list.d/llvm.list && \
+    echo "deb http://llvm.org/apt/xenial/ llvm-toolchain-xenial-3.9 main" > /etc/apt/sources.list.d/llvm.list && \
     apt-get update && \
-    apt-get install --assume-yes --force-yes clang-format-3.8 && \
+    apt-get install --assume-yes --force-yes clang-format-3.9 && \
     rm -fr /var/cache/apt/archives/*.deb
 
 # Install GDB - needed for detecting what program created a core file
@@ -50,7 +50,7 @@ RUN apt-get install -y gdb && \
 
 # Install Lua - Needed for lua-based tests in Couchstore
 RUN apt-get update && \
-    apt-get install -y lua5.2 lua5.2-dev && \
+    apt-get install -y lua5.3 lua5.3-dev && \
     rm -fr /var/cache/apt/archives/*.deb
 
 # Keep this stuff at the end, because the ARG declaration breaks Docker build caching

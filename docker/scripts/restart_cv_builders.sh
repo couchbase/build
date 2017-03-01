@@ -11,7 +11,7 @@ cd `dirname $0`
 docker run --rm -i -v /home/couchbase/jenkinsdocker-ssh:/home/couchbase/jenkinsdocker-ssh -v `pwd`/cv-ansible:/mnt williamyeh/ansible:ubuntu16.04 /mnt/restart_cv_dockerslaves.sh &
 
 # Temp slave for testing new Ubuntu 16.04 slaves
-./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-cv:20170228 ubuntu16-cv-01 2322 cv.jenkins.couchbase.com --ccache-dir /home/couchbase/slaves/shared_ccache &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-cv:20170302 ubuntu16-cv-01 2322 cv.jenkins.couchbase.com --ccache-dir /home/couchbase/slaves/shared_ccache &
 
 # Factory CV slaves
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20151009 cv-sherlocker-ubuntu12.04-01 2229 &
