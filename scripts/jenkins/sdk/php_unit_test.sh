@@ -17,6 +17,6 @@ ulimit -c unlimited
 /sbin/sysctl kernel.core_pattern || /usr/sbin/sysctl kernel.core_pattern || sysctl kernel.core_pattern
 
 # Test
-PHP_CMD=${PHP_DIR}/bin/php -d extension=phar.so -d extension=igbinary.so -d extension=$(pwd)/modules/couchbase.so -d couchbase.log_level=TRACE
+PHP_CMD="${PHP_DIR}/bin/php -d extension=phar.so -d extension=igbinary.so -d extension=$(pwd)/modules/couchbase.so -d couchbase.log_level=TRACE"
 ${PHP_CMD} -m
 CPUSER=${ADMIN_NAME} CPPASS=${ADMIN_PASSWORD} CPDSN=${NODE_IP} ${PHP_CMD} ${PHP_DIR}/phpunit.phar --verbose tests/
