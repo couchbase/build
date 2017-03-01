@@ -71,6 +71,10 @@ RUN mkdir /tmp/deploy && \
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN apt-get update && \
+    apt-get install -y libz-dev && \
+    rm -f /var/cache/apt/archives/*.deb
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh
