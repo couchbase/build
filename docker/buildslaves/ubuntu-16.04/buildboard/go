@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Bump this when rebuilding with changes
+TAG=20170228
+
+docker build -t ceejatec/temp-bbdb:$TAG .
+docker tag ceejatec/temp-bbdb:$TAG ceejatec/temp-bbdb:latest
+if [ "$1" = "--publish" ]
+then
+  docker push ceejatec/temp-bbdb:$TAG
+  docker push ceejatec/temp-bbdb:latest
+fi
+
