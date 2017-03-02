@@ -4,6 +4,13 @@
   vars:
     ansible_user: couchbase
     ansible_pass: couchbase
+    restart_cmd: >-
+          /home/couchbase/build/docker/scripts/restart_jenkinsdocker.py
+          ceejatec/ubuntu-1204-couchbase-cv:20160304
+          {{ slave_name }}
+          2222
+          cv.jenkins.couchbase.com
+          --ccache-dir /home/couchbase/slaves/shared_ccache
     
   tasks:
     - name: Update build repo
@@ -29,10 +36,10 @@
         dest: /home/couchbase
 
     - name: Restart CV container
-      shell:
-        /home/couchbase/build/docker/scripts/restart_jenkinsdocker.py
-          ceejatec/ubuntu-1204-couchbase-cv:20160304
-          {{ slave_name }}
-          2222
-          cv.jenkins.couchbase.com
-          --ccache-dir /home/couchbase/slaves/shared_ccache
+      shell: "{{ restart_cmd }}"
+
+    - name: Add disk-check cron job
+      cron:
+        name: "check diskspace"
+        minute: "0"
+        job: "/home/couchbase/build/docker/scripts/run_if_disk_full.sh 90 {{ restart_cmd }}"
