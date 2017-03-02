@@ -28,3 +28,12 @@ docker run -d \
   ceejatec/temp-bbdb:20170228 \
   /usr/local/app/bbdb_restapis/start_script.sh
 
+docker run -d \
+  -v /home/couchbase/changelog:/home/couchbase/changelog \
+  -p 8000:5000 \
+  --network=temp-bbdb \
+  --name=temp-changelog \
+  --restart=unless-stopped \
+  ceejatec/temp-bbdb:20170228 \
+  /home/couchbase/changelog/start_script.sh
+
