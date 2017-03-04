@@ -4,8 +4,8 @@
 #  
 #   1.  prepare repo meta-files
 #   2.  seed new repo
-#   3.  import packages
-#   4.  sign packges in local repo
+#   3.  import and sign packages
+#   4.  sign local repo
 #   5.  upload local repo to shared repository
 #   6.  upload keys and yum.repos.d
 #  
@@ -26,8 +26,8 @@ mkdir -p ${REPO}
 mkdir -p ${REPO}/6/x86_64
 mkdir -p ${REPO}/7/x86_64
 
-createrepo --simple-md-filenames --verbose  ${REPO}/6/x86_64
-createrepo --simple-md-filenames --verbose  ${REPO}/7/x86_64
+createrepo --verbose  ${REPO}/6/x86_64
+createrepo --verbose  ${REPO}/7/x86_64
 
 echo ""
 echo "RPM repo ready for import: ${REPO}"

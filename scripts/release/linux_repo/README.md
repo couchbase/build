@@ -16,8 +16,8 @@
 |----------------|----------------------------------------------|
 | prep_rpm.sh    |   1.  prepare repo meta-files                |
 | seed_rpm.sh    |   2.  seed new repo                          |
-| import_rpm.sh  |   3.  import packages                        |
-| sign_rpm.sh    |   4.  sign packges in local repo             |
+| import_rpm.sh  |   3.  import and sign packages               |
+| sign_rpm.sh    |   4.  sign local repo                        |
 | upload_rpm.sh  |   5.  upload local repo to shared repository |
 | upload_meta.sh |   6.  upload keys and yum.repos.d            |
 

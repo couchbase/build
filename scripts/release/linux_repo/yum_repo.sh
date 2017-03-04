@@ -6,8 +6,7 @@
 #        - also need s3cmd --configure run for the user that is running this script
 
 edition=$1
-release=$2
-upload=$3
+upload=$2
 
 function help() {
     cat <<HELP_STRING
@@ -15,7 +14,6 @@ function help() {
         ./yum_repo.sh <edition> <release>
 
         <edition> - enterprise or community
-        <release> - version string of the format <version>-<build> eg: 4.0.0-3010
 
 HELP_STRING
 }
@@ -57,7 +55,14 @@ done
 
 ./prep_rpm.sh
 ./seed_rpm.sh $edition
-./import_rpm.sh $release $edition
+for release in `grep $edition versions.txt`
+do
+    if [[ "$release" != "$edition" ]]
+    then
+        echo "@@@@@@ PROCESSING $release @@@@@@"
+        ./import_rpm.sh $release $edition
+    fi
+done
 ./sign_rpm.sh $release $edition
 if [ "$upload" == "yes" ]; then
     ./upload_rpm.sh $edition --init
