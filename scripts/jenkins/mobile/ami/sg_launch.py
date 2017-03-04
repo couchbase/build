@@ -77,16 +77,16 @@ SERVER_TYPE_COUCHBASE_SERVER = "SERVER_TYPE_COUCHBASE_SERVER"
 
 def main(sync_gateway_config, sg_accel_config):
     
-    sg_server_type = discover_sg_server_type()
+    server_type = discover_server_type()
 
-    if sg_server_type in [SERVER_TYPE_LOAD_GEN, SERVER_TYPE_COUCHBASE_SERVER]:
+    if not is_sync_gateway_or_accel(server_type):
         # For load generators and couchbase servers, nothing else to do
         return 
 
-    target_config_file = discover_target_config(sg_server_type)
+    target_config_file = discover_target_config(server_type)
 
     write_custom_config(
-        sg_server_type,
+        server_type,
         target_config_file,
         sync_gateway_config,
         sg_accel_config,
@@ -94,11 +94,11 @@ def main(sync_gateway_config, sg_accel_config):
 
     for i in range(30):
 
-        restart_service(sg_server_type)
+        restart_service(server_type)
 
         time.sleep(5)  # Give it a few seconds to bind to port
 
-        if is_service_running(sg_server_type):
+        if is_service_running(server_type):
             # the service is running, we're done
             print("Service is running.  Finished.")
             return
@@ -107,7 +107,15 @@ def main(sync_gateway_config, sg_accel_config):
         time.sleep(i)
 
 
-def discover_sg_server_type():
+def is_sync_gateway_or_accel(sg_server_type):
+
+    if sg_server_type in [SERVER_TYPE_LOAD_GEN, SERVER_TYPE_COUCHBASE_SERVER]:
+        return False
+
+    return True
+
+
+def discover_server_type():
     """
     This figures out whether this script is running on a Sync Gateway or an SG Accel
     """
