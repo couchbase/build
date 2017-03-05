@@ -11,6 +11,12 @@ fi
 chown -R couchbase:couchbase /home/couchbase/.ssh
 chmod 600 /home/couchbase/.ssh/*
 
+# Hook for build image-specific steps
+if [[ -e /usr/sbin/couchhook.sh ]]
+then
+    /usr/sbin/couchhook.sh
+fi
+
 # Start sshd (as new, long-running, foreground process)
 [[ "$1" == "default" ]] && {
     exec /usr/sbin/sshd -D

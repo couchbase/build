@@ -1,11 +1,10 @@
 #!/bin/sh
 
 # Bump this when rebuilding with changes
-TAG=20170228
+TAG=20170305
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
-cp -a ~/.s3cfg .s3cfg
 docker build -t couchbase/ubuntu-1404-sdk-build:$TAG .
 docker tag couchbase/ubuntu-1404-sdk-build:$TAG couchbase/ubuntu-1404-sdk-build:latest
 if [ "$1" = "--publish" ]

@@ -24,7 +24,7 @@ docker rm -f centos65-docker-01
 start_dock couchbase/centos-65-sdk-build:20160208 centos65-docker-01 5555
 
 docker rm -f ubuntu1404-docker-01
-start_dock couchbase/ubuntu-1404-sdk-build:20170228 ubuntu1404-docker-01 5556
+start_dock couchbase/ubuntu-1404-sdk-build:20170305 ubuntu1404-docker-01 5556
 
 docker rm -f centos70-docker-01
 start_dock couchbase/centos-70-sdk-build:20160208 centos70-docker-01 5557
