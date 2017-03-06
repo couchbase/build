@@ -103,7 +103,7 @@
             "Properties": {
                 "BlockDeviceMappings": [
                     {
-                        "DeviceName": "/dev/sda1",
+                        "DeviceName": "/dev/xvda",
                         "Ebs": {
                             "DeleteOnTermination": "true",
                             "VolumeSize": 200,
@@ -172,7 +172,7 @@
             "Properties": {
                 "BlockDeviceMappings": [
                     {
-                        "DeviceName": "/dev/sda1",
+                        "DeviceName": "/dev/xvda",
                         "Ebs": {
                             "DeleteOnTermination": "true",
                             "VolumeSize": 200,

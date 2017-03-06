@@ -188,7 +188,7 @@ def find_existing_file_in_directories(directories, filename):
         path_to_file = os.path.join(dir, filename)
         if os.path.exists(path_to_file):
             return path_to_file
-    raise Execption("Did not find {} in {}".format(filename, directories))
+    raise Exception("Did not find {} in {}".format(filename, directories))
         
 
     

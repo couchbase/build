@@ -144,11 +144,11 @@ def gen_template(config):
     instance.UserData = sgautoscale.userDataCouchbaseServer()
     instance.BlockDeviceMappings = [
         ec2.BlockDeviceMapping(
-            DeviceName="/dev/sda1",
+            DeviceName=config.block_device_name,
             Ebs=ec2.EBSBlockDevice(
                 DeleteOnTermination=True,
-                VolumeSize=200,
-                VolumeType="gp2"
+                VolumeSize=config.block_device_volume_size,
+                VolumeType=config.block_device_volume_type
             )
         )
     ]
@@ -166,11 +166,11 @@ def gen_template(config):
     instance.UserData = sgautoscale.userDataSyncGatewayOrAccel()
     instance.BlockDeviceMappings = [
         ec2.BlockDeviceMapping(
-            DeviceName="/dev/sda1",
+            DeviceName=config.block_device_name,
             Ebs=ec2.EBSBlockDevice(
                 DeleteOnTermination=True,
-                VolumeSize=200,
-                VolumeType="gp2"
+                VolumeSize=config.block_device_volume_size,
+                VolumeType=config.block_device_volume_type
             )
         )
     ]
@@ -196,6 +196,9 @@ def main():
             'couchbase_ami_id',
             'sync_gateway_ami_id',
             'sg_accel_ami_id',
+            'block_device_name',
+            'block_device_volume_size',
+            'block_device_volume_type',
         ]),
     )
 
@@ -223,6 +226,9 @@ def main():
         couchbase_ami_id=couchbase_ami_ids_per_region[region],
         sync_gateway_ami_id=sync_gateway_ami_ids_per_region[region],
         sg_accel_ami_id=sg_accel_ami_ids_per_region[region],
+        block_device_name="/dev/xvda",  # "/dev/sda1" for centos
+        block_device_volume_size=200,
+        block_device_volume_type="gp2",
     )
 
     templ_json = gen_template(config)
