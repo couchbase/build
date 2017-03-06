@@ -1,36 +1,39 @@
 
-Running the Couchbase Mobile AMI
+Running the Couchbase Mobile Sync Gateway / Sync Gateway Accelerator AMI
 
-## Overview
+## AMI Overview
 
-The Couchbase Mobile AMI has the following components included:
+The following AMI's are available on the AWS Marketplace:
 
-* Couchbase Server (single-node)
-* Sync Gateway
+1. Sync Gateway 1.4 Community Edition
+1. Sync Gateway 1.4 Enterprise Edition
+1. Sync Gateway Accelerator 1.4 Enterprise Edition
 
-## Quickstart
+## Launch Sync Gateway with in-memory database
+
+The following instructions will work with both Sync Gateway and Sync Gateway Accelerator
 
 * Choose AMI with the appropriate region
-* Click the "Launch with EC2 console" button
 * Configure Instance Details / Advanced Details
-* Paste the [user-data.sh](https://raw.githubusercontent.com/couchbase/build/master/scripts/jenkins/mobile/ami/user-data.sh) script contents into the text area in Advanced Details
-* If you want to run a custom Sync Gateway configuration, you should customize the variables in the Customization section of the user-data.sh script you just pasted.  You can set the Sync Gateway config to any public URL and will need to update the Couchbase Server bucket name to match what's in your config.
+* Paste the [sg_launch.py](https://raw.githubusercontent.com/couchbase/build/master/scripts/jenkins/mobile/ami/sg_launch.py) script contents into the text area in Advanced Details (the "as-text" radio button should be checked)
+* Customize the content inside the triple quoted string with they Sync Gateway configuration you want to use: ```"""{"log":["HTTP+","Changes+",...] .. your config file contents goes here .. """```
+* Since this uses the in-memory database (aka "Walrus"), leave the server setting as `"server":"walrus:data",` in the configuration
 * Edit your Security Group to expose port 4984 to Anywhere
+* Launch instance
 
-## Verify
+### Verify
 
-* Find the Public DNS entry of the instance you just launched
-* Open `http://<public-ip-of-instance>:4984` in your web browser
-* You should get a 200 OK response with JSON content that has the Sync Gateway version
+* In the AWS Management Console web UI, go to the **EC2** section and look for the instance you just launched, and click it to show the instance details
+* Find the public dns name of the instance from the **Public DNS (IPv4)** field: it should look something like **ec2-54-152-154-24.compute-1.amazonaws.com**
+* In your browser, go to **http://<public-dns-name-of-instance>:4984** and it should return JSON content like `{couchdb: "Welcome", ..etc ..`
 
-## Explore Couchbase Server
 
-* In the AWS console, find the instance-id of the running instance (eg, i-56b1accd)
-* Edit the Security Group for the running instance to enable access to port `8091`
-* Open `http://<public-ip-of-instance>:8091` in your web browser
-* Login with **Administrator**/**[ec2 instance-id]**
+## Launch Sync Gateway + Sync Gateway Accelerator + Couchbase Server
 
-## Explore Sync Gateway
 
-* See the [Sync Gateway REST API docs](http://developer.couchbase.com/documentation/mobile/1.2/develop/references/sync-gateway/index.html) for more information on using Sync Gateway
-* Install a [Sample App](http://developer.couchbase.com/documentation/mobile/current/develop/samples/samples/index.html) and set it up to Sync it's data with Sync Gateway
+
+
+
+
+
+
