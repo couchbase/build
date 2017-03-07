@@ -135,7 +135,7 @@ def gen_template(config):
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
     instance.Tags = Tags(Name=name, Type="couchbaseserver")
-    instance.UserData = sgautoscale.userDataCouchbaseServer()
+    instance.UserData = sgautoscale.userDataCouchbaseServer(config.build_repo_commit, config.sgautoscale_repo_commit)
     BlockDeviceMappings=[sgautoscale.blockDeviceMapping(config, "couchbaseserver")]
     t.add_resource(instance)
 
@@ -148,7 +148,7 @@ def gen_template(config):
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
     instance.Tags = Tags(Name=name, Type="syncgateway")
-    instance.UserData = sgautoscale.userDataSyncGatewayOrAccel() 
+    instance.UserData = sgautoscale.userDataSyncGatewayOrAccel(config.build_repo_commit, config.sgautoscale_repo_commit) 
     BlockDeviceMappings=[sgautoscale.blockDeviceMapping(config, "syncgateway")]   
     t.add_resource(instance)
     
@@ -161,7 +161,7 @@ def gen_template(config):
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
     instance.Tags = Tags(Name=name, Type="sgaccel")
-    instance.UserData = sgautoscale.userDataSyncGatewayOrAccel()
+    instance.UserData = sgautoscale.userDataSyncGatewayOrAccel(config.build_repo_commit, config.sgautoscale_repo_commit)
     BlockDeviceMappings=[sgautoscale.blockDeviceMapping(config, "sgaccel")]       
     t.add_resource(instance)
 
@@ -182,6 +182,8 @@ def main():
             'block_device_name',
             'block_device_volume_size_by_server_type',
             'block_device_volume_type',
+            'build_repo_commit',
+            'sgautoscale_repo_commit',
         ]),
     )
 
@@ -212,6 +214,8 @@ def main():
         block_device_name="/dev/xvda",  # "/dev/sda1" for centos, /dev/xvda for amazon linux ami
         block_device_volume_size_by_server_type={"couchbaseserver": 200, "syncgateway": 25, "sgaccel": 25},
         block_device_volume_type="gp2",
+        build_repo_commit="0b5217c53d25d5974859014b4f241c51de9a79b1",
+        sgautoscale_repo_commit="abba14fe90e281b5a801e6d2397cb5f152a2097f",
     )
 
     templ_json = gen_template(config)
