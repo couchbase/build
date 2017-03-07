@@ -43,12 +43,6 @@
                     },
                     {
                         "CidrIp": "0.0.0.0/0",
-                        "FromPort": "4985",
-                        "IpProtocol": "tcp",
-                        "ToPort": "4985"
-                    },
-                    {
-                        "CidrIp": "0.0.0.0/0",
                         "FromPort": "9876",
                         "IpProtocol": "tcp",
                         "ToPort": "9876"
