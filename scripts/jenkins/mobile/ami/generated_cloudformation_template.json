@@ -29,9 +29,128 @@
     "Resources": {
         "CouchbaseSecurityGroup": {
             "Properties": {
-                "GroupDescription": "Allow access to Couchbase Server"
+                "GroupDescription": "External Access to Sync Gateway user port"
             },
             "Type": "AWS::EC2::SecurityGroup"
+        },
+        "IngressCouchbaseAPI": {
+            "Properties": {
+                "FromPort": "8092",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "8092"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseClientInterfaceProxy": {
+            "Properties": {
+                "FromPort": "11211",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "11211"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseErlangPortMapper": {
+            "Properties": {
+                "FromPort": "4369",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "4369"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseInternalBucketPort": {
+            "Properties": {
+                "FromPort": "11209",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "11209"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseInternalExternalBucketPort": {
+            "Properties": {
+                "FromPort": "11210",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "11210"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseNodeDataExchange": {
+            "Properties": {
+                "FromPort": "21100",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "21299"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseWebAdmin": {
+            "Properties": {
+                "FromPort": "8091",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "8091"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
         },
         "IngressSSH": {
             "Properties": {

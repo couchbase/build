@@ -47,17 +47,14 @@ def gen_template(config):
         Description='The Couchbase Server Admin password'
     ))
     
-    # Security Group + Launch Keypair
+    # Security Group
     # ------------------------------------------------------------------------------------------------------------------
-
-
-    # Couchbase security group
     secGrpCouchbase = ec2.SecurityGroup('CouchbaseSecurityGroup')
-    secGrpCouchbase.GroupDescription = "Allow access to Couchbase Server"
-
-    # Add security group to template
+    secGrpCouchbase.GroupDescription = "External Access to Sync Gateway user port"
     t.add_resource(secGrpCouchbase)
 
+    # Ingress: Public
+    # ------------------------------------------------------------------------------------------------------------------
     t.add_resource(ec2.SecurityGroupIngress(
         'IngressSSH',
         GroupName=Ref(secGrpCouchbase),
@@ -66,7 +63,6 @@ def gen_template(config):
         ToPort="22",
         CidrIp="0.0.0.0/0",
     ))
-
     t.add_resource(ec2.SecurityGroupIngress(
         'IngressSyncGatewayUser',
         GroupName=Ref(secGrpCouchbase),
@@ -76,100 +72,74 @@ def gen_template(config):
         CidrIp="0.0.0.0/0",
     ))
 
-    t.add_resource(ec2.SecurityGroupIngress(
-        'IngressSyncGatewayAdmin',
-        GroupName=Ref(secGrpCouchbase),
-        IpProtocol="tcp",
-        FromPort="4985",
-        ToPort="4985",
-        SourceSecurityGroupId=GetAtt("CouchbaseSecurityGroup", "GroupId"),
-    ))
-
-
-
-
-    # secGrpCouchbase.SecurityGroupIngress = [
-    #     ec2.SecurityGroupRule(
-    #         IpProtocol="tcp",
-    #         FromPort="22",
-    #         ToPort="22",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(
-    #         IpProtocol="tcp",
-    #         FromPort="8091",
-    #         ToPort="8091",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(   # sync gw user port
-    #         IpProtocol="tcp",
-    #         FromPort="4984",
-    #         ToPort="4984",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #
-    #
-    #     ec2.SecurityGroupRule(  # sync gw user port
-    #         IpProtocol="tcp",
-    #         FromPort="4985",
-    #         ToPort="4985",
-    #         # SourceSecurityGroupId=GetAtt(secGrpCouchbase, "GroupId"),
-    #         SourceSecurityGroupId=GetAtt("CouchbaseSecurityGroup", "GroupId"),
-    #     ),
-    #     ec2.SecurityGroupRule(   # expvars
-    #         IpProtocol="tcp",
-    #         FromPort="9876",
-    #         ToPort="9876",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(   # couchbase server
-    #         IpProtocol="tcp",
-    #         FromPort="4369",
-    #         ToPort="4369",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(   # couchbase server
-    #         IpProtocol="tcp",
-    #         FromPort="5984",
-    #         ToPort="5984",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(   # couchbase server
-    #         IpProtocol="tcp",
-    #         FromPort="8092",
-    #         ToPort="8092",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(   # couchbase server
-    #         IpProtocol="tcp",
-    #         FromPort="11209",
-    #         ToPort="11209",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(   # couchbase server
-    #         IpProtocol="tcp",
-    #         FromPort="11210",
-    #         ToPort="11210",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(   # couchbase server
-    #         IpProtocol="tcp",
-    #         FromPort="11211",
-    #         ToPort="11211",
-    #         CidrIp="0.0.0.0/0",
-    #     ),
-    #     ec2.SecurityGroupRule(   # couchbase server
-    #         IpProtocol="tcp",
-    #         FromPort="21100",
-    #         ToPort="21299",
-    #         CidrIp="0.0.0.0/0",
-    #     )
-    #
-    # ]
-
-
-
-
+    # Ingress: within Security Group
+    # ------------------------------------------------------------------------------------------------------------------
+    t.add_resource(
+        tcpIngressWithinGroup(
+            name='IngressCouchbaseErlangPortMapper',
+            port="4369",
+            group=secGrpCouchbase,
+            groupname="CouchbaseSecurityGroup",
+        )
+    )
+    t.add_resource(
+        tcpIngressWithinGroup(
+            name='IngressSyncGatewayAdmin',
+            port="4985",
+            group=secGrpCouchbase,
+            groupname="CouchbaseSecurityGroup",
+        )
+    )
+    t.add_resource(
+        tcpIngressWithinGroup(
+            name='IngressCouchbaseWebAdmin',
+            port="8091",
+            group=secGrpCouchbase,
+            groupname="CouchbaseSecurityGroup",
+        )
+    )
+    t.add_resource(
+        tcpIngressWithinGroup(
+            name='IngressCouchbaseAPI',
+            port="8092",
+            group=secGrpCouchbase,
+            groupname="CouchbaseSecurityGroup",
+        )
+    )
+    t.add_resource(
+        tcpIngressWithinGroup(
+            name='IngressCouchbaseInternalBucketPort',
+            port="11209",
+            group=secGrpCouchbase,
+            groupname="CouchbaseSecurityGroup",
+        )
+    )
+    t.add_resource(
+        tcpIngressWithinGroup(
+            name='IngressCouchbaseInternalExternalBucketPort',
+            port="11210",
+            group=secGrpCouchbase,
+            groupname="CouchbaseSecurityGroup",
+        )
+    )
+    t.add_resource(
+        tcpIngressWithinGroup(
+            name='IngressCouchbaseClientInterfaceProxy',
+            port="11211",
+            group=secGrpCouchbase,
+            groupname="CouchbaseSecurityGroup",
+        )
+    )
+    t.add_resource(
+        ec2.SecurityGroupIngress(
+            'IngressCouchbaseNodeDataExchange',
+            GroupName=Ref(secGrpCouchbase),
+            IpProtocol="tcp",
+            FromPort="21100",
+            ToPort="21299",
+            SourceSecurityGroupId=GetAtt("CouchbaseSecurityGroup", "GroupId"),
+        )
+    )
 
 
     # Couchbase Server Instance
@@ -224,6 +194,17 @@ def gen_template(config):
 
 
     return t.to_json()
+
+
+def tcpIngressWithinGroup(name, port, group, groupname):
+    return ec2.SecurityGroupIngress(
+        name,
+        GroupName=Ref(group),
+        IpProtocol="tcp",
+        FromPort=port,
+        ToPort=port,
+        SourceSecurityGroupId=GetAtt(groupname, "GroupId"),
+    )
 
 
 # Main
