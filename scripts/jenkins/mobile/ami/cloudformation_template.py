@@ -142,16 +142,7 @@ def gen_template(config):
     instance.KeyName = Ref(keyname_param)
     instance.Tags = Tags(Name=name, Type="couchbaseserver")
     instance.UserData = sgautoscale.userDataCouchbaseServer()
-    instance.BlockDeviceMappings = [
-        ec2.BlockDeviceMapping(
-            DeviceName=config.block_device_name,
-            Ebs=ec2.EBSBlockDevice(
-                DeleteOnTermination=True,
-                VolumeSize=config.block_device_volume_size,
-                VolumeType=config.block_device_volume_type
-            )
-        )
-    ]
+    BlockDeviceMappings=[sgautoscale.blockDeviceMapping(config, "couchbaseserver")]
     t.add_resource(instance)
 
     # Sync Gateway Instance
@@ -163,24 +154,22 @@ def gen_template(config):
     instance.SecurityGroups = [Ref(secGrpCouchbase)]
     instance.KeyName = Ref(keyname_param)
     instance.Tags = Tags(Name=name, Type="syncgateway")
-    instance.UserData = sgautoscale.userDataSyncGatewayOrAccel()
-    instance.BlockDeviceMappings = [
-        ec2.BlockDeviceMapping(
-            DeviceName=config.block_device_name,
-            Ebs=ec2.EBSBlockDevice(
-                DeleteOnTermination=True,
-                VolumeSize=config.block_device_volume_size,
-                VolumeType=config.block_device_volume_type
-            )
-        )
-    ]
+    instance.UserData = sgautoscale.userDataSyncGatewayOrAccel() 
+    BlockDeviceMappings=[sgautoscale.blockDeviceMapping(config, "syncgateway")]   
     t.add_resource(instance)
-
     
     # SG Accel Instance
     # ------------------------------------------------------------------------------------------------------------------
-    # TODO
-    
+    name = "sgaccel"
+    instance = ec2.Instance(name)
+    instance.ImageId = config.sg_accel_ami_id
+    instance.InstanceType = Ref(sg_accel_instance_type_param)
+    instance.SecurityGroups = [Ref(secGrpCouchbase)]
+    instance.KeyName = Ref(keyname_param)
+    instance.Tags = Tags(Name=name, Type="sgaccel")
+    instance.UserData = sgautoscale.userDataSyncGatewayOrAccel()
+    BlockDeviceMappings=[sgautoscale.blockDeviceMapping(config, "sgaccel")]       
+    t.add_resource(instance)
 
 
     return t.to_json()
@@ -197,7 +186,7 @@ def main():
             'sync_gateway_ami_id',
             'sg_accel_ami_id',
             'block_device_name',
-            'block_device_volume_size',
+            'block_device_volume_size_by_server_type',
             'block_device_volume_type',
         ]),
     )
@@ -206,8 +195,8 @@ def main():
 
     # Generated via http://uberjenkins.sc.couchbase.com/view/Build/job/couchbase-server-ami/
     couchbase_ami_ids_per_region = {
-        "us-east-1": "ami-ab8225bd",
-        "us-west-1": "ami-ee247d8e"
+        "us-east-1": "ami-907dda86",
+        "us-west-1": "ami-d45c05b4"
     }
 
     # Generated via http://uberjenkins.sc.couchbase.com/view/Build/job/sync-gateway-ami/
@@ -226,8 +215,8 @@ def main():
         couchbase_ami_id=couchbase_ami_ids_per_region[region],
         sync_gateway_ami_id=sync_gateway_ami_ids_per_region[region],
         sg_accel_ami_id=sg_accel_ami_ids_per_region[region],
-        block_device_name="/dev/xvda",  # "/dev/sda1" for centos
-        block_device_volume_size=200,
+        block_device_name="/dev/xvda",  # "/dev/sda1" for centos, /dev/xvda for amazon linux ami
+        block_device_volume_size_by_server_type={"couchbaseserver": 200, "syncgateway": 25, "sgaccel": 25},
         block_device_volume_type="gp2",
     )
 

@@ -101,17 +101,7 @@
         },
         "couchbaseserver": {
             "Properties": {
-                "BlockDeviceMappings": [
-                    {
-                        "DeviceName": "/dev/xvda",
-                        "Ebs": {
-                            "DeleteOnTermination": "true",
-                            "VolumeSize": 200,
-                            "VolumeType": "gp2"
-                        }
-                    }
-                ],
-                "ImageId": "ami-ab8225bd",
+                "ImageId": "ami-907dda86",
                 "InstanceType": {
                     "Ref": "CouchbaseServerInstanceType"
                 },
@@ -139,8 +129,9 @@
                             "",
                             [
                                 "#!/bin/bash\n",
-                                "systemctl status couchbase-server\n",
+                                "service couchbase-server status\n",
                                 "sleep 60\n",
+                                "service couchbase-server status\n",
                                 "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
                                 "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
@@ -168,18 +159,57 @@
             },
             "Type": "AWS::EC2::Instance"
         },
-        "syncgateway": {
+        "sgaccel": {
             "Properties": {
-                "BlockDeviceMappings": [
+                "ImageId": "ami-cc8027da",
+                "InstanceType": {
+                    "Ref": "SgAccelInstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
                     {
-                        "DeviceName": "/dev/xvda",
-                        "Ebs": {
-                            "DeleteOnTermination": "true",
-                            "VolumeSize": 200,
-                            "VolumeType": "gp2"
-                        }
+                        "Ref": "CouchbaseSecurityGroup"
                     }
                 ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "sgaccel"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "sgaccel"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Fn::Base64": {
+                                        "Ref": "AWS::StackId"
+                                    }
+                                },
+                                "\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "syncgateway": {
+            "Properties": {
                 "ImageId": "ami-ff9842e9",
                 "InstanceType": {
                     "Ref": "SyncGatewayInstanceType"
