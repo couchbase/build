@@ -23,28 +23,41 @@ def gen_template(config):
     # Template Parameters
     #
     keyname_param = t.add_parameter(Parameter(
-        'KeyName', Type='String',
-        Description='Name of an existing EC2 KeyPair to enable SSH access'
+        'KeyName',
+        Type='String',
+        Description='Name of an existing EC2 KeyPair to enable SSH access',
+        MinLength=1,
     ))
     couchbase_server_instance_type_param = t.add_parameter(Parameter(
-        'CouchbaseServerInstanceType', Type='String',
-        Description='The InstanceType to use for Couchbase Server instance'
+        'CouchbaseServerInstanceType',
+        Type='String',
+        Description='The InstanceType to use for Couchbase Server instance',
+        Default='m3.medium',
     ))
     sync_gateway_instance_type_param = t.add_parameter(Parameter(
-        'SyncGatewayInstanceType', Type='String',
-        Description='The InstanceType to use for Sync Gateway instance'
+        'SyncGatewayInstanceType',
+        Type='String',
+        Description='The InstanceType to use for Sync Gateway instance',
+        Default='m3.medium',
     ))
     sg_accel_instance_type_param = t.add_parameter(Parameter(
-        'SgAccelInstanceType', Type='String',
-        Description='The InstanceType to use for Sync Gateway Accel instance'
+        'SgAccelInstanceType',
+        Type='String',
+        Description='The InstanceType to use for Sync Gateway Accel instance',
+        Default='m3.medium',
     ))
     couchbase_server_admin_user_param = t.add_parameter(Parameter(
-        'CouchbaseServerAdminUserParam', Type='String',
-        Description='The Couchbase Server Admin username'
+        'CouchbaseServerAdminUserParam',
+        Type='String',
+        Description='The Couchbase Server Admin username',
+        Default='Administrator',
     ))
     couchbase_server_admin_pass_param = t.add_parameter(Parameter(
-        'CouchbaseServerAdminPassParam', Type='String',
-        Description='The Couchbase Server Admin password'
+        'CouchbaseServerAdminPassParam',
+        Type='String',
+        Description='The Couchbase Server Admin password',
+        MinLength=8,
+        NoEcho=True,
     ))
     
     # Security Group

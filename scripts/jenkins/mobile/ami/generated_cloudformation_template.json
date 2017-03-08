@@ -3,25 +3,32 @@
     "Parameters": {
         "CouchbaseServerAdminPassParam": {
             "Description": "The Couchbase Server Admin password",
+            "MinLength": 8,
+            "NoEcho": true,
             "Type": "String"
         },
         "CouchbaseServerAdminUserParam": {
+            "Default": "Administrator",
             "Description": "The Couchbase Server Admin username",
             "Type": "String"
         },
         "CouchbaseServerInstanceType": {
+            "Default": "m3.medium",
             "Description": "The InstanceType to use for Couchbase Server instance",
             "Type": "String"
         },
         "KeyName": {
             "Description": "Name of an existing EC2 KeyPair to enable SSH access",
+            "MinLength": 1,
             "Type": "String"
         },
         "SgAccelInstanceType": {
+            "Default": "m3.medium",
             "Description": "The InstanceType to use for Sync Gateway Accel instance",
             "Type": "String"
         },
         "SyncGatewayInstanceType": {
+            "Default": "m3.medium",
             "Description": "The InstanceType to use for Sync Gateway instance",
             "Type": "String"
         }
