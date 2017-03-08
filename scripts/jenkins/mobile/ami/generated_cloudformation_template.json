@@ -1,0 +1,392 @@
+{
+    "Description": "Sync Gateway + Sync Gateway Accelerator + Couchbase Server",
+    "Parameters": {
+        "CouchbaseServerAdminPassParam": {
+            "Description": "The Couchbase Server Admin password",
+            "MinLength": 8,
+            "NoEcho": true,
+            "Type": "String"
+        },
+        "CouchbaseServerAdminUserParam": {
+            "Default": "Administrator",
+            "Description": "The Couchbase Server Admin username",
+            "Type": "String"
+        },
+        "CouchbaseServerInstanceType": {
+            "Default": "m3.medium",
+            "Description": "The InstanceType to use for Couchbase Server instance",
+            "Type": "String"
+        },
+        "KeyName": {
+            "Description": "Name of an existing EC2 KeyPair to enable SSH access",
+            "MinLength": 1,
+            "Type": "String"
+        },
+        "SgAccelInstanceType": {
+            "Default": "m3.medium",
+            "Description": "The InstanceType to use for Sync Gateway Accel instance",
+            "Type": "String"
+        },
+        "SyncGatewayInstanceType": {
+            "Default": "m3.medium",
+            "Description": "The InstanceType to use for Sync Gateway instance",
+            "Type": "String"
+        }
+    },
+    "Resources": {
+        "CouchbaseSecurityGroup": {
+            "Properties": {
+                "GroupDescription": "External Access to Sync Gateway user port"
+            },
+            "Type": "AWS::EC2::SecurityGroup"
+        },
+        "IngressCouchbaseAPI": {
+            "Properties": {
+                "FromPort": "8092",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "8092"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseClientInterfaceProxy": {
+            "Properties": {
+                "FromPort": "11211",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "11211"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseErlangPortMapper": {
+            "Properties": {
+                "FromPort": "4369",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "4369"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseInternalBucketPort": {
+            "Properties": {
+                "FromPort": "11209",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "11209"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseInternalExternalBucketPort": {
+            "Properties": {
+                "FromPort": "11210",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "11210"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseNodeDataExchange": {
+            "Properties": {
+                "FromPort": "21100",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "21299"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressCouchbaseWebAdmin": {
+            "Properties": {
+                "FromPort": "8091",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "8091"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressSSH": {
+            "Properties": {
+                "CidrIp": "0.0.0.0/0",
+                "FromPort": "22",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "ToPort": "22"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressSyncGatewayAdmin": {
+            "Properties": {
+                "FromPort": "4985",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "SourceSecurityGroupId": {
+                    "Fn::GetAtt": [
+                        "CouchbaseSecurityGroup",
+                        "GroupId"
+                    ]
+                },
+                "ToPort": "4985"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "IngressSyncGatewayUser": {
+            "Properties": {
+                "CidrIp": "0.0.0.0/0",
+                "FromPort": "4984",
+                "GroupName": {
+                    "Ref": "CouchbaseSecurityGroup"
+                },
+                "IpProtocol": "tcp",
+                "ToPort": "4984"
+            },
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        },
+        "couchbaseserver": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/xvda",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 200,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "ImageId": "ami-907dda86",
+                "InstanceType": {
+                    "Ref": "CouchbaseServerInstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "couchbaseserver"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "couchbaseserver"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "service couchbase-server status\n",
+                                "sleep 60\n",
+                                "service couchbase-server status\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackId"
+                                },
+                                "\n",
+                                "export public_dns_name=$(curl http://169.254.169.254/latest/meta-data/public-hostname)\n",
+                                "python cbbootstrap.py --cluster-id ",
+                                {
+                                    "Ref": "AWS::StackId"
+                                },
+                                " --node-ip-addr-or-hostname ${public_dns_name} --admin-user ",
+                                {
+                                    "Ref": "CouchbaseServerAdminUserParam"
+                                },
+                                " --admin-pass ",
+                                {
+                                    "Ref": "CouchbaseServerAdminPassParam"
+                                },
+                                "\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "sgaccel": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/xvda",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 25,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "ImageId": "ami-cc8027da",
+                "InstanceType": {
+                    "Ref": "SgAccelInstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "sgaccel"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "sgaccel"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackId"
+                                },
+                                "\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        },
+        "syncgateway": {
+            "Properties": {
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/xvda",
+                        "Ebs": {
+                            "DeleteOnTermination": "true",
+                            "VolumeSize": 25,
+                            "VolumeType": "gp2"
+                        }
+                    }
+                ],
+                "ImageId": "ami-ff9842e9",
+                "InstanceType": {
+                    "Ref": "SyncGatewayInstanceType"
+                },
+                "KeyName": {
+                    "Ref": "KeyName"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "CouchbaseSecurityGroup"
+                    }
+                ],
+                "Tags": [
+                    {
+                        "Key": "Name",
+                        "Value": "syncgateway"
+                    },
+                    {
+                        "Key": "Type",
+                        "Value": "syncgateway"
+                    }
+                ],
+                "UserData": {
+                    "Fn::Base64": {
+                        "Fn::Join": [
+                            "",
+                            [
+                                "#!/bin/bash\n",
+                                "wget https://raw.githubusercontent.com/tleyden/build/master/scripts/jenkins/mobile/ami/sg_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/sg_autoscale_launch.py\n",
+                                "wget https://raw.githubusercontent.com/couchbaselabs/sg-autoscale/master/src/cbbootstrap.py\n",
+                                "cat *.py\n",
+                                "python sg_autoscale_launch.py --stack-name ",
+                                {
+                                    "Ref": "AWS::StackId"
+                                },
+                                "\n",
+                                "ethtool -K eth0 sg off\n"
+                            ]
+                        ]
+                    }
+                }
+            },
+            "Type": "AWS::EC2::Instance"
+        }
+    }
+}

@@ -5,11 +5,9 @@
 	{
 	    "type": "shell",
 	    "inline": [
-		"sudo yum install -y wget awscli",
-		"wget {{user `couchbase_sync_gateway_package_base_url`}}/{{user `couchbase_sync_gateway_package`}}",		
-		"sudo rpm -i {{user `couchbase_sync_gateway_package`}}",
-		"echo '* hard nofile 500000' | sudo tee -a /etc/security/limits.d/20-nofiles.conf",
-		"echo '* soft nofile 500000' | sudo tee -a /etc/security/limits.d/20-nofiles.conf"		
+		"sudo yum install -y wget openssl awscli",
+		"wget {{user `couchbase_server_package_base_url`}}/{{user `couchbase_server_package`}}",		
+		"sudo rpm -i {{user `couchbase_server_package`}}"
 	    ]
 	},
 	{
@@ -30,7 +28,7 @@
       "instance_type": "t2.micro",
       "ssh_username": "{{user `ssh_username`}}",
       "ssh_pty": true,
-      "ami_name": "Couchbase Sync Gateway {{user `sync_gateway_edition`}} {{user `couchbase_sync_gateway_version`}} {{user `base_ami_name`}}",
+      "ami_name": "Couchbase Server {{user `couchbase_server_edition`}} {{user `couchbase_server_version`}} {{user `base_ami_name`}}",
       "ami_groups": "all",
       "ami_regions": [
           "us-west-1"
