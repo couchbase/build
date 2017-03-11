@@ -8,4 +8,4 @@ mvn -B -f asterixdb/asterix-opt/pom.xml versions:set -DnewVersion=1.0.0-DP2
 mvn -B clean install -DskipTests -Pcb-build
 
 # move the installer where the jenkins job expects it
-mv asterixdb/asterix-opt/installer/target/*.zip ${WORKSPACE}
+mv asterixdb/asterix-opt/cbas-installer/target/*.zip ${WORKSPACE}

@@ -50,7 +50,7 @@ mvn -B install -DskipTests
 
 # Test
 echo "Testing CBQ interop"
-cd asterixdb/asterix-opt/cbq-interop/cbq-test
+cd asterixdb/asterix-opt/cbas-cbq-interop/cbq-test
 mvn -B verify -Dcbq.exe.path="${workspace}/cbq"
 
 # If we get here, all is well - archive this CBQ build
