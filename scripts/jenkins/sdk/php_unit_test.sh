@@ -19,8 +19,7 @@ ulimit -c unlimited
 # Test
 PHP_CMD="${PHP_DIR}/bin/php -d extension=phar.so -d extension=igbinary.so -d extension=$(pwd)/modules/couchbase.so -d couchbase.log_level=TRACE"
 ${PHP_CMD} -m
-CPUSER=${ADMIN_NAME} CPPASS=${ADMIN_PASSWORD} CPDSN=${NODE_IP} ${PHP_CMD} ${PHP_DIR}/phpunit.phar --verbose tests/
-
+CPUSER=${ADMIN_NAME} CPPASS=${ADMIN_PASSWORD} CPDSN=${NODE_IP} ${PHP_CMD} ${PHP_DIR}/phpunit.phar --verbose tests/ || \
 if [ -x /usr/bin/gdb ]; then
   shopt -s nullglob
   for c in core* /tmp/core* /var/crash/*; do
@@ -28,4 +27,5 @@ if [ -x /usr/bin/gdb ]; then
     file $c
     gdb --batch --quiet -ex "thread apply all bt full" -ex "quit" ${PHP_DIR}/bin/php $c
   done
+  exit 1
 fi
