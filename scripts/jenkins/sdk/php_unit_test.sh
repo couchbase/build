@@ -23,7 +23,7 @@ CPUSER=${ADMIN_NAME} CPPASS=${ADMIN_PASSWORD} CPDSN=${NODE_IP} ${PHP_CMD} ${PHP_
 
 if [ -x /usr/bin/gdb ]; then
   shopt -s nullglob
-  for c in core* /tmp/core*; do
+  for c in core* /tmp/core* /var/crash/*; do
     ls -l $c
     file $c
     gdb --batch --quiet -ex "thread apply all bt full" -ex "quit" ${PHP_DIR}/bin/php $c
