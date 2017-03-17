@@ -152,7 +152,12 @@ then
 ===          Run unit tests              ===
 ============================================
 EOF
-    pushd build/${GERRIT_PROJECT} 2>&1 > /dev/null
+    if [ "${GERRIT_PROJECT}" = "ns_server" ]
+    then
+        pushd ${GERRIT_PROJECT}/build 2>&1 > /dev/null
+    else
+        pushd build/${GERRIT_PROJECT} 2>&1 > /dev/null
+    fi
 
     if [ -n "$ENABLE_CODE_COVERAGE" ]; then
         # Reset code coverage counters (note optional hence the || true).

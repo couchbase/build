@@ -106,13 +106,18 @@ cmake --build . --target install || goto :error
 popd
 
 @echo.
+IF "%GERRIT_PROJECT%"=="ns_server" (
+    set BUILD_DIR=%GERRIT_PROJECT%\build
+) ELSE (
+    set BUILD_DIR=build\%GERRIT_PROJECT%
+)
 @IF NOT DEFINED SKIP_UNIT_TESTS (
-    @IF EXIST build\%GERRIT_PROJECT%\CTestTestfile.cmake (
+    @IF EXIST %BUILD_DIR%\CTestTestfile.cmake (
         @echo ============================================
         @echo ===          Run unit tests              ===
         @echo ============================================
 
-        pushd build\%GERRIT_PROJECT%
+        pushd %BUILD_DIR%
         @REM  -j%PARALLELISM% : Run tests in parallel.
         @REM  -T Test   : Generate XML output file of test results.
         ctest -j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test  --exclude-regex %TESTS_EXCLUDE% || goto :error
