@@ -46,7 +46,7 @@ tar xzf "${CBAS_BUILDS}/${latest_cbas}/analytics-${CBAS_VER}-${latest_cbas}-sour
 # Build
 echo "Building CBAS"
 cd cbas
-mvn -B install -DskipTests
+mvn -B install -DskipTests -DskipManagix -DskipYarn -DskipExperiments
 
 # Test
 echo "Testing CBQ interop"
