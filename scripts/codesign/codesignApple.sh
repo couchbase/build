@@ -64,7 +64,7 @@ then
 else
     PKG_URL=http://172.23.120.24/builds/latestbuilds/couchbase-server/${rel_code}/${PKG_BUILD_NUM}
     PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
-    PKG_DIR=couchbase-server-${EDITION}_4
+    PKG_DIR=couchbase-server-${EDITION}_${rel_code}
 fi
 
 
