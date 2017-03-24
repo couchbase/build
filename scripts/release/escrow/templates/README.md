@@ -1,7 +1,7 @@
-# Couchbase 4.5.0 Escrow
+# Couchbase 4.6.0 Escrow
 
 The scripts, source, and data in this directory can be used to produce
-installer binaries of Couchbase Server 4.5.0 Enterprise Edition for any
+installer binaries of Couchbase Server 4.6.0 Enterprise Edition for any
 of the following flavors of Linux:
 
 * Centos 6
@@ -13,7 +13,7 @@ of the following flavors of Linux:
 * Ubuntu 14.04
 
 NOTE: Oracle Enterprise Linux 6 (OEL 6) was also a supported platform for
-Couchbase Server 4.5.0. The installer binaries for this platform were
+Couchbase Server 4.6.0. The installer binaries for this platform were
 the same as for Centos 6. Therefore you should follow these instructions
 as for Centos 6 when building for OEL 6.
 
@@ -45,7 +45,7 @@ the escrow distribution is self-contained.
 ## Build Instructions
 
 The escrow distribution contains a top-level directory named
-`couchbase-server-4.5.0`. cd into this directory, and then run
+`couchbase-server-4.6.0`. cd into this directory, and then run
 
     ./build-couchbase-server-from-escrow.sh <platform>
 
@@ -63,11 +63,11 @@ That is all. The build will take roughly 30 minutes depending on the
 speed of the machine.
 
 Once the build is complete, the requested installer will be located in
-the `couchbase-server-4.5.0` directory. The name of the installer binary
+the `couchbase-server-4.6.0` directory. The name of the installer binary
 various from Linux flavor to flavor. For example, the Centos 6 binary is
 named:
 
-    couchbase-server-enterprise-4.5.0-centos6.x86_64.rpm
+    couchbase-server-enterprise-4.6.0-centos6.x86_64.rpm
 
 There will also be a corresponding debug-symbols package. This package 
 occasionally made available by Couchbase Support when debugging specific
@@ -76,7 +76,7 @@ a customer machine *in addition* to the main installer. The filename of
 this debug-symbols package again varies from flavor to flavor; on Centos
 6 it is named
 
-    couchbase-server-enterprise-debug-4.5.0-centos6.x86_64.rpm
+    couchbase-server-enterprise-debug-4.6.0-centos6.x86_64.rpm
 
 ## Build Synopsis
 
@@ -157,7 +157,7 @@ a Jenkins job. This script expects to be passed several parameters,
 including the Linux flavor to build; whether to build the Enterprise or
 Community Edition of Couchbase Server; the version number; and an
 internal build number. `in-container-build.sh` invokes this script with
-the appropriate arguments to build Couchbase Server 4.5.0 Enterprise
+the appropriate arguments to build Couchbase Server 4.6.0 Enterprise
 Edition, specifying a fake build number "9999".
 
 Couchbase Server is built using [CMake](https://cmake.org/), and

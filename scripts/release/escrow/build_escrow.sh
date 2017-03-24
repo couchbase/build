@@ -10,10 +10,10 @@ ceejatec/suse-11-couchbase-build:20151223
 ceejatec/centos-65-couchbase-build:20151223"
 
 # QQQ possibly keep this list somewhere canonical per build also
-GOVERS="1.4.2 1.5.2 1.6"
+GOVERS="1.4.2 1.5.2 1.6 1.6.3"
 
 # QQQ parameterize?
-RELEASE=4.5.0
+RELEASE=4.6.0
 PRODUCT=couchbase-server
 
 heading() {

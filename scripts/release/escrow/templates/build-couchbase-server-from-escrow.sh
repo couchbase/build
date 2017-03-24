@@ -106,7 +106,7 @@ fi
 # Launch build process
 heading "Running full Couchbase Server build in container..."
 docker exec -it -u couchbase ${SLAVENAME} bash \
-  /home/couchbase/escrow/in-container-build.sh ${PLAT} 4.5.0
+  /home/couchbase/escrow/in-container-build.sh ${PLAT} 4.6.0
 
 # And copy the installation packages out of the container.
 heading "Copying installer binaries"
