@@ -136,23 +136,10 @@ ls ${REL_DIR}
 
 # Temporary copy LiteServ for (QE) internal consumption while Jim B. look for a better solution
 echo ======== Copy LiteServ =============================
-if [[ ${VERSION} == 1.4.0 ]] || [[ ${VERSION} > 1.4.0 ]]
-then
-    pushd ${BASE_DIR}/staging/LiteServ/net45
-    zip -ry LiteServ *
-    cp -f LiteServ.zip ${REL_DIR}
-    popd
-    pushd ${BASE_DIR}/staging/LiteServ/iOS/LiteServ.app
-    zip -ry LiteServ-iOS *
-    cp -f LiteServ-iOS.zip ${REL_DIR}
-    popd
-    cp -f ${BASE_DIR}/staging/LiteServ/Android/LiteServ.apk ${REL_DIR}
-else
     pushd ${BASE_DIR}/staging/LiteServ
     zip -ry LiteServ *
     cp -f LiteServ.zip ${REL_DIR}
     popd
-fi
 
 echo ................................... upload internally to ${LATESTBUILDS}
 
