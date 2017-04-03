@@ -33,9 +33,13 @@ case "$DISTRO" in
         PKG=rpm
         FLAVOR=redhat7
         ;;
-    *suse*)
+    *suse11)
         PKG=rpm
-        FLAVOR=suse
+        FLAVOR=suse11
+        ;;
+    *suse12)
+        PKG=rpm
+        FLAVOR=suse12
         ;;
     ubuntu16.04)
         PKG=deb
