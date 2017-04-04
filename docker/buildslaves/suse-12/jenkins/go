@@ -1,0 +1,14 @@
+#!/bin/sh -ex
+
+# Bump this when rebuilding with changes
+TAG=20170404
+
+mkdir -p build
+cp -a -u ../../util/couchbuilder_start.sh build
+docker build --build-arg REGCODE=$(cat $HOME/jenkinsdocker-ssh/suse_regcode.txt) -t localonly/suse-12-couchbase-build:$TAG .
+docker tag localonly/suse-12-couchbase-build:$TAG localonly/suse-12-couchbase-build:latest
+
+if [ "$1" = "--publish" ]; then
+  docker push localonly/suse-12-couchbase-build:$TAG
+  docker push localonly/suse-12-couchbase-build:latest
+fi
