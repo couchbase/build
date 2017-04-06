@@ -1,12 +1,13 @@
 ---
 - hosts: all
+  gather_facts: False
 
   vars:
     ansible_user: couchbase
     ansible_pass: couchbase
     restart_cmd: >-
           /home/couchbase/build/docker/scripts/restart_jenkinsdocker.py
-          ceejatec/ubuntu-1204-couchbase-cv:20160304
+          {{ docker_image }} 
           {{ slave_name }}
           2222
           cv.jenkins.couchbase.com
