@@ -41,6 +41,9 @@ do
 done
 
 case $project in
+    asterix-opt)
+        repo="ssh://git@github.com/couchbaselabs/$project.git"
+        ;;
     *)
 	repo="git@github.com:couchbase/$project.git"
 	;;
