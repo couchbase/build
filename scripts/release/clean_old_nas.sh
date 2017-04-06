@@ -19,7 +19,7 @@ cd ${LATESTBUILDS}/couchbase-server
 remove_glob "*windows_amd64-bits.tar" 1
 
 # All MacOS .orig files from codesigning
-remove_glob "*macos*.orig" 20
+remove_glob "*macos*.orig" 5
 
 # All debug packages older than 30 days
 remove_glob "*debug*" 30
@@ -28,12 +28,16 @@ remove_glob "*-PDB.zip" 30
 
 # All Ubuntu 12/14, Debian 8, Centos 6, Suse, Mac, "oel" builds older than 30/60 days
 remove_glob "*macos*.zip" 30
-remove_glob "*ubuntu12.04*.deb" 60
+remove_glob "*ubuntu12.04*.deb" 30
 remove_glob "*ubuntu14.04*.deb" 30
+remove_glob "*ubuntu16.04*.deb" 30
 remove_glob "*debian7*.deb" 60
 remove_glob "*debian8*.deb" 30
 remove_glob "*centos6*.rpm" 30
 remove_glob "*suse11*.rpm" 30
+remove_glob "*suse12*.rpm" 30
 remove_glob "*oel*.rpm" 30
 
+# All Source tarballs older than 60 days
+remove_glob "*source.tar.gz" 60
 
