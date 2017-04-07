@@ -17,7 +17,6 @@ import tarfile
 # as all-caps CONSTANTS once they are finally set.
 
 
-
 # Command-line args
 parser = argparse.ArgumentParser()
 parser.add_argument("manifest", type=str, help="manifest path")
@@ -50,6 +49,9 @@ if os.path.exists(manifest_filename):
 tarball_filename = os.path.abspath("source.tar.gz")
 if os.path.exists(tarball_filename):
   os.remove(tarball_filename)
+changelog_filename = os.path.abspath("CHANGELOG")
+if os.path.exists(changelog_filename):
+  os.remove(changelog_filename)
 
 # Determine product and release from manifest path
 PRODUCT, _, MANIFEST_PATH = MANIFEST.partition('/')
@@ -177,6 +179,10 @@ if (os.path.exists(build_manifest_filename)):
     else:
       print "No changes since last build {}-{}, but forcing new build anyway".format(
         VERSION, LAST_BUILD_NUM)
+
+  print "Saving CHANGELOG..."
+  with open(changelog_filename, "w") as f:
+    f.write(output)
 
 # Ensure build manifest directory exists
 build_manifest_dir = os.path.dirname(build_manifest_filename)
