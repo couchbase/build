@@ -26,6 +26,7 @@
     - name: "Install tools"
       win_chocolatey:
         name: "{{ item }}"
+        allow_empty_checksums: "yes"
       with_items:
         - git
         - cmake
@@ -35,8 +36,17 @@
         - ruby
         - wixtoolset
         - 7zip.commandline
-        - javaruntime
+        - jdk8
+        - maven
         - googlechrome
+
+    - name: "Download py2exe"
+      win_get_url:
+        url: 'https://iweb.dl.sourceforge.net/project/py2exe/py2exe/0.6.9/py2exe-0.6.9.win64-py2.7.amd64.exe'
+        dest: py2exe.exe
+
+    - name: "Install py2exe"
+      raw: 'easy_install py2exe.exe'
 
     - name: Create bin directory
       win_file:
@@ -52,7 +62,7 @@
       include: extend-path.yml
       with_items:
         - C:\bin
-        - C:\Program Files (x86)\CMake\bin
+        - C:\Program Files\CMake\bin
         - C:\Program Files\git\cmd
         - C:\Program Files (x86)\WiX Toolset v3.10\bin
 
@@ -92,3 +102,30 @@
         src: "ssh/"
         dest: "C:\\Users\\Administrator\\.ssh\\"
 
+# Enable Remote Desktop connections
+# The first win_regedit tasks seems to not work (no error, just no effect)
+# with Ansible 2.2.1. This may be fixed in Ansible 2.3, but for now as a
+# workaround there's a second task that does the same thing with an explicit
+# "reg" command.
+
+    - name: "Enable Remote Desktop"
+      win_regedit:
+        key: 'HKLM:\System\CurrentControlSet\Control\Terminal Server'
+        name: fDenyTSConnections
+        data: 0
+        type: dword
+        state: present
+
+    - name: "Enable Remote Desktop with regedit (should be removed with Ansible 2.3)"
+      raw: 'reg add "hklm\system\currentcontrolset\control\terminal server" /f /v fDenyTSConnections /t REG_DWORD /d 0'
+
+    - name: "Open Remote Desktop in firewall"
+      win_firewall_rule:
+        name: "remote desktop"
+        enable: yes
+        state: present
+        localport: 3389
+        action: allow
+        direction: in
+        protocol: TCP
+        force: true
