@@ -20,7 +20,7 @@ function usage() {
     echo
 }
 
-DEFAULT_PLATFORMS=(centos6 centos7 debian8 debian7 macos oel6 suse11 ubuntu12.04 ubuntu14.04 windows)
+DEFAULT_PLATFORMS=(centos debian macos oel suse ubuntu windows)
 MP=
 LIVE=false
 
