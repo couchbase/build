@@ -38,6 +38,7 @@
         - 7zip.commandline
         - jdk8
         - maven
+        - strawberryperl
         - googlechrome
 
     - name: "Download py2exe"
@@ -65,6 +66,7 @@
         - C:\Program Files\CMake\bin
         - C:\Program Files\git\cmd
         - C:\Program Files (x86)\WiX Toolset v3.10\bin
+        - C:\Strawberry\perl\bin
 
 # Next steps are all about installing Visual Studio
 
