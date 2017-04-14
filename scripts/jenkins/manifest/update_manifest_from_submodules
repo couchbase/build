@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+
+"""
+Program that takes a given manifest and repository in that manifest,
+then updates all its submodules and updates the manifest itself with
+any new revisions for any of the submodules.
+
+Requires the lxml module, installable via 'pip', along with Git, which
+needs to be in one's path so subprocess can find it..
+"""
+
+import argparse
+import os
+import subprocess
+import sys
+
+from lxml import etree
+
+
+class UpdateManifest:
+    """
+    In a given manifest, update the SHAs for the submodules for a given repo
+    """
+
+    def __init__(self, manifest, repo):
+        """Initialize parameters for metadata storage"""
+
+        self.manifest = manifest
+        self.repo = repo
+        self.data = None
+        self.tree = None
+        self.root = None
+        self.remotes = None
+        self.projects = None
+
+    def get_remotes(self):
+        """Acquire the Git remotes for the repositories"""
+
+        remotes = dict()
+
+        for remote in self.tree.findall('remote'):
+            remote_name = remote.get('name')
+            remote_url = remote.get('fetch')
+
+            # Skip incomplete/invalid remotes
+            if remote_name is None or remote_url is None:
+                continue
+
+            remotes[remote_name] = remote_url
+
+        # Get default remote, if there is one
+        for remote in self.tree.findall('default'):
+            remote_name = remote.get('remote')
+
+            if remote_name is None:
+                continue
+
+            remotes['default'] = remotes[remote_name]
+
+        self.remotes = remotes
+
+    def get_projects(self):
+        """Acquire information for repositories in manifest"""
+
+        projects = dict()
+
+        for project in self.tree.findall('project'):
+            project_name = project.get('name')
+            project_remote = project.get('remote')
+            project_revision = project.get('revision')
+            project_path = project.get('path')
+
+            # Skip incomplete/invalid projects
+            if project_name is None:
+                continue
+
+            projects[project_name] = {
+                'remote': project_remote,
+                'revision': project_revision,
+                'path': project_path,
+            }
+
+        self.projects = projects
+
+    def get_metadata(self):
+        """
+        Parse and extract information for the remotes and projects,
+        needed to retrieve the repository and submodules to be updated
+        """
+
+        with open(self.manifest) as fh:
+            self.data = etree.XML(fh.read().encode('utf-8'))
+
+        self.tree = etree.ElementTree(self.data)
+        self.root = self.tree.getroot()
+
+        self.get_remotes()
+        self.get_projects()
+
+    def checkout_repo(self, repo_name):
+        """
+        Clone the given repository and checkout a specific revision
+        if one is supplied; abort if the repository is unavailable
+        or if the revision does not exist
+
+        Uses subprocess to call out to Git and suppresses standard
+        error output to minimize output noise while running
+        """
+
+        try:
+            remote = self.remotes[self.projects[repo_name]['remote']]
+        except KeyError:
+            # Get default remote
+            remote = self.remotes['default']
+
+        repo_url = '{}{}'.format(remote, repo_name)
+
+        if not os.path.exists(repo_name):
+            try:
+                subprocess.run(
+                    ['git', 'clone', '-q', repo_url],
+                    stderr=subprocess.DEVNULL, check=True
+                )
+            except subprocess.CalledProcessError:
+                print('Unable to clone repo "{}", aborting...'.format(repo_name))
+                sys.exit(1)
+
+        os.chdir(repo_name)
+
+        revision = self.projects[repo_name]['revision']
+
+        if revision is not None:
+            try:
+                subprocess.run(
+                    ['git', 'checkout', '-q', revision],
+                    stderr=subprocess.DEVNULL, check=True
+                )
+            except subprocess.CalledProcessError:
+                print('Unable to check out revision "{}" from repo "{}", '
+                      'aborting...'.format(revision, repo_name))
+                sys.exit(1)
+
+        return True
+
+    def run_update(self):
+        """
+        Update all submodules in the repo, ensuring it succeeds
+        (abort otherwise) 
+        """
+
+        try:
+            subprocess.run(
+                ['git', 'submodule', 'update', '--init', '--recursive'],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True
+            )
+        except subprocess.CalledProcessError:
+            print('Unable to update submodules in repo "{}", '
+                  'aborting...'.format(self.repo))
+            sys.exit(1)
+
+    def update_shas(self):
+        """
+        Acquire submodule information and update the XML tree with the new
+        revisions for all the submodules; abort if any of the submodule
+        paths can't be found
+        """
+
+        try:
+            resp = subprocess.run(
+                ['git', 'submodule', 'status', '--recursive'],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True
+            )
+        except subprocess.CalledProcessError:
+            print('Unable to acquire submodule info for repo "{}", '
+                  'aborting...'.format(self.repo))
+            sys.exit(1)
+
+        submod_info = resp.stdout.decode('utf-8')
+
+        for submod in submod_info.split('\n'):
+            # Small hack to avoid blank lines
+            try:
+                revision, path, _ = submod.split()
+            except ValueError:
+                continue
+
+            for project in self.tree.findall('project'):
+                if project.get('path') == '{}/{}'.format(self.repo, path):
+                    project.set('revision', revision)
+                    break
+            else:
+                print('Unable to find project with path "{}", '
+                      'aborting...'.format(path))
+                sys.exit(1)
+
+    def generate_xml(self):
+        """
+        Write the XML tree back out to a file
+        """
+
+        with open(self.manifest, 'w') as fh:
+            fh.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+            fh.write(etree.tostring(
+                self.tree, encoding='unicode', pretty_print=True
+            ))
+
+    def update_submodules(self):
+        """
+        Check out given repository, update submodules and update SHA
+        entries in the XML tree, creating a new manifest file
+        """
+
+        self.checkout_repo(self.repo)
+        self.run_update()
+        self.update_shas()
+        self.generate_xml()
+
+
+def main():
+    """
+    Parse the command line, acquire the repositories and create
+    the archive file
+    """
+
+    parser = argparse.ArgumentParser(
+        description='Update submodule SHAs in given manifest'
+    )
+    parser.add_argument('manifest', help='Full path to manifest')
+    parser.add_argument('repo', help='Name of Git repository')
+
+    args = parser.parse_args()
+
+    backup = UpdateManifest(os.path.realpath(args.manifest), args.repo)
+    backup.get_metadata()
+    backup.update_submodules()
+
+
+if __name__ == '__main__':
+    main()
