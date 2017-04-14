@@ -37,6 +37,9 @@ BUILD_MANIFESTS_ORG = args.build_manifests_org
 NO_PUSH = args.no_push
 force = args.force
 
+# Remember this here before any chdirs
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Initialize output files
 properties_filename = os.path.abspath("build.properties")
 if os.path.exists(properties_filename):
@@ -103,7 +106,6 @@ if module_projects is not None:
     os.mkdir("module_projects")
   with remember_cwd():
     os.chdir("module_projects")
-    script_dir = os.path.dirname(os.path.realpath(__file__))
     print('module_projects is set, so updating manifest...')
     check_call(["{}/update_manifest_from_submodules".format(script_dir),
       "../manifest/{}".format(MANIFEST)] + module_projects)
