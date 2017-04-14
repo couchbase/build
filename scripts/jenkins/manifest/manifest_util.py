@@ -28,7 +28,7 @@ def scan_manifests(manifest_repo = "git://github.com/couchbase/manifest"):
    check_call(["git", "clone", manifest_repo, "manifest"])
   with remember_cwd():
     os.chdir("manifest")
-    print "Updating manifest repository..."
+    print("Updating manifest repository...")
     check_call(["git", "pull"])
 
     # Scan the current directory for build manifests.
