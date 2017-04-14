@@ -319,6 +319,12 @@ case $project in
     mossScope)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    analytics_ns_server)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    cbas)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
