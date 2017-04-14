@@ -23,12 +23,11 @@ class UpdateManifest:
     In a given manifest, update the SHAs for the submodules for a given repo
     """
 
-    def __init__(self, manifest, repo, branch):
+    def __init__(self, manifest, repos):
         """Initialize parameters for metadata storage"""
 
         self.manifest = manifest
-        self.repo = repo
-        self.branch = branch
+        self.repos = repos
         self.data = None
         self.tree = None
         self.root = None
@@ -123,6 +122,7 @@ class UpdateManifest:
 
         if not os.path.exists(repo_path):
             try:
+                print('Cloning {}...'.format(repo_name))
                 subprocess.run(
                     ['git', 'clone', '-q', repo_url, repo_path],
                     stderr=subprocess.DEVNULL, check=True
@@ -133,19 +133,30 @@ class UpdateManifest:
 
         with remember_cwd():
             os.chdir(repo_path)
+            print('Updating {}...'.format(repo_name))
+            subprocess.run(
+                ['git', 'fetch', '--all', '-q'],
+                stderr=subprocess.DEVNULL, check=True
+            )
 
             revision = self.projects[repo_name]['revision']
-
-            if revision is not None:
-                try:
+            print ('Checking out revision {} in {}'.format(revision, repo_name))
+            try:
+                if self.sha_re.match(revision) is not None:
                     subprocess.run(
                         ['git', 'checkout', '-q', revision],
                         stderr=subprocess.DEVNULL, check=True
                     )
-                except subprocess.CalledProcessError:
-                    print('Unable to check out revision "{}" from repo "{}", '
-                          'aborting...'.format(revision, repo_name))
-                    sys.exit(1)
+                else:
+                    subprocess.run(
+                        ['git', 'checkout', '-q', '-B',
+                            revision, "origin/{}".format(revision)],
+                        stderr=subprocess.DEVNULL, check=True
+                    )
+            except subprocess.CalledProcessError:
+                print('Unable to check out revision "{}" from repo "{}", '
+                        'aborting...'.format(revision, repo_name))
+                sys.exit(1)
 
         return True
 
@@ -154,6 +165,7 @@ class UpdateManifest:
         Update all submodules in the repo, ensuring it succeeds
         (abort otherwise)
         """
+        print('Updating submodules in {}...'.format(repo_name))
         with remember_cwd():
             os.chdir(self.projects[repo_name]['path'])
             try:
@@ -163,7 +175,7 @@ class UpdateManifest:
                 )
             except subprocess.CalledProcessError:
                 print('Unable to update submodules in repo "{}", '
-                      'aborting...'.format(self.repo))
+                      'aborting...'.format(repo_name))
                 sys.exit(1)
 
     def update_shas(self):
@@ -172,8 +184,10 @@ class UpdateManifest:
         revisions for all the submodules; abort if any of the submodule
         paths can't be found in the manifest
         """
+
+        print('Updating manifest from current submodules...')
         with remember_cwd():
-            os.chdir(self.projects[self.repo]['path'])
+            os.chdir(self.projects[self.repos[0]]['path'])
             try:
                 resp = subprocess.run(
                     ['git', 'submodule', 'status', '--recursive'],
@@ -181,7 +195,7 @@ class UpdateManifest:
                 )
             except subprocess.CalledProcessError:
                 print('Unable to acquire submodule info for repo "{}", '
-                      'aborting...'.format(self.repo))
+                      'aborting...'.format(self.repos[0]))
                 sys.exit(1)
 
         submod_info = resp.stdout.decode('utf-8')
@@ -195,19 +209,27 @@ class UpdateManifest:
             except ValueError:
                 continue
 
+            # Note: We assume the first repo specified on the command line
+            # is the "parent" of any others, and hence the path in the
+            # manifest must be nested below that one. That's a limitation.
             project = self.tree.xpath(
-                '//project[@path="{}/{}"]'.format(self.repo, path))
+                '//project[@path="{}/{}"]'.format(self.repos[0], path))
             if len(project) == 0:
                 print('Unable to find project with path "{}/{}", '
-                      'aborting...'.format(self.repo, path))
+                      'aborting...'.format(self.repos[0], path))
                 sys.exit(1)
             project = project[0]
             # Only update manifest elements that are currently locked to SHAs
             if self.sha_re.match(project.get('revision')) is not None:
+                curr_rev = project.get('revision')
+                if curr_rev != revision:
+                    print('UPDATING {} from {} to {}!'.format(
+                        project.get('name'), curr_rev, revision
+                    ))
                 project.set('revision', revision)
-            elif project.get('name') != self.branch:
+            elif project.get('name') not in self.repos:
                 print('Manifest project {} is on a branch and was not '
-                    'specified as the branch project!'.format(project.get('name')))
+                    'specified as a branch project!'.format(project.get('name')))
                 sys.exit(2)
 
     def generate_xml(self):
@@ -215,6 +237,7 @@ class UpdateManifest:
         Write the XML tree back out to a file
         """
 
+        print('Writing result manifest!')
         with open(self.manifest, 'w') as fh:
             fh.write('<?xml version="1.0" encoding="UTF-8"?>\n')
             fh.write(etree.tostring(
@@ -227,11 +250,9 @@ class UpdateManifest:
         entries in the XML tree, creating a new manifest file
         """
 
-        self.checkout_repo(self.repo)
-        self.update_submodules(self.repo)
-        if (self.branch is not None):
-            self.checkout_repo(self.branch)
-            self.update_submodules(self.branch)
+        for repo in self.repos:
+            self.checkout_repo(repo)
+            self.update_submodules(repo)
         self.update_shas()
         self.generate_xml()
 
@@ -246,15 +267,11 @@ def main():
         description='Update submodule SHAs in given manifest'
     )
     parser.add_argument('manifest', help='Full path to manifest')
-    parser.add_argument('repo', help='Name of Git repository')
-    parser.add_argument('-b', '--branch-project',
-        help='Additional git repo to sync to branch '
-        'rather than submodule setting')
+    parser.add_argument('repos', nargs='+', help='Name of Git repository')
 
     args = parser.parse_args()
 
-    backup = UpdateManifest(os.path.realpath(args.manifest), args.repo,
-        args.branch_project)
+    backup = UpdateManifest(os.path.realpath(args.manifest), args.repos)
     backup.get_metadata()
     backup.update_manifest()
 

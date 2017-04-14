@@ -11,6 +11,7 @@ import shutil
 from datetime import datetime
 import time
 import tarfile
+from manifest_util import remember_cwd
 
 # Most of this script is involved with computing important values
 # for producing a new manifest. These important values are represented
@@ -23,7 +24,7 @@ parser.add_argument("manifest", type=str, help="manifest path")
 parser.add_argument("--no-push", action="store_true",
                     help="Don't push final build manifest")
 parser.add_argument("-p", "--manifest-project", type=str,
-                    default="git://github.com/couchbase/manifest",
+                    default="ssh://review.couchbase.org:29418/manifest.git",
                     help="Alternate git URL for manifest repository")
 parser.add_argument("--build-manifests-org", type=str, default="couchbase",
                     help="Alternate github.com organization for build-team-manifests")
@@ -65,7 +66,8 @@ if not os.path.isdir("manifest"):
   check_call(["git", "clone", MANIFEST_PROJECT, "manifest"])
 os.chdir("manifest")
 print "Updating manifest repository..."
-check_call(["git", "pull"])
+check_call(["git", "fetch", "--all"])
+check_call(["git", "checkout", "-B", "master", "origin/master"])
 
 # Verify and open input manifest
 if not os.path.exists(MANIFEST):
@@ -90,6 +92,34 @@ if manifests is not None and MANIFEST in manifests:
   manifest_config = manifests[MANIFEST]
 else:
   manifest_config = {}
+
+os.chdir("..")
+
+# Special for Couchbase Lite: if the source code uses git submodules,
+# perform a manifest update now.
+module_projects = manifest_config.get("module_projects")
+if module_projects is not None:
+  if not os.path.isdir("module_projects"):
+    os.mkdir("module_projects")
+  with remember_cwd():
+    os.chdir("module_projects")
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    print('module_projects is set, so updating manifest...')
+    check_call(["{}/update_manifest_from_submodules".format(script_dir),
+      "../manifest/{}".format(MANIFEST)] + module_projects)
+    # See if there's any changes to commit
+    os.chdir("../manifest")
+    # I have no idea why this call is required, but "git diff-index"
+    # behaves erratically without it
+    check_output(["git", "status"])
+    result = call(["git", "diff-index", "--quiet", "HEAD"])
+    if result != 0:
+      print('Pushing updated manifest upstream...{}'.format(result))
+      check_call(["git", "commit", "-am",
+        "Automated update of {} from submodules".format(PRODUCT)])
+      check_call(["git", "push"])
+    else:
+      print('Manifest left unchanged after updating submodules.')
 
 # Set values from branch config or defaults
 PRODUCT_BRANCH = manifest_config.get("branch", "master")
@@ -122,7 +152,6 @@ if RELEASE is None:
 # At last, we are ready to pull the source code. Clean out old
 # source directories, leaving just .repo to avoid needing to suck
 # everything down from github again.
-os.chdir("..")
 if not os.path.isdir(PRODUCT):
   os.mkdir(PRODUCT)
 os.chdir(PRODUCT)
