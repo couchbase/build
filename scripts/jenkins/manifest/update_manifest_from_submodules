@@ -123,9 +123,8 @@ class UpdateManifest:
         if not os.path.exists(repo_path):
             try:
                 print('Cloning {}...'.format(repo_name))
-                subprocess.run(
-                    ['git', 'clone', '-q', repo_url, repo_path],
-                    stderr=subprocess.DEVNULL, check=True
+                subprocess.check_call(
+                    ['git', 'clone', '-q', repo_url, repo_path]
                 )
             except subprocess.CalledProcessError:
                 print('Unable to clone repo "{}", aborting...'.format(repo_name))
@@ -134,24 +133,21 @@ class UpdateManifest:
         with remember_cwd():
             os.chdir(repo_path)
             print('Updating {}...'.format(repo_name))
-            subprocess.run(
-                ['git', 'fetch', '--all', '-q'],
-                stderr=subprocess.DEVNULL, check=True
+            subprocess.check_call(
+                ['git', 'fetch', '--all', '-q']
             )
 
             revision = self.projects[repo_name]['revision']
             print ('Checking out revision {} in {}'.format(revision, repo_name))
             try:
                 if self.sha_re.match(revision) is not None:
-                    subprocess.run(
-                        ['git', 'checkout', '-q', revision],
-                        stderr=subprocess.DEVNULL, check=True
+                    subprocess.check_call(
+                        ['git', 'checkout', '-q', revision]
                     )
                 else:
-                    subprocess.run(
+                    subprocess.check_call(
                         ['git', 'checkout', '-q', '-B',
-                            revision, "origin/{}".format(revision)],
-                        stderr=subprocess.DEVNULL, check=True
+                            revision, "origin/{}".format(revision)]
                     )
             except subprocess.CalledProcessError:
                 print('Unable to check out revision "{}" from repo "{}", '
@@ -169,9 +165,9 @@ class UpdateManifest:
         with remember_cwd():
             os.chdir(self.projects[repo_name]['path'])
             try:
-                subprocess.run(
+                subprocess.check_call(
                     ['git', 'submodule', 'update', '--init', '--recursive'],
-                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True
+                    stdout=subprocess.PIPE
                 )
             except subprocess.CalledProcessError:
                 print('Unable to update submodules in repo "{}", '
@@ -189,16 +185,15 @@ class UpdateManifest:
         with remember_cwd():
             os.chdir(self.projects[self.repos[0]]['path'])
             try:
-                resp = subprocess.run(
-                    ['git', 'submodule', 'status', '--recursive'],
-                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True
+                resp = subprocess.check_output(
+                    ['git', 'submodule', 'status', '--recursive']
                 )
             except subprocess.CalledProcessError:
                 print('Unable to acquire submodule info for repo "{}", '
                       'aborting...'.format(self.repos[0]))
                 sys.exit(1)
 
-        submod_info = resp.stdout.decode('utf-8')
+        submod_info = resp.decode('utf-8')
 
         for submod in submod_info.split('\n'):
             # Small hack to avoid blank lines
