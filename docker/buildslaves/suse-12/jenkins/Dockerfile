@@ -32,9 +32,6 @@ RUN groupadd -g1000 couchbase && \
     echo 'couchbase:couchbase' | chpasswd && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
-# JDK for Jenkins.
-RUN zypper -n install java-1_8_0-openjdk && zypper clean
-
 ### Install Couchbase build dependencies ######################################
 # * Packages from the base CentOS repository
 RUN zypper -n install \
@@ -93,6 +90,15 @@ RUN ln -s /usr/bin/ccache /home/couchbase/bin/gcc && \
 # * repo
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo
+
+# Oracle JDK (for Jenkins and Analytics).
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
+    http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-linux-x64.rpm -o jdk.rpm && \
+    rpm -Uvh jdk.rpm && \
+    cd /tmp && rm -rf deploy
+ENV JAVA_HOME=/usr/java/latest
 
 # Maven (for Analytics).
 RUN mkdir /tmp/deploy && \
