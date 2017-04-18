@@ -101,6 +101,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CB_DEVELOPER_BUILD=True \
       -D CB_DOWNLOAD_DEPS=1 \
       -D SNAPPY_OPTION=Disable \
+      -D CB_INVOKE_MAVEN=True \
       ${EXTRA_CMAKE_OPTIONS} \
       ..
 make -j8 install || (
@@ -110,8 +111,6 @@ make -j8 install || (
     make
     exit 2
 )
-# QQQ workaround to do Analytics build when it exists, and ignore it otherwise
-make analytics || true
 
 # couchdbx-app on MacOS depends on this:
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
