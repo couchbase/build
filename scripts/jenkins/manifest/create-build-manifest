@@ -197,8 +197,11 @@ BLD_NUM = max(LAST_BUILD_NUM + 1, START_BUILD)
 # See if there are changes since the last build, unless --force specified
 os.chdir(PRODUCT)
 if (os.path.exists(build_manifest_filename)):
-  output = check_output(["repo", "diffmanifests", build_manifest_filename])
-  if (len(output) == 0):
+  output = check_output(["repo", "diffmanifests", "--raw", build_manifest_filename])
+  # Strip out non-project lines, and also testrunner project
+  lines = [x for x in output.splitlines()
+           if not (x.startswith(' ') or x.startswith('C testrunner'))]
+  if (len(lines) == 0):
     if (not force):
       print "No changes since last build {}-{}; not executing new build".format(
         VERSION, LAST_BUILD_NUM)
