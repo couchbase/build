@@ -11,9 +11,10 @@ upload=$2
 function help() {
     cat <<HELP_STRING
     Usage:
-        ./yum_repo.sh <edition> <release>
+        ./yum_repo.sh <edition> <upload>
 
-        <edition> - enterprise or community
+        <edition> - 'enterprise' or 'community'
+        <upload>  - 'yes' or 'no' as whether to upload to S3
 
 HELP_STRING
 }
@@ -34,12 +35,12 @@ if ! hash s3cmd 2>/dev/null; then
 fi
 
 if [ ! -e ~/.s3cfg ]; then
-    echo 's3cmd is not configured. Please run s3cmd --configure first'
+    echo "s3cmd is not configured. Please run s3cmd --configure first"
     exit 1
 fi
 
 if [ "$edition" != "enterprise" -a "$edition" != "community" ]; then
-    echo unknown edition
+    echo "unknown edition"
     help
     exit 1
 fi
@@ -67,4 +68,7 @@ done
 if [ "$upload" == "yes" ]; then
     ./upload_rpm.sh $edition --init
     ./upload_meta.sh --init
+else
+    ./upload_rpm.sh $edition --update
+    ./upload_meta.sh --update
 fi

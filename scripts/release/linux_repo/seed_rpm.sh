@@ -12,13 +12,13 @@
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server ; fi
 
 EDITION=$1 ; shift ; if [[ ! ${EDITION} ]] ; then read -p "Edition: "  EDITION ; fi
-if [[   ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
+if [[ ${EDITION} != 'community' && ${EDITION} != 'enterprise' ]] ; then echo "bad edition" ; usage ; exit 9 ; fi
 
 
 REPO=${LOCAL_REPO_ROOT}/${EDITION}/rpm
 
 echo ""
-echo "creating new RPM repo at ${REPO}"
+echo "Creating local ${EDITION} RPM repo at ${REPO}"
 echo ""
 
 rm   -rf ${REPO}

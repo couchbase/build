@@ -1,12 +1,13 @@
 #!/bin/bash
 #
-#  Upload local debian repo to shared repo.  Step 4 of five:
+#  Upload local Debian repo to shared repo.  Step 5 of 6:
 #
 #   1.  prepare repo meta-files
 #   2.  seed new repo
 #   3.  import packages
-#   4.  upload to shared repository
-#   5.  upload keys and sources files
+#   4.  publish packages to local repo
+#   5.  upload to shared repository
+#   6.  upload keys and sources files
 #
 if [[ ! ${LOCAL_REPO_ROOT} ]] ; then  LOCAL_REPO_ROOT=~/linux_repos/couchbase-server                        ; fi
 if [[ ! ${S3_PACKAGE_ROOT} ]] ; then  S3_PACKAGE_ROOT=s3://packages.couchbase.com/releases/couchbase-server ; fi
@@ -35,7 +36,7 @@ then
     echo "Uploading local ${EDITION} repo at ${REPO}/deb to ${S3ROOT}/deb"
 
     pushd ${REPO}                                  2>&1 >> /dev/null
-    s3cmd put -v -P --recursive  deb  ${S3ROOT}/
+    s3cmd put -v -P --recursive deb ${S3ROOT}/
     popd                                           2>&1 >> /dev/null
 
 else if [[ $1 == "--update" ]]

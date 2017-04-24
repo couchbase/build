@@ -46,8 +46,18 @@ function fetch_rpm
         if ${EXISTS_ON_S3}
         then
             s3cmd get ${s3dir}/${package}
+            if [[ $? != 0 ]]
+            then
+                echo "unable to fetch ${package} from S3"
+                FOUND_FILE=false
+            fi
         else
             wget ${releases}/${package}
+            if [[ $? != 0 ]]
+            then
+                echo "unable to fetch ${package} from releases"
+                FOUND_FILE=false
+            fi
         fi
     else
         echo "already have ${package}"
@@ -68,19 +78,25 @@ RPM_GPG_KEY_V4=CD406E62
 
 for CENTOS in 6 7
 do
-    # The variable EXISTS_ON_S3 is (potentially) modified in the fetch_rpm
-    # function to allow it to do the right thing when acquiring a given RPM,
-    # based on whether it's already in S3 or not.  This update is carried
-    # through the rest of the for loop to ensure an RPM already on S3 isn't
-    # signed again (which would change its checksum).
+    # The variables EXISTS_ON_S3 and FOUND_FILE are (potentially) modified
+    # in the fetch_rpm function to allow it to do the right thing when
+    # acquiring a given RPM, based on whether it's already in S3 or not,
+    # of if the file is not found at all.  This update is carried through
+    # the rest of the for loop to ensure an RPM already on S3 isn't signed
+    # again (which would change its checksum), or no copying or signing
+    # attempt if the file doesn't exist.
     EXISTS_ON_S3=false
+    FOUND_FILE=true
     RPM_DIR=${CENTOS}/x86_64
     rpm_filename=couchbase-server-${EDITION}-${VERSION}-centos${CENTOS}.x86_64.rpm
     fetch_rpm ${rpm_filename} ${VERSION} ${EDITION}
-    cp ${rpm_filename} ${REPO}/${RPM_DIR}/
 
-    if ! ${EXISTS_ON_S3}; then
-        expect ./autosign_rpm.exp -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY_V4}" ${REPO}/${RPM_DIR}/${rpm_filename}
+    if ${FOUND_FILE}; then
+        cp ${rpm_filename} ${REPO}/${RPM_DIR}/
+
+        if ! ${EXISTS_ON_S3}; then
+            expect ./autosign_rpm.exp -D "_signature gpg" -D "_gpg_name ${RPM_GPG_KEY_V4}" ${REPO}/${RPM_DIR}/${rpm_filename}
+        fi
     fi
 done
 

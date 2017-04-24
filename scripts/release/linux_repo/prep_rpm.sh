@@ -52,7 +52,6 @@ if [[ ${1} =~ '-h' || ${1} =~ '-H' ]] ; then usage ; fi
 
 if [[ ${1} ]] ;  then  LOCAL_REPO_ROOT=${1} ; fi
 
-
 function write_keys
 {
     mkdir -p ${LOCAL_REPO_ROOT}/keys
@@ -86,7 +85,7 @@ function write_sources
     done
 }
 
-if [[ -e  ${LOCAL_REPO_ROOT} ]]
+if [[ -e ${LOCAL_REPO_ROOT} ]]
 then
     echo ""
     read -p "${LOCAL_REPO_ROOT} already exists.  Delete? " YESNO
@@ -94,8 +93,7 @@ then
     if [[ ${YESNO} =~ 'y' || ${YESNO} =~ 'Y' ]] ; then echo "replacing ${LOCAL_REPO_ROOT}" ;  rm  -rf  ${LOCAL_REPO_ROOT} ; fi
 fi
 
-export  LOCAL_REPO_ROOT=${LOCAL_REPO_ROOT}
-
+export LOCAL_REPO_ROOT=${LOCAL_REPO_ROOT}
 
 write_keys
 write_sources

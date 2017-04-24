@@ -1,12 +1,13 @@
 #!/bin/bash
 #
-#  Create a new local debian repo.  Step 1 of five:
+#  Create a new local Debian repo.  Step 1 of 6:
 #
 #   1.  prepare repo meta-files
 #   2.  seed new repo
 #   3.  import packages
-#   4.  upload to shared repository
-#   5.  upload keys and sources files
+#   4.  publish packages to local repo
+#   5.  upload to shared repository
+#   6.  upload keys and sources files
 #
 if [[ ${0} == '-bash' ]]
 then                      # called with  . path/to/this.sh
@@ -37,7 +38,7 @@ function usage
     echo ""
     echo ""
     echo "      Creates dir for new local repo, adds keys and sources.list files for 'community' or"
-    echo "      'enterprise' repositories.  The debian and rpm repositories cand share a ROOT."
+    echo "      'enterprise' repositories.  The debian and rpm repositories can share a ROOT."
     echo ""
     echo "      NOTE:  If you specify a LOCAL_REPO_ROOT, use the  \". ${THISFILE}\" form so that it will"
     echo "             export this to the environment of the calling shell, and will be known to"
@@ -55,14 +56,14 @@ if [[ ${1} ]] ;  then  LOCAL_REPO_ROOT=${1} ; fi
 function write_keys
 {
     mkdir -p ${LOCAL_REPO_ROOT}/keys
-    cp ./couchbase-release/GPG-KEY-COUCHBASE-1.0  ${LOCAL_REPO_ROOT}/keys/GPG-KEY-COUCHBASE-1.0
+    cp ./couchbase-release/GPG-KEY-COUCHBASE-1.0 ${LOCAL_REPO_ROOT}/keys/GPG-KEY-COUCHBASE-1.0
 }
 
 function write_sources
 {
     for EDITION in enterprise community
       do
-        for UBUNTU in precise trusty
+        for UBUNTU in precise trusty xenial
           do
             SRCL_DIR=${LOCAL_REPO_ROOT}/sources.list.d/${UBUNTU}/${EDITION}
             mkdir -p ${SRCL_DIR}
@@ -95,7 +96,6 @@ function write_sources
     done
     }
 
-
 if [[ -e ${LOCAL_REPO_ROOT} ]]
 then
     echo ""
@@ -103,6 +103,7 @@ then
     echo ""
     if [[ ${YESNO} =~ 'y' || ${YESNO} =~ 'Y' ]] ; then echo "replacing ${LOCAL_REPO_ROOT}" ;  rm  -rf  ${LOCAL_REPO_ROOT} ; fi
 fi
+
 export LOCAL_REPO_ROOT=${LOCAL_REPO_ROOT}
 
 write_keys
