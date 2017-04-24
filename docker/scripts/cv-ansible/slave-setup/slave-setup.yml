@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  gather_facts: no
 
   vars:
     ansible_user: root
@@ -17,7 +18,8 @@
       changed_when: false
 
     - name: Enable coredumps in /tmp
-      shell: echo "/tmp/core.%e.%p" > /proc/sys/kernel/core_pattern
+      shell: echo "/tmp/core.%e.%p.%h.%t" > /proc/sys/kernel/core_pattern
+      tags: core
       changed_when: true
 
     - name: Install additional packages for Docker
