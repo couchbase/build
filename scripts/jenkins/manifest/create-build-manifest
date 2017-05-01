@@ -289,8 +289,9 @@ with tarfile.open(tarball_filename, "w:gz", dereference=True) as tar:
   os.chdir(PRODUCT)
   for root, dirs, files in os.walk(".", followlinks=True):
     for name in files:
-      # Repo creates a few invalid symlinks; omit them
-      if root.endswith(".git") and name == "shallow":
+      # Repo creates a few invalid symlinks, and a couple of our repositories
+      # also have broken symlinks. We can't dereference them, so omit them.
+      if not os.path.exists(os.path.join(root, name)):
         continue
       tar.add(os.path.join(root, name)[2:])
     for name in dirs:
