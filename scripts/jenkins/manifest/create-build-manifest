@@ -285,13 +285,18 @@ with open(properties_filename, "w") as prop:
 
 print "Creating source tarball..."
 KEEP_GIT=manifest_config.get("keep_git", False)
-with tarfile.open(tarball_filename, "w:gz") as tar:
+with tarfile.open(tarball_filename, "w:gz", dereference=True) as tar:
   os.chdir(PRODUCT)
-  for root, dirs, files in os.walk("."):
+  for root, dirs, files in os.walk(".", followlinks=True):
     for name in files:
+      # Repo creates a few invalid symlinks; omit them
+      if root.endswith(".git") and name == "shallow":
+        continue
       tar.add(os.path.join(root, name)[2:])
     for name in dirs:
-      if KEEP_GIT == False and (name == ".repo" or name == ".git"):
+      if name == ".repo":
+        dirs.remove(name)
+      elif KEEP_GIT == False and name == ".git":
         dirs.remove(name)
       else:
         tar.add(os.path.join(root, name)[2:], recursive=False)
