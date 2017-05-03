@@ -11,6 +11,7 @@ import shutil
 from datetime import datetime
 import time
 import tarfile
+import gzip
 from manifest_util import remember_cwd
 
 # Most of this script is involved with computing important values
@@ -50,9 +51,12 @@ if os.path.exists(json_filename):
 manifest_filename = os.path.abspath("build-manifest.xml")
 if os.path.exists(manifest_filename):
   os.remove(manifest_filename)
-tarball_filename = os.path.abspath("source.tar.gz")
+tarball_filename = os.path.abspath("source.tar")
 if os.path.exists(tarball_filename):
   os.remove(tarball_filename)
+targz_filename = os.path.abspath("source.tar.gz")
+if os.path.exists(targz_filename):
+  os.remove(targz_filename)
 changelog_filename = os.path.abspath("CHANGELOG")
 if os.path.exists(changelog_filename):
   os.remove(changelog_filename)
@@ -283,22 +287,39 @@ with open(json_filename, "w") as prop:
 with open(properties_filename, "w") as prop:
   prop.write("PRODUCT={PRODUCT}\nRELEASE={RELEASE}\nPRODUCT_BRANCH={PRODUCT_BRANCH}\nVERSION={VERSION}\nBLD_NUM={BLD_NUM}\nMANIFEST={MANIFEST}\nPARENT={PARENT}\nTYPE={TYPE}\nFORCE={FORCE}\n".format(**properties))
 
-print "Creating source tarball..."
-KEEP_GIT=manifest_config.get("keep_git", False)
-with tarfile.open(tarball_filename, "w:gz", dereference=True) as tar:
-  os.chdir(PRODUCT)
-  for root, dirs, files in os.walk(".", followlinks=True):
+print "Creating {}".format(tarball_filename)
+os.chdir(PRODUCT)
+with tarfile.open(tarball_filename, "w") as tar:
+  for root, dirs, files in os.walk("."):
     for name in files:
-      # Repo creates a few invalid symlinks, and a couple of our repositories
-      # also have broken symlinks. We can't dereference them, so omit them.
-      if not os.path.exists(os.path.join(root, name)):
-        continue
       tar.add(os.path.join(root, name)[2:])
     for name in dirs:
-      if name == ".repo":
-        dirs.remove(name)
-      elif KEEP_GIT == False and name == ".git":
+      if name == ".repo" or name == ".git":
         dirs.remove(name)
       else:
         tar.add(os.path.join(root, name)[2:], recursive=False)
 
+if (manifest_config.get("keep_git", False)):
+  print "Adding git files to {}".format(tarball_filename)
+  # When keeping git files, need to dereference symlinks so that the
+  # resulting .git directories work on Windows. Because of this, we
+  # don't save the .repo directory also - that would double the size
+  # of the tarball since mostly .repo just contains git dirs.
+  with tarfile.open(tarball_filename, "a", dereference=True) as tar:
+    for root, dirs, files in os.walk(".", followlinks=True):
+      for name in dirs:
+        if name == ".repo":
+          dirs.remove(name)
+        elif name == ".git":
+          tar.add(os.path.join(root, name)[2:], recursive=False)
+      if "/.git" in root:
+        for name in files:
+          # Git (or repo) sometimes creates broken symlinks, like "shallow",
+          # and python's tarfile chokes on those.
+          if os.path.exists(os.path.join(root, name)):
+            tar.add(os.path.join(root, name)[2:], recursive=False)
+
+print "Compressing {}".format(tarball_filename)
+with open(tarball_filename, 'rb') as f_in, gzip.open(targz_filename, 'wb') as f_out:
+  shutil.copyfileobj(f_in, f_out)
+os.unlink(tarball_filename)
