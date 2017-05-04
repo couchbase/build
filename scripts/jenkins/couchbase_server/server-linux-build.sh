@@ -156,17 +156,6 @@ then
         cp server-rpm.${FLAVOR}.spec.tmpl server-rpm.spec.tmpl
         cp moxi-rpm.${FLAVOR}.spec.tmpl moxi-rpm.spec.tmpl
     fi
-
-    if [ "${PKG}" = "deb" ]
-    then
-        cp server-deb/rules.${FLAVOR}.tmpl server-deb/rules.tmpl
-        if [ "${FLAVOR}" = "systemd" ]
-        then
-            # Needs to be named .tmpl so server-deb.rb will copy it
-            cp server-deb/couchbase-server.service.systemd.tmpl \
-              server-deb/couchbase-server.service.tmpl
-        fi
-    fi
 fi
 
 cxxlib_needed="debian7|suse11|ubuntu12"
@@ -208,7 +197,7 @@ fi
 
 # Execute platform-specific packaging step
 export LD_LIBRARY_PATH=/opt/couchbase/lib
-./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase server ${OPENSSL_VER}
+./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase ${FLAVOR} ${OPENSSL_VER}
 
 if [ "${PKG}" = "mac" ]
 then
