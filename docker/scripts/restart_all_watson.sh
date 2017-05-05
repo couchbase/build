@@ -11,7 +11,7 @@ sleep 5
 sleep 5
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:20151223 watson-ubuntu12.04 5223 server.jenkins.couchbase.com &
 sleep 5
-./restart_jenkinsdocker.py ceejatec/debian-7-couchbase-build:20160229 watson-debian7 5224 server.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/debian-7-couchbase-build:20170504 watson-debian7 5224 server.jenkins.couchbase.com &
 sleep 5
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1404-couchbase-build:20151223 watson-ubuntu14.04 5226 server.jenkins.couchbase.com &
 sleep 5

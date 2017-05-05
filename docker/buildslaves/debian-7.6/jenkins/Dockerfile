@@ -38,7 +38,7 @@ RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
 # mechanism, but we hope to remove that requirement as it brings in
 # a lot of unnecessary packages.
 RUN apt-get update && apt-get install -y libmpc2 libmpfr4 libgmp10 \
-    ccache git-core tar libssl-dev libnuma-dev rubygems build-essential \
+    git-core tar libssl-dev libnuma-dev rubygems build-essential \
     rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 lsb-release \
     cpp-4.6- gcc-4.6- && \
     rm -f /var/cache/apt/archives/*.deb
@@ -65,7 +65,7 @@ RUN mkdir /tmp/deploy && \
     cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -rf /tmp/deploy
 
-RUN echo 'PATH="/usr/lib/ccache:$PATH"' >> /home/couchbase/.profile
+# CMake
 RUN mkdir /tmp/deploy && \
     curl https://cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
@@ -76,12 +76,21 @@ RUN mkdir /tmp/deploy && \
     chmod a+x /usr/local/bin/repo && \
     cd /tmp && rm -rf /tmp/deploy
 
+# CCache - Debian 7 only has ccache 3.1.7 which has a race condition bug
+# that causes build failures occasionally
+RUN mkdir /tmp/deploy && cd /tmp/deploy && \
+    curl -O https://www.samba.org/ftp/ccache/ccache-3.3.4.tar.bz2 && \
+    tar xjf ccache-3.3.4.tar.bz2 && \
+    cd ccache-3.3.4 && \
+    ./configure --prefix=/usr/local && \
+    make && \
+    make install && \
+    cd /tmp && rm -rf deploy
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh
 COPY build/couchbuilder_start.sh /usr/sbin/
 ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
 CMD [ "default" ]
-
-
 
