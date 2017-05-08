@@ -38,8 +38,10 @@
         - 7zip.commandline
         - jdk8
         - maven
-        - strawberryperl
+        - activeperl
         - googlechrome
+        - visualstudiocode
+        - insted
 
     - name: "Download py2exe"
       win_get_url:
@@ -57,7 +59,7 @@
     - name: "Install repo"
       win_copy:
         src: "repo.exe"
-        dest: "C:\\bin"
+        dest: "C:\\bin\\repo.exe"
 
     - name: Add tools to PATH.
       include: extend-path.yml
@@ -66,7 +68,7 @@
         - C:\Program Files\CMake\bin
         - C:\Program Files\git\cmd
         - C:\Program Files (x86)\WiX Toolset v3.10\bin
-        - C:\Strawberry\perl\bin
+
 
 # Next steps are all about installing Visual Studio
 
@@ -92,6 +94,17 @@
         reboot_timeout_sec: 3600
       when: '"reboot is necessary" in choco_output.stdout'
 
+    - name: Download older VS CRT Merge Modules
+      win_get_url:
+        url: "{{ item.url }}"
+        dest: "C:\\Program Files (x86)\\Common Files\\Merge Modules\\{{ item.filename }}"
+        force: no
+      with_items:
+        - url: http://172.23.120.24/builds/latestbuilds/winbits/Microsoft_VC100_CRT_x64.msm
+          filename: Microsoft_VC100_CRT_x64.msm
+        - url: http://172.23.120.24/builds/latestbuilds/winbits/Microsoft_VC120_CRT_x64.msm
+          filename: Microsoft_VC120_CRT_x64.msm
+
 # Do OpenSSH last so the service has the latest version of the path
 
     - name: Install OpenSSH (for Jenkins)
@@ -101,14 +114,15 @@
 
     - name: Copy SSH config files
       win_copy:
-        src: "ssh/"
-        dest: "C:\\Users\\Administrator\\.ssh\\"
-
-# Enable Remote Desktop connections
-# The first win_regedit tasks seems to not work (no error, just no effect)
-# with Ansible 2.2.1. This may be fixed in Ansible 2.3, but for now as a
-# workaround there's a second task that does the same thing with an explicit
-# "reg" command.
+        src: "./ssh/{{ item }}"
+        dest: C:\Users\Administrator\.ssh\{{ item }}
+      with_items:
+        - authorized_keys
+        - buildbot_id_dsa
+        - config
+        - environment
+        - id_rsa
+        - known_hosts
 
     - name: "Enable Remote Desktop"
       win_regedit:
@@ -117,9 +131,6 @@
         data: 0
         type: dword
         state: present
-
-    - name: "Enable Remote Desktop with regedit (should be removed with Ansible 2.3)"
-      raw: 'reg add "hklm\system\currentcontrolset\control\terminal server" /f /v fDenyTSConnections /t REG_DWORD /d 0'
 
     - name: "Open Remote Desktop in firewall"
       win_firewall_rule:

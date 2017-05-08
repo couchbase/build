@@ -1,3 +1,2 @@
 [windows]
-172.23.113.162 ansible_user=Administrator  ansible_password=xxxx ansible_winrm_server_cert_validation=ignore  ansible_connection=winrm
-
+172.23.113.184 ansible_user=Administrator  ansible_password=xxxx ansible_winrm_server_cert_validation=ignore  ansible_connection=winrm

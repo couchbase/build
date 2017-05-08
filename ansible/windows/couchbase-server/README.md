@@ -1,5 +1,7 @@
 # PREREQUISITES
 
+This playbook likely requires at least Ansible 2.3.0.
+
 The remote Windows server needs to be ready for Ansible remote
 control; see README.txt in the parent directory.
 
@@ -10,6 +12,15 @@ for controlling Windows hosts via WinRM, which means at least running
 
 See http://docs.ansible.com/ansible/intro_windows.html#installing-on-the-control-machine
 for more details.
+
+# PLAYBOOKS
+
+prep-for-installer.yml prepares a VM for MSI installer testing, meaning
+it ensures the MS Universal CRT (UCRT) is installed and that remote desktop
+is appropriately set up. That's all it does.
+
+playbook.yml installs everything necessary for creating a Couchbase Server
+build slave. The rest of this document refers only to this playbook.
 
 # LOCAL FILE MODIFICATIONS NECESSARY BEFORE RUNNING PLAYBOOK
 
@@ -30,21 +41,34 @@ requirements for building Couchbase Server (spock release or later).
     ansible-playbook -v -i inventory playbook.yml \
       -e vskey=ABCDEFGHIJKLMNOPQRSTUVWYZ
 
-`vskey` is the license key for Visual Studio Professional 2015.
+`vskey` is the license key for Visual Studio Professional 2015 (omit any
+dashes in the license key).
 
 # THINGS THAT COULD GO WRONG
 
-This playbook worked on July 14, 2016. It does not specify explicit versions
+This playbook worked on May 8, 2017. It does not specify explicit versions
 of any of the toolchain requirements, because many of the packages (notably
 Visual Studio 2015 itself) are specifically designed to install only the
 latest version. That being the case, things could change over time to make
-this playbook fail. One relatively likely problem is the file
-`vs-unattended.xml`, which is required to specify which Visual Studio
-optional packages to install. C++ support itself is an optional package, so
-we cannot just do a default install. But the set of named optional packages
-changes over time. The Visual Studio web installer obtains the current list
-via a ATOM feed. So it's possible that this fixed vs-unattended.xml file
-will fall out of date.
+this playbook fail.
+
+One likely issue is JAVA_HOME in ssh/environment, which version- and build-
+specific and will need to be changed as newer JREs are released.
+
+Another recurring issue is that with Ansible 2.3.0, the win_chocolatey
+task appears to hang on certain packages, including wixtoolset and
+visualstudiocode. None of the "Install tools" steps should take more than a
+minute or so, so if one hangs for more than two minutes, you'll need to
+control-C the ansible-playbook command and restart. Fortunately win_chocolatey
+cleanly skips any already-installed targets so you won't lose much time.
+
+Another somewhat likely problem is the file `vs-unattended.xml`, which is
+required to specify which Visual Studio optional packages to install. C++
+support itself is an optional package, so we cannot just do a default install.
+But the set of named optional packages changes over time. The Visual Studio
+web installer obtains the current list via a ATOM feed. So it's possible that
+this fixed vs-unattended.xml file will fall out of date. (Now that MSVC 2017
+has been released, however, it seems less likely.)
 
 If this happens, you can create a new file by:
 
