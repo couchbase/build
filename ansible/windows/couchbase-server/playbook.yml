@@ -23,6 +23,13 @@
         filename: Windows8.1-KB2999226-x64.msu
 
   tasks:
+
+    # Needed for WiX Toolset
+    - name: "Enable .NET Framework 3.5"
+      win_feature:
+        name: "NET-Framework-Core"
+        state: present
+
     - name: "Install tools"
       win_chocolatey:
         name: "{{ item }}"
@@ -40,8 +47,17 @@
         - maven
         - activeperl
         - googlechrome
-        - visualstudiocode
         - insted
+
+    # Code depends on .NET Framework 4.5.2 (chocolatey package "dotnet4.5.2"),
+    # but that package fails to install via Ansible due to silly limitations
+    # in WinRM (see also: all the nonsense in install-kb.yml). However, the
+    # framework is actually installed by default on Server 2012R2, so there's
+    # no need to install it. So we just tell chocolatey to skip dependencies.
+    - name: "Install Visual Studio Code"
+      win_chocolatey:
+        name: "visualstudiocode"
+        ignore_dependencies: yes
 
     - name: "Download py2exe"
       win_get_url:
@@ -67,7 +83,7 @@
         - C:\bin
         - C:\Program Files\CMake\bin
         - C:\Program Files\git\cmd
-        - C:\Program Files (x86)\WiX Toolset v3.10\bin
+        - C:\Program Files (x86)\WiX Toolset v3.11\bin
 
 
 # Next steps are all about installing Visual Studio

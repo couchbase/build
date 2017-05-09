@@ -39,7 +39,8 @@ The primary playbook here is `playbook.yml`. It will install all toolchain
 requirements for building Couchbase Server (spock release or later).
 
     ansible-playbook -v -i inventory playbook.yml \
-      -e vskey=ABCDEFGHIJKLMNOPQRSTUVWYZ
+      -e vskey=ABCDEFGHIJKLMNOPQRSTUVWYZ \
+      -e ansible_password=ADMINISTRATOR_PASSWORD
 
 `vskey` is the license key for Visual Studio Professional 2015 (omit any
 dashes in the license key).
@@ -54,13 +55,6 @@ this playbook fail.
 
 One likely issue is JAVA_HOME in ssh/environment, which version- and build-
 specific and will need to be changed as newer JREs are released.
-
-Another recurring issue is that with Ansible 2.3.0, the win_chocolatey
-task appears to hang on certain packages, including wixtoolset and
-visualstudiocode. None of the "Install tools" steps should take more than a
-minute or so, so if one hangs for more than two minutes, you'll need to
-control-C the ansible-playbook command and restart. Fortunately win_chocolatey
-cleanly skips any already-installed targets so you won't lose much time.
 
 Another somewhat likely problem is the file `vs-unattended.xml`, which is
 required to specify which Visual Studio optional packages to install. C++
