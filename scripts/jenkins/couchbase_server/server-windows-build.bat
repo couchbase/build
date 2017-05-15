@@ -82,7 +82,7 @@ cd voltron
 ruby server-win2015.rb %WORKSPACE%\install 5.10.4.0.0.1 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
 cd wix-installer
 call create-installer.bat %WORKSPACE%\install || goto error
-move Server.msi %WORKSPACE%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%_windows_amd64.msi
+move Server.msi %WORKSPACE%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_amd64.msi
 goto eof
 
 :error
