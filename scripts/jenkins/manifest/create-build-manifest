@@ -219,6 +219,8 @@ if (os.path.exists(build_manifest_filename)):
         VERSION, LAST_BUILD_NUM)
 
   print "Saving CHANGELOG..."
+  # Have to re-run "repo diffmanifests" without --raw to get pretty output
+  output = check_output(["repo", "diffmanifests", build_manifest_filename])
   with open(changelog_filename, "w") as f:
     f.write(output)
 
