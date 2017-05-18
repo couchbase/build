@@ -7,7 +7,7 @@ cd `dirname $0`
 sleep 5
 ./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20151223 watson-centos6-02 5232 server.jenkins.couchbase.com &
 sleep 5
-./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:latest zz-server-lightweight 5322 server.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:latest zz-server-lightweight 5322 server.jenkins.couchbase.com &
 sleep 5
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:20151223 watson-ubuntu12.04 5223 server.jenkins.couchbase.com &
 sleep 5
@@ -25,7 +25,7 @@ sleep 5
 sleep 5
 # Spock Ubuntu 16.04 builder - using CV image because that helps some
 # cbdeps builds, notably jemalloc needing valgrind headers
-./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-cv:20170302 spock-ubuntu16.04 5238 server.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-cv:20170517 spock-ubuntu16.04 5238 server.jenkins.couchbase.com &
 sleep 5
 
 # Temporary cbdeps slave based on Ubuntu 12.04 CV image

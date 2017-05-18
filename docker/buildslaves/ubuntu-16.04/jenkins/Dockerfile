@@ -8,7 +8,7 @@ USER root
 # Install SSH server and sudo
 RUN apt-get update && \
     apt-get install -y openssh-server sudo && \
-    rm -f /var/cache/apt/archives/*.deb && \
+    apt-get clean && \
     mkdir /var/run/sshd
 
 # Create couchbase user with password-less sudo privs, and give
@@ -20,7 +20,7 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
 
 # Install Couchbase build dependencies
 RUN apt-get update && apt-get install -y ccache g++ git-core tar libssl-dev libnuma-dev ruby rake ncurses-dev python-dev devscripts debhelper dh-systemd ed man curl libc6-i386 && \
-    rm -f /var/cache/apt/archives/*.deb
+    apt-get clean
 
 # paramiko for testrunner
 RUN apt-get update && \
@@ -36,7 +36,7 @@ RUN apt-get update && \
     add-apt-repository ppa:fkrull/deadsnakes && \
     apt-get update && \
     apt-get install -y m4 python2.6 python2.6-dev && \
-    rm -f /var/cache/apt/archives/*.deb
+    apt-get clean
 RUN mkdir /tmp/deploy && \
     curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
     cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
@@ -81,6 +81,27 @@ RUN mkdir /tmp/deploy && \
     tar xzf /tmp/deploy/maven.tar.gz && \
     ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
     rm -rf /tmp/deploy
+
+# Some Python stuff to allow use of the Jira module in scripts.
+RUN apt-get update && \
+    apt-get install -y python-pip libffi-dev && \
+    pip install oauthlib && \
+    pip install --upgrade pycrypto && \
+    pip install pyopenssl ndg-httpsclient pyasn1 jira && \
+    apt-get purge -y libffi-dev && \
+    apt-get clean && \
+    ccache --clear
+
+# Python 3-specific stuff for build scripts.
+RUN apt-get update && \
+    apt-get -y install python3-pip && \
+    pip3 install lxml && \
+    apt-get clean
+
+#s3cmd for upload script
+RUN apt-get update && \
+    apt-get install -y s3cmd && \
+    apt-get clean
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
