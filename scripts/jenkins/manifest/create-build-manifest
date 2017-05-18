@@ -120,12 +120,15 @@ if module_projects is not None:
     check_output(["git", "status"])
     result = call(["git", "diff-index", "--quiet", "HEAD"])
     if result != 0:
-      print('Pushing updated manifest upstream...{}'.format(result))
-      check_call(["git", "commit", "-am",
-        "Automated update of {} from submodules".format(PRODUCT)])
-      check_call(["git", "push"])
+      if not NO_PUSH:
+        print('Pushing updated input manifest upstream...{}'.format(result))
+        check_call(["git", "commit", "-am",
+          "Automated update of {} from submodules".format(PRODUCT)])
+        check_call(["git", "push"])
+      else:
+        print("Skipping push of updated input manifest due to --no-push")
     else:
-      print('Manifest left unchanged after updating submodules.')
+      print('Input manifest left unchanged after updating submodules.')
 
 # Set values from branch config or defaults
 PRODUCT_BRANCH = manifest_config.get("branch", "master")
@@ -263,6 +266,8 @@ check_call(["git", "commit", "-m", commit_msg])
 if not NO_PUSH:
   check_call(["git", "push", "origin",
     "{0}:refs/heads/{0}".format(PRODUCT_BRANCH)])
+else:
+  print("Skipping push of new build manifest due to --no-push")
 
 # Save the build manifest, current source tarball, and all computed
 # properties with consistent names in top-level directory
