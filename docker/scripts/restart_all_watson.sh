@@ -25,7 +25,7 @@ sleep 5
 sleep 5
 # Spock Ubuntu 16.04 builder - using CV image because that helps some
 # cbdeps builds, notably jemalloc needing valgrind headers
-./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-cv:20170517 spock-ubuntu16.04 5238 server.jenkins.couchbase.com &
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-cv:20170521 spock-ubuntu16.04 5238 server.jenkins.couchbase.com &
 sleep 5
 
 # Temporary cbdeps slave based on Ubuntu 12.04 CV image

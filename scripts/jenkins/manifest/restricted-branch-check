@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -18,7 +18,7 @@ must be set as Gerrit plugin would:
 """
 PROJECT=os.environ["GERRIT_PROJECT"]
 BRANCH=os.environ["GERRIT_BRANCH"]
-COMMIT_MSG=base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"])
+COMMIT_MSG=str(base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"]))
 
 # Values for outputting in HTML template (initialized with current globals)
 OUTPUT = globals().copy()
@@ -27,11 +27,11 @@ def check_branch_in_manifest(manifest_filename, meta):
   """
   Returns true if the PRODUCT/BRANCH are listed in the named manifest
   """
-  print "Checking manifest {}".format(manifest_filename)
+  print ("Checking manifest {}".format(manifest_filename))
   manifest_et = ET.parse(os.path.join("./manifest", manifest_filename))
   project_et = manifest_et.find("./project[@name='{}']".format(PROJECT))
   if project_et is None:
-    print "project {} not found".format(PROJECT)
+    print ("project {} not found".format(PROJECT))
     return False
 
   # Compute the default branch for the manifest
@@ -43,7 +43,7 @@ def check_branch_in_manifest(manifest_filename, meta):
   # Pull out the branch for the given project
   project_branch = project_et.get("revision", default_branch)
   if project_branch != BRANCH:
-    print "project {} on branch {}, not {}".format(PROJECT, project_branch, BRANCH)
+    print ("project {} on branch {}, not {}".format(PROJECT, project_branch, BRANCH))
     return False
 
   return True
@@ -104,13 +104,13 @@ def output_report(meta):
   tmpldir = os.path.dirname(os.path.abspath(__file__))
   with open(os.path.join(tmpldir, "mailto_url.tmpl")) as tmplfile:
     mailto_url = tmplfile.read().strip().format(**OUTPUT)
-    print mailto_url
-    OUTPUT["MAILTO_URL"] = urllib.quote(mailto_url, ":@=&?")
+    print (mailto_url)
+    OUTPUT["MAILTO_URL"] = urllib.parse.quote(mailto_url, ":@=&?")
   with open(html_filename, "w") as html:
     with open (os.path.join(tmpldir, "restricted.html.tmpl")) as tmplfile:
       tmpl = tmplfile.read()
     html.write(tmpl.format(**OUTPUT))
-    print "\n\n\n*********\nRESTRICTED: {}\n*********\n\n\n".format(OUTPUT["REASON"])
+    print ("\n\n\n*********\nRESTRICTED: {}\n*********\n\n\n".format(OUTPUT["REASON"]))
     sys.exit(5)
 
 
@@ -131,22 +131,22 @@ if os.path.exists(html_filename):
 
 # Collect all restricted manifests that reference this branch
 manifests = scan_manifests(MANIFEST_PROJECT)
-print manifests
+print (manifests)
 restricted_manifests = []
 for manifest in manifests:
   meta = manifests[manifest]
   if meta.get("restricted"):
     approval_ticket = meta.get("approval_ticket")
     if approval_ticket is None:
-      print "no approval ticket for restricted manifest {}".format(manifest)
+      print ("no approval ticket for restricted manifest {}".format(manifest))
       continue
     if not check_branch_in_manifest(manifest, meta):
       continue
 
     # Ok, this proposal is to a branch in a restricted manifest
     restricted_manifests.append(manifest)
-    print "Project: {} Branch: {} is in restricted manifest: {}".format(
-      PROJECT, BRANCH, manifest)
+    print ("Project: {} Branch: {} is in restricted manifest: {}".format(
+      PROJECT, BRANCH, manifest))
 
 # Now *remove* any restricted manifests that are the parent of any other
 # restricted manifests in the list. Logic: if a change is approved for a
@@ -155,12 +155,12 @@ for manifest in manifests:
 # we don't care whether it's approved for A or not.
 restricted_children = list(restricted_manifests)
 for manifest in restricted_manifests:
-  print "....looking at {}".format(manifest)
+  print ("....looking at {}".format(manifest))
   parent = manifests[manifest].get("parent")
-  print "....parent is {}".format(parent)
+  print ("....parent is {}".format(parent))
   if parent in restricted_children:
-    print "Not checking manifest {} because it is a parent of {}".format(
-      parent, manifest)
+    print ("Not checking manifest {} because it is a parent of {}".format(
+      parent, manifest))
     restricted_children.remove(parent)
 
 # Now, iterate through all restricted manifests that we have left, and ensure
@@ -174,7 +174,7 @@ for manifest in restricted_children:
 # Output "all clear" message if no restricted branches were checked,
 # or if they were checked and approved.
 if restricted_manifests:
-  print "\n\n\n*********\nAPPROVED: Commit is approved for all restricted manifests\n*********\n\n\n"
+  print ("\n\n\n*********\nAPPROVED: Commit is approved for all restricted manifests\n*********\n\n\n")
 else:
   # This is the common case where the change was not to any restricted
   # branches. Normally we want Jenkins to skip voting entirely in this
@@ -185,5 +185,5 @@ else:
   silent = " (SILENT)"
   if os.environ.get("GERRIT_EVENT_TYPE") == "comment-added":
     silent = ""
-  print "\n\n\n*********\nUNRESTRICTED{}: Branch is in no restricted manifests\n*********\n\n\n".format(silent)
+  print ("\n\n\n*********\nUNRESTRICTED{}: Branch is in no restricted manifests\n*********\n\n\n".format(silent))
 
