@@ -24,9 +24,6 @@ RUN groupadd -g1000 couchbase && \
     echo 'Defaults:%wheel !requiretty' >> /etc/sudoers.d/wheel_group && \
     chmod 440 /etc/sudoers.d/wheel_group
 
-# JDK for Jenkins.
-RUN yum -y install java-1.7.0-openjdk && yum clean packages
-
 ### Install Couchbase build dependencies ######################################
 # * Packages from the base CentOS repository
 RUN yum install --setopt=keepcache=0 -y \
@@ -46,7 +43,7 @@ RUN yum install --setopt=keepcache=0 -y \
                 which
 # * C++11 compliant compiler and related tools from CentOS's port of RHEL's
 #    devtools (http://people.centos.org/tru/devtools-2/)
-RUN curl http://people.centos.org/tru/devtools-2/devtools-2.repo > \
+RUN curl https://people.centos.org/tru/devtools-2/devtools-2.repo > \
          /etc/yum.repos.d/devtools-2.repo && \
     yum install --setopt=keepcache=0 -y \
                 devtoolset-2-gcc-c++ \
@@ -95,21 +92,36 @@ RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bi
 
 # * CMake (from cmake.org)
 RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    curl https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
-    rm -fr /tmp/deploy
-
-# * golang
-RUN mkdir /tmp/deploy && \
-    curl https://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
-    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
-    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
     rm -fr /tmp/deploy
 
 # paramiko for testrunner
 RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm && \
-    yum install -y python-pip && \
+    yum install -y python-pip libffi-devel && \
     pip install paramiko
+
+# Oracle JDK (for Jenkins and Analytics).
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
+    http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz -o jdk.tgz && \
+    cd /usr/local && \
+    tar xvzf /tmp/deploy/jdk.tgz && \
+    ln -s jdk* java && \
+    for file in /usr/local/java/bin/*; do ln -s $file /usr/local/bin; done && \
+    rm -rf /tmp/deploy
+ENV JAVA_HOME=/usr/local/java
+
+# Maven (for Analytics).
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -L http://mirror.cogentco.com/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
+       -o maven.tar.gz && \
+    cd /usr/local && \
+    tar xzf /tmp/deploy/maven.tar.gz && \
+    ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
+    rm -rf /tmp/deploy
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22

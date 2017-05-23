@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/bin/sh -e
 
 # Bump this when rebuilding with changes
-TAG=20160112
+TAG=20170522
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
 docker build -t ceejatec/debian-8-couchbase-build:$TAG .
-docker tag -f ceejatec/debian-8-couchbase-build:$TAG ceejatec/debian-8-couchbase-build:latest
+docker tag ceejatec/debian-8-couchbase-build:$TAG ceejatec/debian-8-couchbase-build:latest
 if [ "$1" = "--publish" ]
 then
   docker push ceejatec/debian-8-couchbase-build:$TAG

@@ -24,9 +24,6 @@ RUN groupadd -g1000 couchbase && \
     echo 'couchbase:couchbase' | chpasswd && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
-# JDK for Jenkins.
-RUN zypper install -y java-1_6_0-openjdk && zypper clean
-
 ### Install Couchbase build dependencies ######################################
 # * Packages from the base CentOS repository
 RUN zypper install -y \
@@ -107,18 +104,33 @@ RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bi
 
 # * CMake (from cmake.org)
 RUN mkdir /tmp/deploy && cd /tmp/deploy && \
-    curl -O http://www.cmake.org/files/v3.1/cmake-3.1.3.tar.gz && \
-    tar xzf cmake-3.1.3.tar.gz && \
-    cd cmake-3.1.3 && ./configure --prefix=/usr/local --no-system-libs && \
+    curl -LO https://www.cmake.org/files/v3.6/cmake-3.6.1.tar.gz && \
+    tar xzf cmake-3.6.1.tar.gz && \
+    cd cmake-3.6.1 && ./configure --prefix=/usr/local --no-system-libs && \
     make -j8 all && make install && \
     cd /tmp && rm -rf /tmp/deploy
 
-# * golang
+# Oracle JDK (for Jenkins and Analytics).
 RUN mkdir /tmp/deploy && \
-    curl https://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
-    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
-    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
-    rm -fr /tmp/deploy
+    cd /tmp/deploy && \
+    curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
+    http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-linux-x64.tar.gz -o jdk.tgz && \
+    cd /usr/local && \
+    tar xvzf /tmp/deploy/jdk.tgz && \
+    ln -s jdk* java && \
+    for file in /usr/local/java/bin/*; do ln -s $file /usr/local/bin; done && \
+    rm -rf /tmp/deploy
+ENV JAVA_HOME=/usr/local/java
+
+# Maven (for Analytics).
+RUN mkdir /tmp/deploy && \
+    cd /tmp/deploy && \
+    curl -L http://mirror.cogentco.com/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
+       -o maven.tar.gz && \
+    cd /usr/local && \
+    tar xzf /tmp/deploy/maven.tar.gz && \
+    ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
+    rm -rf /tmp/deploy
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
