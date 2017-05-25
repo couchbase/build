@@ -325,6 +325,12 @@ case $project in
     cbas)
         repo="git@github.com:couchbaselabs/$project.git"
         ;;
+    sequoia)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    kv_engine)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
