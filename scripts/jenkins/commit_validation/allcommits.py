@@ -55,6 +55,15 @@ def all_commits(change_id, curr_project, curr_ref):
     """
     commits = []
     manifest = ET.ElementTree(file='.repo/manifest.xml')
+
+    # If the local manifest exists, add in its projects to the main manifest.
+    try:
+        local = ET.ElementTree(file='.repo/manifests/local_manifest.xml')
+        for project in local.findall('project'):
+            manifest.getroot().append(project)
+    except IOError:
+        pass
+
     commits.append((curr_project, project_path(manifest, curr_project), curr_ref))
 
     url = (GERRIT_ROOT + 'changes/?o=CURRENT_REVISION&q=status:open+' +
