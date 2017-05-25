@@ -58,7 +58,7 @@ def all_commits(change_id, curr_project, curr_ref):
 
     # If the local manifest exists, add in its projects to the main manifest.
     try:
-        local = ET.ElementTree(file='.repo/manifests/local_manifest.xml')
+        local = ET.ElementTree(file='.repo/local_manifest.xml')
         for project in local.findall('project'):
             manifest.getroot().append(project)
     except IOError:
