@@ -99,3 +99,7 @@ COPY build/couchbuilder_start.sh /usr/sbin/
 ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
 CMD [ "default" ]
 
+# Set 8G ccache limit
+USER couchbase
+RUN ccache -M 8G
+

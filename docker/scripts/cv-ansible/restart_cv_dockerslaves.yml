@@ -19,12 +19,18 @@
         repo: git://github.com/couchbase/build
         dest: /home/couchbase/build
 
-    - name: Create directories
+    - name: Create shared CCache directory
       file:
         name: "{{ item }}"
         state: directory
       with_items:
         - /home/couchbase/slaves/shared_ccache
+
+    - name: Copy CCache configuration
+      copy:
+        src: ccache.conf
+        dest: /home/couchbase/slaves/shared_ccache/ccache.conf
+        mode: 0644
 
     - name: Remove old jenkinsdocker-ssh
       file:
@@ -38,6 +44,11 @@
 
     - name: Restart CV container
       shell: "{{ restart_cmd }}"
+
+    - name: Remove disk-check cron job
+      cron:
+        name: "check diskspace"
+        state: absent
 
     - name: Add disk-check cron job
       cron:
