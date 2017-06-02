@@ -10,6 +10,9 @@ docker-compose \
   -f /home/couchbase/ceej/asterix-opt/test-support/app/docker-compose.yml \
   up -d --force-recreate jenkins-slave
 
+# slave for server+analytics CV
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20170601 ubuntu16-analytics-01 2211 analytics.jenkins.couchbase.com
+
 # For reference only: Starting the Jenkins master
 #docker run --detach=true --publish=8081:8080 --publish=50000:50000 \
 #  --name analytics-jenkins \

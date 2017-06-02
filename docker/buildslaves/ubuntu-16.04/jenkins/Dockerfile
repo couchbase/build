@@ -92,14 +92,15 @@ RUN apt-get update && \
     apt-get install -y s3cmd && \
     apt-get clean
 
+# Set 8G ccache limit
+USER couchbase
+RUN ccache -M 8G
+USER root
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh
 COPY build/couchbuilder_start.sh /usr/sbin/
 ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
 CMD [ "default" ]
-
-# Set 8G ccache limit
-USER couchbase
-RUN ccache -M 8G
 
