@@ -16,9 +16,13 @@
     force: no
   when: "item.filename[11:20] not in kbs_list.stdout"
 
+- name: Ensure extraction is clean
+  win_file:
+    path: "C:\\extract"
+    state: absent
+
 - name: Extract KB msu {{ item.filename }}.
   raw: "wusa C:\\kbs\\{{ item.filename }} /quiet /extract:C:\\extract"
-  register: wusa_output
   when: "item.filename.endswith('.msu') and item.filename[11:20] not in kbs_list.stdout"
   changed_when: "true"
 

@@ -18,3 +18,7 @@ was necessary because:
 2. Windows 2012 R2's version of `New-SelfSignedCertificate` can only create
    a certificate with a 365 day expiration.
 
+The script "prep-for-ansible.sh" is a quick shell script that will run this
+Powershell script on a Windows VM that is accessible via SSH (as many QE and
+build slaves are). It expects a file named "password.txt" containing the
+Administrator password in the current working directory.

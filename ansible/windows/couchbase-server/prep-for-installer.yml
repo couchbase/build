@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  gather_facts: no
 
   vars:
     kbs:
@@ -23,33 +24,8 @@
         filename: Windows8.1-KB2999226-x64.msu
 
   tasks:
-    - name: "Install tools"
-      win_chocolatey:
-        name: "{{ item }}"
-        allow_empty_checksums: "yes"
-      with_items:
-        - googlechrome
 
     - name: Install pre-req Windows updates
       include: install-kb.yml
       with_items: "{{ kbs }}"
       tags: kbs
-
-    - name: "Enable Remote Desktop"
-      win_regedit:
-        key: 'HKLM:\System\CurrentControlSet\Control\Terminal Server'
-        name: fDenyTSConnections
-        data: 0
-        type: dword
-        state: present
-
-    - name: "Open Remote Desktop in firewall"
-      win_firewall_rule:
-        name: "remote desktop"
-        enable: yes
-        state: present
-        localport: 3389
-        action: allow
-        direction: in
-        protocol: TCP
-        force: true
