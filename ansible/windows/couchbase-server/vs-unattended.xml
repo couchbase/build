@@ -26,7 +26,7 @@
     <SelectableItemCustomization Id="StoryboardingHidden" Selected="no" FriendlyName="StoryboardingHidden" />
     <SelectableItemCustomization Id="WCFDataServicesHidden" Selected="yes" FriendlyName="WCFDataServicesHidden" />
     <SelectableItemCustomization Id="VSUV1PreReqV1" Selected="no" FriendlyName="Visual Studio 2015 Update 1 Prerequisite" />
-    <SelectableItemCustomization Id="VSUV3RTMV1" Selected="no" FriendlyName="Visual Studio 2015 Update 3" />
+    <SelectableItemCustomization Id="VSUV3RTMV1" Selected="yes" FriendlyName="Visual Studio 2015 Update 3" />
     <SelectableItemCustomization Id="NativeLanguageSupport_VCV1" Hidden="no" Selected="yes" FriendlyName="Common Tools for Visual C++ 2015" />
     <SelectableItemCustomization Id="NativeLanguageSupport_MFCV1" Hidden="no" Selected="no" FriendlyName="Microsoft Foundation Classes for C++" />
     <SelectableItemCustomization Id="NativeLanguageSupport_XPV1" Hidden="no" Selected="no" FriendlyName="Windows XP Support for C++" />
