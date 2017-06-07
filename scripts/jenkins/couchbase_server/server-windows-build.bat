@@ -70,12 +70,6 @@ rem Archive all Windows debug files for future reference.
 rem Pre-clean all unnecessary files
 ruby voltron\cleanup.rb %WORKSPACE%\couchbase\install
 
-rem Skip remaining steps on older platforrmm.
-:: QQQ Remove this when old platforms gone!
-if not "%PLAT_TYPE%" == "windows_msvc2015" (
-    goto eof
-)
-
 @echo ==================== package =================
 
 cd voltron
