@@ -4,13 +4,24 @@
 
 set VERSION=%1
 set BLD_NUM=%2
+set LICENSE=%3
 
-set MANIFEST_FILE=%3
-set LICENSE=%4
-set ARCHITECTURE=%5
+set ARCHITECTURE=amd64
+
+:: Remember where we started
+set START_DIR=%CD%
 
 :: In addition to the above arguments, this scripts expects
 :: to be launched from the top level of a Server repo directory.
+:: For convenience, if WORKSPACE isn't set (ie, not run by Jenkins),
+:: compute it from the path to this script.
+if "%WORKSPACE%" == "" (
+    set SCRIPT_PATH=%~dp0
+    set REPOROOT=%SCRIPT_PATH%..\..\..\..
+) else (
+    set REPOROOT=%WORKSPACE%
+)
+cd %REPOROOT%
 set
 
 if not exist install mkdir install
@@ -18,7 +29,13 @@ repo manifest -r > install/manifest.txt
 
 set target_arch=%ARCHITECTURE%
 set source_root=%CD%
-call %source_root%\tlm\win32\environment.bat
+
+:: If "cl" is already on the PATH, we've already executed environment.bat;
+:: don't repeat lest we constantly expand PATH
+where cl >nul 2>nul
+if %ERRORLEVEL% NEQ 0 (
+    call %source_root%\tlm\win32\environment.bat
+)
 
 :: environment.bat disables echo; re-enable it.
 @echo on
@@ -65,22 +82,27 @@ cmake --build . --target install || goto error
 popd
 
 rem Archive all Windows debug files for future reference.
-7za a -tzip -mx9 -ir!*.pdb couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_%ARCHITECTURE%-PDB.zip
+if not "%JENKINS_HOME%" == "" (
+    7za a -tzip -mx9 -ir!*.pdb couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_%ARCHITECTURE%-PDB.zip
+)
 
 rem Pre-clean all unnecessary files
-ruby voltron\cleanup.rb %WORKSPACE%\couchbase\install
+ruby voltron\cleanup.rb %REPOROOT%\couchbase\install
 
 @echo ==================== package =================
 
 cd voltron
-ruby server-win2015.rb %WORKSPACE%\install 5.10.4.0.0.1 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
+ruby server-win2015.rb %REPOROOT%\install 5.10.4.0.0.1 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
 cd wix-installer
-call create-installer.bat %WORKSPACE%\install || goto error
-move Server.msi %WORKSPACE%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_amd64.msi
+call create-installer.bat %REPOROOT%\install || goto error
+move Server.msi %REPOROOT%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_amd64.msi
 goto eof
 
 :error
-echo Failed with error %ERRORLEVEL%.
-exit /b %ERRORLEVEL%
+set CODE=%ERRORLEVEL%
+cd %START_DIR%
+echo Failed with error %CODE%.
+exit /b %CODE%
 
 :eof
+cd %START_DIR%
