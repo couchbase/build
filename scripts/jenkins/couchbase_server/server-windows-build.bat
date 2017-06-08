@@ -1,6 +1,6 @@
 @echo on
 
-@rem Parameters
+rem Parameters
 
 set VERSION=%1
 set BLD_NUM=%2
@@ -17,7 +17,8 @@ set START_DIR=%CD%
 :: compute it from the path to this script.
 if "%WORKSPACE%" == "" (
     set SCRIPT_PATH=%~dp0
-    set REPOROOT=%SCRIPT_PATH%..\..\..\..
+    call :normalizepath "%SCRIPT_PATH%..\..\..\.."
+    set REPOROOT=%RETVAL%
 ) else (
     set REPOROOT=%WORKSPACE%
 )
@@ -97,6 +98,10 @@ cd wix-installer
 call create-installer.bat %REPOROOT%\install || goto error
 move Server.msi %REPOROOT%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_amd64.msi
 goto eof
+
+:normalizepath
+set RETVAL=%~f1
+exit /b
 
 :error
 set CODE=%ERRORLEVEL%
