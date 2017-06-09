@@ -112,12 +112,9 @@ codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase
 
 popd
 
-if [[ -e ${PKG_NAME} ]]
-then
-    mv -f ${PKG_NAME} ${PKG_NAME}.orig
-fi
-
-zip -qry ${PKG_NAME} ${PKG_DIR} 
+rm -f ${PKG_NAME}
+zip -qry ${PKG_NAME} ${PKG_DIR}
+rm -f ${PKG_NAME_US}
 
 # Verify codesigned successfully
 spctl -avvvv ${PKG_DIR}/*.app > tmp.txt 2>&1
