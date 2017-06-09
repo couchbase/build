@@ -96,7 +96,7 @@ cd voltron
 ruby server-win2015.rb %REPOROOT%\install 5.10.4.0.0.1 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
 cd wix-installer
 call create-installer.bat %REPOROOT%\install || goto error
-move Server.msi %REPOROOT%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_amd64.msi
+move Server.msi %REPOROOT%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_amd64-unsigned.msi
 goto eof
 
 :normalizepath

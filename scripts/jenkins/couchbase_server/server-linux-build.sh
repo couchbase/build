@@ -246,7 +246,7 @@ case "$PKG" in
         ;;
     mac)
         ARCHITECTURE=x86_64
-        INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.zip
+        INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}-unsigned.zip
         cp couchdbx-app/build/Release/*.zip ${WORKSPACE}/${INSTALLER_FILENAME}
         ;;
 esac

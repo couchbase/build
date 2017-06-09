@@ -63,6 +63,7 @@ then
     PKG_DIR=couchbase-server-${EDITION}_x86_64_3
 else
     PKG_URL=http://172.23.120.24/builds/latestbuilds/couchbase-server/${rel_code}/${PKG_BUILD_NUM}
+    PKG_NAME_US=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64-unsigned.zip
     PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
     PKG_DIR=couchbase-server-${EDITION}_${PKG_VERSION}
 fi
@@ -70,14 +71,14 @@ fi
 
 if [[ ${DOWNLOAD_NEW_PKG} ]]
 then
-    curl -O ${PKG_URL}/${PKG_NAME}
+    curl -O ${PKG_URL}/${PKG_NAME_US}
 
     if [[ -d ${PKG_DIR} ]] ; then rm -rf ${PKG_DIR} ; fi
-    if [[ -e ${PKG_NAME} ]]
+    if [[ -e ${PKG_NAME_US} ]]
     then
-        unzip -qq ${PKG_NAME}
+        unzip -qq ${PKG_NAME_US}
     else
-        echo ${PKG_NAME} not found!
+        echo ${PKG_NAME_US} not found!
         exit 1
     fi
 fi
@@ -128,4 +129,3 @@ then
 else
     exit 1
 fi
-
