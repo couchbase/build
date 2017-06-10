@@ -123,8 +123,7 @@ echo ${result}
 if [[ ${result} =~ "accepted" ]]
 then
     # Ensure it's actually signed
-    result=`grep "no usable signature" tmp.txt`
-    if [[ -z ${result} ]]
+    if [[ -z $(grep "no usable signature" tmp.txt) ]]
     then
         exit 0
     else
