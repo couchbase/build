@@ -122,7 +122,14 @@ result=`grep "accepted" tmp.txt | awk '{ print $3 }'`
 echo ${result}
 if [[ ${result} =~ "accepted" ]]
 then
-    exit 0
+    # Ensure it's actually signed
+    result=`grep "no usable signature" tmp.txt`
+    if [[ -z ${result} ]]
+    then
+        exit 0
+    else
+        exit 1
+    fi
 else
     exit 1
 fi
