@@ -47,6 +47,7 @@ then
     PKG_DIR=couchbase-server-${EDITION}_4
 else
     PKG_URL=http://latestbuilds.hq.couchbase.com
+    PKG_NAME_US=couchbase-server-${EDITION}_x86_64_${PKG_VERSION}-${PKG_BUILD_NUM}-rel-unsigned.zip
     PKG_NAME=couchbase-server-${EDITION}_x86_64_${PKG_VERSION}-${PKG_BUILD_NUM}-rel.zip
     PKG_DIR=couchbase-server-${EDITION}_x86_64_3
 fi
@@ -54,14 +55,14 @@ fi
 
 if [[ ${DOWNLOAD_NEW_PKG} ]]
 then
-    curl -O ${PKG_URL}/${PKG_NAME}
+    curl -O ${PKG_URL}/${PKG_NAME_US}
 
     if [[ -d ${PKG_DIR} ]] ; then rm -rf ${PKG_DIR} ; fi
-    if [[ -e ${PKG_NAME} ]]
+    if [[ -e ${PKG_NAME_US} ]]
     then
-        unzip -qq ${PKG_NAME}
+        unzip -qq ${PKG_NAME_US}
     else
-        echo ${PKG_NAME} not found!
+        echo ${PKG_NAME_US} not found!
         exit 1
     fi
 fi
@@ -91,12 +92,9 @@ codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase
 
 popd
 
-if [[ -e ${PKG_NAME} ]]
-then
-    mv -f ${PKG_NAME} ${PKG_NAME}.orig
-fi
-
-zip -qry ${PKG_NAME} ${PKG_DIR} 
+rm -f ${PKG_NAME}
+zip -qry ${PKG_NAME} ${PKG_DIR}
+rm -f ${PKG_NAME_US}
 
 # Verify codesigned successfully
 spctl -avvvv ${PKG_DIR}/*.app > tmp.txt 2>&1
@@ -104,8 +102,13 @@ result=`grep "accepted" tmp.txt | awk '{ print $3 }'`
 echo ${result}
 if [[ ${result} =~ "accepted" ]]
 then
-    exit 0
+    # Ensure it's actually signed
+    if [[ -z $(grep "no usable signature" tmp.txt) ]]
+    then
+        exit 0
+    else
+        exit 1
+    fi
 else
     exit 1
 fi
-

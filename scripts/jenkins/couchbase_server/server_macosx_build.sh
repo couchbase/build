@@ -76,7 +76,7 @@ mkdir -p ${SVR_DIR}
 
 CHANGES_LIST=CHANGES_${PRODUCT}-${REVISION}-rel.txt
 EMITTED_MFST=${PRODUCT}-${REVISION}-rel-manifest.xml
-BUILTPACKAGE=${PRODUCT}-${EDITION}_x86_64_${REVISION}-rel.zip
+BUILTPACKAGE=${PRODUCT}-${EDITION}_x86_64_${REVISION}-rel-unsigned.zip
 
 PREFIX_DIR=/opt/couchbase
 
