@@ -331,6 +331,9 @@ case $project in
     kv_engine)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    build-infra)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
