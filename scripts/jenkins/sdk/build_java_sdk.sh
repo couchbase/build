@@ -1,4 +1,4 @@
-#!/bin/bssh
+#!/bin/bash
 
 git clone git://github.com/couchbase/couchbase-jvm-core.git
 git clone git://github.com/couchbase/couchbase-java-client.git
