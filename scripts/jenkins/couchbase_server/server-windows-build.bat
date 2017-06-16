@@ -19,7 +19,7 @@ set START_DIR=%CD%
 :: compute it from the path to this script.
 if "%WORKSPACE%" == "" (
     set "SCRIPT_PATH=%~dp0"
-    call :normalizepath "%SCRIPT_PATH%..\..\..\.."
+    call :normalizepath "!SCRIPT_PATH!..\..\..\.."
     set "REPOROOT=!RETVAL!"
 ) else (
     set "REPOROOT=%WORKSPACE%"
