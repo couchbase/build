@@ -2,6 +2,8 @@
 
 rem Parameters
 
+setlocal EnableDelayedExpansion
+
 set VERSION=%1
 set BLD_NUM=%2
 set LICENSE=%3
@@ -16,11 +18,11 @@ set START_DIR=%CD%
 :: For convenience, if WORKSPACE isn't set (ie, not run by Jenkins),
 :: compute it from the path to this script.
 if "%WORKSPACE%" == "" (
-    set SCRIPT_PATH=%~dp0
+    set "SCRIPT_PATH=%~dp0"
     call :normalizepath "%SCRIPT_PATH%..\..\..\.."
-    set REPOROOT=%RETVAL%
+    set "REPOROOT=!RETVAL!"
 ) else (
-    set REPOROOT=%WORKSPACE%
+    set "REPOROOT=%WORKSPACE%"
 )
 cd %REPOROOT%
 set
@@ -100,7 +102,7 @@ move Server.msi %REPOROOT%\couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-window
 goto eof
 
 :normalizepath
-set RETVAL=%~f1
+set "RETVAL=%~f1"
 exit /b
 
 :error
