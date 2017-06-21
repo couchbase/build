@@ -334,6 +334,9 @@ case $project in
     build-infra)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    build-tools)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
