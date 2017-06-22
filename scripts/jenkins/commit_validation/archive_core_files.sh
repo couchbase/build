@@ -7,6 +7,8 @@
 # Returns zero if no core files found, non-zero if one of
 # more cores were found.
 
+set -e
+
 if [ "$#" -lt 1 ]; then
     echo "Usage: $(basename $0) <archive dir>.tar.bz2 [core file...]"
     exit 1
@@ -45,11 +47,44 @@ EOF
 
         # Determine the current working directory of the core. This is needed
         # as some of the shared libraries may have been loaded using relative paths.
+        # We do this by examining the value of the "PWD" environment variable
+        # from the core file.
+
+        # Method A - Lookup using the symbol `environ` - this works
+        # for older distros, or if the application itself doesn't
+        # reference `environ` directly.
         core_pwd=$(gdb --batch -ex "set print array on" \
                        -ex "p/s ((char***)&environ)[0][0]@100" \
                        $prog_path --core "$core" 2>/dev/null \
             | grep '"PWD=' \
             | sed -e 's/.*"PWD=\([^"]\+\)",/\1/')
+
+        if [ "$core_pwd" = "" ]; then
+            # Attempt Method B - find the name of the environ symbol
+            # used by the program. For older distros this is just
+            # `environ`; but for newer (e.g. Ubuntu 16.04) it's a
+            # versioned symbol (e.g. environ@GLIBC_2.2.5).
+            environ=$(readelf --dyn-syms $prog_path \
+                | grep -w environ \
+                | awk '{split($0,a," "); print a[8]}' \
+                | sed -e 's/@/@@/')
+
+            if [ "$environ" = "" ]; then
+                echo "Warning: Failed to determine 'environ' symbol for $prog_path. Skipping core file $core"
+                continue
+            fi
+
+            core_pwd=$(gdb --batch -ex "set print array on" \
+                           -ex "p/s ((char***)&'${environ}')[0][0]@100" \
+                           $prog_path --core "$core" 2>/dev/null \
+                | grep '"PWD=' \
+                | sed -e 's/.*"PWD=\([^"]\+\)",/\1/')
+        fi
+
+        if [ "$core_pwd" = "" ]; then
+            echo "Warning: Failed to determine working directory from core file $core - skipping."
+            continue
+        fi
 
         cp --archive --parents $prog_path $archive_dir/
 
