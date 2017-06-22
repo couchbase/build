@@ -7,12 +7,12 @@
     ansible_pass: couchbase
     restart_cmd: >-
           /home/couchbase/build/docker/scripts/restart_jenkinsdocker.py
-          {{ docker_image }} 
+          {{ docker_image }}
           {{ slave_name }}
           2222
           cv.jenkins.couchbase.com
-          --ccache-dir /home/couchbase/slaves/shared_ccache
-    
+          --ccache-dir /home/couchbase/shared_ccache
+
   tasks:
     - name: Update build repo
       git:
@@ -24,12 +24,12 @@
         name: "{{ item }}"
         state: directory
       with_items:
-        - /home/couchbase/slaves/shared_ccache
+        - /home/couchbase/shared_ccache
 
     - name: Copy CCache configuration
       copy:
         src: ccache.conf
-        dest: /home/couchbase/slaves/shared_ccache/ccache.conf
+        dest: /home/couchbase/shared_ccache/ccache.conf
         mode: 0644
 
     - name: Remove old jenkinsdocker-ssh
@@ -44,6 +44,14 @@
 
     - name: Restart CV container
       shell: "{{ restart_cmd }}"
+
+    - name: Remove unused docker images and data
+      shell: "docker system prune --all --force"
+
+    - name: Remove unusued slave directories
+      shell: "ls | grep -v {{ slave_name }} | xargs rm -rf"
+      args:
+        chdir: /home/couchbase/slaves/
 
     - name: Remove disk-check cron job
       cron:

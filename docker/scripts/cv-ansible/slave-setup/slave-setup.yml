@@ -7,10 +7,38 @@
     ansible_pass: couchbase
 
   tasks:
+
     - name: Apt Update
       apt:
         update_cache: yes
         upgrade: dist
+
+    - name: Clean unused packages
+      apt:
+        update_cache: yes
+        autoremove: yes
+        purge: yes
+
+    - name: Disable automatic updates
+      apt:
+        name: unattended-upgrades
+        state: absent
+        purge: yes
+
+    - name: Reboot to get new kernel
+      shell: sleep 2 && shutdown -r now "Ansible updates triggered"
+      async: 5
+      poll: 0
+
+    - name: Wait for server to finish rebooting
+      become: no
+      connection: local
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22
+        state: started
+        delay: 30
+        timeout: 300
 
     - name: Get kernel version
       shell: uname -r

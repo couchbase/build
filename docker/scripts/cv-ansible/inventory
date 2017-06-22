@@ -13,4 +13,3 @@
 [all:vars]
 ansible_user=couchbase
 ansible_ssh_pass=couchbase
-
