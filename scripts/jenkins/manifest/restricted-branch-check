@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
+import argparse
+import base64
 import os
 import sys
-import xml.etree.ElementTree as ET
-import base64
-import argparse
 import urllib
+import xml.etree.ElementTree as ET
 
-from manifest_util import scan_manifests
 from jira_util import connect_jira, get_tickets
+from manifest_util import scan_manifests
 
 """
 Intended to run as a Gerrit trigger. The following environment variables
@@ -16,102 +16,111 @@ must be set as Gerrit plugin would:
   GERRIT_PROJECT   GERRIT_BRANCH   GERRIT_CHANGE_COMMIT_MESSAGE
   GERRIT_CHANGE_URL   GERRIT_PATCHSET_NUMBER  GERRIT_EVENT_TYPE
 """
-PROJECT=os.environ["GERRIT_PROJECT"]
-BRANCH=os.environ["GERRIT_BRANCH"]
-COMMIT_MSG=str(base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"]))
+PROJECT = os.environ["GERRIT_PROJECT"]
+BRANCH = os.environ["GERRIT_BRANCH"]
+COMMIT_MSG = str(base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"]))
 
 # Values for outputting in HTML template (initialized with current globals)
 OUTPUT = globals().copy()
 
+
 def check_branch_in_manifest(manifest_filename, meta):
-  """
-  Returns true if the PRODUCT/BRANCH are listed in the named manifest
-  """
-  print ("Checking manifest {}".format(manifest_filename))
-  manifest_et = ET.parse(os.path.join("./manifest", manifest_filename))
-  project_et = manifest_et.find("./project[@name='{}']".format(PROJECT))
-  if project_et is None:
-    print ("project {} not found".format(PROJECT))
-    return False
+    """
+    Returns true if the PRODUCT/BRANCH are listed in the named manifest
+    """
+    print ("Checking manifest {}".format(manifest_filename))
+    manifest_et = ET.parse(os.path.join("./manifest", manifest_filename))
+    project_et = manifest_et.find("./project[@name='{}']".format(PROJECT))
+    if project_et is None:
+        print("project {} not found".format(PROJECT))
+        return False
 
-  # Compute the default branch for the manifest
-  default_branch = "master"
-  default_et = manifest_et.find("./default")
-  if default_et is not None:
-    default_branch = default_et.get("branch", "master")
+    # Compute the default branch for the manifest
+    default_branch = "master"
+    default_et = manifest_et.find("./default")
+    if default_et is not None:
+        default_branch = default_et.get("branch", "master")
 
-  # Pull out the branch for the given project
-  project_branch = project_et.get("revision", default_branch)
-  if project_branch != BRANCH:
-    print ("project {} on branch {}, not {}".format(PROJECT, project_branch, BRANCH))
-    return False
+    # Pull out the branch for the given project
+    project_branch = project_et.get("revision", default_branch)
+    if project_branch != BRANCH:
+        print("project {} on branch {}, not {}".format(
+            PROJECT, project_branch, BRANCH)
+        )
+        return False
 
-  return True
+    return True
+
 
 def get_approved_tickets(approval_ticket):
-  """
-  Given a Jira approval ticket ID, return all linked ticket IDs
-  """
-  jira = connect_jira()
-  jira_ticket = jira.issue(approval_ticket)
-  depends = [link.outwardIssue.key
-    for link in jira_ticket.fields.issuelinks
-    if hasattr(link, "outwardIssue")]
-  relates = [link.inwardIssue.key
-    for link in jira_ticket.fields.issuelinks
-    if hasattr(link, "inwardIssue")]
-  subtasks = [subtask.key
-    for subtask in jira_ticket.fields.subtasks]
-  return depends + relates + subtasks + [approval_ticket]
+    """
+    Given a Jira approval ticket ID, return all linked ticket IDs
+    """
+    jira = connect_jira()
+    jira_ticket = jira.issue(approval_ticket)
+    depends = [
+        link.outwardIssue.key for link in jira_ticket.fields.issuelinks
+        if hasattr(link, "outwardIssue")
+    ]
+    relates = [
+        link.inwardIssue.key for link in jira_ticket.fields.issuelinks
+        if hasattr(link, "inwardIssue")
+    ]
+    subtasks = [subtask.key for subtask in jira_ticket.fields.subtasks]
+    return depends + relates + subtasks + [approval_ticket]
 
 
 def validate_change_in_ticket(meta):
-  """
-  Checks the commit message for a ticket name, and verifies it with the the
-  approval ticket for the restricted manifest
-  """
-  approval_ticket = meta.get("approval_ticket")
-  global COMMIT_MSG
-  # First ensure topic line mentions tickets, and pull them out.
-  topic = COMMIT_MSG.split('\n', 1)[0]
-  fix_tickets = get_tickets(topic)
-  if len(fix_tickets) == 0:
-    OUTPUT["REASON"] = "the commit message does not name a ticket"
-    return False
+    """
+    Checks the commit message for a ticket name, and verifies it with the the
+    approval ticket for the restricted manifest
+    """
+    approval_ticket = meta.get("approval_ticket")
+    global COMMIT_MSG
+    # First ensure topic line mentions tickets, and pull them out.
+    topic = COMMIT_MSG.split('\n', 1)[0]
+    fix_tickets = get_tickets(topic)
+    if len(fix_tickets) == 0:
+        OUTPUT["REASON"] = "the commit message does not name a ticket"
+        return False
 
-  # Now get list of approved tickets from approval ticket, and ensure
-  # all "fixed" tickets are approved.
-  approved_tickets = get_approved_tickets(approval_ticket)
-  for tick in fix_tickets:
-    if not tick in approved_tickets:
-      # Ok, this fixed ticket isn't approved in approval ticket. Populate the
-      # OUTPUT map for the HTML and email templates.
-      OUTPUT["REASON"] = "ticket {} is not approved for {} (see approval ticket {})".format(
-        tick, meta.get("release_name"), approval_ticket)
-      return False
-  return True
+    # Now get list of approved tickets from approval ticket, and ensure
+    # all "fixed" tickets are approved.
+    approved_tickets = get_approved_tickets(approval_ticket)
+    for tick in fix_tickets:
+        if tick not in approved_tickets:
+            # Ok, this fixed ticket isn't approved in approval ticket.
+            # Populate the OUTPUT map for the HTML and email templates.
+            OUTPUT["REASON"] = "ticket {} is not approved for {} " \
+                "(see approval ticket {})".format(
+                    tick, meta.get("release_name"), approval_ticket
+            )
+            return False
+    return True
 
 
 def output_report(meta):
-  """
-  Outputs report explaining why change was restricted, and exits
-  with non-0 return value
-  """
-  OUTPUT["RELEASE_NAME"] = meta.get("release_name")
-  OUTPUT["APPROVAL_TICKET"] = meta.get("approval_ticket")
-  OUTPUT.update(os.environ)
-  # Specialized mailto: URL for new branch request
-  tmpldir = os.path.dirname(os.path.abspath(__file__))
-  with open(os.path.join(tmpldir, "mailto_url.tmpl")) as tmplfile:
-    mailto_url = tmplfile.read().strip().format(**OUTPUT)
-    print (mailto_url)
-    OUTPUT["MAILTO_URL"] = urllib.parse.quote(mailto_url, ":@=&?")
-  with open(html_filename, "w") as html:
-    with open (os.path.join(tmpldir, "restricted.html.tmpl")) as tmplfile:
-      tmpl = tmplfile.read()
-    html.write(tmpl.format(**OUTPUT))
-    print ("\n\n\n*********\nRESTRICTED: {}\n*********\n\n\n".format(OUTPUT["REASON"]))
-    sys.exit(5)
+    """
+    Outputs report explaining why change was restricted, and exits
+    with non-0 return value
+    """
+    OUTPUT["RELEASE_NAME"] = meta.get("release_name")
+    OUTPUT["APPROVAL_TICKET"] = meta.get("approval_ticket")
+    OUTPUT.update(os.environ)
+    # Specialized mailto: URL for new branch request
+    tmpldir = os.path.dirname(os.path.abspath(__file__))
+    with open(os.path.join(tmpldir, "mailto_url.tmpl")) as tmplfile:
+        mailto_url = tmplfile.read().strip().format(**OUTPUT)
+        print(mailto_url)
+        OUTPUT["MAILTO_URL"] = urllib.parse.quote(mailto_url, ":@=&?")
+    with open(html_filename, "w") as html:
+        with open(os.path.join(tmpldir, "restricted.html.tmpl")) as tmplfile:
+            tmpl = tmplfile.read()
+        html.write(tmpl.format(**OUTPUT))
+        print("\n\n\n*********\nRESTRICTED: {}\n*********\n\n\n".format(
+            OUTPUT["REASON"]
+        ))
+        sys.exit(5)
 
 
 # main()
@@ -127,26 +136,28 @@ MANIFEST_PROJECT = args.manifest_project
 # Clean out report file
 html_filename = "restricted.html"
 if os.path.exists(html_filename):
-  os.remove(html_filename)
+    os.remove(html_filename)
 
 # Collect all restricted manifests that reference this branch
 manifests = scan_manifests(MANIFEST_PROJECT)
 print (manifests)
 restricted_manifests = []
 for manifest in manifests:
-  meta = manifests[manifest]
-  if meta.get("restricted"):
-    approval_ticket = meta.get("approval_ticket")
-    if approval_ticket is None:
-      print ("no approval ticket for restricted manifest {}".format(manifest))
-      continue
-    if not check_branch_in_manifest(manifest, meta):
-      continue
+    meta = manifests[manifest]
+    if meta.get("restricted"):
+        approval_ticket = meta.get("approval_ticket")
+        if approval_ticket is None:
+            print("no approval ticket for restricted manifest {}".format(
+                manifest
+            ))
+            continue
+        if not check_branch_in_manifest(manifest, meta):
+            continue
 
-    # Ok, this proposal is to a branch in a restricted manifest
-    restricted_manifests.append(manifest)
-    print ("Project: {} Branch: {} is in restricted manifest: {}".format(
-      PROJECT, BRANCH, manifest))
+        # Ok, this proposal is to a branch in a restricted manifest
+        restricted_manifests.append(manifest)
+        print("Project: {} Branch: {} is in restricted manifest: {}".format(
+            PROJECT, BRANCH, manifest))
 
 # Now *remove* any restricted manifests that are the parent of any other
 # restricted manifests in the list. Logic: if a change is approved for a
@@ -155,35 +166,36 @@ for manifest in manifests:
 # we don't care whether it's approved for A or not.
 restricted_children = list(restricted_manifests)
 for manifest in restricted_manifests:
-  print ("....looking at {}".format(manifest))
-  parent = manifests[manifest].get("parent")
-  print ("....parent is {}".format(parent))
-  if parent in restricted_children:
-    print ("Not checking manifest {} because it is a parent of {}".format(
-      parent, manifest))
-    restricted_children.remove(parent)
+    print("....looking at {}".format(manifest))
+    parent = manifests[manifest].get("parent")
+    print("....parent is {}".format(parent))
+    if parent in restricted_children:
+        print("Not checking manifest {} because it is a parent of {}".format(
+            parent, manifest))
+        restricted_children.remove(parent)
 
 # Now, iterate through all restricted manifests that we have left, and ensure
 # this ticket is approved for each.
 for manifest in restricted_children:
-  if not validate_change_in_ticket(manifests[manifest]):
-    OUTPUT["MANIFEST"] = manifest
-    output_report(manifests[manifest])
+    if not validate_change_in_ticket(manifests[manifest]):
+        OUTPUT["MANIFEST"] = manifest
+        output_report(manifests[manifest])
 
 # If we get here, the change is allowed!
 # Output "all clear" message if no restricted branches were checked,
 # or if they were checked and approved.
 if restricted_manifests:
-  print ("\n\n\n*********\nAPPROVED: Commit is approved for all restricted manifests\n*********\n\n\n")
+    print("\n\n\n*********\nAPPROVED: Commit is approved for all restricted "
+          "manifests\n*********\n\n\n")
 else:
-  # This is the common case where the change was not to any restricted
-  # branches. Normally we want Jenkins to skip voting entirely in this
-  # case, to prevent excessive Gerrit comment spam. We indicate this by
-  # outputting the word "SILENT". However, if this check was triggered
-  # by an explicit "check approval" Gerrit comment, we need to ensure
-  # it is not silent in any case.
-  silent = " (SILENT)"
-  if os.environ.get("GERRIT_EVENT_TYPE") == "comment-added":
-    silent = ""
-  print ("\n\n\n*********\nUNRESTRICTED{}: Branch is in no restricted manifests\n*********\n\n\n".format(silent))
-
+    # This is the common case where the change was not to any restricted
+    # branches. Normally we want Jenkins to skip voting entirely in this
+    # case, to prevent excessive Gerrit comment spam. We indicate this by
+    # outputting the word "SILENT". However, if this check was triggered
+    # by an explicit "check approval" Gerrit comment, we need to ensure
+    # it is not silent in any case.
+    silent = " (SILENT)"
+    if os.environ.get("GERRIT_EVENT_TYPE") == "comment-added":
+        silent = ""
+    print("\n\n\n*********\nUNRESTRICTED{}: Branch is in no restricted "
+          "manifests\n*********\n\n\n".format(silent))
