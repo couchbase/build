@@ -63,6 +63,7 @@ os.makedirs(slave_dir)
 print "Creating new {0} container...".format(slave)
 run_args = [
      "docker", "run", "--name={0}".format(slave), "--detach=true",
+     "--sysctl=net.ipv6.conf.lo.disable_ipv6=0",
      "--privileged",
      "--restart=unless-stopped",
      "--publish={0}:22".format(port),
