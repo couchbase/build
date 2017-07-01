@@ -48,28 +48,26 @@ VERSION=$(git -C "${WORKSPACE}/couchbase-lite-core" rev-parse HEAD)
 # Create zip package
 for FLAVOR in release debug;
 do
-    PACKAGE_OUTPUT=${WORKSPACE}/build_${FLAVOR}/install
-    PACKAGE_NAME=${PRODUCT}-${OS}-${VERSION}-${FLAVOR}.${PKG_TYPE}
-    cd ${WORKSPACE}/build_${FLAVOR}
-    echo
-    echo  "=== Creating ${PACKAGE_OUTPUT}/${PACKAGE_NAME} package ==="
-    echo
     if [[ "${FLAVOR}" == 'debug' && "${OS}" == 'linux' ]]
     then
         continue
-    else
-        ${PKG_CMD} ${PACKAGE_OUTPUT}/${PACKAGE_NAME} install/*
     fi
-    if [[ ${FLAVOR} == 'debug' ]]
+    PACKAGE_NAME=${PRODUCT}-${OS}-${VERSION}-${FLAVOR}.${PKG_TYPE}
+    echo
+    echo  "=== Creating ${WORKSPACE}/${PACKAGE_NAME} package ==="
+    echo
+    cd ${WORKSPACE}/build_${FLAVOR}/install
+    ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
+    if [[ "${FLAVOR}" == 'debug' ]]
     then
         DEBUG_PKG_NAME=${PACKAGE_NAME}
     else
         RELEASE_PKG_NAME=${PACKAGE_NAME}
     fi
-    cd ${WORKSPACE}
 done
 
 # Create Nexus publishing prop file
+cd ${WORKSPACE}
 echo "PRODUCT=${PRODUCT}"  >> ${PROP_FILE}
 echo "BLD_NUM=${BLD_NUM}"  >> ${PROP_FILE}
 echo "VERSION=${VERSION}" >> ${PROP_FILE}
