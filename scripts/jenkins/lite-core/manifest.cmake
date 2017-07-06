@@ -4,4 +4,4 @@
 #
 # DECLARE_DEP (name VERSION version-revision PLATFORMS platform1 platform2)
 #
-DECLARE_DEP (libcxx VERSION 3.9.1-cb1 PLATFORMS ubuntu14.04)
+DECLARE_DEP (libcxx VERSION 3.9.1-cb2 PLATFORMS centos7)
