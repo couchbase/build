@@ -4,7 +4,7 @@
 # construction of the base image.
 
 FROM ceejatec/naked-centos:6.5
-MAINTAINER michael.kwok@couchbase.com
+MAINTAINER build-team@couchbase.com
 
 USER root
 RUN yum install -y openssh-server sudo && yum clean packages
@@ -33,7 +33,6 @@ RUN yum install --setopt=keepcache=0 -y \
                 man \
                 ncurses-devel \
                 openssh-clients openssl-devel \
-                python-devel \
                 redhat-lsb-core \
                 rpm-build \
                 ruby rubygems rubygem-rake \
@@ -41,15 +40,22 @@ RUN yum install --setopt=keepcache=0 -y \
                 unzip \
                 which
 
-# * Required for sgcollect_info
-RUN yum install --setopt=keepcache=0 -y epel-release.noarch
-RUN yum install --setopt=keepcache=0 -y python-pip
-RUN pip install --upgrade pip \
-                -Iv PyInstaller==3.1
+# JDK for Jenkins.
+RUN yum -y install java-1.7.0-openjdk && yum clean packages
 
+# * Required for sgcollect_info
+#RUN yum install --setopt=keepcache=0 -y epel-release.noarch
+#RUN yum install --setopt=keepcache=0 -y python-pip
+#RUN pip install --upgrade pip \
+#                -Iv PyInstaller==3.1.1
+RUN yum install --setopt=keepcache=0 -y https://centos6.iuscommunity.org/ius-release.rpm && \
+    yum install --setopt=keepcache=0 -y python27 && \
+    curl -L https://bootstrap.pypa.io/get-pip.py | python2.7 && \
+    pip install --upgrade pip -Iv PyInstaller==3.1
+    
 # * C++11 compliant compiler and related tools from CentOS's port of RHEL's
 #    devtools (http://people.centos.org/tru/devtools-2/)
-RUN curl http://people.centos.org/tru/devtools-2/devtools-2.repo > \
+RUN curl -L http://people.centos.org/tru/devtools-2/devtools-2.repo > \
          /etc/yum.repos.d/devtools-2.repo && \
     yum install --setopt=keepcache=0 -y \
                 devtoolset-2-gcc-c++ \
@@ -62,7 +68,7 @@ RUN curl http://people.centos.org/tru/devtools-2/devtools-2.repo > \
 
 # * CMake (from cmake.org)
 RUN mkdir /tmp/deploy && \
-    curl http://www.cmake.org/files/v2.8/cmake-2.8.12.2-Linux-i386.sh -o /tmp/deploy/cmake.sh && \
+    curl -L https://cmake.org/files/v3.6/cmake-3.6.1-Linux-x86_64.sh -o /tmp/deploy/cmake.sh && \
     (echo y; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
     rm -fr /tmp/deploy
 
@@ -86,14 +92,13 @@ RUN mkdir -p /usr/local/go/1.4.1 && cd /usr/local/go/1.4.1 && \
     tar xzf go.tar.gz && \
     mkdir /usr/local/go/1.5.3 && cd /usr/local/go/1.5.3 && \
     curl https://storage.googleapis.com/golang/go1.5.3.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz && \
+    mkdir /usr/local/go/1.7.1 && cd /usr/local/go/1.7.1 && \
+    curl https://storage.googleapis.com/golang/go1.7.1.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz && \
+    mkdir /usr/local/go/1.7.4 && cd /usr/local/go/1.7.4 && \
+    curl https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz -o go.tar.gz && \
     tar xzf go.tar.gz
-
-# * golang
-#RUN mkdir /tmp/deploy && \
-#    curl https://storage.googleapis.com/golang/go1.4.1.linux-amd64.tar.gz -o /tmp/deploy/go.tar.gz && \
-#    cd /usr/local && tar xzf /tmp/deploy/go.tar.gz && \
-#    cd bin && for file in /usr/local/go/bin/*; do ln -s $file; done && \
-#    rm -fr /tmp/deploy
 
 # * repo
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
@@ -105,21 +110,6 @@ RUN yum install -y --setopt=keepcache=0 devtoolset-2-git && \
 
 # Install third-party build dependencies
 RUN yum install -y --setopt=keepcache=0 m4 file
-
-# Install autoconf and friends - necessary for building some third-party deps
-# from source, not for Couchbase.
-RUN mkdir /tmp/deploy && \
-    curl -L http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz -o /tmp/deploy/autoconf-2.69.tar.gz && \
-    cd /tmp/deploy && tar -xzf autoconf-2.69.tar.gz && \
-    cd autoconf-2.69 && ./configure --prefix=/usr/local && make -j8 && make install && \
-    yum install -y --setopt=keepcache=0 automake-1.11.1 && \
-    curl -L http://ftpmirror.gnu.org/libtool/libtool-2.4.2.tar.gz -o /tmp/deploy/libtool-2.4.2.tar.gz && \
-    cd /tmp/deploy && tar -xzf libtool-2.4.2.tar.gz && \
-    cd libtool-2.4.2 && ./configure --prefix=/usr/local && make -j8 && make install && \
-    cd /tmp && rm -rf /tmp/deploy && ccache --clear
-
-# JDK for Jenkins.
-RUN yum -y install java-1.7.0-openjdk && yum clean packages
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
