@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# Bump this when rebuilding with changes
+TAG=20170706
+IMAGE=ceejatec/centos-70-litecore-build
+
+mkdir -p build
+cp -a ../../util/couchbuilder_start.sh build
+docker build -t ${IMAGE}:$TAG .
+docker tag ${IMAGE}:$TAG ${IMAGE}:latest
+if [ "$1" = "--publish" ]
+then
+  docker push ${IMAGE}:$TAG
+  docker push ${IMAGE}:latest
+fi
+
