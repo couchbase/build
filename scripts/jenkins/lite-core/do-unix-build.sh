@@ -79,7 +79,7 @@ then
         echo "====  Building macosx/linux Debug binary  ==="
         cd ${WORKSPACE}/build_debug/
         cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=Debug -DLITECORE_BUILD_SQLITE=1 ..
-        jmake -j8
+        make -j8
         make install
         cd ${WORKSPACE}/build_debug/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
         cd ${WORKSPACE}
