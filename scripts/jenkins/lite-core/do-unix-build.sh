@@ -50,9 +50,14 @@ elif [[ ${IOS} == 'true' ]]; then
     lipo -create ios/Build/Products/Release-iphoneos/libLiteCore.dylib ios/Build/Products/Release-iphonesimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_IOS_REL_TARGET}/libLiteCore.dylib
     cd ${WORKSPACE}
 else
+    if [[ "${OS}" == 'linux' ]]; then
+        BUILD_SQLITE='-DLITECORE_BUILD_SQLITE=1'
+    else
+        BUILD_SQLITE=''
+    fi
     echo "====  Building macosx/linux Release binary  ==="
     cd ${WORKSPACE}/build_release
-    cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLITECORE_BUILD_SQLITE=1  ..
+    cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=RelWithDebInfo ${BUILD_SQLITE}  ..
     make -j8
     make install
     if [[ -z "${SKIP_TESTS}" ]]; then
@@ -79,9 +84,14 @@ then
         lipo -create ios/Build/Products/Debug-iphoneos/libLiteCore.dylib ios/Build/Products/Debug-iphonesimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}/libLiteCore.dylib
         cd ${WORKSPACE}
     else
+        if [[ "${OS}" == 'linux' ]]; then
+            BUILD_SQLITE='-DLITECORE_BUILD_SQLITE=1'
+        else
+            BUILD_SQLITE=''
+        fi
         echo "====  Building macosx/linux Debug binary  ==="
         cd ${WORKSPACE}/build_debug/
-        cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=Debug -DLITECORE_BUILD_SQLITE=1 ..
+        cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=Debug ${BUILD_SQLITE} ..
         make -j8
         make install
         cd ${WORKSPACE}/build_debug/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
