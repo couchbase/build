@@ -5,12 +5,13 @@ PRODUCT=${1}
 VERSION=${2}
 BLD_NUM=${3}
 
+mkdir -p ${WORKSPACE}/build_release ${WORKSPACE}/build_debug
+
 case "${OSTYPE}" in
     darwin*)  OS="macosx" 
               PKG_CMD='zip -r'
               PKG_TYPE='zip'
               PROP_FILE=${WORKSPACE}/publish.prop
-              mkdir -p ${WORKSPACE}/build_release ${WORKSPACE}/build_debug
               if [[ ${TVOS} == 'true' ]]; then
                   OS="macosx-tvos"
                   BUILD_TVOS_REL_TARGET='build_tvos_release'
@@ -54,8 +55,10 @@ else
     cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=RelWithDebInfo -DLITECORE_BUILD_SQLITE=1  ..
     make -j8
     make install
-    chmod 777 ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/test_unix.sh
-    cd ${WORKSPACE}/build_release/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
+    if [[ -z "${SKIP_TESTS}" ]]; then
+        chmod 777 ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/test_unix.sh
+        cd ${WORKSPACE}/build_release/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
+    fi
     cd ${WORKSPACE}
 fi
 
@@ -86,7 +89,7 @@ then
     fi
 fi
 
-VERSION=$(git -C "${WORKSPACE}/couchbase-lite-core" rev-parse HEAD)
+VERSION=$(cd "${WORKSPACE}/couchbase-lite-core" && git rev-parse HEAD)
 
 # Create zip package
 for FLAVOR in release debug;
