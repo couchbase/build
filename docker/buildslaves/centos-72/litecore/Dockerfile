@@ -22,7 +22,7 @@ RUN update-alternatives --install /usr/bin/clang++ clang++ /opt/llvm-3.9.1/bin/c
     ln -s /opt/llvm-3.9.1/lib64/cmake/llvm /opt/llvm-3.9.1/share/llvm/cmake
 
 # Install Couchbase Lite Core toolchain requirements
-RUN yum install -y --setopt=keepcache=0 tar openssl-devel make redhat-lsb-core
+RUN yum install -y --setopt=keepcache=0 tar openssl-devel make redhat-lsb-core wget unzip zip
 
 # * ccache (from source)
 RUN mkdir /tmp/deploy && \
@@ -43,3 +43,23 @@ RUN mkdir /tmp/deploy && \
     (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
     rm /usr/local/bin/cmake-gui && \
     rm -rf /tmp/deploy
+
+# Android SDK
+RUN mkdir -p /opt && \
+    cd /opt && \
+    curl -L http://dl.google.com/android/android-sdk_r24.4.1-linux.tgz -o android-sdk.tgz && \
+    tar xzf android-sdk.tgz && \
+    rm -rf android-sdk.tgz && \
+    (echo y | android-sdk-linux/tools/android -s update sdk --no-ui --filter platform-tools,tools -a ) && \
+    (echo y | android-sdk-linux/tools/android -s update sdk --no-ui --filter extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository -a) && \
+    (echo y | android-sdk-linux/tools/android -s update sdk --no-ui --filter build-tools-26.0.0,android-26 -a) && \
+    chown -R couchbase:couchbase android-sdk-linux && \
+    chmod 755 android-sdk-linux
+
+## Android NDK
+RUN cd /opt && \
+    curl -L https://dl.google.com/android/repository/android-ndk-r15b-linux-x86_64.zip -o android-ndk-r15b.zip && \
+    unzip -qq android-ndk-r15b.zip && \
+    chown -R couchbase:couchbase android-ndk-r15b && \
+    chmod 755 android-ndk-r15b && \
+    rm -rf android-ndk-r15b.zip
