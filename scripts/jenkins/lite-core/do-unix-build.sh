@@ -59,6 +59,7 @@ else
     cd ${WORKSPACE}/build_release
     cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=RelWithDebInfo ${BUILD_SQLITE}  ..
     make -j8
+    ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core
     make install
     if [[ -z "${SKIP_TESTS}" ]]; then
         chmod 777 ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/test_unix.sh
@@ -67,36 +68,34 @@ else
     cd ${WORKSPACE}
 fi
 
-if [[ "${OS}" == "macosx" ]] || [[ "${OS}" ==  "macosx-tvos" ]] || [[ "${OS}" == "macosx-ios" ]]
-then
-    if [[ ${TVOS} == 'true' ]]; then
-        echo "====  Building tvos Debug binary  ==="
-        cd ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}
-        xcodebuild -project  ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration Debug -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvos
-        xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration Debug -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvsimulator
-        lipo -create tvos/Build/Products/Debug-appletvos/libLiteCore.dylib tvos/Build/Products/Debug-appletvsimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}/libLiteCore.dylib
-        cd ${WORKSPACE}
-    elif [[ ${IOS} == 'true' ]]; then
-        echo "====  Building ios Debug binary  ==="
-        cd ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}
-        xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration Debug -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
-        xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration Debug -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
-        lipo -create ios/Build/Products/Debug-iphoneos/libLiteCore.dylib ios/Build/Products/Debug-iphonesimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}/libLiteCore.dylib
-        cd ${WORKSPACE}
+if [[ ${TVOS} == 'true' ]]; then
+    echo "====  Building tvos Debug binary  ==="
+    cd ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}
+    xcodebuild -project  ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration Debug -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvos
+    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration Debug -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvsimulator
+    lipo -create tvos/Build/Products/Debug-appletvos/libLiteCore.dylib tvos/Build/Products/Debug-appletvsimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}/libLiteCore.dylib
+    cd ${WORKSPACE}
+elif [[ ${IOS} == 'true' ]]; then
+    echo "====  Building ios Debug binary  ==="
+    cd ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}
+    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration Debug -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
+    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration Debug -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+    lipo -create ios/Build/Products/Debug-iphoneos/libLiteCore.dylib ios/Build/Products/Debug-iphonesimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}/libLiteCore.dylib
+    cd ${WORKSPACE}
+else
+    if [[ "${OS}" == 'linux' ]]; then
+        BUILD_SQLITE='-DLITECORE_BUILD_SQLITE=1'
     else
-        if [[ "${OS}" == 'linux' ]]; then
-            BUILD_SQLITE='-DLITECORE_BUILD_SQLITE=1'
-        else
-            BUILD_SQLITE=''
-        fi
-        echo "====  Building macosx/linux Debug binary  ==="
-        cd ${WORKSPACE}/build_debug/
-        cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=Debug ${BUILD_SQLITE} ..
-        make -j8
-        make install
-        cd ${WORKSPACE}/build_debug/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
-        cd ${WORKSPACE}
+        BUILD_SQLITE=''
     fi
+    echo "====  Building macosx/linux Debug binary  ==="
+    cd ${WORKSPACE}/build_debug/
+    cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=Debug ${BUILD_SQLITE} ..
+    make -j8
+    ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core
+    make install
+    cd ${WORKSPACE}/build_debug/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
+    cd ${WORKSPACE}
 fi
 
 VERSION=$(cd "${WORKSPACE}/couchbase-lite-core" && git rev-parse HEAD)
@@ -104,11 +103,6 @@ VERSION=$(cd "${WORKSPACE}/couchbase-lite-core" && git rev-parse HEAD)
 # Create zip package
 for FLAVOR in release debug;
 do
-    if [[ "${FLAVOR}" == 'debug' && "${OS}" == 'linux' ]]
-    then
-        continue
-    fi
-
     PACKAGE_NAME=${PRODUCT}-${OS}-${VERSION}-${FLAVOR}.${PKG_TYPE}
     echo
     echo  "=== Creating ${WORKSPACE}/${PACKAGE_NAME} package ==="
