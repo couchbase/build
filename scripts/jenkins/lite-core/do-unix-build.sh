@@ -59,8 +59,19 @@ else
     cd ${WORKSPACE}/build_release
     cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=RelWithDebInfo ${BUILD_SQLITE}  ..
     make -j8
-    ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core
+    if [[ ${OS} == 'linux' ]]; then
+        ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core
+    else
+        pushd couchbase-lite-core
+        dsymutil libLiteCore.dylib -o libLiteCore.dylib.dSYM
+        strip -x libLiteCore.dylib
+        popd
+    fi
     make install
+    # package up the strip symbols
+    if [[ ${OS} == 'macosx' ]]; then
+        cp -rp couchbase-lite-core/libLiteCore.dylib.dSYM  ./install/lib
+    fi
     if [[ -z "${SKIP_TESTS}" ]]; then
         chmod 777 ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/test_unix.sh
         cd ${WORKSPACE}/build_release/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
@@ -92,8 +103,19 @@ else
     cd ${WORKSPACE}/build_debug/
     cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=Debug ${BUILD_SQLITE} ..
     make -j8
-    ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core
+    if [[ ${OS} == 'linux' ]]; then
+        ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core
+    else
+        pushd couchbase-lite-core
+        dsymutil libLiteCore.dylib -o libLiteCore.dylib.dSYM
+        strip -x libLiteCore.dylib
+        popd
+    fi
     make install
+    # package up the strip symbols
+    if [[ ${OS} == 'macosx' ]]; then
+        cp -rp couchbase-lite-core/libLiteCore.dylib.dSYM  ./install/lib
+    fi
     cd ${WORKSPACE}/build_debug/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
     cd ${WORKSPACE}
 fi
