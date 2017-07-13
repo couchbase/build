@@ -268,6 +268,9 @@ case $project in
     nitro)
 	repo="git@github.com:couchbase/$project.git"
 	;;
+    plasma)
+	repo="git@github.com:couchbase/$project.git"
+	;;
     phosphor)
 	repo="git@github.com:couchbase/$project.git"
 	;;
@@ -332,11 +335,11 @@ case $project in
         repo="git@github.com:couchbase/$project.git"
         ;;
     build-infra)
-	repo="git@github.com:couchbase/$project.git"
-	;;
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     build-tools)
-	repo="git@github.com:couchbase/$project.git"
-	;;
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
