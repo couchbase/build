@@ -60,7 +60,7 @@ cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_SYSTEM_NAME=Android -DCMAKE_A
       -DCMAKE_ANDROID_ARCH_ABI=$ARCH -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \
       -DCMAKE_SYSTEM_VERSION=$ARCH_VERSION -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_BUILD_TYPE=Debug  ..
 make -j4
-${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core ${STRIP}
+${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core ${STRIP}/
 make install
 cd ${WORKSPACE}
 
@@ -78,10 +78,12 @@ do
     then
         cd ${WORKSPACE}/${BUILD_DEBUG_TARGET}/install
         ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
+        DEBUG_PKG_NAME=${PACKAGE_NAME}
         cd ${WORKSPACE}
     else
         cd ${WORKSPACE}/${BUILD_REL_TARGET}/install
         ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
+        RELEASE_PKG_NAME=${PACKAGE_NAME}
         cd ${WORKSPACE}
     fi
 done
@@ -92,8 +94,8 @@ echo "PRODUCT=${PRODUCT}"  >> ${PROP_FILE}
 echo "BLD_NUM=${BLD_NUM}"  >> ${PROP_FILE}
 echo "VERSION=${VERSION}" >> ${PROP_FILE}
 echo "PKG_TYPE=${PKG_TYPE}" >> ${PROP_FILE}
-echo "DEBUG_PKG_NAME=${PACKAGE_NAME}" >> ${PROP_FILE}
-echo "RELEASE_PKG_NAME=${PACKAGE_NAME}" >> ${PROP_FILE}
+echo "DEBUG_PKG_NAME=${DEBUG_PKG_NAME}" >> ${PROP_FILE}
+echo "RELEASE_PKG_NAME=${RELEASE_PKG_NAME}" >> ${PROP_FILE}
 
 echo
 echo  "=== Created ${WORKSPACE}/${PROP_FILE} ==="
