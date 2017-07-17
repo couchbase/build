@@ -137,14 +137,7 @@ echo_cmd ccache -s
 # Manditory steps complete, install the deferred error handler.
 trap deferred_error_handler ERR
 
-if [ -n "$GOPROJECT" ]
-then
-    pushd ${repo_path}
-    eval "${ENV_VARS} go build"
-    eval "go vet"
-    eval "${ENV_VARS} go test -v"
-    popd
-elif [ -f build/${GERRIT_PROJECT}/Makefile ]
+if [ -n "$GOPROJECT" ] || [ -f build/${GERRIT_PROJECT}/Makefile ]
 then
     cat <<EOF
 
@@ -155,6 +148,9 @@ EOF
     if [ "${GERRIT_PROJECT}" = "ns_server" ]
     then
         pushd ${GERRIT_PROJECT}/build 2>&1 > /dev/null
+    elif [ -n "$GOPROJECT" ]
+    then
+        pushd build/goproj/src/github.com/couchbase/${GERRIT_PROJECT} 2>&1 > /dev/null
     else
         pushd build/${GERRIT_PROJECT} 2>&1 > /dev/null
     fi
