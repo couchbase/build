@@ -97,6 +97,13 @@ USER couchbase
 RUN ccache -M 8G
 USER root
 
+# Update locale
+RUN apt-get update && \
+    apt-get install -y locales && \
+    apt-get clean && \
+    locale-gen en_US.UTF-8
+ENV LANG=en_US.UTF-8
+
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh
