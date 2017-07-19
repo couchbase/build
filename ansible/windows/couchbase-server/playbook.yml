@@ -48,6 +48,7 @@
         - activeperl
         - googlechrome
         - insted
+        - pandoc
 
     # Code depends on .NET Framework 4.5.2 (chocolatey package "dotnet4.5.2"),
     # but that package fails to install via Ansible due to silly limitations
