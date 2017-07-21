@@ -38,9 +38,10 @@
     <SelectableItemCustomization Id="SQLV1" Hidden="no" Selected="no" FriendlyName="Microsoft SQL Server Data Tools" />
     <SelectableItemCustomization Id="PowerShellToolsV1" Hidden="no" Selected="no" FriendlyName="PowerShell Tools for Visual Studio" />
     <SelectableItemCustomization Id="SilverLight_Developer_KitV1" Hidden="no" Selected="no" FriendlyName="Silverlight Development Kit" />
-    <SelectableItemCustomization Id="Windows10_ToolsAndSDKV12" Hidden="no" Selected="no" FriendlyName="Tools (1.4) and Windows 10 SDK (10.0.10586)" />
+    <SelectableItemCustomization Id="Windows10_ToolsAndSDKV13" Hidden="no" Selected="yes" FriendlyName="Tools (1.4.1) and Windows 10 SDK (10.0.14393)" />
     <SelectableItemCustomization Id="Win10_EmulatorV1" Selected="no" FriendlyName="Emulators for Windows 10 Mobile (10.0.10240)" />
     <SelectableItemCustomization Id="Win10_EmulatorV2" Hidden="no" Selected="no" FriendlyName="Emulators for Windows 10 Mobile (10.0.10586)" />
+    <SelectableItemCustomization Id="Win10_EmulatorV3" Hidden="no" Selected="no" FriendlyName="Emulators for Windows 10 Mobile (10.0.14393)" />
     <SelectableItemCustomization Id="XamarinVSCoreV4" Hidden="no" Selected="no" FriendlyName="C#/.NET (Xamarin v4.1.0)" />
     <SelectableItemCustomization Id="XamarinPT_V1" Selected="no" FriendlyName="Xamarin Preparation Tool" />
     <SelectableItemCustomization Id="MDDJSCoreV11" Hidden="no" Selected="no" FriendlyName="HTML/JavaScript (Apache Cordova) Update 10" />
@@ -70,11 +71,12 @@
     <SelectableItemCustomization Id="GitHubVSV1" Hidden="no" Selected="no" FriendlyName="GitHub Extension for Visual Studio" />
     <SelectableItemCustomization Id="VS_SDK_GroupV5" Hidden="no" Selected="no" FriendlyName="Visual Studio Extensibility Tools Update 3" />
     <SelectableItemCustomization Id="VS_SDK_Breadcrumb_GroupV5" Selected="no" FriendlyName="Visual Studio Extensibility Tools Update 3" />
-    <SelectableItemCustomization Id="Win10_VSToolsV12" Hidden="no" Selected="no" FriendlyName="Tools for Universal Windows Apps (1.4) and Windows 10 SDK (10.0.10586)" />
-    <SelectableItemCustomization Id="Win10SDK_HiddenV1" Hidden="no" Selected="no" FriendlyName="Windows 10 SDK (10.0.10240)" />
-    <SelectableItemCustomization Id="Win10SDK_HiddenV2" Selected="no" FriendlyName="Windows 10 SDK (10.0.10586)" />
-    <SelectableItemCustomization Id="Win10SDK_HiddenV3" Selected="no" FriendlyName="Windows 10 SDK (10.0.10586)" />
-    <SelectableItemCustomization Id="Win10SDK_VisibleV1" Hidden="no" Selected="no" FriendlyName="Windows 10 SDK 10.0.10240" />
+    <SelectableItemCustomization Id="Win10_VSToolsV13" Hidden="no" Selected="yes" FriendlyName="Tools for Universal Windows Apps (1.4.1) and Windows 10 SDK (10.0.14393)" />
+    <SelectableItemCustomization Id="Win10SDK_HiddenV1" Hidden="no" Selected="yes" FriendlyName="Windows 10 SDK (10.0.10240)" />
+    <SelectableItemCustomization Id="Win10SDK_HiddenV2" Selected="yes" FriendlyName="Windows 10 SDK (10.0.10586)" />
+    <SelectableItemCustomization Id="Win10SDK_HiddenV3" Hidden="no" Selected="yes" FriendlyName="Windows 10 SDK (10.0.10586)" />
+    <SelectableItemCustomization Id="Win10SDK_HiddenV4" Selected="yes" FriendlyName="Windows 10 SDK (10.0.14393)" />
+    <SelectableItemCustomization Id="Win10SDK_VisibleV1" Hidden="no" Selected="yes" FriendlyName="Windows 10 SDK 10.0.10240" />
     <SelectableItemCustomization Id="UWPPatch_KB3073097_HiddenV3" Selected="no" FriendlyName="KB3073097" />
     <SelectableItemCustomization Id="AppInsightsToolsVSWinExpressHiddenVSU3RTMV1" Selected="no" FriendlyName="Developer Analytics Tools v7.0.2" />
     <SelectableItemCustomization Id="AppInsightsToolsVWDExpressHiddenVSU3RTMV1" Selected="no" FriendlyName="Developer Analytics Tools v7.0.2" />
