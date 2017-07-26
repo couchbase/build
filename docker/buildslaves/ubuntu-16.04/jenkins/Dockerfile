@@ -82,7 +82,7 @@ RUN mkdir /tmp/deploy && \
 # Python 3-specific stuff for build scripts, mostly for Jira.
 RUN apt-get update && \
     apt-get -y install python3-pip libffi-dev && \
-    pip3 install lxml oauthlib==0.7.2 jwt pycrypto jira&& \
+    pip3 install lxml oauthlib==0.7.2 jwt pycrypto jira boto3 && \
     apt-get purge -y libffi-dev && \
     apt-get clean && \
     ccache --clear
@@ -103,6 +103,9 @@ RUN apt-get update && \
     apt-get clean && \
     locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
+
+# Set AWS credentials file environmental variable
+ENV AWS_SHARED_CREDENTIALS_FILE=/home/couchbase/.ssh/aws-credentials
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
