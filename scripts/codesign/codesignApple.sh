@@ -5,7 +5,7 @@
 #
 # Verification steps after codesign
 # 1. spctl -avvvv pkg_name.app
-#    Results "accepted" and Couchbase ID must be present 
+#    Results "accepted" and Couchbase ID must be present
 # 2. codesign -dvvvv pkg_name.app
 #    Sealed resource must be version 2
 # 3. Best to upload to another website (latestbuilds), download from there and rerun step #1 and #2
@@ -29,9 +29,9 @@ PKG_BUILD_NUM=${2}  # Build Number
 
 EDITION=${3} # enterprise vs community
 
-OSX=${4} # macos vs elcapitan 
+OSX=${4} # macos vs elcapitan
 
-DOWNLOAD_NEW_PKG=${5}  # Get new build 
+DOWNLOAD_NEW_PKG=${5}  # Get new build
 
 result="rejected"
 
@@ -65,9 +65,19 @@ then
     PKG_NAME=couchbase-server-${EDITION}_x86_64_${PKG_VERSION}-${PKG_BUILD_NUM}-rel.zip
     PKG_DIR=couchbase-server-${EDITION}_x86_64_3
 else
-    PKG_URL=http://172.23.120.24/builds/latestbuilds/couchbase-server/${rel_code}/${PKG_BUILD_NUM}
-    PKG_NAME_US=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64-unsigned.zip
-    PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
+    PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${rel_code}/${PKG_BUILD_NUM}
+    # MB-25378: short-term workaround - when building server+analytics,
+    # use different filename convention
+    if [[ "${PRODUCT}" == "server-analytics" ]]
+    then
+        FILEBIT=analytics
+    else
+        FILEBIT=${EDITION}
+    fi
+    PKG_NAME_US=couchbase-server-${FILEBIT}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64-unsigned.zip
+    PKG_NAME=couchbase-server-${FILEBIT}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
+    # PKG_DIR is set by couchdbx-app, and isn't analytics-specific,
+    # so continue just using EDITION
     PKG_DIR=couchbase-server-${EDITION}_${PKG_VERSION}
 fi
 
@@ -88,12 +98,12 @@ fi
 
 if [[ -d ${PKG_DIR} ]]
 then
-    pushd ${PKG_DIR} 
+    pushd ${PKG_DIR}
 else
     mkdir ${PKG_DIR}
     mv *.app ${PKG_DIR}
     mv README.txt ${PKG_DIR}
-    pushd ${PKG_DIR} 
+    pushd ${PKG_DIR}
 fi
 
 echo ------- Unlocking keychain -----------
