@@ -12,7 +12,7 @@ JIRA_URL = "https://issues.couchbase.com/browse/"
 
 @buildHistory.route('/' )
 @buildHistory.route('/<release>/<version>')
-def builds(release='spock', version='5.0.0'):
+def builds(release='vulcan', version='5.1.0'):
     bh = []
     title = {}
     bh = get_recent_build_history(version, 10)
