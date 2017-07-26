@@ -190,7 +190,14 @@ fi
 # distinguished in deb/rpm repositories.
 if [ "${EDITION}" = "enterprise" ]
 then
-    PRODUCT=couchbase-server
+    # MB-25378: Hopefully temporary - change the product name when building
+    # with Analytics
+    if [ -d "${WORKSPACE}/analytics" ]
+    then
+        PRODUCT=couchbase-server-analytics
+    else
+        PRODUCT=couchbase-server
+    fi
 else
     PRODUCT=couchbase-server-community
 fi
@@ -207,6 +214,14 @@ then
     cd ${WORKSPACE}/couchdbx-app
     LICENSE=LICENSE-${EDITION}.txt make couchbase-server-zip
     cd ${WORKSPACE}
+fi
+
+# MB-25378: Temporary work-around: for Analytics builds, change
+# EDITION to "analytics" since it's only used for the filenames
+# from now on
+if [ -d "${WORKSPACE}/analytics" ]
+then
+    EDITION=analytics
 fi
 
 # Move final installation package to top of workspace, and set up
