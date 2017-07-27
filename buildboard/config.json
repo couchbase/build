@@ -3,7 +3,7 @@
         {
             "name": "Watson",
             "branch": "master",
-            "version": "4.6.0",
+            "version": "4.6.3",
             "jenkinsParams": {
                 "parentUrl": "http://server.jenkins.couchbase.com/view/All/job/watson-build/",
                 "buildUrls": [
