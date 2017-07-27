@@ -1407,7 +1407,7 @@ def main (configJson):
                 jenkins_scan_unitTest(dshbrd)
                   
             logger.debug("Main Sleeping 600...")
-            time.sleep(20)
+            time.sleep(600)
             
     except KeyboardInterrupt:
         shutdown()

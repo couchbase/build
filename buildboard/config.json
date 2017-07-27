@@ -18,7 +18,7 @@
                 "type": "repo",
                 "repo": "git://github.com/couchbase",
                 "project": "build-team-manifests",
-                "manifest": "watson.xml",
+                "manifest": "couchbase-server/watson/4.6.3.xml",
                 "remotes": {
                     "blevesearch": "https://api.github.com/repos/blevesearch/",
                     "couchbase": "https://api.github.com/repos/couchbase/",
