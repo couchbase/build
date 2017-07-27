@@ -842,7 +842,7 @@ def jenkins_get_new_jobs(url, version, buildNum, gitType, manifest):
 
         envVars = jEnvVars['envMap'] 
         if gitType == "repo":
-            if manifest != envVars['MANIFEST']:
+            if manifest != envVars.get('MANIFEST', ''):
                 continue 
 
         if envVars.has_key('VERSION') and version != envVars['VERSION']:
