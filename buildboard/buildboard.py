@@ -684,7 +684,7 @@ def jenkins_get_matching_jobs(url, version, bldNum):
             if jEnvVars is None:
                 break
 
-            if version != jEnvVars['envMap']['VERSION']:
+            if 'VERSION' not in jEnvVars['envMap'] or version != jEnvVars['envMap']['VERSION']:
                 continue
 
             jenkinsBuildNum = int(jEnvVars['envMap']['BLD_NUM'])
