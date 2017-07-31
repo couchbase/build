@@ -6,6 +6,17 @@ set OS=windows
 for /f %%i in ('call git --git-dir %WORKSPACE%/couchbase-lite-core/.git rev-parse HEAD') do set SHA=%%i
 echo %SHA%
 
+cd %WORKSPACE%\couchbase-lite-core\C\tests\data
+if not exist "%WORKSPACE%\couchbase-lite-core\C\tests\data\geoblocks.json" (
+    cd %WORKSPACE%\couchbase-lite-core\C\tests\data
+    powershell -Command "Invoke-WebRequest https://github.com/arangodb/example-datasets/raw/master/IPRanges/geoblocks.json -OutFile geoblocks.json"
+)
+if not exist "%WORKSPACE%\couchbase-lite-core\C\tests\data\names_300000.json" (
+    cd %WORKSPACE%\couchbase-lite-core\C\tests\data
+    powershell -Command "Invoke-WebRequest https://github.com/arangodb/example-datasets/raw/master/RandomUsers/names_300000.json -OutFile names_300000.json"
+)
+cd %WORKSPACE%
+
 for %%A in (Win32 Win64 ARM) do (
     set ARCH=%%A
 
@@ -35,6 +46,8 @@ for %%A in (Win32 Win64 ARM) do (
         set TARGET=!ARCH!_RelWithDebInfo
         call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! RelWithDebInfo
         call :bld %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo
+        call :unit-test %WORKSPACE%\build_cmake_store_!TARGET!  !ARCH!
+        call :unit-test %WORKSPACE%\build_!TARGET!  !ARCH!
         if "!ARCH!"=="Win32" (
             call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win32-winstore.zip *.dll *.pdb STORE_Win32 RELEASE
             call :pkg %WORKSPACE%\build_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win32.zip *.dll *.pdb Win32 RELEASE
@@ -98,4 +111,23 @@ if "%2"=="Win32" (
 )
 "C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" ..\couchbase-lite-core
 "C:\Program Files\CMake\bin\cmake.exe" --build . --config %3
+goto :EOF
+
+rem subroutine "unit-test"
+:unit-test
+echo "Testing testdir:%1, arch:%2"
+mkdir %1\C\tests\data
+cd %1\C\tests\data
+if not exist "%1\C\tests\data\geoblocks.json" (
+    copy %WORKSPACE%\couchbase-lite-core\C\tests\data\geoblocks.json  %1\C\tests\data\geoblocks.json
+)
+if not exist "%1\C\tests\data\names_300000.json" (
+    copy %WORKSPACE%\couchbase-lite-core\C\tests\data\names_300000.json  %1\C\tests\data\names_300000.json
+)
+
+cd %1\LiteCore\tests\RelWithDebInfo
+.\CppTests.exe -r list || exit /b 1
+
+cd %1\C\tests\RelWithDebInfo
+.\C4Tests.exe -r list || exit /b 1
 goto :EOF
