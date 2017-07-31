@@ -1,7 +1,7 @@
-# Docker container for Debian 8.2 (Jessie)
+# Docker container for Debian 9.1 (Stretch)
 
-FROM debian:8.2
-MAINTAINER ceej@couchbase.com
+FROM debian:9.1
+MAINTAINER build-team@couchbase.com
 
 USER root
 
