@@ -1,4 +1,7 @@
 
+PRODUCT=%1
+VERSION=%2
+
 setlocal enabledelayedexpansion
 
 set OS=windows
@@ -46,7 +49,6 @@ for %%A in (Win32 Win64 ARM) do (
         set TARGET=!ARCH!_RelWithDebInfo
         call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! RelWithDebInfo
         call :bld %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo
-        call :unit-test %WORKSPACE%\build_cmake_store_!TARGET!  !ARCH!
         call :unit-test %WORKSPACE%\build_!TARGET!  !ARCH!
         if "!ARCH!"=="Win32" (
             call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win32-winstore.zip *.dll *.pdb STORE_Win32 RELEASE
@@ -69,7 +71,7 @@ if "%6" == "DEBUG" (
     ) else (
         set FLAVOR=RELEASE
 )
-7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME%  %3  %4
+7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME%  %3  %4  || goto error
 set PROP_FILE=%WORKSPACE%\publish_!ARCH!.prop
 echo PRODUCT=%PRODUCT%  >> %PROP_FILE%
 echo VERSION=%SHA% >> %PROP_FILE%
@@ -91,8 +93,8 @@ if "%2"=="Win32" (
         set MS_ARCH_STORE= Win64
     )
 )
-"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  ..\couchbase-lite-core
-"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 --target LiteCore
+"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  ..\couchbase-lite-core || goto error
+"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 --target LiteCore || goto error
 goto :EOF
 
 rem subroutine "bld"
@@ -109,13 +111,14 @@ if "%2"=="Win32" (
        set MS_ARCH= Win64
     )
 )
-"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" ..\couchbase-lite-core
-"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3
+"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" ..\couchbase-lite-core || goto error
+"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3  || goto error
 goto :EOF
 
 rem subroutine "unit-test"
 :unit-test
 echo "Testing testdir:%1, arch:%2"
+mkdir C:\tmp
 mkdir %1\C\tests\data
 cd %1\C\tests\data
 if not exist "%1\C\tests\data\geoblocks.json" (
@@ -131,3 +134,7 @@ cd %1\LiteCore\tests\RelWithDebInfo
 cd %1\C\tests\RelWithDebInfo
 .\C4Tests.exe -r list || exit /b 1
 goto :EOF
+
+:error
+echo Failed with error %ERRORLEVEL%.
+exit /B %ERRORLEVEL%
