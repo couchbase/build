@@ -340,6 +340,9 @@ case $project in
     build-tools)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    cbsummary)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     *)
 	repo="git@github.com:membase/$project.git"
 	;;
