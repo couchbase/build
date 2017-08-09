@@ -194,11 +194,12 @@ if [[ ! -d ${STAGING}/tools/    ]] ; then mkdir -p ${STAGING}/tools/    ; fi
 if [[ ! -d ${STAGING}/examples/ ]] ; then mkdir -p ${STAGING}/examples/ ; fi
 if [[ ! -d ${STAGING}/service/  ]] ; then mkdir -p ${STAGING}/service/  ; fi
 
-TEMPLATE_FILES="${SGW_DIR}/rest/api.go"
+declare -a TEMPLATE_FILES=("${SGW_DIR}/rest/api.go" "${SGW_DIR}/base/version.go")
+
 PRODUCT_NAME=${SG_PRODUCT_NAME}
 
 echo ======== insert ${PRODUCT_NAME} build meta-data ==============
-for TF in ${TEMPLATE_FILES}
+for TF in ${TEMPLATE_FILES[@]}
   do
     cat ${TF} | sed -e "s,@PRODUCT_NAME@,${PRODUCT_NAME},g" \
               | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \

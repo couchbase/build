@@ -128,6 +128,7 @@ echo set REPO_SHA=%REPO_SHA% > %REPO_FILE%
 call %REPO_FILE%
 
 set  TEMPLATE_FILE="godeps\src\github.com\couchbase\sync_gateway\rest\api.go"
+if EXIST "godeps\src\github.com\couchbase\sync_gateway\base\version.go"  set TEMPLATE_FILE="godeps\src\github.com\couchbase\sync_gateway\base\version.go"
 if EXIST %TEMPLATE_FILE%.orig	del %TEMPLATE_FILE%.orig
 if EXIST %TEMPLATE_FILE%.new	del %TEMPLATE_FILE%.new
 
