@@ -138,6 +138,7 @@ git  log --oneline --pretty="format:set REPO_SHA=%%H" -1 > %REPO_FILE%
 call %REPO_FILE%
 
 set  TEMPLATE_FILE="src\github.com\couchbase\sync_gateway\rest\api.go"
+if EXIST "src\github.com\couchbase\sync_gateway\base\version.go"  set TEMPLATE_FILE="src\github.com\couchbase\sync_gateway\base\version.go"
 del %TEMPLATE_FILE%.orig
 del %TEMPLATE_FILE%.new
 

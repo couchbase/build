@@ -232,7 +232,7 @@ if [[ -e ${BIN_DIR}/${EXEC} ]]
 fi
 
 echo ======== remove build meta-data ==============
-for TF in ${TEMPLATE_FILES}
+for TF in ${TEMPLATE_FILES[@]}
   do
     mv  ${TF}.orig ${TF}
 done
@@ -240,7 +240,7 @@ done
 PRODUCT_NAME=${ACCEL_PRODUCT_NAME}
 
 echo ======== insert ${PRODUCT_NAME} build meta-data ==============
-for TF in ${TEMPLATE_FILES}
+for TF in ${TEMPLATE_FILES[@]}
   do
     cat ${TF} | sed -e "s,@PRODUCT_NAME@,${PRODUCT_NAME},g" \
               | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
@@ -270,7 +270,7 @@ if [[ -e ${BIN_DIR}/sync-gateway-accel ]]
 fi
 
 echo ======== remove build meta-data ==============
-for TF in ${TEMPLATE_FILES}
+for TF in ${TEMPLATE_FILES[@]}
   do
     mv  ${TF}.orig ${TF}
 done
