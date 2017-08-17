@@ -100,7 +100,7 @@ class Builds():
             if all_envs['envMap'].has_key('VERSION'):
                 if all_envs['envMap']['VERSION'] != self.version:
                     continue
-                if all_envs['envMap']['PRODUCT'] == 'server-analytics':
+                if all_envs['envMap'].get('PRODUCT', '') == 'server-analytics':
                     continue
             if all_envs['envMap'].has_key('BLD_NUM'):
                 build_num = int(all_envs['envMap']['BLD_NUM'])
