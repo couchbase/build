@@ -143,7 +143,7 @@ fi
 # Tweak install directory in Voltron-magic fashion
 cd ${WORKSPACE}/voltron
 make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-${EDITION}.txt \
-     BUILD_DIR=${WORKSPACE} \
+     BUILD_DIR=${WORKSPACE} DISTRO=${DISTRO} \
      TOPDIR=${WORKSPACE}/voltron build-filter overlay
 if [ -d "server-overlay-${PKG}" ]
 then
