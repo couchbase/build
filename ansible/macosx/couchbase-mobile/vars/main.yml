@@ -1,0 +1,18 @@
+---
+
+homebrew_cask_appdir: /Applications
+
+homebrew_taps:
+   - caskroom/cask
+
+homebrew_installed_packages:
+  - ccache
+  - coreutils
+  - cmake
+  - git
+  - bash-completion
+  - python
+  - openssl
+  - ssh-copy-id
+  - pass
+  - wget
