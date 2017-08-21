@@ -1,0 +1,16 @@
+# Patch for mkowk's buildboard container
+
+# Ensure entrypoint runs all the necessary processes unlike base image
+
+FROM mkwok/centos-buildboard:20160825
+MAINTAINER kenneth.lareau@couchbase.com
+
+USER root
+
+# This will override the old entrypoint script with one
+# that has the processes started within it (and uses root
+# for the processes instead of couchbase)
+ADD util/.ssh /root/.ssh
+COPY util/bb_start.sh /usr/sbin/
+ENTRYPOINT [ "/usr/sbin/bb_start.sh" ]
+CMD [ "default" ]

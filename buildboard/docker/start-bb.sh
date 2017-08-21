@@ -13,9 +13,11 @@ for name in "${container_name[@]}"
       fi
 done
 
+# NOTE: The image is local to the buildboard VM host ONLY
 docker run -p 2300:22 -d -p 8081:8081 -p 8082:8082 \
     --link=buildboard-db:buildboard-db \
 	--volume=/home/couchbase/build/buildboard:/home/couchbase/buildboard:rw \
 	--volume=/home/couchbase/build/buildboard/html:/var/www/html \
-	--name="buildboard" \
-	mkwok/centos-buildboard:20160825
+	--volume=/home/couchbase/.githubtoken:/root/.githubtoken \
+	--name="buildboard-test" --restart=unless-stopped \
+	centos-buildboard:20170821

@@ -2,20 +2,17 @@
 
 # Script intended to be ENTRYPOINT for buildboard containers
 
-# First, copy any files in /ssh to /home/couchbase/.ssh, changing ownership to
-# user couchbase and maintaining permissions
+# First, copy any files in /ssh to /root/.ssh, ensure ownership is
+# the root user and maintain permissions
 if [ -d /ssh ] && [ "$(ls -A /ssh)" ]
 then
-    cp -a /ssh/* /home/couchbase/.ssh
+    cp -a /ssh/* /root/.ssh
 fi
-chown -R couchbase:couchbase /home/couchbase/.ssh
-chmod 600 /home/couchbase/.ssh/*
+chown -R root:root /root/.ssh
+chmod 600 /root/.ssh/*
 
-exec /usr/sbin/httpd & 
+/usr/sbin/httpd &
 
-# Start sshd (as new, long-running, foreground process)
-[[ "$1" == "default" ]] && {
-    exec /usr/sbin/sshd -D
-}
-
-exec "$@"
+cd /home/couchbase/buildboard
+./runapps.py > /var/log/bbapps.log 2>&1 &
+./buildboard.py > /var/log/bbconsole.log 2>&1
