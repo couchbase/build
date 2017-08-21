@@ -10,6 +10,9 @@ cd `dirname $0`
 # Spock Debian 9.1 builder
 ./restart_jenkinsdocker.py ceejatec/debian-9-couchbase-build:20170731 spock-debian9 5230 server.jenkins.couchbase.com
 
+# Primary zz-server-lightweight running on mega2 (same port as backup on mega3)
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20170725 zz-server-lightweight 5322 server.jenkins.couchbase.com
+
 wait
 echo "All done!"
 
