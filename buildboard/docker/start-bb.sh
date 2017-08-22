@@ -19,5 +19,5 @@ docker run -p 2300:22 -d -p 8081:8081 -p 8082:8082 \
 	--volume=/home/couchbase/build/buildboard:/home/couchbase/buildboard:rw \
 	--volume=/home/couchbase/build/buildboard/html:/var/www/html \
 	--volume=/home/couchbase/.githubtoken:/root/.githubtoken \
-	--name="buildboard-test" --restart=unless-stopped \
+	--name="$container_name" --restart=unless-stopped \
 	centos-buildboard:20170821
