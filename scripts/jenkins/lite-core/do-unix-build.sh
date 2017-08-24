@@ -5,10 +5,14 @@ PRODUCT=${1}
 VERSION=${2}
 BLD_NUM=${3}
 
+if [[ -z "${WORKSPACE}" ]]; then
+    WORKSPACE=`pwd`
+fi
+
 mkdir -p ${WORKSPACE}/build_release ${WORKSPACE}/build_debug
 
 case "${OSTYPE}" in
-    darwin*)  OS="macosx" 
+    darwin*)  OS="macosx"
               PKG_CMD='zip -r'
               PKG_TYPE='zip'
               PROP_FILE=${WORKSPACE}/publish.prop
@@ -116,7 +120,7 @@ else
     if [[ ${OS} == 'macosx' ]]; then
         cp -rp couchbase-lite-core/libLiteCore.dylib.dSYM  ./install/lib
     fi
-    cd ${WORKSPACE}/build_debug/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
+    #cd ${WORKSPACE}/build_debug/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
     cd ${WORKSPACE}
 fi
 
@@ -145,7 +149,17 @@ do
         else
             DEBUG_PKG_NAME=${PACKAGE_NAME}
             cd ${WORKSPACE}/build_${FLAVOR}/install
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
+            # Create separate symbols pkg
+            if [[ ${OS} == 'macosx' ]]; then
+                ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} lib/libLiteCore.dylib
+                SYMBOLS_DEBUG_PKG_NAME=${PRODUCT}-${OS}-${VERSION}-${FLAVOR}-'symbols'.${PKG_TYPE}
+                ${PKG_CMD} ${WORKSPACE}/${SYMBOLS_DEBUG_PKG_NAME}  lib/libLiteCore.dylib.dSYM
+            else # linux
+                ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
+                SYMBOLS_DEBUG_PKG_NAME=${PRODUCT}-${OS}-${VERSION}-${FLAVOR}-'symbols'.${PKG_TYPE}
+                cd ${WORKSPACE}/build_${FLAVOR}/couchbase-lite-core
+                ${PKG_CMD} ${WORKSPACE}/${SYMBOLS_DEBUG_PKG_NAME} libLiteCore.so.sym
+            fi
             cd ${WORKSPACE}
         fi
     else
@@ -162,7 +176,17 @@ do
         else
             RELEASE_PKG_NAME=${PACKAGE_NAME}
             cd ${WORKSPACE}/build_${FLAVOR}/install
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
+            # Create separate symbols pkg
+            if [[ ${OS} == 'macosx' ]]; then
+                ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} lib/libLiteCore.dylib
+                SYMBOLS_RELEASE_PKG_NAME=${PRODUCT}-${OS}-${VERSION}-${FLAVOR}-'symbols'.${PKG_TYPE}
+                ${PKG_CMD} ${WORKSPACE}/${SYMBOLS_RELEASE_PKG_NAME}  lib/libLiteCore.dylib.dSYM
+            else # linux
+                ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
+                SYMBOLS_RELEASE_PKG_NAME=${PRODUCT}-${OS}-${VERSION}-${FLAVOR}-'symbols'.${PKG_TYPE}
+                cd ${WORKSPACE}/build_${FLAVOR}/couchbase-lite-core
+                ${PKG_CMD} ${WORKSPACE}/${SYMBOLS_RELEASE_PKG_NAME} libLiteCore.so.sym
+            fi
             cd ${WORKSPACE}
         fi
     fi
@@ -183,9 +207,11 @@ elif [[ ${IOS} == 'true' ]]; then
 else
     echo "DEBUG_PKG_NAME=${DEBUG_PKG_NAME}" >> ${PROP_FILE}
     echo "RELEASE_PKG_NAME=${RELEASE_PKG_NAME}" >> ${PROP_FILE}
+    echo "SYMBOLS_DEBUG_PKG_NAME=${SYMBOLS_DEBUG_PKG_NAME}" >> ${PROP_FILE}
+    echo "SYMBOLS_RELEASE_PKG_NAME=${SYMBOLS_RELEASE_PKG_NAME}" >> ${PROP_FILE}
 fi
 
-echo  
+echo
 echo  "=== Created ${WORKSPACE}/${PROP_FILE} ==="
 echo
 

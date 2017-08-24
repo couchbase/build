@@ -71,7 +71,7 @@ if "%6" == "DEBUG" (
     ) else (
         set FLAVOR=RELEASE
 )
-7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME%  %3  %4  || goto error
+7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME%  %3  %4  || goto :error
 set PROP_FILE=%WORKSPACE%\publish_!ARCH!.prop
 echo PRODUCT=%PRODUCT%  >> %PROP_FILE%
 echo VERSION=%SHA% >> %PROP_FILE%
@@ -93,8 +93,8 @@ if "%2"=="Win32" (
         set MS_ARCH_STORE= Win64
     )
 )
-"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  ..\couchbase-lite-core || goto error
-"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 --target LiteCore || goto error
+"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  ..\couchbase-lite-core || goto :error
+"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 --target LiteCore || goto :error
 goto :EOF
 
 rem subroutine "bld"
@@ -111,8 +111,8 @@ if "%2"=="Win32" (
        set MS_ARCH= Win64
     )
 )
-"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" ..\couchbase-lite-core || goto error
-"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3  || goto error
+"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" ..\couchbase-lite-core || goto :error
+"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3  || goto :error
 goto :EOF
 
 rem subroutine "unit-test"
