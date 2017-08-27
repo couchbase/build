@@ -286,6 +286,9 @@ case $project in
     gocb)
         repo="git@github.com:couchbase/$project.git"
         ;;
+    java-dcp-client)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
     couchbase-kafka-connector)
         repo="git@github.com:couchbase/$project.git"
         ;;

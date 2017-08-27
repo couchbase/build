@@ -41,6 +41,9 @@ do
 done
 
 case $project in
+    analytics_ns_server)
+        repo="ssh://git@github.com/couchbaselabs/$project.git"
+        ;;
     asterix-opt)
         repo="ssh://git@github.com/couchbaselabs/$project.git"
         ;;
