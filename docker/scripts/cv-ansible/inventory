@@ -1,6 +1,4 @@
 [cv]
-172.23.98.47 slave_name=ubuntu12-cv-08 docker_image=ceejatec/ubuntu-1204-couchbase-cv:20160304
-172.23.98.48 slave_name=ubuntu12-cv-09 docker_image=ceejatec/ubuntu-1204-couchbase-cv:20160304
 172.23.98.49 slave_name=ubuntu12-cv-10 docker_image=ceejatec/ubuntu-1204-couchbase-cv:20160304
 172.23.98.159 slave_name=ubuntu16-cv-01 docker_image=ceejatec/ubuntu-1604-couchbase-cv:20170530
 172.23.98.160 slave_name=ubuntu16-cv-02 docker_image=ceejatec/ubuntu-1604-couchbase-cv:20170530
@@ -9,6 +7,8 @@
 172.23.99.43 slave_name=ubuntu16-cv-05 docker_image=ceejatec/ubuntu-1604-couchbase-cv:20170530
 172.23.99.44 slave_name=ubuntu16-cv-06 docker_image=ceejatec/ubuntu-1604-couchbase-cv:20170530
 172.23.98.46 slave_name=ubuntu16-cv-07 docker_image=ceejatec/ubuntu-1604-couchbase-cv:20170530
+172.23.98.47 slave_name=ubuntu16-cv-08 docker_image=ceejatec/ubuntu-1604-couchbase-cv:20170530
+172.23.98.48 slave_name=ubuntu16-cv-09 docker_image=ceejatec/ubuntu-1604-couchbase-cv:20170530
 
 [all:vars]
 ansible_user=couchbase
