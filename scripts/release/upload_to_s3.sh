@@ -4,7 +4,7 @@ function usage() {
     echo
     echo "$0 -r <release-code-name> -v <version-number> -b <build-number>"
     echo "   [-t <product>] [-m <MP-number> [-c <community-status>]"
-    echo "   [-p <platforms>] [-l] [-s]"
+    echo "   [-p <platforms>] [-l] [-s] [-V <upload-version-number>]"
     echo "where:"
     echo "  -r: release code name; watson or sherlock"
     echo "  -v: version number; eg. 4.1.1"
@@ -17,6 +17,7 @@ function usage() {
     echo "      Pass -p multiple times for multiple platforms [optional]"
     echo "  -l: Push it to live (production) s3. Default is to push to staging [optional]"
     echo "  -s: strip '-enterprise' from the filename [optional]"
+    echo "  -V: version number for uploads (defaults to same as -v)"
     echo
 }
 
@@ -34,10 +35,11 @@ STRIP_ENTERPRISE=false
 # Default product
 PRODUCT=couchbase-server
 
-while getopts "r:v:b:t:m:c:p:lsh?" opt; do
+while getopts "r:v:V:b:t:m:c:p:lsh?" opt; do
     case $opt in
         r) RELEASE=$OPTARG;;
         v) VERSION=$OPTARG;;
+        V) UPLOADVERSION=$OPTARG;;
         b) BUILD=$OPTARG;;
         t) PRODUCT=$OPTARG;;
         m) MP=$OPTARG;;
@@ -87,6 +89,9 @@ then
     exit 3
 fi
 
+if [ "x${UPLOADVERSION}" = "x" ]; then
+    UPLOADVERSION=${VERSION}
+fi
 
 RELEASES_MOUNT=/releases
 if [ ! -e ${RELEASES_MOUNT} ]; then
@@ -104,11 +109,11 @@ fi
 # Compute target filename component
 if [ -z "$MP" ]
 then
-    RELEASE_DIRNAME=$VERSION
-    FILENAME_VER=$VERSION
+    RELEASE_DIRNAME=$UPLOADVERSION
+    FILENAME_VER=$UPLOADVERSION
 else
-    RELEASE_DIRNAME=$VERSION-$MP
-    FILENAME_VER=$VERSION-$MP
+    RELEASE_DIRNAME=$UPLOADVERSION-$MP
+    FILENAME_VER=$UPLOADVERSION-$MP
 fi
 
 # Add product super-directory, if not couchbase-server
@@ -208,7 +213,7 @@ upload ${PRODUCT}-$VERSION-$BUILD-manifest.xml
 
 for platform in ${PLATFORMS[@]}
 do
-    for file in `find . -maxdepth 1 -name ${PRODUCT}\*${platform}\*`
+    for file in `find . -maxdepth 1 -name \*${PRODUCT}\*${platform}\*`
     do
         upload $file
     done
