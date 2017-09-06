@@ -2,8 +2,8 @@
 
 # Global define
 PRODUCT=${1}
-VERSION=${2}
-BLD_NUM=${3}
+BLD_NUM=${2}
+VERSION=$(cd "${WORKSPACE}/couchbase-lite-core" && git rev-parse HEAD)
 
 if [[ -z "${WORKSPACE}" ]]; then
     WORKSPACE=`pwd`
@@ -123,8 +123,6 @@ else
     #cd ${WORKSPACE}/build_debug/couchbase-lite-core && ../../couchbase-lite-core/build_cmake/scripts/test_unix.sh
     cd ${WORKSPACE}
 fi
-
-VERSION=$(cd "${WORKSPACE}/couchbase-lite-core" && git rev-parse HEAD)
 
 # Create zip package
 for FLAVOR in release debug;
