@@ -16,6 +16,7 @@ parser.add_argument("port", type=str, help="SSH Port to expose from container")
 parser.add_argument("jenkins", type=str, help="Jenkins to connect to",
     nargs='?', default="factory.couchbase.com")
 parser.add_argument("--ccache-dir", type=str, help="Host directory to mount as ~/.ccache")
+parser.add_argument("--no-workspace", action="store_true", help="Skip mounting /home/couchbase/jenkins")
 args = parser.parse_args()
 
 image = args.image
@@ -73,9 +74,12 @@ run_args = [
      "--volume=/etc/timezone:/etc/timezone",
      "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
      "--volume=/home/couchbase/latestbuilds:/latestbuilds",
-     "--volume=/home/couchbase/releases:/releases",
-     "--volume=/home/couchbase/slaves/{0}:/home/couchbase/jenkins".format(slave)
+     "--volume=/home/couchbase/releases:/releases"
 ]
+if not args.no_workspace:
+    run_args.append(
+     "--volume=/home/couchbase/slaves/{0}:/home/couchbase/jenkins".format(slave)
+    )
 if args.ccache_dir is not None:
     if not os.path.isdir(args.ccache_dir):
         os.makedirs(args.ccache_dir)
