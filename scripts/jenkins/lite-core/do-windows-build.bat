@@ -26,36 +26,36 @@ for %%A in (Win32 Win64 ARM) do (
     if "!ARCH!"=="ARM" (
         # Flavor: Debug
         set TARGET=!ARCH!_Debug
-        call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! Debug
-        call :pkg %WORKSPACE%\build_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-debug-arm.zip *.dll *.pdb ARM DEBUG
+        call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! Debug || goto :error
+        call :pkg %WORKSPACE%\build_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-debug-arm.zip *.dll *.pdb ARM DEBUG || goto :error
         #RelWithDebInfo
         set TARGET=!ARCH!_RelWithDebInfo
-        call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo
-        call :pkg %WORKSPACE%\build_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-arm.zip *.dll *.pdb ARM RELEASE
+        call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo || goto :error
+        call :pkg %WORKSPACE%\build_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-arm.zip *.dll *.pdb ARM RELEASE || goto :error
         goto :EOF
     ) else (
         # Flavor: Debug
         set TARGET=!ARCH!_Debug
-        call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! Debug
-        call :bld %WORKSPACE%\build_!TARGET! !ARCH! Debug
+        call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! Debug || goto :error
+        call :bld %WORKSPACE%\build_!TARGET! !ARCH! Debug || goto :error
         if "!ARCH!"=="Win32" (
-            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-win32-winstore-debug.zip *.dll *.pdb STORE_Win32 DEBUG
-            call :pkg %WORKSPACE%\build_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-win32-debug.zip *.dll *.pdb Win32 DEBUG
+            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-win32-winstore-debug.zip *.dll *.pdb STORE_Win32 DEBUG || goto :error
+            call :pkg %WORKSPACE%\build_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-win32-debug.zip *.dll *.pdb Win32 DEBUG || goto :error
         ) else (
-            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-win64-winstore-debug.zip *.dll *.pdb STORE_Win64 DEBUG
-            call :pkg %WORKSPACE%\build_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-win64-debug.zip *.dll *.pdb Win64 DEBUG
+            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-win64-winstore-debug.zip *.dll *.pdb STORE_Win64 DEBUG || goto :error
+            call :pkg %WORKSPACE%\build_!TARGET!\Debug %PRODUCT%-%VERSION%-!SHA!-%OS%-win64-debug.zip *.dll *.pdb Win64 DEBUG || goto :error
         )
         # Flavor: RelWithDebInfo
         set TARGET=!ARCH!_RelWithDebInfo
-        call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! RelWithDebInfo
-        call :bld %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo
-        call :unit-test %WORKSPACE%\build_!TARGET!  !ARCH!
+        call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! RelWithDebInfo || goto :error
+        call :bld %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo || goto :error
+        call :unit-test %WORKSPACE%\build_!TARGET!  !ARCH! || goto :error
         if "!ARCH!"=="Win32" (
-            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win32-winstore.zip *.dll *.pdb STORE_Win32 RELEASE
-            call :pkg %WORKSPACE%\build_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win32.zip *.dll *.pdb Win32 RELEASE
+            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win32-winstore.zip *.dll *.pdb STORE_Win32 RELEASE || goto :error
+            call :pkg %WORKSPACE%\build_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win32.zip *.dll *.pdb Win32 RELEASE || goto :error
         ) else (
-            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win64-winstore.zip *.dll *.pdb STORE_Win64 RELEASE
-            call :pkg %WORKSPACE%\build_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win64.zip *.dll *.pdb Win64 RELEASE
+            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win64-winstore.zip *.dll *.pdb STORE_Win64 RELEASE || goto :error
+            call :pkg %WORKSPACE%\build_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-!SHA!-%OS%-win64.zip *.dll *.pdb Win64 RELEASE || goto :error
         )
     )
 )
@@ -71,7 +71,7 @@ if "%6" == "DEBUG" (
     ) else (
         set FLAVOR=RELEASE
 )
-7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME%  %3  %4  || goto :error
+7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME%  %3  %4 || goto :error
 set PROP_FILE=%WORKSPACE%\publish_!ARCH!.prop
 echo PRODUCT=%PRODUCT%  >> %PROP_FILE%
 echo VERSION=%SHA% >> %PROP_FILE%
@@ -112,7 +112,7 @@ if "%2"=="Win32" (
     )
 )
 "C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" ..\couchbase-lite-core || goto :error
-"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3  || goto :error
+"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 || goto :error
 goto :EOF
 
 rem subroutine "unit-test"
@@ -136,5 +136,5 @@ cd %1\C\tests\RelWithDebInfo
 goto :EOF
 
 :error
-echo Failed with error %ERRORLEVEL%.
+echo Failed with error %ERRORLEVEL%
 exit /B %ERRORLEVEL%
