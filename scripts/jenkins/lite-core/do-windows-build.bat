@@ -9,17 +9,6 @@ set OS=windows
 for /f %%i in ('call git --git-dir %WORKSPACE%/couchbase-lite-core/.git rev-parse HEAD') do set SHA=%%i
 echo %SHA%
 
-cd %WORKSPACE%\couchbase-lite-core\C\tests\data
-if not exist "%WORKSPACE%\couchbase-lite-core\C\tests\data\geoblocks.json" (
-    cd %WORKSPACE%\couchbase-lite-core\C\tests\data
-    powershell -Command "Invoke-WebRequest https://github.com/arangodb/example-datasets/raw/master/IPRanges/geoblocks.json -OutFile geoblocks.json"
-)
-if not exist "%WORKSPACE%\couchbase-lite-core\C\tests\data\names_300000.json" (
-    cd %WORKSPACE%\couchbase-lite-core\C\tests\data
-    powershell -Command "Invoke-WebRequest https://github.com/arangodb/example-datasets/raw/master/RandomUsers/names_300000.json -OutFile names_300000.json"
-)
-cd %WORKSPACE%
-
 for %%A in (Win32 Win64 ARM) do (
     set ARCH=%%A
 
