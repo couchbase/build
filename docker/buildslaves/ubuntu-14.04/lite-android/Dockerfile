@@ -46,7 +46,7 @@ ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
 CMD [ "default" ]
 
 # Android SDK/CLANG environment settings
-RUN echo 'export ANDROID_NDK_HOME="/home/couchbase/jenkins/tools/android-ndk-r14b"\nexport ANDROID_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport ANDROID_SDK_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport PATH="$ANDROID_NDK_HOME:$ANDROID_SDK_HOME:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
+RUN echo 'export ANDROID_NDK_HOME="/home/couchbase/jenkins/tools/android-ndk-r15c"\nexport ANDROID_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport ANDROID_SDK_HOME="/home/couchbase/jenkins/tools/android-sdk"\nexport PATH="$ANDROID_NDK_HOME:$ANDROID_SDK_HOME:$ANDROID_SDK_HOME/tools:$ANDROID_SDK_HOME/platform-tools:$PATH"' > /etc/profile.d/android.sh
 
 # Android SDK
 USER couchbase
@@ -77,11 +77,11 @@ RUN mkdir -p "$ANDROID_HOME/licenses" || true && \
 # Android NDK
 USER couchbase
 RUN cd /home/couchbase/jenkins/tools && \
-    curl -L https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip -o android-ndk-r14b.zip && \
-    unzip -qq android-ndk-r14b.zip && \
-    chown -R couchbase:couchbase android-ndk-r14b && \
-    chmod 755 android-ndk-r14b && \
-    rm -rf android-ndk-r14b.zip
+    curl -L https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip -o android-ndk-r15c.zip && \
+    unzip -qq android-ndk-r15c.zip && \
+    chown -R couchbase:couchbase android-ndk-r15c && \
+    chmod 755 android-ndk-r15c && \
+    rm -rf android-ndk-r15c.zip
 
 # Revert so CMD will run as root.
 USER root
