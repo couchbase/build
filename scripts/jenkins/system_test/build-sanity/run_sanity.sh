@@ -25,12 +25,12 @@ if [ $num_nodes -gt 1 ]; then
     NODE_4=${node_list[3]}
 fi
 
-if [ "$DISTRO" = "macos" ]; then
+if [[ "$DISTRO" == "macos" ]]; then
     USER=couchbase
     if [ $num_nodes -gt 1 ]; then
         TR_CONF="conf/py-mac-sanity.conf"
     fi
-elif [ "$DISTRO" = "win64" ]; then
+elif [[ "$DISTRO" == "win64" ]] || [[ "$DISTRO" == "windows" ]]; then
     USER=Administrator
     PASSWORD=Membase123
 fi
@@ -132,9 +132,6 @@ if [ "$install_only" = "yes" ]; then
 fi
 
 EXTRA_PARAMS=""
-#if [ "$DISTRO" != "win64" ]; then
-#    EXTRA_PARAMS=",stop-on-failure=True"
-#fi
 
 if [ -n "${EXTRA_TEST_PARAMS}" ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS},${EXTRA_TEST_PARAMS}"
