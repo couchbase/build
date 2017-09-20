@@ -347,7 +347,7 @@ case $project in
         repo="git@github.com:couchbase/$project.git"
         ;;
     couchbase-operator)
-        repo="git@github.com:couchbase/$project.git"
+        repo="git@github.com:couchbaselabs/$project.git"
         ;;
     *)
 	repo="git@github.com:membase/$project.git"
