@@ -63,9 +63,15 @@ RUN . /etc/profile && \
     echo yes | android update sdk --filter platform-tools,android-26,extra --no-ui --force --all && \
     filter=`android list sdk --all | grep Build-tools | grep 26.0.1 | awk '{ print $1 }' | tr -d -` && \
     echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    echo yes | android update sdk --filter android-24,sys-img-armeabi-v7a-android-24 --no-ui --force --all && \
-    echo yes | android -s update sdk --no-ui --force --all --filter extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository && \
     filter=`android list sdk --all | grep "SDK Platform Android" | grep "API 26" | awk '{ print $1 }' | tr -d -` && \
+    echo yes | android update sdk --filter $filter --no-ui --force --all && \
+    echo yes | android -s update sdk --no-ui --force --all --filter extra-android-m2repository,extra-android-support,extra-google-google_play_services,extra-google-m2repository && \
+    echo yes | android update sdk --filter android-24,sys-img-armeabi-v7a-android-24 --no-ui --force --all && \
+    filter=`android list sdk --all | grep "SDK Platform Android" | grep "API 24" | awk '{ print $1 }' | tr -d -` && \
+    echo yes | android -s update sdk --no-ui --filter $filter --force --all && \
+    # test legacy android-16
+    echo yes | android update sdk --filter android-16,sys-img-armeabi-v7a-android-16 --no-ui --force --all && \
+    filter=`android list sdk --all | grep "SDK Platform Android" | grep "API 16" | awk '{ print $1 }' | tr -d -` && \
     echo yes | android -s update sdk --no-ui --filter $filter --force --all
 
 # Android SDK License
