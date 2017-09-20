@@ -36,7 +36,7 @@
         {
             "name": "Spock",
             "branch": "master",
-            "version": "5.0.0",
+            "version": "5.0.1",
             "jenkinsParams": {
                 "parentUrl": "http://server.jenkins.couchbase.com/view/All/job/couchbase-server-build/",
                 "buildUrls": [
