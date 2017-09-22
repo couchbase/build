@@ -62,24 +62,52 @@ def get_binaries_list(product, version):
     releases = packages.objects.filter(Prefix=s3_rel_prefix)
     rel_files = [f.key.split('/')[-1] for f in releases.all()]
 
-    url_list = list()
+    bin_url_list = list()
+    md5_url_list = list()
+    sha_url_list = list()
 
-    # Filter out undesired files
+    # Separate out files into distinct sets: binaries, MD5 and SHA files
+    # (exclude the XML and 'unsigned' files)
     for rfile in rel_files:
-        if not rfile.endswith(excl_suffixes) and 'unsigned' not in rfile:
-            url_list.append('https://{}/{}{}'.format(
+        file_url = 'https://{}/{}{}'.format(
                 s3_rel_bucket, s3_rel_prefix, rfile
-            ))
+        )
 
-    return url_list
+        if 'unsigned' in rfile:
+            continue
+
+        if not rfile.endswith(excl_suffixes):
+            bin_url_list.append(file_url)
+        elif rfile.endswith('.md5') and 'xml' not in rfile:
+            md5_url_list.append(file_url)
+        elif rfile.endswith('.sha256') and 'xml' not in rfile:
+            sha_url_list.append(file_url)
+
+    return {
+        'binaries': bin_url_list,
+        'md5s': md5_url_list,
+        'shas': sha_url_list
+    }
 
 
 def update_jira_ticket(issue, url_list):
     """Update the JIRA approval ticket with the list of binaries"""
 
+    content = """Binaries:
+
+    {}
+
+    MD5s:
+
+    {}
+
+    SHAs:
+
+    {}""".format('\n'.join(url_list['binaries']), '\n'.join(url_list['md5s']),
+                 '\n'.join(url_list['shas']))
+
     jira = connect_jira()
-    jira.add_comment(issue,
-                     '\n'.join(url_list),
+    jira.add_comment(issue, content,
                      visibility={'type': 'group', 'value': 'Membase Inc'})
 
 
