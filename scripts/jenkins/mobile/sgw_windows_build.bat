@@ -183,6 +183,8 @@ GOTO skip_build_sg_accel
 
 :build_sg_accel
 
+    if "%EDITION%" == "community" GOTO skip_build_sg_accel
+
     set PRODUCT_NAME=%ACCEL_PRODUCT_NAME%
 
     echo ======== remove build meta-data ==============
@@ -325,6 +327,8 @@ if "%REL_VER%" GEQ "1.3.0" GOTO package_sg_accel
 GOTO skip_package_sg_accel
 
 :package_sg_accel
+    if "%EDITION%" == "community" GOTO skip_package_sg_accel
+
     cd   %BLD_DIR%
     if EXIST %ACCEL_PREFIX%  del /s/f/q %ACCEL_PREFIX%
     if EXIST %ACCEL_STAGING% del /s/f/q %ACCEL_STAGING%

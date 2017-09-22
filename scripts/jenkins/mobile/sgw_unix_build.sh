@@ -237,43 +237,49 @@ for TF in ${TEMPLATE_FILES[@]}
     mv  ${TF}.orig ${TF}
 done
 
-PRODUCT_NAME=${ACCEL_PRODUCT_NAME}
-
-echo ======== insert ${PRODUCT_NAME} build meta-data ==============
-for TF in ${TEMPLATE_FILES[@]}
-  do
-    cat ${TF} | sed -e "s,@PRODUCT_NAME@,${PRODUCT_NAME},g" \
-              | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
-              | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
-    mv  ${TF}      ${TF}.orig
-    mv  ${TF}.new  ${TF}
-done
-
-echo ======== build ${PRODUCT_NAME} ===============================
-
-# clean up stale objects switching between GO version
-if [[ -d ${SGW_DIR}/pkg ]]
+# Only build enterprise version of sg_accel
+if [[ $EDITION =~ enterprise ]]
 then
-    rm -rf ${SGW_DIR}/pkg
-fi
+
+    PRODUCT_NAME=${ACCEL_PRODUCT_NAME}
+
+    echo ======== insert ${PRODUCT_NAME} build meta-data ==============
+    for TF in ${TEMPLATE_FILES[@]}
+    do
+        cat ${TF} | sed -e "s,@PRODUCT_NAME@,${PRODUCT_NAME},g" \
+                  | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
+                  | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
+        mv  ${TF}      ${TF}.orig
+        mv  ${TF}.new  ${TF}
+    done
+
+    echo ======== build ${PRODUCT_NAME} ===============================
+
+    # clean up stale objects switching between GO version
+    if [[ -d ${SGW_DIR}/pkg ]]
+    then
+        rm -rf ${SGW_DIR}/pkg
+    fi
 
 
-GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbaselabs/sync-gateway-accel/...
+    GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbaselabs/sync-gateway-accel/...
 
-if [[ -e ${BIN_DIR}/sync-gateway-accel ]]
-  then
-    mv -f ${BIN_DIR}/sync-gateway-accel ${DEST_DIR}/${ACCEL_EXEC}
-    echo ".............................. ${PRODUCT_NAME} Success! Output is: ${DEST_DIR}/${ACCEL_EXEC}"
-  else
-    echo "############################# ${PRODUCT_NAME} FAIL! no such file: ${BIN_DIR}/${ACCEL_EXEC}"
-    exit 56
-fi
+    if [[ -e ${BIN_DIR}/sync-gateway-accel ]]
+    then
+        mv -f ${BIN_DIR}/sync-gateway-accel ${DEST_DIR}/${ACCEL_EXEC}
+        echo ".............................. ${PRODUCT_NAME} Success! Output is: ${DEST_DIR}/${ACCEL_EXEC}"
+    else
+        echo "############################# ${PRODUCT_NAME} FAIL! no such file: ${BIN_DIR}/${ACCEL_EXEC}"
+        exit 56
+    fi
 
-echo ======== remove build meta-data ==============
-for TF in ${TEMPLATE_FILES[@]}
-  do
-    mv  ${TF}.orig ${TF}
-done
+    echo ======== remove build meta-data ==============
+    for TF in ${TEMPLATE_FILES[@]}
+    do
+        mv  ${TF}.orig ${TF}
+    done
+
+fi # end of  Only build enterprise version of sg_accel
 
 echo ======== test ================================ `date`
 echo ........................ running test.sh
@@ -332,39 +338,52 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
     cp ${TAR_PKG_NAME} ${SGW_DIR}
 fi
 
-echo ======== sg_accel package =============================
-if [[ ${VERSION} == 1.4 ]] || [[ ${VERSION} > 1.4 ]]
+# Only package enterprise version of sg_accel
+if [[ $EDITION =~ enterprise ]]
 then
-    cp -f ${ACCEL_DIR}/examples/basic_sg_accel_config.json ${ACCEL_STAGING}/examples
-fi
 
-cp    ${DEST_DIR}/${ACCEL_EXEC}                     ${ACCEL_STAGING}/bin/
+    echo ======== sg_accel package =============================
+    if [[ ${VERSION} == 1.4 ]] || [[ ${VERSION} > 1.4 ]]
+    then
+        cp -f ${ACCEL_DIR}/examples/basic_sg_accel_config.json ${ACCEL_STAGING}/examples
+    fi
 
-RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}/rpmbuild/
-export RPM_ROOT_DIR
+    cp    ${DEST_DIR}/${ACCEL_EXEC}    ${ACCEL_STAGING}/bin/
 
-cd   ${BLD_DIR}   ;   ./${PKGR} ${ACCEL_PREFIX} ${ACCEL_PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP} ${ACCEL_NAME} ${ACCEL_EXEC}
+    RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}/rpmbuild/
+    export RPM_ROOT_DIR
 
-echo  ======= prep upload sg_accel =========
-cp ${ACCEL_STAGING}/${ACCEL_PKG_NAME} ${SGW_DIR}/${ACCEL_NEW_PKG_NAME}
+    cd ${BLD_DIR}; ./${PKGR} ${ACCEL_PREFIX} ${ACCEL_PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP} ${ACCEL_NAME} ${ACCEL_EXEC}
 
-if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
-  then
-    cd ${ACCEL_STAGING}
-    rm -f ${ACCEL_PKG_NAME}
-    tar cvfz ${ACCEL_TAR_PKG_NAME} *
-    cp ${ACCEL_TAR_PKG_NAME} ${SGW_DIR}
-fi
+    echo  ======= prep upload sg_accel =========
+    cp ${ACCEL_STAGING}/${ACCEL_PKG_NAME} ${SGW_DIR}/${ACCEL_NEW_PKG_NAME}
+
+    if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
+    then
+        cd ${ACCEL_STAGING}
+        rm -f ${ACCEL_PKG_NAME}
+        tar cvfz ${ACCEL_TAR_PKG_NAME} *
+        cp ${ACCEL_TAR_PKG_NAME} ${SGW_DIR}
+    fi
+
+fi # end - Only package enterprise version of sg_accel
 
 cd ${SGW_DIR}
 if [[ $DISTRO =~ macosx ]]
 then
     md5 ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
-    md5 ${ACCEL_NEW_PKG_NAME}  > ${ACCEL_NEW_PKG_NAME}.md5
+    if [[ $EDITION =~ enterprise ]]
+    then
+        md5 ${ACCEL_NEW_PKG_NAME}  > ${ACCEL_NEW_PKG_NAME}.md5
+    fi
 else
     md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
-    md5sum ${ACCEL_NEW_PKG_NAME}  > ${ACCEL_NEW_PKG_NAME}.md5
+    if [[ $EDITION =~ enterprise ]]
+    then
+        md5sum ${ACCEL_NEW_PKG_NAME}  > ${ACCEL_NEW_PKG_NAME}.md5
+    fi
 fi
+
 
 echo ======== D O N E   S L E E P ================= `date`
 
