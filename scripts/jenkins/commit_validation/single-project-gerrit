@@ -130,6 +130,11 @@ fi
 if [ -n "$ENABLE_ADDRESSSANITIZER" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_ADDRESSSANITIZER=ON"
 fi
+if [ -n "$ENABLE_CBDEPS_TESTING" ]; then
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_DOWNLOAD_DEPS_REPO=http://latestbuilds.service.couchbase.com/builds/releases/cbdeps"
+   rm -rf ~/.cbdepscache
+   rm -rf build/tlm/deps
+fi
 echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
 
 echo_cmd ccache -s

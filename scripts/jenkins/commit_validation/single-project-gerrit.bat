@@ -99,6 +99,11 @@ python "%CURDIR%\checkout_dependencies.py" %GERRIT_PATCHSET_REVISION% %GERRIT_CH
 del /f "CMakeLists.txt"
 copy "tlm\CMakeLists.txt" "CMakeLists.txt"
 
+if "%ENABLE_CBDEPS_TESTING%"=="true" (
+    set CMAKE_ARGS=-DCB_DOWNLOAD_DEPS_REPO=http://latestbuilds.service.couchbase.com/builds/releases/cbdeps
+    rmdir /s /q build\tlm\deps
+    rmdir /s /q %HOMEDRIVE%\%HOMEPATH%\cbdepscache
+)
 if not exist build mkdir build
 pushd build
 cmake -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% %EXTRA_CMAKE_OPTIONS% .. || goto :error
