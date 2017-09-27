@@ -2,7 +2,7 @@
 
 # Setup for aptly
 echo "deb http://repo.aptly.info/ squeeze main" | sudo tee --append /etc/apt/sources.list >/dev/null
-sudo apt-key adv --keyserver keys.gnupg.net --recv-keys 9E3E53F19C7DE460
+wget -qO - https://www.aptly.info/pubkey.txt | sudo apt-key add -
 
 sudo apt-get update
 sudo apt-get install -y aptly wget s3cmd
