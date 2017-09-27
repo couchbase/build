@@ -40,6 +40,7 @@
         - ninja
         - MinGW
         - python2
+        - vcpython27
         - ruby
         - wixtoolset
         - 7zip.commandline
