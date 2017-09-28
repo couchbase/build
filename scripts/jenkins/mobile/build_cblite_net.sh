@@ -153,7 +153,7 @@ fi
 set +e
 cd ${BASE_DIR}
 echo ================ Build Preparation ==========================
-MONO_TEXTTOOL="/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.TextTemplating/TextTransform.exe"
+MONO_TEXTTOOL="/Applications/Visual Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.TextTemplating/TextTransform.exe"
 DASSEMBLYINFO_DIR=src/Couchbase.Lite.Shared/Properties
 DASSEMBLYINFO_TEMPLATE=DynamicAssemblyInfo.tt
 DASSEMBLYINFO_CSHARP=DynamicAssemblyInfo.cs
