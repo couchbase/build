@@ -115,39 +115,12 @@ case $project in
     workload-generator)
 	repo="git@github.com:couchbase/$project.git"
 	;;
-    *iOS*)
-	repo="git@github.com:couchbase/$project.git"
-	;;
-    *couch*)
-	repo="git@github.com:couchbase/$project.git"
-	;;
-    *iOS*)
-	repo="git@github.com:couchbase/$project.git"
-	;;
-    *Couch*)
-	repo="git@github.com:couchbase/$project.git"
-	;;
-    *Android*)
-	repo="git@github.com:couchbase/$project.git"
-	;;
-    *sigar)
-	repo="git@github.com:couchbase/$project.git"
-	;;
     libvbucket)
 	repo="git@github.com:couchbase/$project.git"
 	;;
     libconflate)
 	repo="git@github.com:couchbase/$project.git"
 	;;
-    *cbio*)
-	repo="git@github.com:couchbase/$project.git"
-	;;
-    *cbsdkd*)
-	repo="git@github.com:couchbase/$project.git"
-	;;
-    *cbmonitor)
-        repo="git@github.com:couchbase/$project.git"
-        ;;
     cbsasl)
         repo="git@github.com:couchbase/$project.git"
         ;;
@@ -156,9 +129,6 @@ case $project in
         ;;
     docs-ng)
         repo="git@github.com:couchbaselabs/$project.git"
-        ;;
-    health*)
-        repo="git@github.com:couchbase/$project.git"
         ;;
     platform)
         repo="git@github.com:couchbase/$project.git"
@@ -348,6 +318,33 @@ case $project in
         ;;
     couchbase-operator)
         repo="git@github.com:couchbaselabs/$project.git"
+        ;;
+    *iOS*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *couch*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *Couch*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *Android*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *sigar)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *cbio*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *cbsdkd*)
+	repo="git@github.com:couchbase/$project.git"
+	;;
+    *cbmonitor)
+        repo="git@github.com:couchbase/$project.git"
+        ;;
+    health*)
+        repo="git@github.com:couchbase/$project.git"
         ;;
     *)
 	repo="git@github.com:membase/$project.git"
