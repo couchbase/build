@@ -4,10 +4,10 @@ cd `dirname $0`
 
 # jenkins-slave (currently hosted on mega2)
 docker-compose \
-  -f /home/couchbase/ceej/asterix-opt/test-support/app/docker-compose.yml \
+  -f /home/couchbase/ceej/asterix-opt/test-support/app/spock-docker-compose.yml \
   build jenkins-slave
 docker-compose \
-  -f /home/couchbase/ceej/asterix-opt/test-support/app/docker-compose.yml \
+  -f /home/couchbase/ceej/asterix-opt/test-support/app/spock-docker-compose.yml \
   up -d --force-recreate jenkins-slave
 
 # slave for server+analytics CV
