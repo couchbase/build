@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TAG=20161215
+TAG=20171003
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build

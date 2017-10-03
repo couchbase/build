@@ -4,7 +4,7 @@
 # construction of the base image.
 
 FROM centos:7.0.1406
-MAINTAINER michael.kwok@couchbase.com
+MAINTAINER build-team@couchbase.com
 
 USER root
 RUN yum clean all && yum swap -y fakesystemd systemd
@@ -80,6 +80,9 @@ RUN mkdir -p /usr/local/go/1.4.1 && cd /usr/local/go/1.4.1 && \
     tar xzf go.tar.gz && \
     mkdir /usr/local/go/1.7.4 && cd /usr/local/go/1.7.4 && \
     curl https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz && \
+    mkdir /usr/local/go/1.9 && cd /usr/local/go/1.9 && \
+    curl https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz -o go.tar.gz && \
     tar xzf go.tar.gz
 
 # * repo
