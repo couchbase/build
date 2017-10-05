@@ -1,7 +1,0 @@
-[all]
-xxx.xx.xx.xxx
-
-[all:vars]
-ansible_connection=ssh
-ansible_ssh_user=jenkins
-ansible_ssh_pass=JENKINS_USER_PASSWORD
