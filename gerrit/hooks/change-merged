@@ -319,6 +319,9 @@ case $project in
     couchbase-operator)
         repo="git@github.com:couchbaselabs/$project.git"
         ;;
+    gocbmgr)
+        repo="git@github.com:couchbaselabs/$project.git"
+        ;;
     *iOS*)
 	repo="git@github.com:couchbase/$project.git"
 	;;
