@@ -77,6 +77,6 @@ fi
 rm -f *.zip
 cp -rf build/Build/Products/Release-${SDK}/${LITESERV_APP} .
 cp -rf build-device/Build/Products/Release-${SDK_DEVICE}/${LITESERV_APP} ./${LITESERV_APP_DEVICE}
-zip -ry ${LITESERV_ZIP} ${LITESERV_APP}
+zip -ry ${LITESERV_ZIP} *.app
 
 echo "Done!"
