@@ -90,8 +90,9 @@ fi
 
 upload()
 {
-    src=./
-    target=${1}
+    src=${1}
+    target=${1/${RELEASE}-${BLD_NUM}/${VERSION}}
+
     echo src: $src
     echo dest: $target
 
@@ -100,16 +101,17 @@ upload()
         echo "Given build doesn't exist: ${src}"
         exit 5
     fi
-    echo "Uploading to $target/ ..."
+    echo "Uploading to ${S3_DIR}/$target ..."
     echo
-    S3_OPTS=' --exclude=*-source.tar.gz  --exclude=*.json  --exclude=*.properties '
-    s3cmd -c $S3CONFIG sync -P  ${S3_OPTS}  $src $target/
+    CMD="s3cmd -c $S3CONFIG sync -P $src ${S3_DIR}/$target"
+    ${CMD}
 
-    # Archive internal releaess
-    echo "Archiving ${SRC_DIR} to ${RELEASE_DIR} ..."
+    # Archive internal releases
+    echo "Archiving ${src} to ${RELEASE_DIR}/$target ..."
     echo
     mkdir -p ${RELEASE_DIR}
-    rsync -au $src ${RELEASE_DIR}
+    CMD="rsync -au $src ${RELEASE_DIR}/$target"
+    ${CMD}
 }
 
 OPWD=`pwd`
@@ -125,6 +127,9 @@ get_s3_upload_link()
 }
 
 cd ${SRC_DIR}
-upload ${S3_DIR}
-get_s3_upload_link
+FILES=$(ls * |grep -v source |grep -v '.xml' |grep -v '.json' |grep -v '.properties')
+for fl in $FILES; do
+    upload ${fl}
+done
 
+get_s3_upload_link
