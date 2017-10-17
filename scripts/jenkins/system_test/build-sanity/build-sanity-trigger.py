@@ -28,8 +28,8 @@ PLAT_LISTS = {
         "macos": True,
         "suse11": True,
         "suse12": False,
-        "ubuntu14.04": True,
-        "ubuntu16.04": False,
+        "ubuntu14": True,
+        "ubuntu16": False,
         "windows": True,
     },
     "5.0.1": {
@@ -40,8 +40,8 @@ PLAT_LISTS = {
         "macos": True,
         "suse11": True,
         "suse12": False,
-        "ubuntu14.04": True,
-        "ubuntu16.04": False,
+        "ubuntu14": True,
+        "ubuntu16": False,
         "windows": True,
     },
     "5.1.0": {
@@ -52,8 +52,8 @@ PLAT_LISTS = {
         "macos": True,
         "suse11": True,
         "suse12": False,
-        "ubuntu14.04": True,
-        "ubuntu16.04": False,
+        "ubuntu14": True,
+        "ubuntu16": False,
         "windows": True,
     },
 }
@@ -158,7 +158,12 @@ class SanityTrigger:
         Writes out a build-sanity-trigger.properties file with
         appropriate trigger information.
         """
-        sanity_plats = [x for x in self.plats.keys() if self.plats[x]]
+        # Collect list of all keys in self.plats that have True values,
+        # but change "windows" to "win64" because build-sanity is annoying.
+        sanity_plats = [
+            (x if x != "windows" else "win64")
+            for x in self.plats.keys() if self.plats[x]
+        ]
         with open(prop_filename, "w") as prop:
             prop.write("CURRENT_BUILD_NUMBER={}\n".format(self.bld_num))
             prop.write("VERSION={}\n".format(self.version))
