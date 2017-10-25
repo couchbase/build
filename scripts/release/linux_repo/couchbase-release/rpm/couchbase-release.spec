@@ -1,6 +1,6 @@
 Name:           couchbase-release
 Version:        1.0
-Release:        2
+Release:        4
 Summary:        Entry point rpm for accesing couchbase yum repository
 
 Group:          System Environment/Base
