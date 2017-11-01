@@ -1,7 +1,9 @@
 #!/bin/bash
 thisdir=`dirname $0`
 
-VERSION=1.0-4
+# If you bump this, don't forget to also change "Version" and "Release" in
+# rpm/couchbase-release.spec !
+VERSION=1.0-5
 
 rm -rf ~/rpmbuild
 mkdir ~/rpmbuild

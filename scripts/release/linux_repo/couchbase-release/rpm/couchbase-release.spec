@@ -1,6 +1,6 @@
 Name:           couchbase-release
 Version:        1.0
-Release:        4
+Release:        5
 Summary:        Entry point rpm for accesing couchbase yum repository
 
 Group:          System Environment/Base
@@ -50,8 +50,8 @@ fi
 
 if grep -q -i ^"Amazon Linux" /etc/system-release >/dev/null 2>&1
 then
-  sed -e "s/%SDK_VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
-  sed -e "s/%SERVER_VERSION%/7/g" -i /etc/yum.repos.d/couchbase-Base.repo
+  sed -e "s/%SDK_VERSION%/6.2/g" -i /etc/yum.repos.d/couchbase-Base.repo
+  sed -e "s/%SERVER_VERSION%/6/g" -i /etc/yum.repos.d/couchbase-Base.repo
 fi
 
 %postun
