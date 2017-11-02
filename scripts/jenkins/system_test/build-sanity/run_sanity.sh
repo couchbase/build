@@ -42,6 +42,9 @@ fi
 echo "[global]
 username:${USER}
 password:${PASSWORD}
+port:8091
+n1ql_port:8093
+index_port:9102
 
 [membase]
 rest_username:Administrator
@@ -49,9 +52,6 @@ rest_password:password
 
 [_1]
 ip:${NODE_1}
-port:8091
-n1ql_port:8093
-index_port:9102
 services:${SERVICES}
 " > node_conf.ini
 
