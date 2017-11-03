@@ -63,3 +63,9 @@
         name: "check diskspace"
         minute: "0"
         job: "/home/couchbase/build/docker/scripts/run_if_disk_full.sh 90 {{ restart_cmd }}"
+
+    - name: Add public SSH keys for easy access
+      copy:
+        src: authorized_keys
+        dest: /home/couchbase/.ssh
+        mode: 0600

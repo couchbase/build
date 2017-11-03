@@ -9,20 +9,8 @@ available, and will synchronize it to the host.
 inventory - this is an Ansible inventory which specifies the current
 set of VMs for these CV slaves, along with their cv.jenkins slave names.
 
-restart_cv_dockerslaves.sh - this is a shell script which is intended
-to be run inside a Docker container configured with Ansible. It simply
-invokes ansible-playbook, specifying the above files as inputs. It
-expects this current directory to be mounted as /mnt. See
-../restart_cv_builders.sh for how this is used.
+The above can be run with:
 
-slave-setup/ - this contains an Ansible playbook which configures a
-blank Ubuntu 16.04 VM to serve as an Ansible-controlled Docker host.
-This is mostly for reference; it was run originally to configure the
-hosts listed in "inventory", and could be run again in future to
-configure new hosts. There is nothing CV-specific about this; any
-VM intended for Docker could be configured this way. It can be re-run
-with this command from this directory:
-
-  docker run --rm -i -v `pwd`:/mnt williamyeh/ansible:ubuntu16.04 \
-     /mnt/slave-setup/slave-setup.sh &
-
+  docker run --rm -it -v `pwd`:/mnt \
+  -v /home/couchbase/jenkinsdocker-ssh:/home/couchbase/jenkinsdocker-ssh \
+  couchbasebuild/ansible-playbook -v -i inventory restart_cv_dockerslaves.yml
