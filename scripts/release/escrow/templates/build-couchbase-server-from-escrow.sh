@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # These platforms correspond to the available Docker buildslave images.
-PLATFORMS="centos-65 centos-70 debian-7 debian-8 suse-11 ubuntu-1404 ubuntu-1204"
+PLATFORMS="centos-65 centos-70 debian-7 debian-8 suse-11 suse-12 ubuntu-1404 ubuntu-1604"
 
 usage() {
   echo "Usage: $0 <platform>"
@@ -57,7 +57,7 @@ docker inspect ${SLAVENAME} > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
   heading "Starting Docker buildslave container..."
-  docker run -d --name ${SLAVENAME} \
+  docker run -d --name ${SLAVENAME} --network=none \
     -v `pwd`:/escrow \
     ${IMAGE}
 else
@@ -95,18 +95,21 @@ then
 elif [ "${PLATFORM}" = "suse-11" ]
 then
   PLAT=suse11
-elif [ "${PLATFORM}" = "ubuntu-1204" ]
+elif [ "${PLATFORM}" = "suse-12" ]
 then
-  PLAT=ubuntu1204
+  PLAT=suse12
 elif [ "${PLATFORM}" = "ubuntu-1404" ]
 then
   PLAT=ubuntu14.04
+elif [ "${PLATFORM}" = "ubuntu-1604" ]
+then
+  PLAT=ubuntu16.04
 fi
 
 # Launch build process
 heading "Running full Couchbase Server build in container..."
 docker exec -it -u couchbase ${SLAVENAME} bash \
-  /home/couchbase/escrow/in-container-build.sh ${PLAT} 4.6.0
+  /home/couchbase/escrow/in-container-build.sh ${PLAT} 5.0.0
 
 # And copy the installation packages out of the container.
 heading "Copying installer binaries"

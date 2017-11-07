@@ -30,10 +30,18 @@ mkdir -p ${CACHE}
 
 # Tweak the cbdeps build scripts to "download" the source from our local
 # escrowed copy.
-sed -i.bak -e \
-  's/git:\/\/github.com\/couchbasedeps\/\(.*\)\.git/\/home\/couchbase\/escrow\/deps\/\1/' \
+sed -i.bak \
+  -e 's/git:\/\/github.com\/[^/]*\/\([^ ]*\)/\/home\/couchbase\/escrow\/deps\/\1/g' \
+  -e 's/\.git//g' \
   ${ROOT}/src/tlm/deps/packages/CMakeLists.txt \
-  ${ROOT}/src/tlm/deps/packages/v8/CMakeLists.txt
+  ${ROOT}/src/tlm/deps/packages/*/CMakeLists.txt
+
+# Unfortunate hack to make the Erlang and V8 packages match the version number
+# expected by the Couchbase build.
+sed -i.bak \
+  -e 's/\(_ADD_DEP_PACKAGE(erlang.*\)5/\13/' \
+  -e 's/\(_ADD_DEP_PACKAGE(v8.*\)2/\11/' \
+  ${ROOT}/src/tlm/deps/packages/CMakeLists.txt
 
 build_cbdep() {
   dep=$1
@@ -53,10 +61,14 @@ build_cbdep() {
   rm -rf ${ROOT}/src/tlm/deps/packages/build
 }
 
-# Construct list of dependencies.
+# Construct list of dependencies, filtering out ones that are not relevant
+# for this build.
 all_deps=$( \
    grep '_ADD_DEP_PACKAGE(' ${ROOT}/src/tlm/deps/packages/CMakeLists.txt \
-   | grep -v gperftools \
+   | grep -v rocksdb \
+   | grep -v libcxx \
+   | grep -v libcouchbase \
+   | grep -v openssl \
    | sed 's/ *_ADD_DEP_PACKAGE(\([^ ]*\).*/\1/' )
 
 # Build them all.
