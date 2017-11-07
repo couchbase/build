@@ -41,6 +41,10 @@ case "$DISTRO" in
         PKG=rpm
         FLAVOR=suse12
         ;;
+    debian[89])
+        PKG=deb
+        FLAVOR=systemd
+        ;;
     ubuntu16.04)
         PKG=deb
         FLAVOR=systemd
