@@ -24,7 +24,7 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
 # a lot of unnecessary packages.
 
 RUN apt-get update && apt-get install -y g++ ccache git-core tar libssl-dev libnuma-dev rubygems \
-    rake ncurses-dev python python-dev devscripts debhelper ed man curl \
+    rake ncurses-dev python python-dev devscripts debhelper dh-systemd ed man curl \
     libc6-i386 lsb-release && \
     rm -f /var/cache/apt/archives/*.deb
 
