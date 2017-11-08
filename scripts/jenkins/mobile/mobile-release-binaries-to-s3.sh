@@ -64,12 +64,31 @@ fi
 # Compute S3 component dirname
 case "$PRODUCT" in
     sync_gateway)
-        REL_DIRNAME=sync_gateway
         S3_REL_DIRNAME=couchbase-sync-gateway
         ;;
-    *ios*)
-        REL_DIRNAME=couchbase-lite-ios
+    *ios)
+        REL_DIRNAME=ios
         S3_REL_DIRNAME=couchbase-lite/ios
+        ;;
+    *tvos)
+        PRODUCT=couchbase-lite-ios
+        REL_DIRNAME=tvos
+        S3_REL_DIRNAME=couchbase-lite/tvos
+        ;;
+    *macosx)
+        PRODUCT=couchbase-lite-ios
+        REL_DIRNAME=macosx
+        S3_REL_DIRNAME=couchbase-lite/macosx
+        ;;
+    *android)
+        S3_REL_DIRNAME=couchbase-lite/android
+        ;;
+    *java)
+        S3_REL_DIRNAME=couchbase-lite/java
+        ;;
+    *net)
+        REL_DIRNAME=couchbase-lite-net
+        S3_REL_DIRNAME=couchbase-lite/net
         ;;
     *)
         echo "Unsupported Product!"
@@ -80,8 +99,14 @@ esac
 # Compute destination directories
 S3CONFIG=${HOME}/.ssh/live.s3cfg
 S3_DIR=s3://packages.couchbase.com/releases/${S3_REL_DIRNAME}/${VERSION}
-SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}
 RELEASE_DIR=${REL_MOUNT}/mobile/${S3_REL_DIRNAME}/${VERSION}
+
+# Fix the latestbuilds path for ios 1.4.x
+if [[ ${PRODUCT} == *ios ]] && [[ ${RELEASE} == *1.* ]]; then
+    SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${REL_DIRNAME}/${BLD_NUM}
+else
+    SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}
+fi
 
 if [ ! -e ${BUILD_DIR} ]; then
     echo "Given build doesn't exist: ${BUILD_DIR}"
@@ -127,7 +152,7 @@ get_s3_upload_link()
 }
 
 cd ${SRC_DIR}
-FILES=$(ls * |grep -v source |grep -v '.xml' |grep -v '.json' |grep -v '.properties')
+FILES=$(ls * |grep -v source |grep -v '.xml' |grep -v '.json' |grep -v '.properties' |grep -iv 'change*')
 for fl in $FILES; do
     upload ${fl}
 done
