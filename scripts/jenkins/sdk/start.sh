@@ -24,9 +24,9 @@ if ! valid_ip $host_ip; then
 fi
 
 rm -f sconfig.xml
-curl -X GET http://sdkbuilds.sc.couchbase.com/computer/${slave_name}/config.xml -o sconfig.xml
+curl --netrc-file ~/.ssh/sdkbuilds.netrc -X GET http://sdkbuilds.sc.couchbase.com/computer/${slave_name}/config.xml -o sconfig.xml
 sed -e "s|\(.*<host>\).*\(</host>.*\)|\1$host_ip\2|g" sconfig.xml > sconfig.xml.new
 mv sconfig.xml.new sconfig.xml
-curl -X POST http://sdkbuilds.sc.couchbase.com/computer/${slave_name}/config.xml --data-binary "@sconfig.xml"
+curl --netrc-file ~/.ssh/sdkbuilds.netrc -X POST http://sdkbuilds.sc.couchbase.com/computer/${slave_name}/config.xml --data-binary "@sconfig.xml"
 sleep 2
-curl -X POST http://sdkbuilds.sc.couchbase.com/computer/${slave_name}/launchSlaveAgent
+curl --netrc-file ~/.ssh/sdkbuilds.netrc -X POST http://sdkbuilds.sc.couchbase.com/computer/${slave_name}/launchSlaveAgent
