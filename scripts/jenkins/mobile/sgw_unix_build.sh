@@ -335,16 +335,18 @@ fi
 popd
 
 echo ======== Prep STAGING for packaging =============================
-cp    ${COLLECTINFO_DIST}                ${STAGING}/tools/
-cp    ${BLD_DIR}/README.txt              ${STAGING}
-echo  ${VERSION}-${BLD_NUM}            > ${STAGING}/VERSION.txt
-cp    ${LIC_DIR}/LICENSE_${EDITION}.txt  ${STAGING}/LICENSE.txt
-cp -r ${SGW_DIR}/examples                ${STAGING}
-cp -r ${SGW_DIR}/service                 ${STAGING}
+cp    ${COLLECTINFO_DIST}                  ${STAGING}/tools/
+cp    ${BLD_DIR}/README.txt                ${STAGING}
+echo  ${VERSION}-${BLD_NUM}            >   ${STAGING}/VERSION.txt
+cp    ${LIC_DIR}/LICENSE_${EDITION}.txt    ${STAGING}/LICENSE.txt
+cp -r ${SGW_DIR}/examples                  ${STAGING}
+cp    ${SGW_DIR}/service/README.md         ${STAGING}/service
+cp -r ${SGW_DIR}/service/script_templates  ${STAGING}/service
 cp -rf ${STAGING} ${ACCEL_STAGING}
 
 echo ======== sync_gateway package =============================
 cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
+cp    ${SGW_DIR}/service/sync_gateway_*  ${STAGING}/service
 
 echo cd ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
@@ -370,7 +372,8 @@ then
         cp -f ${ACCEL_DIR}/examples/basic_sg_accel_config.json ${ACCEL_STAGING}/examples
     fi
 
-    cp    ${DEST_DIR}/${ACCEL_EXEC}    ${ACCEL_STAGING}/bin/
+    cp    ${DEST_DIR}/${ACCEL_EXEC}      ${ACCEL_STAGING}/bin/
+    cp    ${SGW_DIR}/service/sg_accel_*  ${ACCEL_STAGING}/service
 
     RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}/rpmbuild/
     export RPM_ROOT_DIR
