@@ -282,22 +282,40 @@ then
 fi # end of  Only build enterprise version of sg_accel
 
 echo ======== full test suite ==================================== `date`
-echo ........................ running test.sh
+echo ........................ running sync_gateway test.sh
 GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test github.com/couchbase/sync_gateway/...
 test_result=$?
 if [ ${test_result} -ne "0" ]
 then
-    echo "########################### FAIL! Unit test results = ${test_result}"
+    echo "########################### FAIL! sync-gateway Unit test results = ${test_result}"
+    exit 66
+fi
+
+echo ........................ running sync-gateway-accel test.sh
+GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test github.com/couchbaselabs/sync-gateway-accel/...
+test_result=$?
+if [ ${test_result} -ne "0" ]
+then
+    echo "########################### FAIL! sync-gateway-accel Unit test results = ${test_result}"
     exit 66
 fi
 
 echo ======== test with race detector ============================= `date`
-echo ........................ running test.sh
+echo ........................ running sync_gateway test.sh
 GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${TEST_OPTIONS} github.com/couchbase/sync_gateway/...
 test_result_race=$?
 if [ ${test_result_race} -ne "0" ]
 then
-    echo "########################### FAIL! Unit test with -race  = ${test_result_race}"
+    echo "########################### FAIL! sync_gateway Unit test with -race  = ${test_result_race}"
+    exit 66
+fi
+
+echo ........................ running sync-gateway-accel test.sh
+GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${TEST_OPTIONS} github.com/couchbaselabs/sync-gateway-accel/...
+test_result_race=$?
+if [ ${test_result_race} -ne "0" ]
+then
+    echo "########################### FAIL! sync-gateway-accel Unit test with -race  = ${test_result_race}"
     exit 66
 fi
 
