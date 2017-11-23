@@ -17,6 +17,7 @@ parser.add_argument("jenkins", type=str, help="Jenkins to connect to",
     nargs='?', default="factory.couchbase.com")
 parser.add_argument("--ccache-dir", type=str, help="Host directory to mount as ~/.ccache")
 parser.add_argument("--no-workspace", action="store_true", help="Skip mounting /home/couchbase/jenkins")
+parser.add_argument("--mount-docker", action="store_true", help="Mount docker.sock")
 args = parser.parse_args()
 
 image = args.image
@@ -79,6 +80,10 @@ run_args = [
 if not args.no_workspace:
     run_args.append(
      "--volume=/home/couchbase/slaves/{0}:/home/couchbase/jenkins".format(slave)
+    )
+if args.mount_docker:
+    run_args.append(
+     "--volume=/var/run/docker.sock:/var/run/docker.sock"
     )
 if args.ccache_dir is not None:
     if not os.path.isdir(args.ccache_dir):
