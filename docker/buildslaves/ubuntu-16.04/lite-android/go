@@ -2,7 +2,7 @@
 
 # Bump this when rebuilding with changes
 TAG=`date +%Y%m%d`
-IMAGE=ceejatec/ubuntu1404-mobile-lite-android
+IMAGE=ceejatec/ubuntu1604-mobile-lite-android
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
