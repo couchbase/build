@@ -163,7 +163,7 @@ then
     fi
 fi
 
-cxxlib_needed="debian7|suse11|ubuntu12"
+cxxlib_needed="debian7|suse11|ubuntu16"
 if [[ "$DISTRO" =~ $cxxlib_needed ]]
 then
     libstdcpp=`g++ --print-file-name=libstdc++.so`
