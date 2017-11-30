@@ -23,10 +23,30 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
 # mechanism, but we hope to remove that requirement as it brings in
 # a lot of unnecessary packages.
 
-RUN apt-get update && apt-get install -y g++ ccache git-core tar libssl-dev libnuma-dev zlib1g-dev rubygems \
-    rake ncurses-dev python python-dev devscripts debhelper ed man curl \
-    libc6-i386 lsb-release && \
-    rm -f /var/cache/apt/archives/*.deb
+RUN apt-get update && \
+    apt-get install -y \
+        ccache \
+        git-core \
+        tar \
+        libssl-dev \
+        libnuma-dev \
+        zlib1g-dev \
+        rubygems \
+        rake \
+        ncurses-dev \
+        python-dev \
+        devscripts \
+        debhelper \
+        ed \
+        man \
+        curl \
+        lsb-release && \
+    apt-get clean
+
+# GCC (from couchbasebuild/debian-9-gcc)
+COPY build/local /usr/local
+RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
+     mv /tmp/ld.so.conf /etc && ldconfig
 
 #paramiko for testrunner
 RUN apt-get update && apt-get install -y python-paramiko
