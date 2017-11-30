@@ -19,8 +19,29 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
 # Install Couchbase build dependencies
-RUN apt-get update && apt-get install -y ccache g++ git-core tar libssl-dev libnuma-dev ruby rake ncurses-dev python-dev devscripts debhelper dh-systemd ed man curl libc6-i386 && \
+RUN apt-get update && \
+    apt-get install -y \
+        ccache \
+        git-core \
+        tar \
+        libssl-dev \
+        libnuma-dev \
+        ruby \
+        rake \
+        ncurses-dev \
+        python-dev \
+        devscripts \
+        debhelper \
+        dh-systemd \
+        ed \
+        man \
+        curl && \
     apt-get clean
+
+# GCC (from couchbasebuild/ubuntu-1604-gcc)
+COPY build/local /usr/local
+RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
+     mv /tmp/ld.so.conf /etc && ldconfig
 
 # paramiko for testrunner
 RUN apt-get update && \

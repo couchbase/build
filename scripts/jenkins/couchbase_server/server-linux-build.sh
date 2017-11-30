@@ -172,6 +172,14 @@ then
     ln -s "$libstdcppname" "/opt/couchbase/lib/${libstdcppname}.6"
 fi
 
+gcc_slib_needed="ubuntu16"
+if [[ "$DISTRO" =~ $gcc_slib_needed ]]
+then
+    libgcc_s=`gcc --print-file-name=libgcc_s.so`
+    libgcc_sname=`basename "$libgcc_s"`
+    cp -p "${libgcc_s}.1" "/opt/couchbase/lib"
+fi
+
 # Determine flavor of OpenSSL required
 openssl098_needed="suse11"
 if [[ "$DISTRO" =~ $openssl098_needed ]]
