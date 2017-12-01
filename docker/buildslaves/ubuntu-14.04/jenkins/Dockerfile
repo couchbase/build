@@ -22,8 +22,28 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
 # Install Couchbase build dependencies
-RUN apt-get update && apt-get install -y ccache g++ git-core tar libssl-dev libnuma-dev ruby rake ncurses-dev python-dev devscripts debhelper ed man curl libc6-i386 && \
-    rm -f /var/cache/apt/archives/*.deb
+RUN apt-get update && \
+    apt-get install -y \
+        ccache \
+        git-core \
+        tar \
+        libssl-dev \
+        libnuma-dev \
+        ruby \
+        rake \
+        ncurses-dev \
+        python-dev \
+        devscripts \
+        debhelper \
+        ed \
+        man \
+        curl && \
+    apt-get clean
+
+# GCC (from couchbasebuild/ubuntu-1404-gcc)
+COPY build/local /usr/local
+RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
+     mv /tmp/ld.so.conf /etc && ldconfig
 
 # paramiko for testrunner
 RUN apt-get update && \
@@ -64,7 +84,7 @@ RUN mkdir /tmp/deploy && \
 RUN mkdir /tmp/deploy && \
     cd /tmp/deploy && \
     curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
-        http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-linux-x64.tar.gz -o jdk.tgz && \
+        http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz -o jdk.tgz && \
     cd /usr/local && \
     tar xvzf /tmp/deploy/jdk.tgz && \
     ln -s jdk* java && \
