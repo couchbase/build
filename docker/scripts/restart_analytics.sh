@@ -14,7 +14,7 @@ docker-compose \
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20170717 ubuntu16-analytics-01 2211 analytics.jenkins.couchbase.com
 
 # analytics-sample.service.couchbase.com
-#docker run -d --name analytics-sample -v /home/couchbase/slaves/analytics-sample:/opt/couchbase/var -p 9091-9094:8091-8094 couchbase/analytics-demo:1.0.0-DP4
+#docker run -d --restart=unless-stopped --name analytics-sample -v /home/couchbase/slaves/analytics-sample:/opt/couchbase/var -p 9091-9094:8091-8094 couchbase/analytics-demo:1.0.0-DP4
 
 # For reference only: Starting the Jenkins master
 #docker run --detach=true --publish=8081:8080 --publish=50000:50000 \
