@@ -98,22 +98,12 @@ ruby voltron\cleanup.rb %REPOROOT%\couchbase\install
 cd voltron
 ruby server-win2015.rb %REPOROOT%\install 5.10.4.0.0.1 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
 
-rem MB-25378: when building Analytics, set different product name
-if exist "%REPOROOT%\analytics\" (
-    set "productname=Server Analytics"
-) else (
-    set "productname=Server"
-)
+set "productname=Server"
 cd wix-installer
 rem Version in Windows installer is X.Y.Z.BBBB
 call create-installer.bat %REPOROOT%\install %VERSION%.%BLD_NUM% %LICENSE% "%productname%" || goto error
 
-rem MB-25378: when building Analytics, use different filename
-if exist "%REPOROOT%\analytics\" (
-    set filebit=analytics
-) else (
-    set filebit=%LICENSE%
-)
+set filebit=%LICENSE%
 move Server.msi %REPOROOT%\couchbase-server-%filebit%_%VERSION%-%BLD_NUM%-windows_amd64-unsigned.msi
 goto eof
 

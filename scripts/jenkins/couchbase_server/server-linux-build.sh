@@ -194,14 +194,7 @@ fi
 # distinguished in deb/rpm repositories.
 if [ "${EDITION}" = "enterprise" ]
 then
-    # MB-25378: Hopefully temporary - change the product name when building
-    # with Analytics
-    if [ -d "${WORKSPACE}/analytics" ]
-    then
-        PRODUCT=couchbase-server-analytics
-    else
-        PRODUCT=couchbase-server
-    fi
+    PRODUCT=couchbase-server
 else
     PRODUCT=couchbase-server-community
 fi
