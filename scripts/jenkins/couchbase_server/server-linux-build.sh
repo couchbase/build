@@ -163,7 +163,7 @@ then
     fi
 fi
 
-cxxlib_needed="debian7|debian8|debian9|suse11|ubuntu14|ubuntu16"
+cxxlib_needed="debian7|debian8|debian9|suse11|suse12|ubuntu14|ubuntu16"
 if [[ "$DISTRO" =~ $cxxlib_needed ]]
 then
     libstdcpp=`g++ --print-file-name=libstdc++.so`
@@ -172,7 +172,7 @@ then
     ln -s "$libstdcppname" "/opt/couchbase/lib/${libstdcppname}.6"
 fi
 
-gcc_slib_needed="debian8|debian9|ubuntu14|ubuntu16"
+gcc_slib_needed="debian8|debian9|suse12|ubuntu14|ubuntu16"
 if [[ "$DISTRO" =~ $gcc_slib_needed ]]
 then
     libgcc_s=`gcc --print-file-name=libgcc_s.so`

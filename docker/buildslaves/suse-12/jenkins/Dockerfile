@@ -38,7 +38,6 @@ RUN zypper -n install \
                 binutils \
                 curl \
                 ed \
-                gcc gcc-c++ \
                 make \
                 cmake \
                 ccache \
@@ -56,11 +55,16 @@ RUN zypper -n install \
                 unzip && \
                 zypper clean
 
+# GCC (from local suse-12-gcc)
+COPY build/local /usr/local
+RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
+     mv /tmp/ld.so.conf /etc && ldconfig
+
 #paramiko for testrunner
 #RUN zypper install -y python-paramiko && zypper clean
 RUN zypper addrepo -f obs://Cloud:OpenStack:Liberty/SLE_12 Liberty
 RUN zypper -n --gpg-auto-import-keys install python-pip
-RUN pip install paramiko
+RUN pip install -U pip && pip install paramiko
 
 # Install autoconf and friends - necessary for building some third-party deps
 # from source, not for Couchbase. (The "full" version of perl is also required
@@ -95,7 +99,7 @@ RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bi
 RUN mkdir /tmp/deploy && \
     cd /tmp/deploy && \
     curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
-    http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-linux-x64.rpm -o jdk.rpm && \
+    http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.rpm -o jdk.rpm && \
     rpm -Uvh jdk.rpm && \
     cd /tmp && rm -rf deploy
 ENV JAVA_HOME=/usr/java/latest
