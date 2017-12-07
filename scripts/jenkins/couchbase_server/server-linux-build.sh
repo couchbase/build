@@ -213,14 +213,6 @@ then
     cd ${WORKSPACE}
 fi
 
-# MB-25378: Temporary work-around: for Analytics builds, change
-# EDITION to "analytics" since it's only used for the filenames
-# from now on
-if [ -d "${WORKSPACE}/analytics" ]
-then
-    EDITION=analytics
-fi
-
 # Move final installation package to top of workspace, and set up
 # trigger.properties for downstream jobs
 case "$PKG" in
