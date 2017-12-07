@@ -42,11 +42,10 @@ RUN zypper install -y \
                 unzip && \
                 zypper clean
 
-# GCC (from ceejatec/opensuse-gcc-build)
+# GCC (from couchbasebuild/suse-11-gcc)
 COPY build/local /usr/local
 RUN  (echo "/usr/local/lib64"; cat /etc/ld.so.conf) > /tmp/ld.so.conf && \
-     mv /tmp/ld.so.conf /etc && ldconfig && \
-     ln -s gcc /usr/local/bin/cc
+     mv /tmp/ld.so.conf /etc && ldconfig
 
 #paramiko for testrunner
 RUN zypper install -y python-paramiko && zypper clean
@@ -114,7 +113,7 @@ RUN mkdir /tmp/deploy && cd /tmp/deploy && \
 RUN mkdir /tmp/deploy && \
     cd /tmp/deploy && \
     curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
-    http://download.oracle.com/otn-pub/java/jdk/8u121-b13/e9e7ea248e2c4826b92b3f075a80e441/jdk-8u121-linux-x64.tar.gz -o jdk.tgz && \
+    http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz -o jdk.tgz && \
     cd /usr/local && \
     tar xvzf /tmp/deploy/jdk.tgz && \
     ln -s jdk* java && \
