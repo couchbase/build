@@ -4,6 +4,8 @@ cd `dirname $0`
 
 # New hostness Watson docker containers (currently hosted on mega3)
 ./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20170522 watson-centos6-01 5222 server.jenkins.couchbase.com
+# Vulcan CentOS 6 builder
+./restart_jenkinsdocker.py ceejatec/centos-69-couchbase-build:20171211 vulcan-centos6 5225 server.jenkins.couchbase.com
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:latest zz-server-lightweight-backup 5322 server.jenkins.couchbase.com
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-build:20151223 watson-ubuntu12.04 5223 server.jenkins.couchbase.com
 ./restart_jenkinsdocker.py ceejatec/debian-7-couchbase-build:20170522 watson-debian7 5224 server.jenkins.couchbase.com
