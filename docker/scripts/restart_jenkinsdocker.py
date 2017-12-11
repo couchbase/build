@@ -61,6 +61,16 @@ if os.path.isdir(slave_dir):
     shutil.rmtree(slave_dir)
 os.makedirs(slave_dir)
 
+# Prefer /latestbuilds etc. to /home/couchbase/latestbuilds etc.
+if os.path.isdir("/latestbuilds"):
+    latestbuilds = "/latestbuilds"
+else:
+    latestbuilds = "/home/couchbase/latestbuilds"
+if os.path.isdir("/releases"):
+    releases = "/releases"
+else:
+    releases = "/home/couchbase/releases"
+
 # Finally, create new slave container.
 print "Creating new {0} container...".format(slave)
 run_args = [
@@ -74,8 +84,8 @@ run_args = [
      "--volume=/etc/localtime:/etc/localtime",
      "--volume=/etc/timezone:/etc/timezone",
      "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
-     "--volume=/home/couchbase/latestbuilds:/latestbuilds",
-     "--volume=/home/couchbase/releases:/releases"
+     "--volume={}:/latestbuilds".format(latestbuilds),
+     "--volume={}:/releases".format(releases)
 ]
 if not args.no_workspace:
     run_args.append(
