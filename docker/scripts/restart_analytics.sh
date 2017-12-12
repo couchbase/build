@@ -2,13 +2,13 @@
 
 cd `dirname $0`
 
-# jenkins-slave (currently hosted on mega2)
-docker-compose \
-  -f /home/couchbase/ceej/asterix-opt/test-support/app/spock-docker-compose.yml \
-  build jenkins-slave
-docker-compose \
-  -f /home/couchbase/ceej/asterix-opt/test-support/app/spock-docker-compose.yml \
-  up -d --force-recreate jenkins-slave
+# jenkins-slave (currently hosted on mega2) - this slave is likely no longer needed
+#docker-compose \
+#  -f /home/couchbase/ceej/asterix-opt/test-support/app/spock-docker-compose.yml \
+#  build jenkins-slave
+#docker-compose \
+#  -f /home/couchbase/ceej/asterix-opt/test-support/app/spock-docker-compose.yml \
+#  up -d --force-recreate jenkins-slave
 
 # slave for server+analytics CV
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20170717 ubuntu16-analytics-01 2211 analytics.jenkins.couchbase.com
