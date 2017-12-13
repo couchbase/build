@@ -108,6 +108,12 @@ RUN apt-get update && \
     apt-get clean && \
     ccache --clear
 
+# Python 2-specific stuff for build scripts, mostly old build-sanity stuff.
+RUN apt-get update && \
+    apt-get -y install python-pip && \
+    pip install jenkinsapi && \
+    apt-get clean
+
 #s3cmd for upload script
 RUN apt-get update && \
     apt-get install -y s3cmd && \
