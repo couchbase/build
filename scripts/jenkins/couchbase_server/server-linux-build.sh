@@ -163,18 +163,15 @@ then
     fi
 fi
 
-cxxlib_needed="debian7|debian8|debian9|suse11|ubuntu14|ubuntu16"
-if [[ "$DISTRO" =~ $cxxlib_needed ]]
+# Copy libstdc++ and libgcc_s into distribution package. Necessary
+# on all Linux platforms since we build our own GCC now.
+if [ "${PKG}" != "mac" ]
 then
     libstdcpp=`g++ --print-file-name=libstdc++.so`
     libstdcppname=`basename "$libstdcpp"`
     cp -p "$libstdcpp" "/opt/couchbase/lib/$libstdcppname"
     ln -s "$libstdcppname" "/opt/couchbase/lib/${libstdcppname}.6"
-fi
 
-gcc_slib_needed="debian8|debian9|ubuntu14|ubuntu16"
-if [[ "$DISTRO" =~ $gcc_slib_needed ]]
-then
     libgcc_s=`gcc --print-file-name=libgcc_s.so`
     libgcc_sname=`basename "$libgcc_s"`
     cp -p "${libgcc_s}.1" "/opt/couchbase/lib"
