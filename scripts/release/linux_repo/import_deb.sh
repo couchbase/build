@@ -22,13 +22,6 @@ function usage
     echo ""
 }
 
-function write_config
-{
-    edition=${1}
-
-    sed -e "s#\${HOME}#${HOME}#" -e "s/\${edition}/${edition}/" ./couchbase-release/aptly.conf > ${HOME}/.aptly.conf
-}
-
 function fetch_deb
 {
     package=${1}
@@ -84,8 +77,6 @@ REPO=${LOCAL_REPO_ROOT}/${EDITION}/deb
 echo ""
 echo "Importing into local ${EDITION} repo at ${REPO}"
 echo ""
-
-write_config ${EDITION}
 
 for distro in "${!DISTROS[@]}"
 do
