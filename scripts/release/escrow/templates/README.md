@@ -9,8 +9,8 @@ of the following flavors of Linux:
 * Debian 7
 * Debian 8
 * SuSE 11
-* Ubuntu 12.04
 * Ubuntu 14.04
+* Ubuntu 16.04
 
 NOTE: Oracle Enterprise Linux 6 (OEL 6) was also a supported platform for
 Couchbase Server 5.0.0. The installer binaries for this platform were
@@ -56,8 +56,8 @@ where <platform> is one of the following exact strings:
 * debian-7
 * debian-8
 * suse-11
-* ubuntu-1204
 * ubuntu-1404
+* ubuntu-1604
 
 That is all. The build will take roughly 30 minutes depending on the
 speed of the machine.
