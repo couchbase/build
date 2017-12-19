@@ -36,10 +36,10 @@ DOWNLOAD_NEW_PKG=${5}  # Get new build
 result="rejected"
 
 rel_code=""
-if [[ ${PKG_VERSION} == 5.1* ]]
+if [[ ${PKG_VERSION} == 5.5* ]]
 then
     rel_code="vulcan"
-elif [[ ${PKG_VERSION} == 4.7* ]] || [[ ${PKG_VERSION} == 5.0* ]]
+elif [[ ${PKG_VERSION} == 4.7* ]] || [[ ${PKG_VERSION} == 5.0* ]] || [[ ${PKG_VERSION} == 5.1* ]]
 then
     rel_code="spock"
 elif [[ ${PKG_VERSION} == 4.5* ]] || [[ ${PKG_VERSION} == 4.6* ]]
