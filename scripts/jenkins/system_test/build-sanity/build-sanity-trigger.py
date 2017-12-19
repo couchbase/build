@@ -20,18 +20,6 @@ import os
 # The boolean value is whether that platform is passed on to
 # build_sanity_matrix (ie, put into the .properties file).
 PLAT_LISTS = {
-    "5.0.0": {
-        "centos6": False,
-        "centos7": True,
-        "debian7": False,
-        "debian8": True,
-        "macos": True,
-        "suse11": True,
-        "suse12": False,
-        "ubuntu14": True,
-        "ubuntu16": False,
-        "windows": True,
-    },
     "5.0.1": {
         "centos6": False,
         "centos7": True,
@@ -45,6 +33,19 @@ PLAT_LISTS = {
         "windows": True,
     },
     "5.1.0": {
+        "centos6": False,
+        "centos7": True,
+        "debian7": False,
+        "debian8": True,
+        "debian9": False,
+        "macos": True,
+        "suse11": True,
+        "suse12": False,
+        "ubuntu14": True,
+        "ubuntu16": False,
+        "windows": True,
+    },
+    "5.5.0": {
         "centos6": False,
         "centos7": True,
         "debian8": True,
@@ -70,7 +71,7 @@ class SanityTrigger:
     def __init__(self, product, version):
         self.version = version
         self.product = product
-        self.ver_dir = os.path.join("/latestbuilds", product, version)
+        self.ver_dir = os.path.join("/latestbuilds", product, "zz-versions", version)
         self.plats = PLAT_LISTS[version]
         self.bld_num = 0
         self.last_bld = 0
