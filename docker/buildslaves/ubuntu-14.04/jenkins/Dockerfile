@@ -56,7 +56,7 @@ RUN apt-get update && \
 # pysqlite and pysnappy, and for that we even need python2.6-dev.
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
-    add-apt-repository ppa:fkrull/deadsnakes && \
+    add-apt-repository ppa:deadsnakes/ppa && \
     apt-get update && \
     apt-get install -y m4 python2.6 python2.6-dev && \
     rm -f /var/cache/apt/archives/*.deb
