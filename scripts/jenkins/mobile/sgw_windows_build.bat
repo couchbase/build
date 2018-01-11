@@ -78,10 +78,10 @@ set PKGR=package-win.rb
 set PKGTYPE=exe
 
 set PKG_NAME=setup_couchbase-sync-gateway_%VERSION%_%ARCHP%.%PKGTYPE%
-set NEW_PKG_NAME=couchbase-sync-gateway-%EDITION%_%VERSION%_%PARCH%.%PKGTYPE%
+set NEW_PKG_NAME=couchbase-sync-gateway-%EDITION%_%VERSION%_%PARCH%-unsigned.%PKGTYPE%
 
 set ACCEL_PKG_NAME=setup_couchbase-sg-accel_%VERSION%_%ARCHP%.%PKGTYPE%
-set ACCEL_NEW_PKG_NAME=couchbase-sg-accel-%EDITION%_%VERSION%_%PARCH%.%PKGTYPE%
+set ACCEL_NEW_PKG_NAME=couchbase-sg-accel-%EDITION%_%VERSION%_%PARCH%-unsigned.%PKGTYPE%
 
 set GOROOT=c:\usr\local\go\%GO_RELEASE%\go
 set PATH=%PATH%;%GOROOT%\bin\
