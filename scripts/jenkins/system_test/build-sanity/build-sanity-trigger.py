@@ -11,6 +11,7 @@ import os
 #   CURRENT_BUILD_NUMBER (the build number for which to run sanity)
 #   VERSION
 #   DISTROS - whitespace-separated list of platforms (debian8, ubuntu14.04...)
+#   TESTRUNNER_BRANCH - branch of testrunner to use
 
 # QQQ The set of platforms for a given release should come from a
 # canonical location, such as product-config.json, or perhaps the
@@ -19,43 +20,66 @@ import os
 # For now these 'platform' keys are the letters in the installer filenames.
 # The boolean value is whether that platform is passed on to
 # build_sanity_matrix (ie, put into the .properties file).
-PLAT_LISTS = {
+VERSION_DATA = {
+    "4.6.5": {
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian7": True,
+            "debian8": True,
+            "macos": False,
+            "suse11": True,
+            "ubuntu12": False,
+            "ubuntu14": True,
+            "windows": True,
+        },
+        "testrunner_branch": "watson",
+    },
     "5.0.1": {
-        "centos6": False,
-        "centos7": True,
-        "debian7": False,
-        "debian8": True,
-        "macos": False,
-        "suse11": True,
-        "suse12": False,
-        "ubuntu14": True,
-        "ubuntu16": False,
-        "windows": True,
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian7": False,
+            "debian8": True,
+            "macos": False,
+            "suse11": True,
+            "suse12": False,
+            "ubuntu14": True,
+            "ubuntu16": False,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
     },
     "5.1.0": {
-        "centos6": False,
-        "centos7": True,
-        "debian7": False,
-        "debian8": True,
-        "debian9": False,
-        "macos": False,
-        "suse11": True,
-        "suse12": False,
-        "ubuntu14": True,
-        "ubuntu16": False,
-        "windows": True,
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian7": False,
+            "debian8": True,
+            "debian9": False,
+            "macos": False,
+            "suse11": True,
+            "suse12": False,
+            "ubuntu14": True,
+            "ubuntu16": False,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
     },
     "5.5.0": {
-        "centos6": False,
-        "centos7": True,
-        "debian8": True,
-        "debian9": False,
-        "macos": False,
-        "suse11": True,
-        "suse12": False,
-        "ubuntu14": True,
-        "ubuntu16": False,
-        "windows": True,
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian8": True,
+            "debian9": False,
+            "macos": False,
+            "suse11": True,
+            "suse12": False,
+            "ubuntu14": True,
+            "ubuntu16": False,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
     },
 }
 
@@ -72,7 +96,8 @@ class SanityTrigger:
         self.version = version
         self.product = product
         self.ver_dir = os.path.join("/latestbuilds", product, "zz-versions", version)
-        self.plats = PLAT_LISTS[version]
+        self.plats = VERSION_DATA[version]["platforms"]
+        self.testrunner_branch = VERSION_DATA[version]["testrunner_branch"]
         self.bld_num = 0
         self.last_bld = 0
 
@@ -127,6 +152,7 @@ class SanityTrigger:
             ))
             files = [x for x in files if not (x.endswith(".md5") or x.endswith(".sha256"))]
             if len(files) == 0:
+                print ("Platform {} is missing".format(plat))
                 return False
         return True
 
@@ -168,7 +194,8 @@ class SanityTrigger:
         with open(prop_filename, "w") as prop:
             prop.write("CURRENT_BUILD_NUMBER={}\n".format(self.bld_num))
             prop.write("VERSION={}\n".format(self.version))
-            prop.write("DISTROS={}".format(" ".join(sanity_plats)))
+            prop.write("DISTROS={}\n".format(" ".join(sanity_plats)))
+            prop.write("TESTRUNNER_BRANCH={}".format(self.testrunner_branch))
 
 def main():
     """
