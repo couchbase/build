@@ -22,4 +22,4 @@ go_test  godeps/src/github.com/blevesearch/go-porterstemmer
 go_test  godeps/src/github.com/blevesearch/segment
 go_test  godeps/src/github.com/couchbase/blance
 go_test  goproj/src/github.com/couchbase/cbgt
-go_test  goproj/src/github.com/couchbase/query/test/filestore
+#go_test  goproj/src/github.com/couchbase/query/test/filestore # godeps/src/github.com/andelf/go-curl/callback.go:6:10: fatal error: curl/curl.h: No such file or directory
