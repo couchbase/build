@@ -18,7 +18,7 @@ must be set as Gerrit plugin would:
 """
 PROJECT = os.environ["GERRIT_PROJECT"]
 BRANCH = os.environ["GERRIT_BRANCH"]
-COMMIT_MSG = str(base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"]))
+COMMIT_MSG = base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"]).decode("utf-8")
 
 # Values for outputting in HTML template (initialized with current globals)
 OUTPUT = globals().copy()
