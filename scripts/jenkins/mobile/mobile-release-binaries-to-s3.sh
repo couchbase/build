@@ -152,17 +152,13 @@ get_s3_upload_link()
 }
 
 cd ${SRC_DIR}
-FILES=$(ls * |grep -v source |grep -v '.xml' |grep -v '.json' |grep -v '.properties' |grep -iv 'change*')
+FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5|.\sha*|test_coverage*|CHANGELOG|unsigned')
 for fl in $FILES; do
-    if [[ ${PRODUCT} != 'sync_gateway' ]]; then # sgw build already produces checksum file
-        md5sum ${fl} > ${fl}.md5
-        sha256sum ${fl} > ${fl}.sha256
-    fi
+    md5sum ${fl} > ${fl}.md5
+    sha256sum ${fl} > ${fl}.sha256
     upload ${fl}
-    if [[ ${PRODUCT} != 'sync_gateway' ]]; then
-        upload ${fl}.md5
-        upload ${fl}.sha256
-    fi
+    upload ${fl}.md5
+    upload ${fl}.sha256
 done
 
 get_s3_upload_link
