@@ -3,7 +3,7 @@
 # Global define
 PRODUCT=${1}
 BLD_NUM=${2}
-VERSION=$(cd "${WORKSPACE}/couchbase-lite-core" && git rev-parse HEAD)
+VERSION=${3}
 
 if [[ -z "${WORKSPACE}" ]]; then
     WORKSPACE=`pwd`

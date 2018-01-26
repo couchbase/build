@@ -64,8 +64,6 @@ ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-cor
 make install
 cd ${WORKSPACE}
 
-VERSION=$(git --git-dir "${WORKSPACE}/couchbase-lite-core/.git" rev-parse HEAD)
-
 # Create zip package
 for FLAVOR in release debug;
 do
