@@ -1,7 +1,7 @@
 
 PRODUCT=%1
 VERSION=%2
-SHA=%3
+set SHA=%3
 
 setlocal enabledelayedexpansion
 
