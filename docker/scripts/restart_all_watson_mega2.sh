@@ -15,9 +15,9 @@ cd `dirname $0`
 ./restart_jenkinsdocker.py ceejatec/debian-9-couchbase-build:20171130 vulcan-debian9 5231 server.jenkins.couchbase.com
 # Vulcan Ubuntu 16.04 slave - probably should use CV image as well,
 # but don't want to rebuild that yet
-./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20180109 vulcan-ubuntu16.04 5239 server.jenkins.couchbase.com
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20180129 vulcan-ubuntu16.04 5239 server.jenkins.couchbase.com
 # Primary zz-server-lightweight running on mega2 (same port as backup on mega3)
-./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20170725 zz-server-lightweight 5322 server.jenkins.couchbase.com
+./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20180129 zz-server-lightweight 5322 server.jenkins.couchbase.com
 
 wait
 echo "All done!"

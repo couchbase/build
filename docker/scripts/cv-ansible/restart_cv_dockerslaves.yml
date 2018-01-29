@@ -42,6 +42,9 @@
         src: /home/couchbase/jenkinsdocker-ssh
         dest: /home/couchbase
 
+    - name: Pull latest CV container
+      shell: docker pull "{{ docker_image }}"
+
     - name: Restart CV container
       shell: "{{ restart_cmd }}"
 
