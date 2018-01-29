@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Bump this when rebuilding with changes
-TAG=20170530
+TAG=$(date "+%Y%m%d")
 
 docker build --build-arg CONTAINER_TAG_ARG=ceejatec/ubuntu-1604-couchbase-cv:$TAG -t ceejatec/ubuntu-1604-couchbase-cv:$TAG .
 docker tag ceejatec/ubuntu-1604-couchbase-cv:$TAG ceejatec/ubuntu-1604-couchbase-cv:latest
@@ -10,4 +10,3 @@ then
   docker push ceejatec/ubuntu-1604-couchbase-cv:$TAG
   docker push ceejatec/ubuntu-1604-couchbase-cv:latest
 fi
-

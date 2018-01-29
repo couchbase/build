@@ -1,6 +1,6 @@
 # Docker container for Ubuntu 16.04
 
-FROM ceejatec/ubuntu-1604-couchbase-build
+FROM ceejatec/ubuntu-1604-couchbase-build:20180109
 MAINTAINER build-team@couchbase.com
 
 USER root
@@ -14,9 +14,9 @@ RUN apt-get update && \
 # Valgrind needed for leak checking as part of unit tests. Note: It requires
 # libc debug symbols (libc6-dbg) to ensure it can locate the address of strlen().
 RUN mkdir /tmp/deploy && \
-    cd /tmp/deploy && curl -L -O http://valgrind.org/downloads/valgrind-3.12.0.tar.bz2 && \
-    tar -xjf valgrind-3.12.0.tar.bz2 && cd valgrind-3.12.0 && \
-    ./configure --prefix=/usr/local && make && make install && \
+    cd /tmp/deploy && curl -L -O ftp://sourceware.org/pub/valgrind/valgrind-3.13.0.tar.bz2 && \
+    tar -xjf valgrind-3.13.0.tar.bz2 && cd valgrind-3.13.0 && \
+    ./configure --prefix=/usr/local && make -j8 && make install && \
     cd /tmp && rm -fr /tmp/deploy && \
     ccache --clear && \
     apt-get update &&  apt-get install -y libc6-dbg && \
