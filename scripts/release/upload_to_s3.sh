@@ -124,7 +124,7 @@ fi
 
 # Compute destination directories
 S3CONFIG=~/.ssh/staging.s3cfg
-ROOT=s3://staging.packages.couchbase.com/releases/$RELEASE_DIRNAME
+ROOT=s3://packages-staging.couchbase.com/releases/$RELEASE_DIRNAME
 RELEASE_DIR=${RELEASES_MOUNT}/staging/$RELEASE_DIRNAME
 if [[ "$LIVE" = "true" ]]
 then
