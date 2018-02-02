@@ -36,8 +36,6 @@ RUN apt-get update && \
         ed \
         man \
         curl && \
-    apt-get purge -y gcc g++ && \
-    apt-get autoremove --purge -y && \
     apt-get clean
 
 # GCC (from couchbasebuild/ubuntu-1604-gcc)
@@ -106,7 +104,7 @@ RUN mkdir /tmp/deploy && \
 RUN apt-get update && \
     apt-get -y install python3-pip libffi-dev && \
     pip3 install lxml oauthlib==0.7.2 jwt pycrypto jira boto3 pbr && \
-    apt-get purge -y libffi-dev gcc g++ && \
+    apt-get purge -y libffi-dev && \
     apt-get autoremove --purge -y && \
     apt-get clean && \
     ccache --clear
@@ -115,8 +113,6 @@ RUN apt-get update && \
 RUN apt-get update && \
     apt-get -y install python-pip && \
     pip install jenkinsapi && \
-    apt-get purge -y gcc g++ && \
-    apt-get autoremove --purge -y && \
     apt-get clean
 
 #s3cmd for upload script
