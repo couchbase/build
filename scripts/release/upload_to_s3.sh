@@ -123,7 +123,7 @@ then
 fi
 
 # Compute destination directories
-S3CONFIG=~/.ssh/staging.s3cfg
+S3CONFIG=~/.ssh/live.s3cfg  # Uses same S3 config as production
 ROOT=s3://packages-staging.couchbase.com/releases/$RELEASE_DIRNAME
 RELEASE_DIR=${RELEASES_MOUNT}/staging/$RELEASE_DIRNAME
 if [[ "$LIVE" = "true" ]]
