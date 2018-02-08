@@ -34,7 +34,7 @@ if [ -z "$LNT_IP" ]; then
     echo "Error: Required environment variable 'LNT_IP' not set."
     exit 8
 fi
-if [ "${GERRIT_PROJECT}" != "kv_engine" ]
+if [ "${GERRIT_PROJECT}" != "kv_engine" ]; then
     echo "Error: Project ${GERRIT_PROJECT} is not kv_engine"
     exit 9
 fi
