@@ -41,7 +41,7 @@ esac
 
 if [[ ${EDITION} == 'enterprise' ]]; then
     project_dir=couchbase-lite-core-EE
-    macosx_lib=libLiteCore.dylib
+    macosx_lib=libLiteCoreSync_EE.dylib
     ios_xcode_proj="couchbase-lite-core/Xcode/LiteCore.xcodeproj"
     release_config="Release-EE"
     debug_config="Debug-EE"
