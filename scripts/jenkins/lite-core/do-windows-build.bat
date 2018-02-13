@@ -2,6 +2,7 @@
 PRODUCT=%1
 VERSION=%2
 SHA_VERSION=%3
+EDITION=%4
 
 setlocal enabledelayedexpansion
 
@@ -38,7 +39,9 @@ for %%A in (Win32 Win64 ARM) do (
         set TARGET=!ARCH!_RelWithDebInfo
         call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! RelWithDebInfo || goto :error
         call :bld %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo || goto :error
-        call :unit-test %WORKSPACE%\build_!TARGET!  !ARCH! || goto :error
+        if "%EDITION%"=="enterprise" (
+            call :unit-test %WORKSPACE%\build_!TARGET!  !ARCH! || goto :error
+        )
         if "!ARCH!"=="Win32" (
             call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32-winstore.zip *.dll *.pdb STORE_Win32 RELEASE || goto :error
             call :pkg %WORKSPACE%\build_!TARGET!\RelWithDebInfo %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32.zip *.dll *.pdb Win32 RELEASE || goto :error
@@ -71,6 +74,11 @@ rem subroutine "bld_store"
 :bld_store
 echo Building blddir:%1, arch:%2, flavor:%3
 set CMAKE_COMMON_OPTIONS=-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0.14393.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.10240.0
+if "%EDITION%"=="enterprise" (
+   set project_dir=couchbase-lite-core-EE
+) else (
+   set project_dir=couchbase-lite-core
+)
 mkdir %1
 cd %1
 if "%2"=="Win32" (
@@ -82,13 +90,18 @@ if "%2"=="Win32" (
         set MS_ARCH_STORE= Win64
     )
 )
-"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  ..\couchbase-lite-core || goto :error
+"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  ..\%project_dir% || goto :error
 "C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 --target LiteCore || goto :error
 goto :EOF
 
 rem subroutine "bld"
 :bld
 echo Building blddir:%1, arch:%2, flavor:%3
+if "%EDITION%"=="enterprise" (
+   set project_dir=couchbase-lite-core-EE
+) else (
+   set project_dir=couchbase-lite-core
+)
 mkdir %1
 cd %1
 if "%2"=="Win32" (
@@ -100,7 +113,7 @@ if "%2"=="Win32" (
        set MS_ARCH= Win64
     )
 )
-"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" ..\couchbase-lite-core || goto :error
+"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" ..\%project_dir% || goto :error
 "C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 || goto :error
 goto :EOF
 
@@ -117,10 +130,18 @@ if not exist "%1\C\tests\data\names_300000.json" (
     copy %WORKSPACE%\couchbase-lite-core\C\tests\data\names_300000.json  %1\C\tests\data\names_300000.json
 )
 
-cd %1\LiteCore\tests\RelWithDebInfo
+if "%EDITION%"=="enterprise" (
+    set cpp_test_path=%1\couchbase-lite-core\LiteCore\tests\RelWithDebInfo
+    set c4_test_path=%1\couchbase-lite-core\C\tests\RelWithDebInfo
+) else  (
+    set cpp_test_path=%1\LiteCore\tests\RelWithDebInfo
+    set c4_test_path=%1\C\tests\RelWithDebInfo
+)
+
+cd %cpp_test_path%
 .\CppTests.exe -r list || exit /b 1
 
-cd %1\C\tests\RelWithDebInfo
+cd %c4_test_path%
 .\C4Tests.exe -r list || exit /b 1
 goto :EOF
 
