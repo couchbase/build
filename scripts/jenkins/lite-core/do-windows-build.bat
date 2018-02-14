@@ -10,16 +10,16 @@ set OS=windows
 
 echo %SHA_VERSION%
 
+if "%EDITION%"=="enterprise" (
+    set REL_PKG_DIR=couchbase-lite-core\RelWithDebInfo
+    set DEBUG_PKG_DIR=couchbase-lite-core\Debug
+) else (
+    set REL_PKG_DIR=RelWithDebInfo
+    set DEBUG_PKG_DIR=Debug
+)
+
 for %%A in (Win32 Win64 ARM) do (
     set ARCH=%%A
-
-    if "%EDITION%"=="enterprise" (
-        set REL_PKG_DIR=couchbase-lite-core\RelWithDebInfo
-        set DEBUG_PKG_DIR=couchbase-lite-core\Debug
-    ) else (
-        set REL_PKG_DIR=RelWithDebInfo
-        set DEBUG_PKG_DIR=Debug
-    )
 
     if "!ARCH!"=="ARM" (
         # Flavor: Debug
