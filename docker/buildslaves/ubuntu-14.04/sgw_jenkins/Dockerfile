@@ -53,9 +53,13 @@ RUN mkdir -p /usr/local/go/1.4.1 && cd /usr/local/go/1.4.1 && \
     mkdir /usr/local/go/1.7.4 && cd /usr/local/go/1.7.4 && \
     curl https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz -o go.tar.gz && \
     tar xzf go.tar.gz && \
+    mkdir /usr/local/go/1.8.5 && cd /usr/local/go/1.8.5 && \
+    curl https://storage.googleapis.com/golang/go1.8.5.linux-amd64.tar.gz -o go.tar.gz && \
+    tar xzf go.tar.gz && \
     mkdir /usr/local/go/1.9 && cd /usr/local/go/1.9 && \
     curl https://storage.googleapis.com/golang/go1.9.linux-amd64.tar.gz -o go.tar.gz && \
-    tar xzf go.tar.gz
+    tar xzf go.tar.gz && \
+    rm go.tar.gz
 
 # Install third-party build dependencies. Note: software-properties-common
 # is only required for add-apt-repository; add-apt-repository is only
