@@ -1,11 +1,11 @@
 #!/bin/bash -ex
 
-
 # Global define
 PRODUCT=${1}
 VERSION=${2}
 BLD_NUM=${3}
 ARCH=${4}
+EDITION=${5}
 
 PKG_TYPE='zip'
 PKG_CMD='zip -r'
@@ -44,23 +44,31 @@ esac
 mkdir -p ${WORKSPACE}/${BUILD_REL_TARGET} ${WORKSPACE}/${BUILD_DEBUG_TARGET}
 # Global define end
 
+if [[ ${EDITION} == 'enterprise' ]]; then
+    project_dir=couchbase-lite-core-EE
+    android_lib=libLiteCoreSync_EE.so
+else
+    project_dir=couchbase-lite-core
+fi
+
+
 echo "====  Building Android $ARCH_VERSION Release binary  ==="
 cd ${WORKSPACE}/${BUILD_REL_TARGET}
-cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_NDK=${ANDROID_NDK_ROOT} \
+cmake -DEDITION=${EDITION} -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_NDK=${ANDROID_NDK_ROOT} \
       -DCMAKE_ANDROID_ARCH_ABI=$ARCH -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \
       -DCMAKE_SYSTEM_VERSION=$ARCH_VERSION -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_BUILD_TYPE=MinSizeRel  ..
 make -j4
-${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core ${STRIP}/
+${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${project_dir} ${STRIP}/
 make install
 cd ${WORKSPACE}
 
 echo "====  Building Android $ARCH_VERSION Debug binary  ==="
 cd ${WORKSPACE}/${BUILD_DEBUG_TARGET}
-cmake -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_NDK=${ANDROID_NDK_ROOT} \
+cmake -DEDITION=${EDITION}  -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_SYSTEM_NAME=Android -DCMAKE_ANDROID_NDK=${ANDROID_NDK_ROOT} \
       -DCMAKE_ANDROID_ARCH_ABI=$ARCH -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \
       -DCMAKE_SYSTEM_VERSION=$ARCH_VERSION -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_BUILD_TYPE=Debug  ..
 make -j4
-${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh couchbase-lite-core ${STRIP}/
+${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${project_dir} ${STRIP}/
 make install
 cd ${WORKSPACE}
 
@@ -75,11 +83,17 @@ do
     if [[ ${FLAVOR} == 'debug' ]]
     then
         cd ${WORKSPACE}/${BUILD_DEBUG_TARGET}/install
+        if [[ ${EDITION} == 'enterprise' ]]; then
+            cp ${WORKSPACE}/${BUILD_DEBUG_TARGET}/${project_dir}/${android_lib} lib/${android_lib}
+        fi
         ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
         DEBUG_PKG_NAME=${PACKAGE_NAME}
         cd ${WORKSPACE}
     else
         cd ${WORKSPACE}/${BUILD_REL_TARGET}/install
+        if [[ ${EDITION} == 'enterprise' ]]; then
+            cp ${WORKSPACE}/${BUILD_REL_TARGET}/${project_dir}/${android_lib} lib/${android_lib}
+        fi
         ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
         RELEASE_PKG_NAME=${PACKAGE_NAME}
         cd ${WORKSPACE}
