@@ -18,7 +18,7 @@ case "${OSTYPE}" in
                 OS="android-x86"
                 BUILD_REL_TARGET='build_x86_release'
                 BUILD_DEBUG_TARGET='build_x86_debug'
-                ARCH_VERSION='16'
+                ARCH_VERSION='19'
                 PROP_FILE=${WORKSPACE}/publish_x86.prop
                 STRIP=`dirname $(find $ANDROID_NDK_ROOT/toolchains -name strip | grep x86-)`
             fi
@@ -26,7 +26,7 @@ case "${OSTYPE}" in
                 OS="android-armeabi-v7a"
                 BUILD_REL_TARGET='build_armeabi-v7a_release'
                 BUILD_DEBUG_TARGET='build_armeabi-v7a_debug'
-                ARCH_VERSION='16'
+                ARCH_VERSION='19'
                 PROP_FILE=${WORKSPACE}/publish_armeabi-v7a.prop
                 STRIP=`dirname $(find $ANDROID_NDK_ROOT/toolchains -name strip | grep arm)`
             fi
@@ -47,8 +47,10 @@ mkdir -p ${WORKSPACE}/${BUILD_REL_TARGET} ${WORKSPACE}/${BUILD_DEBUG_TARGET}
 if [[ ${EDITION} == 'enterprise' ]]; then
     project_dir=couchbase-lite-core-EE
     android_lib=libLiteCoreSync_EE.so
+    strip_dir=${project_dir}/couchbase-lite-core
 else
     project_dir=couchbase-lite-core
+    strip_dir=${project_dir}
 fi
 
 
@@ -58,7 +60,7 @@ cmake -DEDITION=${EDITION} -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_SYSTEM_N
       -DCMAKE_ANDROID_ARCH_ABI=$ARCH -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \
       -DCMAKE_SYSTEM_VERSION=$ARCH_VERSION -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_BUILD_TYPE=MinSizeRel  ..
 make -j4
-${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${project_dir} ${STRIP}/
+${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${strip_dir} ${STRIP}/
 make install
 cd ${WORKSPACE}
 
@@ -68,7 +70,7 @@ cmake -DEDITION=${EDITION}  -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_SYSTEM_
       -DCMAKE_ANDROID_ARCH_ABI=$ARCH -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \
       -DCMAKE_SYSTEM_VERSION=$ARCH_VERSION -DCMAKE_ANDROID_STL_TYPE=c++_static -DCMAKE_BUILD_TYPE=Debug  ..
 make -j4
-${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${project_dir} ${STRIP}/
+${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${strip_dir} ${STRIP}/
 make install
 cd ${WORKSPACE}
 
