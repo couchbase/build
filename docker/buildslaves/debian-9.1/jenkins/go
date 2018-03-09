@@ -14,7 +14,7 @@ cp -a -u ../../util/couchbuilder_start.sh build
 if [ ! -d build/local ]
 then
     docker run --rm -v $(pwd)/build:/output \
-        couchbasebuild/debian-9-gcc:7.2.0 \
+        couchbasebuild/debian-9-gcc:7.3.0 \
         cp -a /usr/local /output
 fi
 docker build -t ${IMAGE}:${TAG} .

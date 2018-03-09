@@ -4,10 +4,10 @@ cd `dirname $0`
 
 # Currently these slaves are all hosted on mega1
 
-# New hostness Watson docker containers
+# Watson docker containers
 ./restart_jenkinsdocker.py ceejatec/suse-11-couchbase-build:20170522 watson-suse11 5228 server.jenkins.couchbase.com
 # Vulcan docker container for SuSE 11
-./restart_jenkinsdocker.py ceejatec/suse-11-couchbase-build:20171206 vulcan-suse11 5229 server.jenkins.couchbase.com
+./restart_jenkinsdocker.py ceejatec/suse-11-couchbase-build:20180309 vulcan-suse11 5229 server.jenkins.couchbase.com
 
 # Old-school Sherlock docker containers
 ./restart_jenkinsdocker.py ceejatec/centos-65-couchbase-build:20150618 sherlocker-centos6 2222 &

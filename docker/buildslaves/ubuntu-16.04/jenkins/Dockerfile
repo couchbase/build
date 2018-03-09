@@ -90,16 +90,6 @@ RUN mkdir /tmp/deploy && \
     rm -rf /tmp/deploy
 ENV JAVA_HOME=/usr/local/java
 
-# Maven (for Analytics).
-RUN mkdir /tmp/deploy && \
-    cd /tmp/deploy && \
-    curl -L http://mirror.cogentco.com/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
-       -o maven.tar.gz && \
-    cd /usr/local && \
-    tar xzf /tmp/deploy/maven.tar.gz && \
-    ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
-    rm -rf /tmp/deploy
-
 # Python 3-specific stuff for build scripts, mostly for Jira.
 RUN apt-get update && \
     apt-get -y install python3-pip libffi-dev && \

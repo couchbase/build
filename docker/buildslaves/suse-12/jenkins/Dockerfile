@@ -104,16 +104,6 @@ RUN mkdir /tmp/deploy && \
     cd /tmp && rm -rf deploy
 ENV JAVA_HOME=/usr/java/latest
 
-# Maven (for Analytics).
-RUN mkdir /tmp/deploy && \
-    cd /tmp/deploy && \
-    curl -L http://mirror.cogentco.com/pub/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz \
-       -o maven.tar.gz && \
-    cd /usr/local && \
-    tar xzf /tmp/deploy/maven.tar.gz && \
-    ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/local/bin/mvn && \
-    rm -rf /tmp/deploy
-
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .ssh /home/couchbase/.ssh
