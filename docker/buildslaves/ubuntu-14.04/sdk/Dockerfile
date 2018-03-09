@@ -72,7 +72,7 @@ RUN mkdir /tmp/deploy && \
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update && \
-    apt-get install -y libz-dev && \
+    apt-get install -y ruby ruby-dev libz-dev && \
     rm -f /var/cache/apt/archives/*.deb
 
 # Expose SSH daemon and run our builder startup script
