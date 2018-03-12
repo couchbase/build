@@ -1,6 +1,6 @@
 # Docker container for Ubuntu 16.04
 
-FROM ceejatec/ubuntu-1604-couchbase-build:20180202
+FROM ceejatec/ubuntu-1604-couchbase-build:20180309
 MAINTAINER build-team@couchbase.com
 
 USER root
