@@ -18,12 +18,15 @@ parser.add_argument("jenkins", type=str, help="Jenkins to connect to",
 parser.add_argument("--ccache-dir", type=str, help="Host directory to mount as ~/.ccache")
 parser.add_argument("--no-workspace", action="store_true", help="Skip mounting /home/couchbase/jenkins")
 parser.add_argument("--mount-docker", action="store_true", help="Mount docker.sock")
+parser.add_argument("--mount-dir", type=str, help="Mount a local directory",
+    nargs="+")
 args = parser.parse_args()
 
 image = args.image
 slave = args.slave
 port = args.port
 jenkins = args.jenkins
+mount_dirs = args.mount_dir
 
 devnull = open(os.devnull, "w")
 
@@ -71,8 +74,7 @@ if os.path.isdir("/releases"):
 else:
     releases = "/home/couchbase/releases"
 
-# Finally, create new slave container.
-print "Creating new {0} container...".format(slave)
+# Start constructing the big "docker run" command
 run_args = [
      "docker", "run", "--name={0}".format(slave), "--detach=true",
      "--sysctl=net.ipv6.conf.lo.disable_ipv6=0",
@@ -101,10 +103,20 @@ if args.ccache_dir is not None:
     run_args.append(
      "--volume={0}:/home/couchbase/.ccache".format(args.ccache_dir)
     )
+for mount in mount_dirs:
+    (dir, path) = mount.split(':')
+    if not os.path.isdir(dir):
+        os.makedirs(dir)
+    run_args.append(
+    "--volume={0}:{1}".format(dir, path)
+    )
+
 run_args.extend([
      "--ulimit=core=-1",
      image
 ])
+# Finally, create new slave container.
+print "Creating new {0} container...".format(slave)
 output = check_output(run_args)
 print "Result: {0}".format(output)
 
