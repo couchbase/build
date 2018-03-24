@@ -27,6 +27,8 @@ slave = args.slave
 port = args.port
 jenkins = args.jenkins
 mount_dirs = args.mount_dir
+if mount_dirs is None:
+    mount_dirs = []
 
 devnull = open(os.devnull, "w")
 
