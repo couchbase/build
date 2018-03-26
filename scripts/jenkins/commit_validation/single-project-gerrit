@@ -145,7 +145,17 @@ echo_cmd ccache -s
 # Manditory steps complete, install the deferred error handler.
 trap deferred_error_handler ERR
 
-if [ -n "$GOPROJECT" ] || [ -f build/${GERRIT_PROJECT}/Makefile ]
+if [ "${GERRIT_PROJECT}" = "ns_server" ]
+then
+    BUILD_DIR="${GERRIT_PROJECT}/build"
+elif [ -n "$GOPROJECT" ]
+then
+    BUILD_DIR="build/goproj/src/github.com/couchbase/${GERRIT_PROJECT}"
+else
+    BUILD_DIR="build/${GERRIT_PROJECT}"
+fi
+
+if [ -n "$GOPROJECT" ] || [ -f ${BUILD_DIR}/Makefile ]
 then
     cat <<EOF
 
@@ -153,15 +163,7 @@ then
 ===          Run unit tests              ===
 ============================================
 EOF
-    if [ "${GERRIT_PROJECT}" = "ns_server" ]
-    then
-        pushd ${GERRIT_PROJECT}/build 2>&1 > /dev/null
-    elif [ -n "$GOPROJECT" ]
-    then
-        pushd build/goproj/src/github.com/couchbase/${GERRIT_PROJECT} 2>&1 > /dev/null
-    else
-        pushd build/${GERRIT_PROJECT} 2>&1 > /dev/null
-    fi
+    pushd ${BUILD_DIR} 2>&1 > /dev/null
 
     if [ -n "$ENABLE_CODE_COVERAGE" ]; then
         # Reset code coverage counters (note optional hence the || true).
