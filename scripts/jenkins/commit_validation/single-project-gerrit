@@ -206,6 +206,17 @@ else
 EOF
 fi
 
+if [ -n "$RUN_SIMPLE_TEST" ]
+then
+    cat <<EOF
+
+============================================
+===          Run simple test             ===
+============================================
+EOF
+    echo_cmd make -C testrunner simple-test VERBOSE=1
+fi
+
 # Check for core files - if present then archive them and the
 # executable they are from (for post-mortem) and fail the build.
 shopt -s nullglob
