@@ -61,16 +61,18 @@ echo VERSION=${VERSION}
 if [[ ${TVOS} == 'true' ]]; then
     echo "====  Building tvos Release binary  ==="
     cd ${WORKSPACE}/${BUILD_TVOS_REL_TARGET}
-    xcodebuild -project  ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${release_config} -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvos
-    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${release_config} -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvsimulator
-    lipo -create tvos/Build/Products/${release_config}-appletvos/libLiteCore.dylib tvos/Build/Products/${release_config}-appletvsimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_TVOS_REL_TARGET}/libLiteCore.dylib
+    xcodebuild -project  ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${release_config} -derivedDataPath tvos -scheme "LiteCore framework" -sdk appletvos
+    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${release_config} -derivedDataPath tvos -scheme "LiteCore framework" -sdk appletvsimulator
+    cp -R tvos/Build/Products/${release_config}-appletvos/LiteCore.framework ${WORKSPACE}/${BUILD_TVOS_REL_TARGET}/
+    lipo -create tvos/Build/Products/${release_config}-appletvos/LiteCore.framework/LiteCore tvos/Build/Products/${release_config}-appletvsimulator/LiteCore.framework/LiteCore -output ${WORKSPACE}/${BUILD_TVOS_REL_TARGET}/LiteCore.framework/LiteCore
     cd ${WORKSPACE}
 elif [[ ${IOS} == 'true' ]]; then
     echo "====  Building ios Release binary  ==="
     cd ${WORKSPACE}/${BUILD_IOS_REL_TARGET}
-    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${release_config} -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
-    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${release_config} -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
-    lipo -create ios/Build/Products/${release_config}-iphoneos/libLiteCore.dylib ios/Build/Products/${release_config}-iphonesimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_IOS_REL_TARGET}/libLiteCore.dylib
+    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${release_config} -derivedDataPath ios -scheme "LiteCore framework" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
+    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${release_config} -derivedDataPath ios -scheme "LiteCore framework" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+    cp -R ios/Build/Products/${release_config}-iphoneos/LiteCore.framework ${WORKSPACE}/${BUILD_IOS_REL_TARGET}/
+    lipo -create ios/Build/Products/${release_config}-iphoneos/LiteCore.framework/LiteCore ios/Build/Products/${release_config}-iphonesimulator/LiteCore.framework/LiteCore -output ${WORKSPACE}/${BUILD_IOS_REL_TARGET}/LiteCore.framework/LiteCore
     cd ${WORKSPACE}
 else
     echo "====  Building macosx/linux Release binary  ==="
@@ -79,7 +81,7 @@ else
     make -j8
     if [[ ${OS} == 'linux' ]]; then
         ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${strip_dir}
-    else
+    elif [[ ${OS} == 'macosx' ]]; then
         pushd ${project_dir}
         dsymutil ${macosx_lib} -o libLiteCore.dylib.dSYM
         strip -x ${macosx_lib}
@@ -100,16 +102,18 @@ fi
 if [[ ${TVOS} == 'true' ]]; then
     echo "====  Building tvos Debug binary  ==="
     cd ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}
-    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${debug_config} -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvos
-    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${debug_config} -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvsimulator
-    lipo -create tvos/Build/Products/${debug_config}-appletvos/libLiteCore.dylib tvos/Build/Products/${debug_config}-appletvsimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}/libLiteCore.dylib
+    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${debug_config} -derivedDataPath tvos -scheme "LiteCore framework" -sdk appletvos
+    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${debug_config} -derivedDataPath tvos -scheme "LiteCore framework" -sdk appletvsimulator
+    cp -R tvos/Build/Products/${debug_config}-appletvos/LiteCore.framework ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}/
+    lipo -create tvos/Build/Products/${debug_config}-appletvos/LiteCore.framework/LiteCore tvos/Build/Products/${debug_config}-appletvsimulator/LiteCore.framework/LiteCore -output ${WORKSPACE}/       ${BUILD_TVOS_DEBUG_TARGET}/LiteCore.framework/LiteCore
     cd ${WORKSPACE}
 elif [[ ${IOS} == 'true' ]]; then
     echo "====  Building ios Debug binary  ==="
     cd ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}
-    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${debug_config} -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
-    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${debug_config} -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
-    lipo -create ios/Build/Products/${debug_config}-iphoneos/libLiteCore.dylib ios/Build/Products/${debug_config}-iphonesimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}/libLiteCore.dylib
+    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${debug_config} -derivedDataPath ios -scheme "LiteCore framework" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
+    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${debug_config} -derivedDataPath ios -scheme "LiteCore framework" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+    cp -R ios/Build/Products/${debug_config}-iphoneos/LiteCore.framework ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}/
+    lipo -create ios/Build/Products/${debug_config}-iphoneos/LiteCore.framework/LiteCore ios/Build/Products/${debug_config}-iphonesimulator/LiteCore.framework/LiteCore -output ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}/LiteCore.framework/LiteCore
     cd ${WORKSPACE}
 else
     echo "====  Building macosx/linux Debug binary  ==="
@@ -118,7 +122,7 @@ else
     make -j8
     if [[ ${OS} == 'linux' ]]; then
         ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${strip_dir}
-    else
+    elif [[ ${OS} == 'macosx' ]]; then
         pushd ${project_dir}
         dsymutil ${macosx_lib} -o libLiteCore.dylib.dSYM
         strip -x ${macosx_lib}
@@ -144,12 +148,12 @@ do
     then
         if [[ ${TVOS} == 'true' ]]; then
             cd ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} libLiteCore.dylib
+            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} LiteCore.framework
             cd ${WORKSPACE}
             DEBUG_TVOS_PKG_NAME=${PACKAGE_NAME}
         elif [[ ${IOS} == 'true' ]]; then
             cd ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} libLiteCore.dylib
+            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} LiteCore.framework
             cd ${WORKSPACE}
             DEBUG_IOS_PKG_NAME=${PACKAGE_NAME}
         else
@@ -179,12 +183,12 @@ do
     else
         if [[ ${TVOS} == 'true' ]]; then
             cd ${WORKSPACE}/${BUILD_TVOS_REL_TARGET}
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} libLiteCore.dylib
+            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} LiteCore.framework
             cd ${WORKSPACE}
             RELEASE_TVOS_PKG_NAME=${PACKAGE_NAME}
         elif [[ ${IOS} == 'true' ]]; then
             cd ${WORKSPACE}/${BUILD_IOS_REL_TARGET}
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} libLiteCore.dylib
+            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} LiteCore.framework
             cd ${WORKSPACE}
             RELEASE_IOS_PKG_NAME=${PACKAGE_NAME}
         else
