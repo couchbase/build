@@ -90,7 +90,7 @@ if not "%JENKINS_HOME%" == "" (
 )
 
 rem Pre-clean all unnecessary files
-ruby voltron\cleanup.rb %REPOROOT%\couchbase\install
+ruby voltron\cleanup.rb %REPOROOT%\install
 
 @echo ==================== package =================
 
