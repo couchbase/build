@@ -6,8 +6,8 @@
 # This slave currently runs on mega3.
 ./restart_jenkinsdocker.py \
     --mount-dir /home/couchbase/check_missing_commits:/home/couchbase/check_missing_commits \
-    --mount-dir /home/couchbase/check_builds:/home/couchbase/check_builds \
-    --mount-dir /home/couchbase/repo_upload:/home/couchbase/repo_upload \
+        /home/couchbase/check_builds:/home/couchbase/check_builds \
+        /home/couchbase/repo_upload:/home/couchbase/repo_upload \
     --mount-docker \
     couchbasebuild/docker-slave:20180323 \
     docker-slave-server \

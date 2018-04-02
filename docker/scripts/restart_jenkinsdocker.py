@@ -18,7 +18,7 @@ parser.add_argument("jenkins", type=str, help="Jenkins to connect to",
 parser.add_argument("--ccache-dir", type=str, help="Host directory to mount as ~/.ccache")
 parser.add_argument("--no-workspace", action="store_true", help="Skip mounting /home/couchbase/jenkins")
 parser.add_argument("--mount-docker", action="store_true", help="Mount docker.sock")
-parser.add_argument("--mount-dir", type=str, help="Mount a local directory",
+parser.add_argument("--mount-dir", type=str, help="Mount local directories",
     nargs="+")
 args = parser.parse_args()
 
