@@ -59,17 +59,6 @@ IF "%CMAKE_GENERATOR%"=="Ninja" (
 
 @echo.
 @echo ============================================
-@echo ===    environment                       ===
-@echo ============================================
-
-set
-@echo.
-set "source_root=%WORKSPACE%"
-call tlm\win32\environment
-@echo on
-
-@echo.
-@echo ============================================
 @echo ===    clean                             ===
 @echo ============================================
 
@@ -91,6 +80,16 @@ del /F/Q/S build\CMakeCache.txt
 
 SET "CURDIR=%~dp0"
 python "%CURDIR%\checkout_dependencies.py" %GERRIT_PATCHSET_REVISION% %GERRIT_CHANGE_ID% %GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
+
+@echo.
+@echo ============================================
+@echo ===    environment                       ===
+@echo ============================================
+
+set
+set "source_root=%WORKSPACE%"
+call tlm\win32\environment
+@echo on
 
 @echo.
 @echo ============================================
