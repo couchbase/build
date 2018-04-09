@@ -18,24 +18,29 @@ set REFSPEC=%3
     @exit /b 2
 )
 
+@IF NOT DEFINED GERRIT_SCHEME (
+    @echo "Error: Required environment variable 'GERRIT_SCHEME' not set."
+    @exit /b 3
+)
+
 @IF NOT DEFINED PROJECT (
     @echo "Error: Required environment variable 'PROJECT' not set."
-    @exit /b 3
+    @exit /b 4
 )
 
 @IF NOT DEFINED PROJECT_PATH (
     @echo "Error: Required environment variable 'PROJECT_PATH' not set."
-    @exit /b 4
+    @exit /b 5
 )
 
 @IF NOT DEFINED REFSPEC (
     @echo "Error: Required environment variable 'REFSPEC' not set."
-    @exit /b 5
+    @exit /b 6
 )
 
 pushd %PROJECT_PATH% || exit /b 1
 git reset --hard HEAD || exit /b 1
-git fetch ssh://%GERRIT_HOST%:%GERRIT_PORT%/%PROJECT% %REFSPEC% || exit /b 1
+git fetch %GERRIT_SCHEME%://%GERRIT_HOST%:%GERRIT_PORT%/%PROJECT% %REFSPEC% || exit /b 1
 git clean -d --force -x || exit /b 1
 git checkout FETCH_HEAD || exit /b 1
 popd || exit /b 1

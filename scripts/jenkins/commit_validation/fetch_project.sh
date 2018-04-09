@@ -20,22 +20,26 @@ if [ -z "$GERRIT_PORT" ]; then
     echo "Error: Required environment variable 'GERRIT_PORT' not set."
     exit 2
 fi
+if [ -z "$GERRIT_SCHEME" ]; then
+    echo "Error: Required environment variable 'GERRIT_SCHEME' not set."
+    exit 3
+fi
 if [ -z "$PROJECT" ]; then
     echo "Error: Required environment variable 'PROJECT' not set."
-    exit 3
+    exit 4
 fi
 if [ -z "$PROJECT_PATH" ]; then
     echo "Error: Required environment variable 'PROJECT_PATH' not set."
-    exit 4
+    exit 5
 fi
 if [ -z "$REFSPEC" ]; then
     echo "Error: Required environment variable 'REFSPEC' not set."
-    exit 5
+    exit 6
 fi
 
 pushd $PROJECT_PATH > /dev/null
 git reset --hard HEAD
-git fetch ssh://$GERRIT_HOST:$GERRIT_PORT/$PROJECT $REFSPEC
+git fetch $GERRIT_SCHEME://$GERRIT_HOST:$GERRIT_PORT/$PROJECT $REFSPEC
 git clean -d --force -x
 git checkout FETCH_HEAD
 popd > /dev/null
