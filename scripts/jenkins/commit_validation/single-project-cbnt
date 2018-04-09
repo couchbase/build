@@ -116,7 +116,7 @@ numactl --interleave=all lnt runtest kv-engine ${WORKSPACE}/kv_engine/tests/cbnt
 # Check for core files - if present then archive them and the
 # executable they are from (for post-mortem) and fail the build.
 shopt -s nullglob
-echo_cmd ${BASEDIR}/archive_core_files.sh archived_core_dumps /tmp/core.*
+${BASEDIR}/archive_core_files.sh archived_core_dumps /tmp/core.*
 rm -f /tmp/core.*
 
 exit $last_error
