@@ -47,16 +47,62 @@ if [ "${GERRIT_PROJECT}" != "kv_engine" ]; then
     exit 11
 fi
 
-cd ${GERRIT_PROJECT}
-git fetch http://${GERRIT_HOST}/${GERRIT_PROJECT} $GERRIT_REFSPEC
-git checkout --force FETCH_HEAD
-cd ..
+BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
+
+# We define two error handler functions - a fatal one used for the
+# manditory parts of the build (i.e. actually building Couchbase), and
+# a deferred one which 'remembers' error(s) have occured but lets the
+# rest of the script run.
+# This is to maximise the number of tests we run (even if earlier
+# tests fail), so developers see as many problems in a single run as
+# possible, but ensures that the script still exits with the correct
+# error code.
+last_error=0
+error_count=0
+
+function fatal_error_handler() {
+    last_error=$?
+    echo "Fatal error - aborting"
+    exit $last_error
+}
+function deferred_error_handler() {
+    last_error=$?
+    (( error_count++ ))
+}
+
+# Initially install the fatal handler.
+trap fatal_error_handler ERR
+
+cat <<EOF
+
+============================================
+===       update all projects with       ===
+===          the same Change-Id          ===
+============================================
+EOF
+${BASEDIR}/checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_CHANGE_ID $GERRIT_PROJECT $GERRIT_REFSPEC
+
+cat <<EOF
+============================================
+===               Build                  ===
+============================================
+EOF
+
 mkdir -p build
 cd build
 cmake -DCOUCHBASE_KV_COMMIT_VALIDATION=1 ..
 cd kv_engine
 make -j24
 cd ../..
+
+# Manditory steps complete, install the deferred error handler.
+trap deferred_error_handler ERR
+
+cat <<EOF
+============================================
+===          CBNT Tests                  ===
+============================================
+EOF
 
 # We run the lnt command under numactl --interleave=all
 # this is due to the fact that before this, the tests were rather
@@ -66,3 +112,11 @@ cd ../..
 # results.
 numactl --interleave=all lnt runtest kv-engine ${WORKSPACE}/kv_engine/tests/cbnt_tests/cbnt_test_list.yml\
  ${CBNT_TYPE} --submit_url=http://${LNT_IP}/submitRun -v --commit=1 --iterations=${ITERATIONS}
+
+# Check for core files - if present then archive them and the
+# executable they are from (for post-mortem) and fail the build.
+shopt -s nullglob
+echo_cmd ${BASEDIR}/archive_core_files.sh archived_core_dumps /tmp/core.*
+rm -f /tmp/core.*
+
+exit $last_error
