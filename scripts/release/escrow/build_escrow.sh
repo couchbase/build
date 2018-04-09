@@ -1,8 +1,8 @@
 #!/bin/bash -e
 
 # QQQ keep this list somewhere canonical per build
-IMAGES="ceejatec/debian-7-couchbase-build:20170522
-ceejatec/debian-8-couchbase-build:20170522
+IMAGES="ceejatec/debian-8-couchbase-build:20171106
+ceejatec/debian-9-couchbase-build:20170911
 ceejatec/ubuntu-1404-couchbase-build:20170522
 ceejatec/centos-70-couchbase-build:20170522
 ceejatec/ubuntu-1604-couchbase-cv:20170522
@@ -10,10 +10,10 @@ ceejatec/suse-11-couchbase-build:20170522
 ceejatec/centos-65-couchbase-build:20170522"
 
 # QQQ possibly keep this list somewhere canonical per build also
-GOVERS="1.7.3 1.8.1 1.8.3"
+GOVERS="1.7.3 1.8.1 1.8.3 1.8.5"
 
 # QQQ parameterize?
-RELEASE=5.0.0
+RELEASE=5.1.0
 PRODUCT=couchbase-server
 
 heading() {
@@ -58,12 +58,16 @@ repo init -u git://github.com/couchbase/manifest -g all -m released/${RELEASE}.x
 repo sync --jobs=6
 
 mkdir -p ${ESCROW}/deps
+rm -f ${ESCROW}/deps/dep_list.txt
 
 download_cbdep() {
   dep=$1
   ver=$2
   branch=$3
   cbver=$4
+
+  # Save dep name for the build
+  [[ "${dep}" =~ ^boost_ ]] || echo ${dep} >> ${ESCROW}/deps/dep_list.txt
 
   if [ "${dep}" = "boost" ]
   then
@@ -91,19 +95,19 @@ download_cbdep() {
 
 # QQQ This algorithm assumes that deps/packages/CMakeLists.txt
 # describes the versions which were actually used in the build (and this
-# is in fact wrong for several deps already - erlang and v8).
+# is in fact wrong for several deps already - jemalloc and v8).
 # Should verify against deps/manifest.cmake, or better, save this
 # information canonically per build.
 # QQQ Have to manually filter out deps that are not for Server 5.0.0
 # below, and also duplicate in templates/in-container-build.sh. These are:
-#   rocksdb - for Server 5.1.0
+#   libsqlite - for earlier Server versions
 #   openssl - only for Windows/Mac
 #   libcxx, libcouchbase - for Mobile Lite Core
 add_packs=$( \
    grep '_ADD_DEP_PACKAGE(' ${ESCROW}/src/tlm/deps/packages/CMakeLists.txt \
    | sed 's/ *_ADD_DEP_PACKAGE(//' \
    | sed 's/)//' \
-   | grep -v rocksdb \
+   | grep -v libsqlite \
    | grep -v libcxx \
    | grep -v libcouchbase \
    | grep -v openssl \
@@ -113,6 +117,17 @@ for add_pack in ${add_packs}
 do
   download_cbdep $(echo ${add_pack} | sed 's/:/ /g')
 done
+
+# One unfortunate patch required for flatbuffers to be built with GCC 7
+# This should be uncommented when we go to escrow 5.5.0
+#cd ${ESCROW}/deps/flatbuffers
+#git cherry-pick bbb72f0b
+#git tag -f v1.4.0
+
+# One unfortunate tweak required to ensure jemalloc can check out the
+# correct branch (the branch is tweaked in in-container-build.sh)
+cd ${ESCROW}/deps/jemalloc
+git checkout stable-4
 
 heading "Downloading Go installers..."
 mkdir -p ${ESCROW}/golang
