@@ -74,6 +74,15 @@ function deferred_error_handler() {
 trap fatal_error_handler ERR
 
 cat <<EOF
+============================================
+===    environment                       ===
+============================================
+EOF
+ulimit -a
+echo ""
+env | grep -iv password | grep -iv passwd | sort
+
+cat <<EOF
 
 ============================================
 ===       update all projects with       ===
@@ -91,9 +100,8 @@ EOF
 mkdir -p build
 cd build
 cmake -DCOUCHBASE_KV_COMMIT_VALIDATION=1 ..
-cd kv_engine
 make -j24
-cd ../..
+cd ..
 
 # Manditory steps complete, install the deferred error handler.
 trap deferred_error_handler ERR
