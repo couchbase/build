@@ -35,52 +35,10 @@ DOWNLOAD_NEW_PKG=${5}  # Get new build
 
 result="rejected"
 
-rel_code=""
-if [[ ${PKG_VERSION} == 5.5* ]]
-then
-    rel_code="vulcan"
-elif [[ ${PKG_VERSION} == 4.7* ]] || [[ ${PKG_VERSION} == 5.0* ]] || [[ ${PKG_VERSION} == 5.1* ]]
-then
-    rel_code="spock"
-elif [[ ${PKG_VERSION} == 4.5* ]] || [[ ${PKG_VERSION} == 4.6* ]]
-then
-    rel_code="watson"
-elif [[ ${PKG_VERSION} == 4.0* ]] || [[ ${PKG_VERSION} == 4.1* ]]
-then
-    rel_code="sherlock"
-elif [[ ${PKG_VERSION} == 3.* ]]
-then
-    rel_code="3"
-fi
-
-if [[ "x${rel_code}" == "x" ]]
-then
-    echo Unsupported version ${PKG_VERSION}
-    exit 1
-fi
-
-if [[ "${rel_code}" == "3" ]]
-then
-    PKG_URL=http://latestbuilds.hq.couchbase.com
-    PKG_NAME=couchbase-server-${EDITION}_x86_64_${PKG_VERSION}-${PKG_BUILD_NUM}-rel.zip
-    PKG_DIR=couchbase-server-${EDITION}_x86_64_3
-else
-    PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${rel_code}/${PKG_BUILD_NUM}
-    # MB-25378: short-term workaround - when building server+analytics,
-    # use different filename convention
-    if [[ "${PRODUCT}" == "server-analytics" ]]
-    then
-        FILEBIT=analytics
-    else
-        FILEBIT=${EDITION}
-    fi
-    PKG_NAME_US=couchbase-server-${FILEBIT}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64-unsigned.zip
-    PKG_NAME=couchbase-server-${FILEBIT}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
-    # PKG_DIR is set by couchdbx-app, and isn't analytics-specific,
-    # so continue just using EDITION
-    PKG_DIR=couchbase-server-${EDITION}_${PKG_VERSION}
-fi
-
+PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/zz-versions/${PKG_VERSION}/${PKG_BUILD_NUM}
+PKG_NAME_US=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64-unsigned.zip
+PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
+PKG_DIR=couchbase-server-${EDITION}_${PKG_VERSION}
 
 if [[ ${DOWNLOAD_NEW_PKG} ]]
 then
