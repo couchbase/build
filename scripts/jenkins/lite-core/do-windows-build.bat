@@ -10,13 +10,8 @@ set OS=windows
 
 echo %SHA_VERSION%
 
-if "%EDITION%"=="enterprise" (
-    set REL_PKG_DIR=couchbase-lite-core\RelWithDebInfo
-    set DEBUG_PKG_DIR=couchbase-lite-core\Debug
-) else (
-    set REL_PKG_DIR=RelWithDebInfo
-    set DEBUG_PKG_DIR=Debug
-)
+set REL_PKG_DIR=RelWithDebInfo
+set DEBUG_PKG_DIR=Debug
 
 for %%A in (Win32 Win64 ARM) do (
     set ARCH=%%A
@@ -82,11 +77,8 @@ rem subroutine "bld_store"
 :bld_store
 echo Building blddir:%1, arch:%2, flavor:%3
 set CMAKE_COMMON_OPTIONS=-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0.14393.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.10240.0
-if "%EDITION%"=="enterprise" (
-   set project_dir=couchbase-lite-core-EE
-) else (
-   set project_dir=couchbase-lite-core
-)
+set project_dir=couchbase-lite-core
+
 mkdir %1
 cd %1
 if "%2"=="Win32" (
@@ -105,11 +97,8 @@ goto :EOF
 rem subroutine "bld"
 :bld
 echo Building blddir:%1, arch:%2, flavor:%3
-if "%EDITION%"=="enterprise" (
-   set project_dir=couchbase-lite-core-EE
-) else (
-   set project_dir=couchbase-lite-core
-)
+set project_dir=couchbase-lite-core
+
 mkdir %1
 cd %1
 if "%2"=="Win32" (
@@ -138,13 +127,8 @@ if not exist "%1\C\tests\data\names_300000.json" (
     copy %WORKSPACE%\couchbase-lite-core\C\tests\data\names_300000.json  %1\C\tests\data\names_300000.json
 )
 
-if "%EDITION%"=="enterprise" (
-    set cpp_test_path=%1\couchbase-lite-core\LiteCore\tests\RelWithDebInfo
-    set c4_test_path=%1\couchbase-lite-core\C\tests\RelWithDebInfo
-) else  (
-    set cpp_test_path=%1\LiteCore\tests\RelWithDebInfo
-    set c4_test_path=%1\C\tests\RelWithDebInfo
-)
+set cpp_test_path=%1\LiteCore\tests\RelWithDebInfo
+set c4_test_path=%1\C\tests\RelWithDebInfo
 
 cd %cpp_test_path%
 .\CppTests.exe -r list || exit /b 1

@@ -44,15 +44,8 @@ esac
 mkdir -p ${WORKSPACE}/${BUILD_REL_TARGET} ${WORKSPACE}/${BUILD_DEBUG_TARGET}
 # Global define end
 
-if [[ ${EDITION} == 'enterprise' ]]; then
-    project_dir=couchbase-lite-core-EE
-    android_lib=libLiteCoreSync_EE.so
-    strip_dir=${project_dir}/couchbase-lite-core
-else
-    project_dir=couchbase-lite-core
-    strip_dir=${project_dir}
-fi
-
+project_dir=couchbase-lite-core
+strip_dir=${project_dir}
 
 echo "====  Building Android $ARCH_VERSION Release binary  ==="
 cd ${WORKSPACE}/${BUILD_REL_TARGET}
@@ -85,17 +78,11 @@ do
     if [[ ${FLAVOR} == 'debug' ]]
     then
         cd ${WORKSPACE}/${BUILD_DEBUG_TARGET}/install
-        if [[ ${EDITION} == 'enterprise' ]]; then
-            cp ${WORKSPACE}/${BUILD_DEBUG_TARGET}/${project_dir}/${android_lib} lib/${android_lib}
-        fi
         ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
         DEBUG_PKG_NAME=${PACKAGE_NAME}
         cd ${WORKSPACE}
     else
         cd ${WORKSPACE}/${BUILD_REL_TARGET}/install
-        if [[ ${EDITION} == 'enterprise' ]]; then
-            cp ${WORKSPACE}/${BUILD_REL_TARGET}/${project_dir}/${android_lib} lib/${android_lib}
-        fi
         ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} *
         RELEASE_PKG_NAME=${PACKAGE_NAME}
         cd ${WORKSPACE}
