@@ -64,8 +64,8 @@ RUN mkdir $ANDROID_HOME/licenses && \
 # Update and install using sdkmanager
 ENV SDK_CMD $ANDROID_HOME/tools/bin/sdkmanager
 RUN $SDK_CMD "tools" "platform-tools"
-RUN $SDK_CMD "build-tools;27.0.0" "build-tools;26.0.2" "build-tools;25.0.3"
-RUN $SDK_CMD "platforms;android-26" "platforms;android-25" "platforms;android-24" "platforms;android-16"
+RUN $SDK_CMD "build-tools;27.0.3" "build-tools;27.0.0" "build-tools;26.0.2" "build-tools;25.0.3"
+RUN $SDK_CMD "platforms;android-27" "platforms;android-26" "platforms;android-25" "platforms;android-24" "platforms;android-16"
 RUN $SDK_CMD "system-images;android-16;default;armeabi-v7a"
 RUN $SDK_CMD "system-images;android-24;default;armeabi-v7a"
 RUN $SDK_CMD "system-images;android-25;google_apis;armeabi-v7a"
