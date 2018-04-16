@@ -17,13 +17,6 @@ case "${OSTYPE}" in
               PKG_CMD='zip -r'
               PKG_TYPE='zip'
               PROP_FILE=${WORKSPACE}/publish.prop
-              if [[ ${TVOS} == 'true' ]]; then
-                  OS="macosx-tvos"
-                  BUILD_TVOS_REL_TARGET='build_tvos_release'
-                  BUILD_TVOS_DEBUG_TARGET='build_tvos_debug'
-                  PROP_FILE=${WORKSPACE}/publish_tvos.prop
-                  mkdir -p ${WORKSPACE}/${BUILD_TVOS_REL_TARGET} ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}
-              fi
               if [[ ${IOS} == 'true' ]]; then
                   OS="macosx-ios"
                   BUILD_IOS_REL_TARGET='build_ios_release'
@@ -55,19 +48,12 @@ fi
 echo VERSION=${VERSION}
 # Global define end
 
-if [[ ${TVOS} == 'true' ]]; then
-    echo "====  Building tvos Release binary  ==="
-    cd ${WORKSPACE}/${BUILD_TVOS_REL_TARGET}
-    xcodebuild -project  ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${release_config} -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvos
-    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${release_config} -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvsimulator
-    lipo -create tvos/Build/Products/${release_config}-appletvos/libLiteCore.dylib tvos/Build/Products/${release_config}-appletvsimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_TVOS_REL_TARGET}/libLiteCore.dylib
-    cd ${WORKSPACE}
-elif [[ ${IOS} == 'true' ]]; then
+if [[ ${IOS} == 'true' ]]; then
     echo "====  Building ios Release binary  ==="
     cd ${WORKSPACE}/${BUILD_IOS_REL_TARGET}
-    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${release_config} -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
-    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${release_config} -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
-    lipo -create ios/Build/Products/${release_config}-iphoneos/libLiteCore.dylib ios/Build/Products/${release_config}-iphonesimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_IOS_REL_TARGET}/libLiteCore.dylib
+    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${release_config} -derivedDataPath ios -scheme "LiteCore framework" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
+    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${release_config} -derivedDataPath ios -scheme "LiteCore framework" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+    lipo -create ios/Build/Products/${release_config}-iphoneos/LiteCore.framework/LiteCore ios/Build/Products/${release_config}-iphonesimulator/LiteCore.framework/LiteCore -output ${WORKSPACE}/${BUILD_IOS_REL_TARGET}/LiteCore.framework/LiteCore
     cd ${WORKSPACE}
 else
     echo "====  Building macosx/linux Release binary  ==="
@@ -94,19 +80,12 @@ else
     cd ${WORKSPACE}
 fi
 
-if [[ ${TVOS} == 'true' ]]; then
-    echo "====  Building tvos Debug binary  ==="
-    cd ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}
-    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${debug_config} -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvos
-    xcodebuild -project ${WORKSPACE}/couchbase-lite-core/Xcode/LiteCore.xcodeproj -configuration ${debug_config} -derivedDataPath tvos -scheme "LiteCore dylib" -sdk appletvsimulator
-    lipo -create tvos/Build/Products/${debug_config}-appletvos/libLiteCore.dylib tvos/Build/Products/${debug_config}-appletvsimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}/libLiteCore.dylib
-    cd ${WORKSPACE}
-elif [[ ${IOS} == 'true' ]]; then
+if [[ ${IOS} == 'true' ]]; then
     echo "====  Building ios Debug binary  ==="
     cd ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}
-    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${debug_config} -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
-    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${debug_config} -derivedDataPath ios -scheme "LiteCore dylib" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
-    lipo -create ios/Build/Products/${debug_config}-iphoneos/libLiteCore.dylib ios/Build/Products/${debug_config}-iphonesimulator/libLiteCore.dylib -output ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}/libLiteCore.dylib
+    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${debug_config} -derivedDataPath ios -scheme "LiteCore framework" -sdk iphoneos BITCODE_GENERATION_MODE=bitcode CODE_SIGNING_ALLOWED=NO
+    xcodebuild -project "${WORKSPACE}/${ios_xcode_proj}" -configuration ${debug_config} -derivedDataPath ios -scheme "LiteCore framework" -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO
+    lipo -create ios/Build/Products/${debug_config}-iphoneos/LiteCore.framework/LiteCore ios/Build/Products/${debug_config}-iphonesimulator/LiteCore.framework/LiteCore -output ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}/LiteCore.framework/LiteCore
     cd ${WORKSPACE}
 else
     echo "====  Building macosx/linux Debug binary  ==="
@@ -139,14 +118,9 @@ do
 
     if [[ "${FLAVOR}" == 'debug' ]]
     then
-        if [[ ${TVOS} == 'true' ]]; then
-            cd ${WORKSPACE}/${BUILD_TVOS_DEBUG_TARGET}
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} libLiteCore.dylib
-            cd ${WORKSPACE}
-            DEBUG_TVOS_PKG_NAME=${PACKAGE_NAME}
-        elif [[ ${IOS} == 'true' ]]; then
+        if [[ ${IOS} == 'true' ]]; then
             cd ${WORKSPACE}/${BUILD_IOS_DEBUG_TARGET}
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} libLiteCore.dylib
+            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} LiteCore.framework
             cd ${WORKSPACE}
             DEBUG_IOS_PKG_NAME=${PACKAGE_NAME}
         else
@@ -168,14 +142,9 @@ do
             cd ${WORKSPACE}
         fi
     else
-        if [[ ${TVOS} == 'true' ]]; then
-            cd ${WORKSPACE}/${BUILD_TVOS_REL_TARGET}
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} libLiteCore.dylib
-            cd ${WORKSPACE}
-            RELEASE_TVOS_PKG_NAME=${PACKAGE_NAME}
-        elif [[ ${IOS} == 'true' ]]; then
+        if [[ ${IOS} == 'true' ]]; then
             cd ${WORKSPACE}/${BUILD_IOS_REL_TARGET}
-            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} libLiteCore.dylib
+            ${PKG_CMD} ${WORKSPACE}/${PACKAGE_NAME} LiteCore.framework
             cd ${WORKSPACE}
             RELEASE_IOS_PKG_NAME=${PACKAGE_NAME}
         else
@@ -205,10 +174,7 @@ echo "PRODUCT=${PRODUCT}"  >> ${PROP_FILE}
 echo "BLD_NUM=${BLD_NUM}"  >> ${PROP_FILE}
 echo "VERSION=${VERSION}" >> ${PROP_FILE}
 echo "PKG_TYPE=${PKG_TYPE}" >> ${PROP_FILE}
-if [[ ${TVOS} == 'true' ]]; then
-    echo "DEBUG_TVOS_PKG_NAME=${DEBUG_TVOS_PKG_NAME}" >> ${PROP_FILE}
-    echo "RELEASE_TVOS_PKG_NAME=${RELEASE_TVOS_PKG_NAME}" >> ${PROP_FILE}
-elif [[ ${IOS} == 'true' ]]; then
+if [[ ${IOS} == 'true' ]]; then
     echo "DEBUG_IOS_PKG_NAME=${DEBUG_IOS_PKG_NAME}" >> ${PROP_FILE}
     echo "RELEASE_IOS_PKG_NAME=${RELEASE_IOS_PKG_NAME}" >> ${PROP_FILE}
 else
