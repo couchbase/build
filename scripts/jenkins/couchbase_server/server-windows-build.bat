@@ -28,7 +28,7 @@ cd %REPOROOT%
 set
 
 if not exist install mkdir install
-repo manifest -r > install/manifest.txt
+copy manifest.xml install
 
 set target_arch=%ARCHITECTURE%
 set source_root=%CD%
