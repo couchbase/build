@@ -38,13 +38,17 @@ if [ -z "$CBNT_TYPE" ]; then
     echo "Error: Required environment variable 'CBNT_TYPE' not set."
     exit 9
 fi
+if [ -z "$CBNT_SUITE" ]; then
+    echo "Error: Required environment variable 'CBNT_SUITE' not set."
+    exit 10
+fi
 if [ -z "$ITERATIONS" ]; then
     echo "Error: Required environment variable 'ITERATIONS' not set."
-    exit 10
+    exit 11
 fi
 if [ "${GERRIT_PROJECT}" != "kv_engine" ]; then
     echo "Error: Project ${GERRIT_PROJECT} is not kv_engine."
-    exit 11
+    exit 12
 fi
 
 BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
@@ -118,7 +122,7 @@ EOF
 # even when running in the most determenistic way possible. After testing
 # we found this to be the most stable way of running the tests to get repeatable
 # results.
-numactl --interleave=all lnt runtest kv-engine ${WORKSPACE}/kv_engine/tests/cbnt_tests/cbnt_test_list.yml\
+numactl --interleave=all lnt runtest $CBNT_SUITE ${WORKSPACE}/kv_engine/tests/cbnt_tests/cbnt_test_list.yml\
  ${CBNT_TYPE} --submit_url=http://${LNT_IP}/submitRun -v --commit=1 --iterations=${ITERATIONS}
 
 # Check for core files - if present then archive them and the
