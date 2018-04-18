@@ -4,8 +4,6 @@ set VERSION=%2
 set SHA_VERSION=%3
 set EDITION=%4
 
-echo %EDITION%
-
 setlocal enabledelayedexpansion
 
 set OS=windows
