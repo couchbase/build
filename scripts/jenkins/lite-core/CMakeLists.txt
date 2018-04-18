@@ -18,7 +18,10 @@ SET (CB_DOWNLOAD_DEPS_DEFAULT_MANIFEST
 LIST (APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/tlm/cmake/Modules")
 ADD_SUBDIRECTORY (tlm/deps)
 if("${EDITION}" STREQUAL "enterprise")
+    message(STATUS "Building Enterprise Edition...")
     set(BUILD_ENTERPRISE ON CACHE BOOL "Set whether or not to build enterprise edition")
+else()
+    message(STATUS "Building Community Edition because EDITION was set to ${EDITION}...")
 endif()
 
 ADD_SUBDIRECTORY (couchbase-lite-core)
