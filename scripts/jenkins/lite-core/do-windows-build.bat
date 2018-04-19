@@ -43,7 +43,7 @@ for %%A in (Win32 Win64 ARM) do (
         call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! RelWithDebInfo || goto :error
         call :bld %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo || goto :error
         if "%EDITION%"=="enterprise" (
-            call :unit-test %WORKSPACE%\build_!TARGET!  !ARCH! || goto :error
+            call :unit-test %WORKSPACE%\build_!TARGET!\%PRODUCT%  !ARCH! || goto :error
         )
         if "!ARCH!"=="Win32" (
             call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32-winstore.zip *.dll *.pdb STORE_Win32 RELEASE || goto :error
