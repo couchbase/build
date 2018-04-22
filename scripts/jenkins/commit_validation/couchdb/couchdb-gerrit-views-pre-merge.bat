@@ -13,8 +13,8 @@ call "%CURDIR%..\single-project-gerrit.bat" %*
 @echo ============================================
 
 cd testrunner
-python scripts/start_cluster_and_run_tests.py "cmake --build ..\..\build --target" b/resources/dev-single-node.ini conf/view-conf/py-view-pre-merge.conf || goto :error
-python scripts/start_cluster_and_run_tests.py "cmake --build ..\..\build --target" b/resources/dev-4-nodes.ini conf/view-conf/py-view-pre-merge.conf || goto :error
+python scripts/start_cluster_and_run_tests.py "cmake --build ..\..\build --target" b/resources/dev-single-node.ini conf/view-conf/py-view-pre-merge-sanscreatedeleteviews.conf || goto :error
+python scripts/start_cluster_and_run_tests.py "cmake --build ..\..\build --target" b/resources/dev-4-nodes.ini     conf/view-conf/py-view-pre-merge-sanscreatedeleteviews.conf || goto :error
 cd ..
 
 :end
