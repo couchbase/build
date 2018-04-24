@@ -25,7 +25,7 @@ cd liteserv-ios
 # Get code updates
 
 git clean -dfx
-git checkout ${BRANCH}
+#git checkout ${BRANCH}
 git pull
 git log -3
 git status
