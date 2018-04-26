@@ -68,7 +68,11 @@ case "$PRODUCT" in
         ;;
     *ios)
         REL_DIRNAME=ios
-        S3_REL_DIRNAME=couchbase-lite/ios
+        if [[ ${RELEASE} == *1.* ]]; then
+            S3_REL_DIRNAME=couchbase-lite/ios
+        else
+            S3_REL_DIRNAME=couchbase-lite-ios
+        fi
         ;;
     *tvos)
         PRODUCT=couchbase-lite-ios
@@ -81,14 +85,22 @@ case "$PRODUCT" in
         S3_REL_DIRNAME=couchbase-lite/macosx
         ;;
     *android)
-        S3_REL_DIRNAME=couchbase-lite/android
+        if [[ ${RELEASE} == *1.* ]]; then
+            S3_REL_DIRNAME=couchbase-lite/android
+        else
+            S3_REL_DIRNAME=couchbase-lite-android
+        fi
         ;;
     *java)
         S3_REL_DIRNAME=couchbase-lite/java
         ;;
     *net)
         REL_DIRNAME=couchbase-lite-net
-        S3_REL_DIRNAME=couchbase-lite/net
+        if [[ ${RELEASE} == *1.* ]]; then
+            S3_REL_DIRNAME=couchbase-lite/net
+        else
+            S3_REL_DIRNAME=couchbase-lite-net
+        fi
         ;;
     *)
         echo "Unsupported Product!"
@@ -152,10 +164,10 @@ get_s3_upload_link()
 }
 
 cd ${SRC_DIR}
-FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5|.\sha*|test_coverage*|CHANGELOG|unsigned')
+FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5*|.\sha*|test_coverage*|CHANGELOG|changes\.log|unsigned|CBLTestServer')
 for fl in $FILES; do
-    md5sum ${fl} > ${fl}.md5
-    sha256sum ${fl} > ${fl}.sha256
+    md5sum ${fl}    | cut -c1-32 > ${fl}.md5
+    sha256sum ${fl} | cut -c1-64 > ${fl}.sha256
     upload ${fl}
     upload ${fl}.md5
     upload ${fl}.sha256
