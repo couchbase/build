@@ -2,7 +2,7 @@
 
 # Bump this when rebuilding with changes
 TAG=$(date +%Y%m%d)
-IMAGE=ceejatec/centos-74-couchbase-build
+IMAGE=ceejatec/centos-72-couchbase-build
 
 mkdir -p build
 cp -a -u ../../util/couchbuilder_start.sh build

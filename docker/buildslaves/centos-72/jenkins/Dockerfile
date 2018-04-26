@@ -1,12 +1,40 @@
 # Docker container for Centos 7.4
 
-FROM centos:7.4.1708
+FROM centos:7.2.1511
 MAINTAINER build-team@couchbase.com
 
 USER root
-RUN yum clean all && yum swap -y fakesystemd systemd
+# We first add the Centos 7.2 repository from Centos Vault, so we're only
+# getting packages from Centos 7.2. This is primarily so that we stick
+# with OpenSSL 1.0.1e.
+COPY Centos72.repo /etc/yum.repos.d
+RUN rm /etc/yum.repos.d/CentOS-Base.repo
 
-RUN yum install --setopt=keepcache=0 -y openssh-server sudo deltarpm
+# Work around odd RPM database problems - some from https://github.com/moby/moby/issues/10180
+RUN yum clean all && rpm --rebuilddb && yum install -y yum-plugin-ovl deltarpm
+
+### Install Couchbase build dependencies ######################################
+# * Packages from the base CentOS repositories
+RUN yum install --setopt=keepcache=0 -y \
+                ed \
+                git \
+                glibc-devel \
+                make \
+                man \
+                ncurses-devel \
+                numactl-devel \
+                openssh-clients \
+                openssh-server \
+                openssl-devel-1.0.1e \
+                python-devel \
+                redhat-lsb-core \
+                rpm-build \
+                ruby rubygems rubygem-rake \
+                sudo \
+                tar \
+                unzip \
+                which && \
+    ln -s /usr/bin/python2.7 /usr/bin/python2.6
 
 # Set up for SSH daemon
 RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
@@ -23,26 +51,6 @@ RUN groupadd -g1000 couchbase && \
     echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/wheel_group && \
     echo 'Defaults:%wheel !requiretty' >> /etc/sudoers.d/wheel_group && \
     chmod 440 /etc/sudoers.d/wheel_group
-
-### Install Couchbase build dependencies ######################################
-# * Packages from the base CentOS repository
-RUN yum install --setopt=keepcache=0 -y \
-                ed \
-                git \
-                glibc-devel \
-                make \
-                man \
-                ncurses-devel \
-                numactl-devel \
-                openssh-clients openssl-devel \
-                python-devel \
-                redhat-lsb-core \
-                rpm-build \
-                ruby rubygems rubygem-rake \
-                tar \
-                unzip \
-                which && \
-    ln -s /usr/bin/python2.7 /usr/bin/python2.6
 
 # GCC (from couchbasebuild/centos-7-gcc)
 COPY build/local /usr/local
@@ -87,18 +95,6 @@ RUN mkdir /tmp/deploy && \
 # * repo
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo && \
     chmod a+x /usr/local/bin/repo
-
-# Oracle JDK (for Jenkins and Analytics).
-RUN mkdir /tmp/deploy && \
-    cd /tmp/deploy && \
-    curl -L --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" \
-    http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz -o jdk.tgz && \
-    cd /usr/local && \
-    tar xvzf /tmp/deploy/jdk.tgz && \
-    ln -s jdk* java && \
-    for file in /usr/local/java/bin/*; do ln -s $file /usr/local/bin; done && \
-    rm -rf /tmp/deploy
-ENV JAVA_HOME=/usr/local/java
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
