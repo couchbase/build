@@ -2,11 +2,11 @@
 # Publish built packages from latestbuilds to maven repo
 
 function usage {
-    echo -e "\nusage: ${0} product release bld_num release_version publish_url \n\n"
+    echo -e "\nusage: ${0} product release bld_num release_version publish_url repo_id \n\n"
     exit 0
 }
 
-if [ "$#" -ne 5 ]; then
+if [ "$#" -ne 6 ]; then
     usage
     exit 1
 fi
@@ -17,10 +17,11 @@ RELEASE=${2}
 BLD_NUM=${3}
 RELEASE_VERSION=${4}
 PUBLISH_URL=${5}
+REPO_ID=${6}
 
 LATEST_URL="http://172.23.120.24/builds/latestbuilds/${PRODUCT}/${RELEASE}/${BLD_NUM}/"
 GROUPID='com.couchbase.lite'
-REPOSITORY_ID='releases'
+REPOSITORY_ID=${REPO_ID}
 POM_FILE='default-pom.xml'
 
 if [[ ! ${PUBLISH_USERNAME} ]] || [[ ! ${PUBLISH_PASSWORD} ]]; then
@@ -38,7 +39,7 @@ echo "RELEASE_VERSION: $RELEASE_VERSION"
 function update_version {
     # Update pom.xml
     echo "Update release version in ${POM_FILE} \n"
-    OLD_VERSION="2.0.0-${BLD_NUM}"
+    OLD_VERSION="${RELEASE}-${BLD_NUM}"
     sed -i.bak "s#<version>${OLD_VERSION}</version>#<version>${RELEASE_VERSION}</version>#" ${POM_FILE} || exit 1
     diff ${POM_FILE} ${POM_FILE}.bak
 }

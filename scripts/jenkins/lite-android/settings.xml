@@ -9,6 +9,11 @@
       <username>${publish.username}</username>
       <password>${publish.password}</password>
     </server>
+    <server>
+      <id>bintray-cb-buildteam-couchbase</id>
+      <username>${publish.username}</username>
+      <password>${publish.password}</password>
+    </server>
   </servers>
 
   <pluginGroups>
