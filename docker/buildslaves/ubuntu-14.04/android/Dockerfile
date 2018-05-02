@@ -4,7 +4,7 @@
 # construction of the base image.
 
 FROM ceejatec/naked-ubuntu:14.04
-MAINTAINER michael.kwok@couchbase.com
+MAINTAINER build-team@couchbase.com
 
 USER root
 
@@ -14,7 +14,7 @@ RUN apt-get update && \
     rm -f /var/cache/apt/archives/*.deb && \
     mkdir /var/run/sshd # update
 
-# Create couchbase user with password-less sudo privs, and give 
+# Create couchbase user with password-less sudo privs, and give
 # ownership of /opt/couchbase
 RUN useradd couchbase -G sudo -m -s /bin/bash && \
     mkdir -p /opt/couchbase && chown -R couchbase:couchbase /opt/couchbase && \
@@ -43,6 +43,7 @@ RUN mkdir /tmp/deploy && \
     cd /tmp && rm -rf /tmp/deploy
 
 # Node.js dependency to build phonegap-plugin
+RUN npm config set registry="http://registry.npmjs.org/"
 RUN npm install xmlbuilder
 RUN npm install findit
 RUN npm install ncp
@@ -72,29 +73,28 @@ RUN echo 'export ANDROID_NDK_HOME="/home/couchbase/jenkins/tools/android-ndk-r12
 USER couchbase
 RUN mkdir -p /home/couchbase/jenkins/tools && \
     cd /home/couchbase/jenkins/tools && \
-    curl -L http://dl.google.com/android/android-sdk_r24.4.1-linux.tgz -o android-sdk.tgz && \
-    tar xzf android-sdk.tgz && \
-    mv android-sdk-linux android-sdk && \
+    curl -L https://dl.google.com/android/repository/tools_r25.2.3-linux.zip -o android-sdk.zip && \
+    unzip android-sdk.zip -d android-sdk && \
     chown -R couchbase:couchbase android-sdk && \
     chmod 755 android-sdk
 
+ENV ANDROID_HOME /home/couchbase/jenkins/tools/android-sdk
+ENV SDK_CMD $ANDROID_HOME/tools/bin/sdkmanager
+
+# Android SDK License
+RUN mkdir $ANDROID_HOME/licenses && \
+    echo 8933bad161af4178b1185d1a37fbf41ea5269c55 > $ANDROID_HOME/licenses/android-sdk-license  && \
+    echo d56f5187479451eabf01fb78af6dfcb131a6481e >> $ANDROID_HOME/licenses/android-sdk-license && \
+    echo 84831b9409646a918e30573bab4c9c91346d8abd > $ANDROID_HOME/licenses/android-sdk-preview-license
+
 RUN . /etc/profile && \
-    echo yes | android update sdk --filter platform-tools,android-19,extra --no-ui --force --all && \
-    filter=`android list sdk --all | grep Build-tools | grep 19.1 | awk '{ print $1 }' | tr -d -` && \
-    echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    echo yes | android update sdk --filter sys-img-armeabi-v7a-android-19 --no-ui --force --all && \
-    echo yes | android update sdk --filter platform-tools,android-22,extra --no-ui --force --all && \
-    filter=`android list sdk --all | grep Build-tools | grep 22.0.1 | awk '{ print $1 }' | tr -d -` && \
-    echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    echo yes | android update sdk --filter sys-img-armeabi-v7a-android-22 --no-ui --force --all && \
-    filter=`android list sdk --all | grep Build-tools | grep 23.0.3 | awk '{ print $1 }' | tr -d -` && \
-    echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    echo yes | android update sdk --filter platform-tools,android-23,extra --no-ui --force --all && \
-    filter=`android list sdk --all | grep Build-tools | grep "revision 24" | awk '{ print $1 }' | tr -d -` && \
-    echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    filter=`android list sdk --all | grep "SDK Platform Android" | grep "API 24" | awk '{ print $1 }' | tr -d -` && \
-    echo yes | android update sdk --filter $filter --no-ui --force --all && \
-    echo yes | android update sdk --filter platform-tools,android-23.1,extra --no-ui --force --all
+    $SDK_CMD "tools" "platform-tools" && \
+    $SDK_CMD "build-tools;27.0.3" "build-tools;27.0.0" "build-tools;26.0.2" "build-tools;24.0.0" "build-tools;25.0.3" "build-tools;22.0.1" "build-tools;23.0.3" "build-tools;19.1.0" && \
+    $SDK_CMD "platforms;android-27" "platforms;android-26" "platforms;android-25" "platforms;android-24" "platforms;android-22" "platforms;android-16" && \
+    $SDK_CMD "system-images;android-16;default;armeabi-v7a" && \
+    $SDK_CMD "system-images;android-19;default;armeabi-v7a" && \
+    $SDK_CMD "system-images;android-24;default;armeabi-v7a" && \
+    $SDK_CMD "system-images;android-25;google_apis;armeabi-v7a"
 
 # Android NDK
 USER couchbase
