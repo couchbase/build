@@ -115,7 +115,8 @@ for mount in mount_dirs:
 
 run_args.extend([
      "--ulimit=core=-1",
-     image
+     image,
+     "default"
 ])
 # Finally, create new slave container.
 print "Creating new {0} container...".format(slave)
