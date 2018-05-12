@@ -147,7 +147,7 @@ fi
 
 # Tweak install directory in Voltron-magic fashion
 cd ${WORKSPACE}/voltron
-make PRODUCT_VERSION=${PRODUCT_VERSION} LICENSE=LICENSE-${EDITION}.txt \
+make PRODUCT_VERSION=${PRODUCT_VERSION} BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
      BUILD_DIR=${WORKSPACE} DISTRO=${DISTRO} \
      TOPDIR=${WORKSPACE}/voltron build-filter overlay
 if [ -d "server-overlay-${PKG}" ]
@@ -206,7 +206,7 @@ then
     find /var/folders -type d -name SharedPrecompiledHeaders | xargs rm -rf
 
     cd ${WORKSPACE}/couchdbx-app
-    LICENSE=LICENSE-${EDITION}.txt make couchbase-server-zip
+    BUILD_ENTERPRISE=${BUILD_ENTERPRISE} make couchbase-server-zip
     cd ${WORKSPACE}
 fi
 
