@@ -68,7 +68,7 @@ case "$PRODUCT" in
         ;;
     *ios)
         REL_DIRNAME=ios
-        if [[ ${RELEASE} == *1.* ]]; then
+        if [[ ${RELEASE} == 1.* ]]; then
             S3_REL_DIRNAME=couchbase-lite/ios
         else
             S3_REL_DIRNAME=couchbase-lite-ios
@@ -85,7 +85,7 @@ case "$PRODUCT" in
         S3_REL_DIRNAME=couchbase-lite/macosx
         ;;
     *android)
-        if [[ ${RELEASE} == *1.* ]]; then
+        if [[ ${RELEASE} == 1.* ]]; then
             S3_REL_DIRNAME=couchbase-lite/android
         else
             S3_REL_DIRNAME=couchbase-lite-android
@@ -96,7 +96,7 @@ case "$PRODUCT" in
         ;;
     *net)
         REL_DIRNAME=couchbase-lite-net
-        if [[ ${RELEASE} == *1.* ]]; then
+        if [[ ${RELEASE} == 1.* ]]; then
             S3_REL_DIRNAME=couchbase-lite/net
         else
             S3_REL_DIRNAME=couchbase-lite-net
@@ -114,8 +114,10 @@ S3_DIR=s3://packages.couchbase.com/releases/${S3_REL_DIRNAME}/${VERSION}
 RELEASE_DIR=${REL_MOUNT}/mobile/${S3_REL_DIRNAME}/${VERSION}
 
 # Fix the latestbuilds path for ios 1.4.x
-if [[ ${PRODUCT} == *ios ]] && [[ ${RELEASE} == *1.* ]]; then
+if [[ ${PRODUCT} == *ios ]] && [[ ${RELEASE} == 1.* ]]; then
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${REL_DIRNAME}/${BLD_NUM}
+elif [[ ${PRODUCT} == couchbase-lite-net ]]; then
+    SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${REL_DIRNAME}/${BLD_NUM}/release
 else
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}
 fi
@@ -166,7 +168,7 @@ get_s3_upload_link()
 cd ${SRC_DIR}
 FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5*|.\sha*|test_coverage*|CHANGELOG|changes\.log|unsigned|CBLTestServer')
 for fl in $FILES; do
-    md5sum ${fl}    | cut -c1-32 > ${fl}.md5
+    md5sum ${fl}  | cut -c1-32 > ${fl}.md5
     sha256sum ${fl} | cut -c1-64 > ${fl}.sha256
     upload ${fl}
     upload ${fl}.md5
