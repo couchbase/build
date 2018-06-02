@@ -70,7 +70,6 @@ VERSION_DATA = {
         "platforms": {
             "centos6": False,
             "centos7": True,
-            "debian7": False,
             "debian8": True,
             "debian9": False,
             "macos": False,
