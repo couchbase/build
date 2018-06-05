@@ -70,7 +70,6 @@ RUN $SDK_CMD "system-images;android-16;default;armeabi-v7a"
 RUN $SDK_CMD "system-images;android-24;default;armeabi-v7a"
 RUN $SDK_CMD "system-images;android-25;google_apis;armeabi-v7a"
 RUN $SDK_CMD "extras;android;m2repository" "extras;google;m2repository"
-RUN $SDK_CMD --update  # fix the "Your emulator is out of date" message
 
 # Android NDK
 USER couchbase
