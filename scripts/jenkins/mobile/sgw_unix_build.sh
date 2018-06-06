@@ -221,6 +221,8 @@ fi
 
 export CGO_ENABLED=1
 GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbase/sync_gateway/...
+# build gozip
+GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbase/ns_server/deps/gocode/src/gozip
 
 if [[ -e ${BIN_DIR}/${EXEC} ]]
   then
@@ -336,6 +338,7 @@ popd
 
 echo ======== Prep STAGING for packaging =============================
 cp    ${COLLECTINFO_DIST}                  ${STAGING}/tools/
+cp    ${BIN_DIR}/gozip                     ${STAGING}/tools/
 cp    ${BLD_DIR}/README.txt                ${STAGING}
 echo  ${VERSION}-${BLD_NUM}            >   ${STAGING}/VERSION.txt
 cp    ${LIC_DIR}/LICENSE_${EDITION}.txt    ${STAGING}/LICENSE.txt
