@@ -17,7 +17,7 @@ def parse_src_input(input):
     for input_src in input_src_data:
         input_src_name = input_src.get('name')
         input_src_path = input_src.get('path', input_src_name)
-        input_src_revision = input_src.get('revision')
+        input_src_revision = input_src.get('revision', 'master')
 
         input_lock_src[input_src_path] = {
             'name': input_src_name,
@@ -33,6 +33,7 @@ def parse_src_input(input):
 def main(args):
 
     lock_src_dict = parse_src_input(args.input_lock_src)
+    master_only = args.master_only
 
     # Loop through input_src file
     # Replace the git SHA from src_lock_input xml
@@ -43,20 +44,23 @@ def main(args):
     for result in result_dict:
         result_src_name = result.get('name')
         result_path = result.get('path', result_src_name)
-        result_revision = result.get('revision')
-        if result_path and not result_revision or not sha_regex.match(result_revision):
-            try:
-                result.attrib['revision'] = lock_src_dict[result_path]['revision']
-            except KeyError as e:
-                print("Error: %s repo not found in \"%s\" input file!" % (e, args.input_lock_src))
-                print()
-                sys.exit(1)
+        result_revision = result.get('revision', 'master')
+        if sha_regex.match(result_revision):
+            continue
+        if master_only and result_revision != "master":
+            continue
+        try:
+            result.attrib['revision'] = lock_src_dict[result_path]['revision']
+        except KeyError as e:
+            print("Error: %s repo not found in \"%s\" input file!" % (e, args.input_lock_src))
+            print()
+            sys.exit(1)
 
     # write data
     tree.write(args.output, encoding='UTF-8',
                xml_declaration=True, pretty_print=True)
     print("\nOutput locked SHA has been generated here: %s\n" % args.output)
-    print
+    print()
 
 
 if __name__ == "__main__":
@@ -74,5 +78,9 @@ if __name__ == "__main__":
                         "default: out.xml",
                         default='out.xml',
                         required=False)
+    parser.add_argument('--master-only',
+                        action='store_true',
+                        help="Only lock projects on 'master' branches")
+
     args = parser.parse_args()
     main(args)
