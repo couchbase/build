@@ -22,7 +22,7 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
 
 # Install Couchbase Lite Android toolchain requirements
-RUN apt-get update && apt-get install -y git-core tar curl unzip gcc-multilib g++-multilib lib32z1 lib32stdc++6 openjdk-8-jdk gnupg2 && \
+RUN apt-get update && apt-get install -y git-core tar curl unzip gcc-multilib g++-multilib lib32z1 lib32stdc++6 openjdk-8-jdk gnupg2 zip && \
     apt-get clean
 
 # Update locale
