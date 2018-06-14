@@ -14,9 +14,8 @@ import os
 #   TESTRUNNER_BRANCH - branch of testrunner to use
 
 # QQQ The set of platforms for a given release should come from a
-# canonical location, such as product-config.json, or perhaps the
-# build database. For now we keep the version-specific platform lists
-# here.
+# canonical location, such as the product-metadata repository.
+# For now we keep the version-specific platform lists here.
 # For now these 'platform' keys are the letters in the installer filenames.
 # The boolean value is whether that platform is passed on to
 # build_sanity_matrix (ie, put into the .properties file).
@@ -97,6 +96,21 @@ VERSION_DATA = {
         "testrunner_branch": "master",
     },
     "6.0.0": {
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian8": True,
+            "debian9": False,
+            "macos": False,
+            "suse11": True,
+            "suse12": False,
+            "ubuntu14": True,
+            "ubuntu16": False,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
+    },
+    "6.5.0": {
         "platforms": {
             "centos6": False,
             "centos7": True,
