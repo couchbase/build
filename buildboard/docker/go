@@ -1,8 +1,0 @@
-#!/bin/sh
-
-#TAG=`date +%Y%m%d`
-TAG=20160825
-
-#mkdir -p build
-#cp -a ../../util/couchbuilder_start.sh build
-docker build -t mkwok/centos-buildboard:$TAG .
