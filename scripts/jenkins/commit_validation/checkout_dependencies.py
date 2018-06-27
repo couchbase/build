@@ -34,6 +34,7 @@ def main():
 
     for line in p.stdout:
         project, path, refspec = line.split(' ')
+        path = path.replace('/', os.path.sep)
         print("Checking out {} in ./{} at {}".format(project, path, refspec))
         sys.stdout.flush()
 
