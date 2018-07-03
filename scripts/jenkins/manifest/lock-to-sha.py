@@ -49,6 +49,8 @@ def main(args):
             continue
         if master_only and result_revision != "master":
             continue
+        if result_src_name in args.skip_project_list:
+            continue
         try:
             result.attrib['revision'] = lock_src_dict[result_path]['revision']
         except KeyError as e:
@@ -81,6 +83,10 @@ if __name__ == "__main__":
     parser.add_argument('--master-only',
                         action='store_true',
                         help="Only lock projects on 'master' branches")
+    parser.add_argument('--skip-project-list',
+                        nargs='+',
+                        help='List of projects to skip',
+                        default='testrunner')
 
     args = parser.parse_args()
     main(args)
