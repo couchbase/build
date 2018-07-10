@@ -18,6 +18,30 @@ usage() {
     exit 5
 }
 
+# Utility function to compress an uncompressed .deb. Skips operation
+# if environment variable SKIP_COMPRESS is set to any non-empty value;
+# useful for debugging.
+compress_deb() {
+    DEB=$1
+    if [ ! -z "${SKIP_COMPRESS}" ]
+    then
+        return
+    fi
+
+    # This file always contains these three exact files: debian-binary,
+    # control.tar.gz, and data.tar or data.tar.xz, in that order. We want to
+    # replace data.tar with data.tar.xz when necessary.
+    rm -f debian-binary control.tar.gz data.tar data.tar.xz
+    ar x ${DEB}
+    if [ -e data.tar ]
+    then
+        pixz data.tar data.tar.xz
+        rm ${DEB}
+        ar rc ${DEB} debian-binary control.tar.gz data.tar.xz
+    fi
+    rm -f debian-binary control.tar.gz data.tar data.tar.xz
+}
+
 if [ "$#" -ne 4 ]
 then
     usage
@@ -77,9 +101,9 @@ fi
 # Step 0: Derived values and cleanup. (Some of these are RPM- or
 # DEB-specific, but will safely do nothing on other systems.)
 export PRODUCT_VERSION=${VERSION}-${BLD_NUM}
-rm -f *.rpm *.deb *.zip
+rm -f *.rpm *.deb *.zip trigger*.properties *.md5 *.sha256
 rm -rf ~/rpmbuild
-rm -rf ${WORKSPACE}/voltron/build/deb
+rm -rf ${WORKSPACE}/voltron/build
 rm -rf /opt/couchbase/*
 find goproj godeps -name \*.a -print0 | xargs -0 rm -f
 
@@ -142,7 +166,7 @@ ruby voltron/cleanup.rb /opt/couchbase
 # already there.
 if [ ! -e "manifest.xml" ]
 then
-  repo manifest -r > manifest.xml
+    repo manifest -r > manifest.xml
 fi
 
 # Tweak install directory in Voltron-magic fashion
@@ -158,8 +182,6 @@ then
     if [ "${PKG}" = "rpm" ]
     then
         cp -R server-overlay-${PKG}/${FLAVOR}/* /opt/couchbase
-        cp server-rpm.${FLAVOR}.spec.tmpl server-rpm.spec.tmpl
-        cp moxi-rpm.${FLAVOR}.spec.tmpl moxi-rpm.spec.tmpl
     fi
 fi
 
@@ -186,78 +208,116 @@ else
     OPENSSL_VER=1.0.0
 fi
 
-# The "product name" is couchbase-server for Enterprise and
-# couchbase-server-community for Community, to keep them
-# distinguished in deb/rpm repositories.
+# From this point on, the Enterprise build "splits" into two EDITIONs,
+# "enterprise" and "enterprise-no-jre".
 if [ "${EDITION}" = "enterprise" ]
 then
-    PRODUCT=couchbase-server
+    EDITIONS="enterprise enterprise-no-jre"
 else
-    PRODUCT=couchbase-server-community
+    EDITIONS=community
 fi
 
-# Execute platform-specific packaging step
-export LD_LIBRARY_PATH=/opt/couchbase/lib
-./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase ${FLAVOR} ${OPENSSL_VER}
+for EDITION in ${EDITIONS}
+do
+    # The "product name" (passed to voltron) is couchbase-server or
+    # couchbase-server-enterprise-no-jre for Enterprise and
+    # couchbase-server-community for Community, to keep them distinguished in
+    # deb/rpm repositories.
+    if [ "${EDITION}" = "enterprise" ]
+    then
+        PRODUCT=couchbase-server
+    else
+        PRODUCT=couchbase-server-${EDITION}
+    fi
 
-if [ "${PKG}" = "mac" ]
-then
-    # Xcode leaves stale precompiled headers and expects us to clean them up
-    find /var/folders -type d -name SharedPrecompiledHeaders | xargs rm -rf
+    # If this is the enterprise-no-jre step, first delete the packaged
+    # JRE from the installation directory
+    if [ "${EDITION}" = "enterprise-no-jre" ]
+    then
+        rm -rf /opt/couchbase/lib/cbas/runtime
+    fi
 
-    cd ${WORKSPACE}/couchdbx-app
-    BUILD_ENTERPRISE=${BUILD_ENTERPRISE} make couchbase-server-zip
+    # Execute platform-specific packaging step
+    cd ${WORKSPACE}/voltron
+    export LD_LIBRARY_PATH=/opt/couchbase/lib
+    ./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase ${FLAVOR} ${OPENSSL_VER}
+
+    if [ "${PKG}" = "mac" ]
+    then
+        # Xcode leaves stale precompiled headers and expects us to clean them up
+        find /var/folders -type d -name SharedPrecompiledHeaders | xargs rm -rf
+
+        cd ${WORKSPACE}/couchdbx-app
+        BUILD_ENTERPRISE=${BUILD_ENTERPRISE} make couchbase-server-zip
+        cd ${WORKSPACE}
+    fi
+
+    # Move final installation package to top of workspace, and set up
+    # trigger.properties for downstream jobs
+    case "$PKG" in
+        rpm)
+            ARCHITECTURE=x86_64
+            INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
+            cp ~/rpmbuild/RPMS/x86_64/${PRODUCT}-[0-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
+
+            # Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
+            # newer ones and SuSE use "-debuginfo-*.rpm".
+            # Scan for both and move to correct final name.
+            DBG_PREFIX="${HOME}/rpmbuild/RPMS/x86_64/${PRODUCT}"
+            DEBUG=""
+            if ls ${DBG_PREFIX}-debug-*.rpm > /dev/null 2>&1;
+            then
+              DEBUG=debug
+            elif ls ${DBG_PREFIX}-debuginfo-*.rpm > /dev/null 2>&1;
+            then
+              DEBUG=debuginfo
+            else
+              echo "Warning: No ${PRODUCT}-{debug,debuginfo}-*.rpm package found; skipping copy."
+            fi
+            if [ -n "$DEBUG" ]
+            then
+              cp ${DBG_PREFIX}-${DEBUG}-*.rpm \
+                 ${WORKSPACE}/couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
+            fi
+            ;;
+        deb)
+            ARCHITECTURE=amd64
+            INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
+            DBG_FILENAME=couchbase-server-${EDITION}-dbg_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
+            cp build/deb/${PRODUCT}_*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
+            cp build/deb/${PRODUCT}-dbg_*.deb ${WORKSPACE}/${DBG_FILENAME}
+            compress_deb ${WORKSPACE}/${INSTALLER_FILENAME}
+            compress_deb ${WORKSPACE}/${DBG_FILENAME}
+            ;;
+        mac)
+            ARCHITECTURE=x86_64
+            INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}-unsigned.zip
+            cp couchdbx-app/build/Release/*.zip ${WORKSPACE}/${INSTALLER_FILENAME}
+            ;;
+    esac
+
+    # Back to the top
     cd ${WORKSPACE}
-fi
 
-# Move final installation package to top of workspace, and set up
-# trigger.properties for downstream jobs
-case "$PKG" in
-    rpm)
-        ARCHITECTURE=x86_64
-        INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-        cp ~/rpmbuild/RPMS/x86_64/${PRODUCT}-[0-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
+    # Create .sha256 and .md5 checksums.
+    md5sum ${INSTALLER_FILENAME} | cut -c1-32 > ${INSTALLER_FILENAME}.md5
+    sha256sum ${INSTALLER_FILENAME} | cut -c1-64 > ${INSTALLER_FILENAME}.sha256
 
-        # Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
-        # newer ones and SuSE use "-debuginfo-*.rpm".
-        # Scan for both and move to correct final name.
-        DBG_PREFIX="${HOME}/rpmbuild/RPMS/x86_64/${PRODUCT}"
-        DEBUG=""
-        if ls ${DBG_PREFIX}-debug-*.rpm > /dev/null 2>&1;
-        then
-          DEBUG=debug
-        elif ls ${DBG_PREFIX}-debuginfo-*.rpm > /dev/null 2>&1;
-        then
-          DEBUG=debuginfo
-        else
-          echo "Warning: No ${PRODUCT}-{debug,debuginfo}-*.rpm package found; skipping copy."
-        fi
-        if [ -n "$DEBUG" ]
-        then
-          cp ${DBG_PREFIX}-${DEBUG}-*.rpm \
-             ${WORKSPACE}/couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-        fi
-        ;;
-    deb)
-        ARCHITECTURE=amd64
-        INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
-        DBG_FILENAME=couchbase-server-${EDITION}-dbg_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
-        cp build/deb/${PRODUCT}_*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
-        cp build/deb/${PRODUCT}-dbg_*.deb ${WORKSPACE}/${DBG_FILENAME}
-        ;;
-    mac)
-        ARCHITECTURE=x86_64
-        INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}-unsigned.zip
-        cp couchdbx-app/build/Release/*.zip ${WORKSPACE}/${INSTALLER_FILENAME}
-        ;;
-esac
+    TRIGGER_FILE=trigger.properties
+    if [ -e ${TRIGGER_FILE} ]
+    then
+      TRIGGER_FILE=trigger-2.properties
+    fi
+    echo Creating ${TRIGGER_FILE}...
+    cat <<EOF > ${TRIGGER_FILE}
+ARCHITECTURE=${ARCHITECTURE}
+PLATFORM=${DISTRO}
+INSTALLER_FILENAME=${INSTALLER_FILENAME}
+EDITION=${EDITION}
+EOF
 
-# Back to the top
-cd ${WORKSPACE}
-
-# Create .sha256 and .md5 checksums.
-md5sum ${INSTALLER_FILENAME} | cut -c1-32 > ${INSTALLER_FILENAME}.md5
-sha256sum ${INSTALLER_FILENAME} | cut -c1-64 > ${INSTALLER_FILENAME}.sha256
+# End of PRODUCTS loop
+done
 
 # Support for Oracle Enterprise Linux. If we're building Centos 6 or 7, make
 # an exact copy with an oel6/oel7 filename.
@@ -269,14 +329,6 @@ case "$DISTRO" in
         done
         ;;
 esac
-
-echo Creating trigger.properties...
-cat <<EOF > trigger.properties
-ARCHITECTURE=${ARCHITECTURE}
-PLATFORM=${DISTRO}
-INSTALLER_FILENAME=${INSTALLER_FILENAME}
-BUILD_WORKSPACE=${WORKSPACE}
-EOF
 
 echo
 echo =============== DONE!
