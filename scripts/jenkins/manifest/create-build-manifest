@@ -157,6 +157,7 @@ else:
   PARENT_BRANCH = "master"
 # Allow individual manifests to have different PRODUCT as well
 PRODUCT = manifest_config.get("product", PRODUCT)
+BUILD_JOB = manifest_config.get("jenkins_job", "{}-build".format(PRODUCT))
 
 # Set values from input manifest or defaults
 build_element = input_manifest.find("./project[@name='build']")
@@ -303,12 +304,13 @@ properties = {
   "MANIFEST": MANIFEST,
   "PARENT": PARENT,
   "TYPE": TYPE,
+  "BUILD_JOB": BUILD_JOB,
   "FORCE": force
 }
 with open(json_filename, "w") as prop:
   json.dump(properties, prop, indent=2, separators=(',', ': '))
 with open(properties_filename, "w") as prop:
-  prop.write("PRODUCT={PRODUCT}\nRELEASE={RELEASE}\nPRODUCT_BRANCH={PRODUCT_BRANCH}\nVERSION={VERSION}\nBLD_NUM={BLD_NUM}\nMANIFEST={MANIFEST}\nPARENT={PARENT}\nTYPE={TYPE}\nFORCE={FORCE}\n".format(**properties))
+  prop.write("PRODUCT={PRODUCT}\nRELEASE={RELEASE}\nPRODUCT_BRANCH={PRODUCT_BRANCH}\nVERSION={VERSION}\nBLD_NUM={BLD_NUM}\nMANIFEST={MANIFEST}\nPARENT={PARENT}\nTYPE={TYPE}\nBUILD_JOB={BUILD_JOB}\nFORCE={FORCE}\n".format(**properties))
 
 print "Creating {}".format(tarball_filename)
 os.chdir(PRODUCT)
