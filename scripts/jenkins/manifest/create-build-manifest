@@ -1,22 +1,34 @@
 #!/usr/bin/env python
 
-import json
-import xml.etree.ElementTree as ET
 import argparse
-import sys
-from subprocess import call, check_call, check_output
-import os
+import contextlib
+import gzip
 import io
+import json
+import os
 import shutil
-from datetime import datetime
+import sys
 import time
 import tarfile
-import gzip
-from manifest_util import remember_cwd
+import xml.etree.ElementTree as ET
+
+from datetime import datetime
+from subprocess import call, check_call, check_output
+
 
 # Most of this script is involved with computing important values
 # for producing a new manifest. These important values are represented
 # as all-caps CONSTANTS once they are finally set.
+
+@contextlib.contextmanager
+def pushd(new_dir):
+  old_dir = os.getcwd()
+  os.chdir(new_dir)
+
+  try:
+    yield
+  finally:
+    os.chdir(old_dir)
 
 
 # Command-line args
@@ -68,6 +80,11 @@ if MANIFEST_PATH is '':
   PRODUCT="couchbase-server"
   MANIFEST_PATH=MANIFEST
 
+# Handle cbdeps set of projects specially
+if PRODUCT == 'cbdeps':
+  PRODUCT, _, MANIFEST_PATH = MANIFEST_PATH.partition('/')
+  PRODUCT = 'cbdeps/{}'.format(PRODUCT)
+
 # Sync manifest project
 if not os.path.isdir("manifest"):
   check_call(["git", "clone", MANIFEST_PROJECT, "manifest"])
@@ -108,8 +125,7 @@ module_projects = manifest_config.get("module_projects")
 if module_projects is not None:
   if not os.path.isdir("module_projects"):
     os.mkdir("module_projects")
-  with remember_cwd():
-    os.chdir("module_projects")
+  with pushd("module_projects"):
     print('module_projects is set, so updating manifest...')
     check_call(["{}/update_manifest_from_submodules".format(script_dir),
       "../manifest/{}".format(MANIFEST)] + module_projects)
@@ -162,15 +178,15 @@ if RELEASE is None:
 # source directories, leaving just .repo to avoid needing to suck
 # everything down from github again.
 if not os.path.isdir(PRODUCT):
-  os.mkdir(PRODUCT)
-os.chdir(PRODUCT)
-for entry in [f for f in os.listdir(".") if f != ".repo"]:
-  shutil.rmtree(entry) if os.path.isdir(entry) else os.remove(entry)
-check_call(["repo", "init", "-u", "../manifest", "-g", "all", "-m", MANIFEST])
-check_call(["repo", "sync", "--jobs=6", "--force-sync"])
+  os.makedirs(PRODUCT)
+top_dir = os.getcwd()
+with pushd(PRODUCT):
+  for entry in [f for f in os.listdir(".") if f != ".repo"]:
+    shutil.rmtree(entry) if os.path.isdir(entry) else os.remove(entry)
+  check_call(["repo", "init", "-u", "{}/manifest".format(top_dir), "-g", "all", "-m", MANIFEST])
+  check_call(["repo", "sync", "--jobs=6", "--force-sync"])
 
 # Sync build-team-manifests project and checkout/create PRODUCT_BRANCH
-os.chdir("..")
 if not os.path.isdir("build-team-manifests"):
   check_call(["git", "clone",
     "ssh://git@github.com/{}/build-team-manifests".format(BUILD_MANIFESTS_ORG)])
@@ -202,65 +218,65 @@ os.chdir("..")
 BLD_NUM = max(LAST_BUILD_NUM + 1, START_BUILD)
 
 # See if there are changes since the last build, unless --force specified
-os.chdir(PRODUCT)
-if (os.path.exists(build_manifest_filename)):
-  output = check_output(["repo", "diffmanifests", "--raw", build_manifest_filename])
-  # Strip out non-project lines, and also testrunner project
-  lines = [x for x in output.splitlines()
-           if not (x.startswith(' ') or x.startswith('C testrunner'))]
-  if (len(lines) == 0):
-    if (not force):
-      print "No changes since last build {}-{}; not executing new build".format(
-        VERSION, LAST_BUILD_NUM)
-      with open(json_filename, "w") as prop:
-        json.dump({}, prop)
-      with open(properties_filename, "w") as prop:
-        prop.write("")
-      sys.exit(0)
-    else:
-      print "No changes since last build {}-{}, but forcing new build anyway".format(
-        VERSION, LAST_BUILD_NUM)
+with pushd(PRODUCT):
+  if os.path.exists(build_manifest_filename):
+    output = check_output(["repo", "diffmanifests", "--raw", build_manifest_filename])
+    # Strip out non-project lines, and also testrunner project
+    lines = [x for x in output.splitlines()
+             if not (x.startswith(' ') or x.startswith('C testrunner'))]
+    if (len(lines) == 0):
+      if (not force):
+        print "No changes since last build {}-{}; not executing new build".format(
+          VERSION, LAST_BUILD_NUM)
+        with open(json_filename, "w") as prop:
+          json.dump({}, prop)
+        with open(properties_filename, "w") as prop:
+          prop.write("")
+        sys.exit(0)
+      else:
+        print "No changes since last build {}-{}, but forcing new build anyway".format(
+          VERSION, LAST_BUILD_NUM)
 
-  print "Saving CHANGELOG..."
-  # Have to re-run "repo diffmanifests" without --raw to get pretty output
-  output = check_output(["repo", "diffmanifests", build_manifest_filename])
-  with open(changelog_filename, "w") as f:
-    f.write(output)
+    print "Saving CHANGELOG..."
+    # Have to re-run "repo diffmanifests" without --raw to get pretty output
+    output = check_output(["repo", "diffmanifests", build_manifest_filename])
+    with open(changelog_filename, "w") as f:
+      f.write(output)
 
-# Ensure build manifest directory exists
-build_manifest_dir = os.path.dirname(build_manifest_filename)
-if not os.path.isdir(build_manifest_dir):
-  os.makedirs(build_manifest_dir)
+  # Ensure build manifest directory exists
+  build_manifest_dir = os.path.dirname(build_manifest_filename)
+  if not os.path.isdir(build_manifest_dir):
+    os.makedirs(build_manifest_dir)
 
-# Create the new build manifest and insert all variables
-def insert_child_annot(parent, name, value):
-  annot = ET.Element("annotation")
-  annot.set("name", name)
-  annot.set("value", value)
-  annot.tail = "\n    "
-  parent.insert(0, annot)
+  # Create the new build manifest and insert all variables
+  def insert_child_annot(parent, name, value):
+    annot = ET.Element("annotation")
+    annot.set("name", name)
+    annot.set("value", value)
+    annot.tail = "\n    "
+    parent.insert(0, annot)
 
-print "Updating build manifest {}".format(build_manifest_filename)
-with open(build_manifest_filename, "w") as f:
-  check_call(["repo", "manifest", "-r"], stdout=f)
-last_build_manifest = ET.parse(build_manifest_filename)
-build_element = last_build_manifest.find("./project[@name='build']")
-insert_child_annot(build_element, "BLD_NUM", str(BLD_NUM))
-insert_child_annot(build_element, "PRODUCT", PRODUCT)
-insert_child_annot(build_element, "PRODUCT_BRANCH", PRODUCT_BRANCH)
-insert_child_annot(build_element, "RELEASE", RELEASE)
-last_build_manifest.write(build_manifest_filename)
+  print "Updating build manifest {}".format(build_manifest_filename)
+  with open(build_manifest_filename, "w") as f:
+    check_call(["repo", "manifest", "-r"], stdout=f)
+  last_build_manifest = ET.parse(build_manifest_filename)
+  build_element = last_build_manifest.find("./project[@name='build']")
+  insert_child_annot(build_element, "BLD_NUM", str(BLD_NUM))
+  insert_child_annot(build_element, "PRODUCT", PRODUCT)
+  insert_child_annot(build_element, "PRODUCT_BRANCH", PRODUCT_BRANCH)
+  insert_child_annot(build_element, "RELEASE", RELEASE)
+  last_build_manifest.write(build_manifest_filename)
 
-# Compute the commit message - dates in python are a bit hard
-now = datetime.now()
-tz = time.tzname[time.localtime().tm_isdst]
-commit_msg = "{} {} '{}' build {}-{}\n\n{} {}{}".format(
-  PRODUCT, RELEASE, PRODUCT_BRANCH, VERSION, BLD_NUM,
-  now.strftime("%Y/%m/%d %H:%M:%S"), tz,
-  "" if branch_exists == 0 else " (first branch build)")
+  # Compute the commit message - dates in python are a bit hard
+  now = datetime.now()
+  tz = time.tzname[time.localtime().tm_isdst]
+  commit_msg = "{} {} '{}' build {}-{}\n\n{} {}{}".format(
+    PRODUCT, RELEASE, PRODUCT_BRANCH, VERSION, BLD_NUM,
+    now.strftime("%Y/%m/%d %H:%M:%S"), tz,
+    "" if branch_exists == 0 else " (first branch build)")
 
 # Finally, push the new build manifest back to GitHub
-os.chdir("../build-team-manifests")
+os.chdir("build-team-manifests")
 check_call(["git", "add", build_manifest_filename])
 check_call(["git", "commit", "-m", commit_msg])
 if not NO_PUSH:
