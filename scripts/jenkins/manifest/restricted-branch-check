@@ -167,6 +167,16 @@ def main():
                     manifest
                 ))
                 continue
+
+            # Also see if projects are specifically excluded from check for this manifest
+            unrestricted_projects = meta.get("unrestricted_projects", [])
+            print ("Looking at {}".format(unrestricted_projects))
+            if PROJECT in unrestricted_projects:
+                print("Project {} is unrestricted in manifest {}".format(
+                    PROJECT, manifest
+                ))
+                continue
+
             if not check_branch_in_manifest(manifest):
                 continue
 
