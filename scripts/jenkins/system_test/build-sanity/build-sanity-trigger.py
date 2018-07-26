@@ -47,7 +47,7 @@ VERSION_DATA = {
             "ubuntu16": False,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "spock",
     },
     "5.1.0": {
         "platforms": {
@@ -63,7 +63,7 @@ VERSION_DATA = {
             "ubuntu16": False,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "spock",
     },
     "5.1.1": {
         "platforms": {
@@ -78,7 +78,22 @@ VERSION_DATA = {
             "ubuntu16": False,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "spock",
+    },
+    "5.1.2": {
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian8": True,
+            "debian9": False,
+            "macos": False,
+            "suse11": True,
+            "suse12": False,
+            "ubuntu14": True,
+            "ubuntu16": False,
+            "windows": True,
+        },
+        "testrunner_branch": "spock",
     },
     "5.5.0": {
         "platforms": {
