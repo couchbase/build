@@ -1,10 +1,7 @@
 # Docker container for Centos 6.5
 
-# See https://github.com/ceejatec/naked-docker/ for details about the
-# construction of the base image.
-
-FROM ceejatec/naked-centos:6.5
-MAINTAINER hari.kodungallur@couchbase.com
+FROM centos:6.9
+MAINTAINER build-team@couchbase.com
 
 USER root
 RUN yum install -y openssh-server sudo && yum clean packages
@@ -58,18 +55,19 @@ RUN wget http://people.centos.org/tru/devtools-2/devtools-2.repo -O /etc/yum.rep
     rpm -i http://people.centos.org/tru/devtools-2/6/i386/RPMS/devtoolset-2-libstdc++-devel-4.8.2-15.el6.i686.rpm
 
 # JDK for Jenkins.
-RUN yum -y install java-1.7.0-openjdk && yum clean packages
+RUN yum -y install java-1.8.0-openjdk && yum clean packages
 
-# pip/paramio/boto3
+# pip/paramiko/boto3
 RUN rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm && \
-    yum install -y python-pip && \
+    yum install -y python-pip libffi-devel && \
+    pip install -U setuptools==33.1.1 && \
+    pip install PyNaCl==1.1.2 && \
     pip install paramiko && \
     pip install boto3
 
 # Expose SSH daemon and run our builder startup script
 EXPOSE 22
 ADD .wgetrc /home/couchbase/.wgetrc
-ADD .ssh /home/couchbase/.ssh
 COPY build/couchbuilder_start.sh /usr/sbin/
 ENTRYPOINT [ "/usr/sbin/couchbuilder_start.sh" ]
 CMD [ "default" ]

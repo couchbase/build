@@ -1,12 +1,12 @@
-#!/bin/sh
+#!/bin/sh -e
 
 # Bump this when rebuilding with changes
-TAG=20160208
+TAG=20180808
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
 docker build -t couchbase/centos-70-sdk-build:$TAG .
-docker tag -f couchbase/centos-70-sdk-build:$TAG couchbase/centos-70-sdk-build:latest
+docker tag couchbase/centos-70-sdk-build:$TAG couchbase/centos-70-sdk-build:latest
 if [ "$1" = "--publish" ]
 then
   docker push couchbase/centos-70-sdk-build:$TAG

@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Bump this when rebuilding with changes
+TAG=20180806
+
+mkdir -p build
+cp -a ../../util/couchbuilder_start.sh build
+docker build -t couchbase/centos-69-sdk-build:$TAG .
+docker tag couchbase/centos-69-sdk-build:$TAG couchbase/centos-69-sdk-build:latest
+if [ "$1" = "--publish" ]
+then
+  docker push couchbase/centos-69-sdk-build:$TAG
+  docker push couchbase/centos-69-sdk-build:latest
+fi

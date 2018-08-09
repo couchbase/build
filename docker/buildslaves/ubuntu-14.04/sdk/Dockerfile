@@ -4,7 +4,7 @@
 # construction of the base image.
 
 FROM ceejatec/naked-ubuntu:14.04
-MAINTAINER hari.kodungallur@couchbase.com
+MAINTAINER build-team@couchbase.com
 
 USER root
 
@@ -20,11 +20,6 @@ RUN useradd couchbase -G sudo -m -s /bin/bash && \
     mkdir -p /opt/couchbase && chown -R couchbase:couchbase /opt/couchbase && \
     echo 'couchbase:couchbase' | chpasswd && \
     sed -ri 's/ALL\) ALL/ALL) NOPASSWD:ALL/' /etc/sudoers
-
-# JDK for Jenkins.
-RUN apt-get update && \
-    apt-get install -y openjdk-7-jre-headless && \
-    rm -f /var/cache/apt/archives/*.deb
 
 RUN apt-get update && \
     apt-get install -y build-essential git autoconf cmake libevent-dev g++-multilib
@@ -50,8 +45,10 @@ RUN mkdir /tmp/deploy && \
     rm -rf deploy /var/cache/apt/archives/*.deb
 
 # Many python deps for tools and testrunner (see CBQE-3656 for some details)
+RUN pip install -U setuptools && pip install -U pip
+RUN apt-get purge -y python-requests
 RUN pip install awscli boto3 decorator ecdsa Fabric iniparse mercurial \
-    paramiko pycurl pygpgme urlgrabber pycrypto \
+    enum paramiko pycurl pygpgme urlgrabber pycrypto \
     httplib2 futures gevent greenlet btrc couchbase
 
 # Install third-party build dependencies. Note: software-properties-common
@@ -61,7 +58,7 @@ RUN apt-get update && \
     add-apt-repository ppa:webupd8team/java && apt-get update && \
     echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections && \
     echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections && \
-    apt-get install -y oracle-java7-installer && \
+    apt-get install -y oracle-java8-installer && \
     rm -f /var/cache/apt/archives/*.deb
 
 RUN mkdir /tmp/deploy && \
