@@ -84,12 +84,15 @@ case "$PRODUCT" in
         REL_DIRNAME=macosx
         S3_REL_DIRNAME=couchbase-lite/macosx
         ;;
-    *android)
+    couchbase-lite-android)
         if [[ ${RELEASE} == 1.* ]]; then
             S3_REL_DIRNAME=couchbase-lite/android
         else
             S3_REL_DIRNAME=couchbase-lite-android
         fi
+        ;;
+    couchbase-lite-android-ee)
+        S3_REL_DIRNAME=couchbase-lite-android-ee
         ;;
     *java)
         S3_REL_DIRNAME=couchbase-lite/java
@@ -117,7 +120,7 @@ RELEASE_DIR=${REL_MOUNT}/mobile/${S3_REL_DIRNAME}/${VERSION}
 if [[ ${PRODUCT} == *ios ]] && [[ ${RELEASE} == 1.* ]]; then
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${REL_DIRNAME}/${BLD_NUM}
 elif [[ ${PRODUCT} == couchbase-lite-net ]]; then
-    SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${REL_DIRNAME}/${BLD_NUM}/release
+    SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}/release
 else
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}
 fi
@@ -130,7 +133,7 @@ fi
 upload()
 {
     src=${1}
-    target=${1/${RELEASE}-${BLD_NUM}/${VERSION}}
+    target=${1}
 
     echo src: $src
     echo dest: $target
@@ -166,13 +169,23 @@ get_s3_upload_link()
 }
 
 cd ${SRC_DIR}
-FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5*|.\sha*|test_coverage*|CHANGELOG|changes\.log|unsigned|CBLTestServer')
+FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5*|\.sha*|test_coverage*|CHANGELOG|changes\.log|unsigned|CBLTestServer|debug')
+TARGET_TMP_DIR=/tmp/${RELEASE}-${BLD_NUM}
+rm -rf ${TARGET_TMP_DIR} && mkdir -p ${TARGET_TMP_DIR}
+
+cd ${TARGET_TMP_DIR}
 for fl in $FILES; do
-    md5sum ${fl}  | cut -c1-32 > ${fl}.md5
-    sha256sum ${fl} | cut -c1-64 > ${fl}.sha256
-    upload ${fl}
-    upload ${fl}.md5
-    upload ${fl}.sha256
+    target_file=${fl/${RELEASE}-${BLD_NUM}/${VERSION}}
+    echo "Copying ${SRC_DIR}/${fl} to $target_file ..."
+    cp ${SRC_DIR}/${fl} ${target_file}
+    echo "Generating md5/sha256 on $target_file ..."
+    md5sum ${target_file} > ${target_file}.md5
+    sha256sum ${target_file} > ${target_file}.sha256
+    echo "Uploading ${target_file} ..."
+    upload ${target_file}
+    upload ${target_file}.md5
+    upload ${target_file}.sha256
 done
 
 get_s3_upload_link
+
