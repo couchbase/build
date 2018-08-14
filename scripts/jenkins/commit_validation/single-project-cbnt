@@ -53,6 +53,11 @@ fi
 
 BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
 
+function echo_cmd {
+    echo \# "$@"
+    "$@"
+}
+
 # We define two error handler functions - a fatal one used for the
 # manditory parts of the build (i.e. actually building Couchbase), and
 # a deferred one which 'remembers' error(s) have occured but lets the
@@ -89,6 +94,23 @@ env | grep -iv password | grep -iv passwd | sort
 cat <<EOF
 
 ============================================
+===    clean                             ===
+============================================
+EOF
+echo_cmd make clean-xfd-hard
+echo_cmd rm -fr install
+echo_cmd rm -f build/CMakeCache.txt
+
+# Zero ccache stats, so we can measure how much space this build is
+# consuming.
+echo_cmd ccache -z
+
+# Wipe out any core files left from a previous run.
+echo_cmd rm -f /tmp/core.*
+
+cat <<EOF
+
+============================================
 ===       update all projects with       ===
 ===          the same Change-Id          ===
 ============================================
@@ -100,12 +122,9 @@ cat <<EOF
 ===               Build                  ===
 ============================================
 EOF
+echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
 
-mkdir -p build
-cd build
-cmake -DCOUCHBASE_KV_COMMIT_VALIDATION=1 ..
-make -j24
-cd ..
+echo_cmd ccache -s
 
 # Manditory steps complete, install the deferred error handler.
 trap deferred_error_handler ERR
