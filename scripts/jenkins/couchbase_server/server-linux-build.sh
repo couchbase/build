@@ -208,33 +208,26 @@ else
     OPENSSL_VER=1.0.0
 fi
 
-# From this point on, the Enterprise build "splits" into two EDITIONs,
-# "enterprise" and "enterprise-no-jre".
+# We briefly had a time when we produced multiple "enterprise" artifacts.
+# This is no longer used, but leaving the code structure in place in case
+# we want it again in future.
 if [ "${EDITION}" = "enterprise" ]
 then
-    EDITIONS="enterprise enterprise-no-jre"
+    EDITIONS=enterprise
 else
     EDITIONS=community
 fi
 
 for EDITION in ${EDITIONS}
 do
-    # The "product name" (passed to voltron) is couchbase-server or
-    # couchbase-server-enterprise-no-jre for Enterprise and
-    # couchbase-server-community for Community, to keep them distinguished in
-    # deb/rpm repositories.
+    # The "product name" (passed to voltron) is couchbase-server for Enterprise
+    # and couchbase-server-community for Community, to keep them distinguished
+    # in deb/rpm repositories.
     if [ "${EDITION}" = "enterprise" ]
     then
         PRODUCT=couchbase-server
     else
         PRODUCT=couchbase-server-${EDITION}
-    fi
-
-    # If this is the enterprise-no-jre step, first delete the packaged
-    # JRE from the installation directory
-    if [ "${EDITION}" = "enterprise-no-jre" ]
-    then
-        rm -rf /opt/couchbase/lib/cbas/runtime
     fi
 
     # Execute platform-specific packaging step
@@ -304,10 +297,6 @@ do
     sha256sum ${INSTALLER_FILENAME} | cut -c1-64 > ${INSTALLER_FILENAME}.sha256
 
     TRIGGER_FILE=trigger.properties
-    if [ -e ${TRIGGER_FILE} ]
-    then
-      TRIGGER_FILE=trigger-2.properties
-    fi
     echo Creating ${TRIGGER_FILE}...
     cat <<EOF > ${TRIGGER_FILE}
 ARCHITECTURE=${ARCHITECTURE}
