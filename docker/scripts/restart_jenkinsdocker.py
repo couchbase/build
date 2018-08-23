@@ -76,15 +76,22 @@ if os.path.isdir("/releases"):
 else:
     releases = "/home/couchbase/releases"
 
+# Check out the Docker network situation
+output = check_output(["docker", "network", "ls", "--format", "{{ .Name }}"])
+networks = output.split("\n")
+if not "jenkins-slaves" in networks:
+    print "Creating 'jenkins-slaves' Docker network..."
+    output = check_output(["docker", "network", "create", "jenkins-slaves"])
+
 # Start constructing the big "docker run" command
 run_args = [
      "docker", "run", "--name={0}".format(slave), "--detach=true",
      "--sysctl=net.ipv6.conf.lo.disable_ipv6=0",
      "--privileged",
      "--restart=unless-stopped",
+     "--net=jenkins-slaves",
      "--publish={0}:22".format(port),
      "--volume=/home/couchbase/reporef:/home/couchbase/reporef",
-     "--volume=/etc/resolv.conf:/etc/resolv.conf",
      "--volume=/etc/localtime:/etc/localtime",
      "--volume=/etc/timezone:/etc/timezone",
      "--volume=/home/couchbase/jenkinsdocker-ssh:/ssh",
