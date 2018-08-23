@@ -85,7 +85,17 @@ if PRODUCT == 'cbdeps':
   PRODUCT, _, MANIFEST_PATH = MANIFEST_PATH.partition('/')
   PRODUCT = 'cbdeps/{}'.format(PRODUCT)
 
-# Sync manifest project
+# Ensure manifest directory pointing to correct remote
+if os.path.isdir("manifest"):
+  # Ensure git remote URL matches what is requested
+  cur_manifest_project = check_output(
+    ["git", "remote", "get-url", "origin"],
+    cwd="./manifest").strip()
+  if cur_manifest_project != MANIFEST_PROJECT:
+    print "Manifest project has changed, re-cloning..."
+    shutil.rmtree("manifest")
+
+# Clone / update manifest repository
 if not os.path.isdir("manifest"):
   check_call(["git", "clone", MANIFEST_PROJECT, "manifest"])
 os.chdir("manifest")
