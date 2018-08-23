@@ -105,19 +105,6 @@ call create-installer.bat %REPOROOT%\install %VERSION%.%BLD_NUM% %LICENSE% "%pro
 set filebit=%LICENSE%
 move Server.msi %REPOROOT%\couchbase-server-%filebit%_%VERSION%-%BLD_NUM%-windows_amd64-unsigned.msi
 
-if not "%LICENSE%" == "enterprise" (
-    goto eof
-)
-
-@echo ========= repackage for enterprise-no-jre ===============
-
-rmdir /s /q %REPOROOT%\install\lib\cbas\runtime
-del *.wixobj
-call create-installer.bat %REPOROOT%\install %VERSION%.%BLD_NUM% %LICENSE% "%productname%" || goto error
-
-set filebit=enterprise-no-jre
-move Server.msi %REPOROOT%\couchbase-server-!filebit!_%VERSION%-%BLD_NUM%-windows_amd64-unsigned.msi
-
 goto eof
 
 :normalizepath
