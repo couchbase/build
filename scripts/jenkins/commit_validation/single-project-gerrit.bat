@@ -67,10 +67,11 @@ IF "%CMAKE_GENERATOR%"=="Ninja" (
 :: only for the project subdirectory and Go objects (as it's
 :: incremental build is a bit flaky).
 :: This should speed things up a little, but still ensures that the
-: :correct number of warnings are reported for this project.
-del /F/Q/S build\%GERRIT_PROJECT%
-del /F/Q/S godeps\pkg goproj\pkg goproj\bin
-del /F/Q/S build\CMakeCache.txt
+:: correct number of warnings are reported for this project.
+del /F/Q/S build\%GERRIT_PROJECT% 1>nul
+del /F/Q/S install 1>nul
+del /F/Q/S godeps\pkg goproj\pkg goproj\bin 1>nul
+del /F/Q/S build\CMakeCache.txt 1>nul
 
 @echo.
 @echo ============================================
