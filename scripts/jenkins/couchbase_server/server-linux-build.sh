@@ -65,17 +65,9 @@ case "$DISTRO" in
         PKG=rpm
         FLAVOR=suse12
         ;;
-    debian[89])
-        PKG=deb
-        FLAVOR=systemd
-        ;;
-    ubuntu16.04)
-        PKG=deb
-        FLAVOR=systemd
-        ;;
     debian*|ubuntu*)
         PKG=deb
-        FLAVOR=initd
+        FLAVOR=systemd
         ;;
     macos)
         PKG=mac
