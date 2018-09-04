@@ -29,17 +29,17 @@ compress_deb() {
     fi
 
     # This file always contains these three exact files: debian-binary,
-    # control.tar.gz, and data.tar or data.tar.xz, in that order. We want to
+    # control.tar[.gz], and data.tar or data.tar.xz, in that order. We want to
     # replace data.tar with data.tar.xz when necessary.
-    rm -f debian-binary control.tar.gz data.tar data.tar.xz
+    rm -f debian-binary control.tar* data.tar data.tar.xz
     ar x ${DEB}
     if [ -e data.tar ]
     then
         pixz data.tar data.tar.xz
         rm ${DEB}
-        ar rc ${DEB} debian-binary control.tar.gz data.tar.xz
+        ar rc ${DEB} debian-binary control.tar* data.tar.xz
     fi
-    rm -f debian-binary control.tar.gz data.tar data.tar.xz
+    rm -f debian-binary control.tar* data.tar data.tar.xz
 }
 
 if [ "$#" -ne 4 ]
