@@ -165,6 +165,8 @@ if PARENT is not None:
   PARENT_BRANCH = manifests[PARENT].get("branch", "master")
 else:
   PARENT_BRANCH = "master"
+# Add GO_VERSION sync_gateway
+GO_VERSION = manifest_config.get("go_version")
 # Allow individual manifests to have different PRODUCT as well
 PRODUCT = manifest_config.get("product", PRODUCT)
 BUILD_JOB = manifest_config.get("jenkins_job", "{}-build".format(PRODUCT))
@@ -276,6 +278,8 @@ with pushd(PRODUCT):
   insert_child_annot(build_element, "PRODUCT", PRODUCT)
   insert_child_annot(build_element, "PRODUCT_BRANCH", PRODUCT_BRANCH)
   insert_child_annot(build_element, "RELEASE", RELEASE)
+  if GO_VERSION is not None:
+      insert_child_annot(build_element, "GO_VERSION", GO_VERSION)
   last_build_manifest.write(build_manifest_filename)
 
   # Compute the commit message - dates in python are a bit hard
@@ -315,12 +319,13 @@ properties = {
   "PARENT": PARENT,
   "TYPE": TYPE,
   "BUILD_JOB": BUILD_JOB,
+  "GO_VERSION": GO_VERSION,
   "FORCE": force
 }
 with open(json_filename, "w") as prop:
   json.dump(properties, prop, indent=2, separators=(',', ': '))
 with open(properties_filename, "w") as prop:
-  prop.write("PRODUCT={PRODUCT}\nRELEASE={RELEASE}\nPRODUCT_BRANCH={PRODUCT_BRANCH}\nVERSION={VERSION}\nBLD_NUM={BLD_NUM}\nMANIFEST={MANIFEST}\nPARENT={PARENT}\nTYPE={TYPE}\nBUILD_JOB={BUILD_JOB}\nFORCE={FORCE}\n".format(**properties))
+  prop.write("PRODUCT={PRODUCT}\nRELEASE={RELEASE}\nPRODUCT_BRANCH={PRODUCT_BRANCH}\nVERSION={VERSION}\nBLD_NUM={BLD_NUM}\nMANIFEST={MANIFEST}\nPARENT={PARENT}\nTYPE={TYPE}\nBUILD_JOB={BUILD_JOB}\nGO_VERSION={GO_VERSION}\nFORCE={FORCE}\n".format(**properties))
 
 print "Creating {}".format(tarball_filename)
 os.chdir(PRODUCT)
