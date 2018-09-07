@@ -51,7 +51,7 @@ if [[ -d build ]]; then rm -rf build/*; fi
 if [[ -d ${FRAMEWORK_DIR} ]]; then rm -rf ${FRAMEWORK_DIR}/*; fi
 
 pushd ${FRAMEWORK_DIR}
-cp /latestbuilds/couchbase-lite-ios/${VERSION}/${DISTRO}/${BLD_NUM}/couchbase-lite-${DISTRO}-enterprise_${VERSION}-${BLD_NUM}.zip .
+curl -LO http://latestbuilds.service.couchbase.com/builds/latestbuilds/couchbase-lite-ios/${VERSION}/${DISTRO}/${BLD_NUM}/couchbase-lite-${DISTRO}-enterprise_${VERSION}-${BLD_NUM}.zip
 unzip couchbase-lite-${DISTRO}-enterprise_${VERSION}-${BLD_NUM}.zip
 cp Extras/*.a .
 cp Extras/*.h .
