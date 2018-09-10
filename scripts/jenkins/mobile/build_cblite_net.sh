@@ -61,7 +61,14 @@ BASE_DIR=${FRAMEWORK_DIR}/couchbase-lite-net
 SRC_DIR=${BASE_DIR}/src
 BUILD_FRAMEWORK=Couchbase.Lite.${FRAMEWORK}
 BUILD_SLN=${SRC_DIR}/${BUILD_FRAMEWORK}.sln
-NATIVES_DIR=/latestbuilds/mobiledeps/cbforest/${CBLDEPS_VER}
+NATIVES_DIR=${WORKSPACE}/mobiledeps/cbforest/${CBLDEPS_VER}
+
+# Download mobiledeps/cbforest instead of rely on nfs /latesbulid mount
+mkdir -p ${WORKSPACE}/mobiledeps/cbforest
+pushd ${WORKSPACE}/mobiledeps/cbforest
+curl -LO http://latestbuilds.service.couchbase.com/builds/latestbuilds/mobiledeps/cbforest/${CBLDEPS_VER}.tgz || exit 1
+tar xzvf ${CBLDEPS_VER}.tgz
+popd
 
 STAGING_DIR=${BASE_DIR}/staging
 LITE_BIN=${STAGING_DIR}/Couchbase.Lite
