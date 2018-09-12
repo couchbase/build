@@ -1,0 +1,217 @@
+#!/bin/bash
+#
+# Common script run by various Jenkins commit-validation builds.
+#
+# Checks out all the gerrit changes with requested change-id and related
+# changes for the current manifest from Gerrit server GERRIT_HOST:GERRIT_PORT,
+# compiles and then runs unit tests for GERRIT_PROJECT (if applicable).
+#
+# Triggered on patchset creation in a project's repo.
+
+if [ -z "$GERRIT_HOST" ]; then
+    echo "Error: Required environment variable 'GERRIT_HOST' not set."
+    exit 1
+fi
+if [ -z "$GERRIT_PORT" ]; then
+    echo "Error: Required environment variable 'GERRIT_PORT' not set."
+    exit 2
+fi
+if [ -z "$GERRIT_PROJECT" ]; then
+    echo "Error: Required environment variable 'GERRIT_PROJECT' not set."
+    exit 3
+fi
+if [ -z "$GERRIT_CHANGE_ID" ]; then
+    echo "Error: Required environment variable 'GERRIT_CHANGE_ID' not set."
+    exit 4
+fi
+
+# Optional env vars - how many jobs to run in parallel by default?
+PARALLELISM="${PARALLELISM:-8}"
+
+# Set default TEST_PARALLELISM to 4 - many of our tests are actually
+# multi-threaded (unlike the compiler) and hence running 8 tests in
+# parallel (each with multiple threads) can overload the CV machines
+# and cause test timeouts.
+TEST_PARALLELISM="${TEST_PARALLELISM:-4}"
+
+BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
+
+source ~jenkins/.bash_profile
+
+# CCACHE is good - use it if available.
+export PATH=/usr/lib/ccache:$PATH
+
+function echo_cmd {
+    echo \# "$@"
+    "$@"
+}
+
+# We define two error handler functions - a fatal one used for the
+# manditory parts of the build (i.e. actually building Couchbase), and
+# a deferred one which 'remembers' error(s) have occured but lets the
+# rest of the script run.
+# This is to maximise the number of tests we run (even if earlier
+# tests fail), so developers see as many problems in a single run as
+# possible, but ensures that the script still exits with the correct
+# error code.
+last_error=0
+error_count=0
+
+function fatal_error_handler() {
+    last_error=$?
+    echo "Fatal error - aborting"
+    exit $last_error
+}
+function deferred_error_handler() {
+    last_error=$?
+    (( error_count++ ))
+}
+
+# Initially install the fatal handler.
+trap fatal_error_handler ERR
+
+cat <<EOF
+
+============================================
+===    environment                       ===
+============================================
+EOF
+ulimit -a
+echo ""
+env | grep -iv password | grep -iv passwd | sort
+
+cat <<EOF
+
+============================================
+===    clean                             ===
+============================================
+EOF
+echo_cmd make clean-xfd-hard
+echo_cmd rm -fr install
+echo_cmd rm -f build/CMakeCache.txt
+
+# Zero ccache stats, so we can measure how much space this build is
+# consuming.
+echo_cmd ccache -z
+
+# Wipe out any core files left from a previous run.
+echo_cmd rm -f /tmp/core.*
+
+cat <<EOF
+
+============================================
+===       update all projects with       ===
+===          the same Change-Id          ===
+============================================
+EOF
+${WORKSPACE}/build-tools/gerrit-tools/gerrit_tools/scripts/patch_via_gerrit.py -c ${HOME}/.ssh/patch_via_gerrit.ini -g $GERRIT_CHANGE_ID -s $GERRIT_PROJECT
+
+cat <<EOF
+
+============================================
+===               Build                  ===
+============================================
+EOF
+if [ -n "$ENABLE_CODE_COVERAGE" ]; then
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_CODE_COVERAGE=ON"
+fi
+if [ -n "$ENABLE_THREADSANITIZER" ]; then
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_THREADSANITIZER=ON"
+fi
+if [ -n "$ENABLE_ADDRESSSANITIZER" ]; then
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_ADDRESSSANITIZER=${ENABLE_ADDRESSSANITIZER}"
+fi
+if [ -n "$ENABLE_UNDEFINEDSANITIZER" ]; then
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_UNDEFINEDSANITIZER=1"
+fi
+if [ -n "$ENABLE_CBDEPS_TESTING" ]; then
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_DOWNLOAD_DEPS_REPO=http://latestbuilds.service.couchbase.com/builds/releases/cbdeps"
+   rm -rf ~/.cbdepscache
+   rm -rf build/tlm/deps
+fi
+echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
+
+echo_cmd ccache -s
+
+# Manditory steps complete, install the deferred error handler.
+trap deferred_error_handler ERR
+
+if [ "${GERRIT_PROJECT}" = "ns_server" ]
+then
+    BUILD_DIR="${GERRIT_PROJECT}/build"
+elif [ -n "$GOPROJECT" ]
+then
+    BUILD_DIR="build/goproj/src/github.com/couchbase/${GERRIT_PROJECT}"
+else
+    BUILD_DIR="build/${GERRIT_PROJECT}"
+fi
+
+if [ -n "$GOPROJECT" ] || [ -f ${BUILD_DIR}/Makefile ]
+then
+    cat <<EOF
+
+============================================
+===          Run unit tests              ===
+============================================
+EOF
+    pushd ${BUILD_DIR} 2>&1 > /dev/null
+
+    if [ -n "$ENABLE_CODE_COVERAGE" ]; then
+        # Reset code coverage counters (note optional hence the || true).
+        echo_cmd make ${GERRIT_PROJECT}-coverage-zero-counters || true
+    fi
+
+    # -j${TEST_PARALLELISM} : Run tests in parallel.
+    # -T Test   : Generate XML output file of test results.
+    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test --exclude-regex ${TESTS_EXCLUDE}"
+
+    # Generate code coverage report in XML format for Jenkins plugin.
+    if [ -n "$ENABLE_CODE_COVERAGE" ]; then
+        echo_cmd make ${GERRIT_PROJECT}-coverage-report-xml || true
+    fi
+
+    if [ -n "$RUN_TESTS_UNDER_VALGRIND" ]; then
+        # Clear out any previous runs' output files
+        oldfiles=`find . -name "memcheck.*.xml"`
+        if [ -n "${oldfiles}" ]; then
+            echo_cmd rm -f ${oldfiles}
+        fi
+        echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}"
+        # As part our test execution we run system commands which
+        # unfortunately have leaks themselves
+        # (e.g. /bin/sh). Therefore remove any results from such
+        # programs Jenkins parses the results so we don't include
+        # them.
+        newfiles=`find . -name "memcheck.*.xml"`
+        echo_cmd ${BASEDIR}/remove_irrelevant_memcheck_results.py ${newfiles}
+    fi
+
+    popd 2>&1 > /dev/null
+else
+    cat <<EOF
+
+============================================
+===  ${GERRIT_PROJECT} is not a Go project. It also doesn't have a Makefile.
+===  Skipping Unit tests.
+============================================
+EOF
+fi
+
+if [ -n "$RUN_SIMPLE_TEST" ]
+then
+    cat <<EOF
+
+============================================
+===          Run simple test             ===
+============================================
+EOF
+    echo_cmd make -C testrunner simple-test VERBOSE=1
+fi
+
+# Check for core files - if present then archive them and the
+# executable they are from (for post-mortem) and fail the build.
+shopt -s nullglob
+echo_cmd ${BASEDIR}/archive_core_files.sh archived_core_dumps /tmp/core.*
+rm -f /tmp/core.*
+
+exit $last_error
