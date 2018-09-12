@@ -51,7 +51,9 @@ BASE_DIRNAME=couchbase-lite-net
 BASE_DIR=${PROD_DIR}/${BASE_DIRNAME}
 REL_DIR=${BASE_DIR}/release
 STAGING_DST=${BASE_DIR}/staging
-STAGING_SRC=/latestbuilds/couchbase-lite-net/${VERSION}/${BLD_NUM}/staging
+STAGING_SRC=${WORKSPACE}/${VERSION}/packaging/couchbase-lite-net-tmp/staging
+STAGING_SRC_TMP=${WORKSPACE}/${VERSION}/packaging/couchbase-lite-net-tmp
+#STAGING_SRC=/latestbuilds/couchbase-lite-net/${VERSION}/${BLD_NUM}/staging
 
 BUILD_PKGS=("Couchbase.Lite" "Couchbase.Lite.Listener" "Couchbase.Lite.Listener.Bonjour" "Couchbase.Lite.Storage.SystemSQLite" "Couchbase.Lite.Storage.SQLCipher" "Couchbase.Lite.Storage.ForestDB")
 NUGET_PKGS=("couchbase-lite" "couchbase-lite-listener" "couchbase-lite-listener-bonjour" "couchbase-lite-storage-systemsqlite" "couchbase-lite-storage-sqlcipher" "couchbase-lite-storage-forestdb")
@@ -97,7 +99,13 @@ fi
 
 echo ======== Import Bin Packages =============================
 if [[ -d ${STAGING_DST} ]] ; then  rm -rf ${STAGING_DST} ; fi
+mkdir -p ${STAGING_SRC_TMP}
+# grap staging dir from /latestbuilds
+pushd ${STAGING_SRC_TMP}
+wget -r -nH --cut-dirs=5 --no-parent --reject="index.html*"   http://latestbuilds.service.couchbase.com/builds/latestbuilds/couchbase-lite-net/${VERSION}/${BLD_NUM}/staging
+popd
 cp -r ${STAGING_SRC}  ${BASE_DIR}
+ls -la ${BASE_DIR}
 
 cd ${STAGING_DST}
 
@@ -126,7 +134,7 @@ for nupkg in "${NUGET_PKGS[@]}"
 done
 
 echo ======== Clean up remote staging =============================
-rm -rf ${STAGING_SRC}
+rm -rf ${STAGING_SRC} ${STAGING_SRC_TMP}
 
 echo ======== Copy nuget packages for release =============================
 if [[ -d ${REL_DIR} ]] ; then  rm -rf ${REL_DIR} ; fi
