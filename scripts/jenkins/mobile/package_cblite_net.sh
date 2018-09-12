@@ -1,20 +1,20 @@
 #!/bin/bash -ex
-#          
+#
 #    run by jenkins couchbase-lite-net-packaging job:
-#          
+#
 #    with required paramters:
-#   
+#
 #          branch_name    platform    version    bld_num   target    toolchain
-#             
+#
 #    e.g.: master         osx         1.3.0      0000      Release   mono
 #
 #    and optional parameters:
-#    
-#        REPO_SHA  --  
-#          
+#
+#        REPO_SHA  --
+#
 #    ErrorCode:
 #        -1 = Incorrect input parameters
-#        -2 = Failed importing binary packages 
+#        -2 = Failed importing binary packages
 #        -3 = Failed nuget packing
 #
 set -e
@@ -96,8 +96,13 @@ then
 fi
 
 echo ======== Import Bin Packages =============================
-if [[ -d ${STAGING_DST} ]] ; then  rm -rf ${STAGING_DST} ; fi
-cp -r ${STAGING_SRC}  ${BASE_DIR}
+if [[ -d ${STAGING_DST} ]] ; then  rm -rf ${STAGING_DST} ; mkdir -p ${STAGING_DST} ; fi
+#cp -r ${STAGING_SRC}  ${BASE_DIR}
+# Download staging instead of rely on nfs /latestbuild mount
+pushd ${BASE_DIR}
+curl -LO http://latestbuilds.service.couchbase.com/builds/latestbuilds/couchbase-lite-net/${VERSION}/${BLD_NUM}/staging.tgz
+tar xzf staging.tgz
+popd
 
 cd ${STAGING_DST}
 
@@ -116,7 +121,7 @@ echo ======== NUGET Packing =============================
 cd ${BASE_DIR}/packaging/nuget
 for nupkg in "${NUGET_PKGS[@]}"
   do
-    nuget pack -BasePath ${BASE_DIR} -Properties version=$NUGET_VERSION ${nupkg}.nuspec 
+    nuget pack -BasePath ${BASE_DIR} -Properties version=$NUGET_VERSION ${nupkg}.nuspec
     result=$?
     if [ ${result} -ne "0" ]
     then
