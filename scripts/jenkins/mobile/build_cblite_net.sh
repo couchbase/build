@@ -1,18 +1,18 @@
 #!/bin/bash -ex
-#
+#          
 #    run by jenkins couchbase-lite-net jobs:
-#
+#          
 #    with required paramters:
-#
+#   
 #          branch_name    framework   platform    version    bld_num   repo_sha  target            toolchain
-#
+#             
 #    e.g.: master         net35       osx         1.3.0      0000      no_sha    Release_Testing   mono
 #
 #    and optional parameters:
-#
-#        REPO_SHA  --
-#        SKIP_TEST --
-#
+#    
+#        REPO_SHA  --  
+#        SKIP_TEST --  
+#          
 #    ErrorCode:
 #        -1 = Incorrect input parameters
 #        -2 = Build failed
@@ -113,8 +113,8 @@ git show --stat
 REPO_SHA=`git log --oneline --pretty="format:%H" -1`
 
 if [[ ! -d ${NATIVES_DIR} ]]
-then
-    echo "Missing native components at ${NATIVES_DIR}"
+then 
+    echo "Missing native components at ${NATIVES_DIR}" 
     exit 2
 fi
 
@@ -130,7 +130,7 @@ last_dir=${dirs[$last_index]}
 
 BUILD_OPTIONS=/p:Platform="Any CPU"
 
-if [[ ${FRAMEWORK} =~ "Net45" ]] || [[ ${FRAMEWORK} =~ "Net35" ]]
+if [[ ${FRAMEWORK} =~ "Net45" ]] || [[ ${FRAMEWORK} =~ "Net35" ]] 
 then
     cd ${last_dir}
     cp -f libCBForest-Interop.so ${SRC_DIR}/StorageEngines/ForestDB/CBForest/CSharp/prebuilt
@@ -189,9 +189,8 @@ for bld_bin in "${BUILD_OUTPUT[@]}"
     fi
 done
 
-echo "..............................BUILD Success!"
+echo "..............................BUILD Success!" 
 ls -l ${STAGING_DIR}
-tar czvf ${BASE_DIR}/staging.tgz ${STAGING_DIR}
 
 echo ======== Test ================================ `date`
 echo ........................ running unit test
