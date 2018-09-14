@@ -153,7 +153,7 @@ VERSION_DATA = {
             "ubuntu16": True,
             "windows": True,
         },
-        "testrunner_branch": "vulcan",
+        "testrunner_branch": "master",
     },
     "6.5.0": {
         "platforms": {
