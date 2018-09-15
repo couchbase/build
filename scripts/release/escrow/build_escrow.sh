@@ -1,20 +1,37 @@
 #!/bin/bash -e
 
 # QQQ keep this list somewhere canonical per build
-IMAGES="ceejatec/debian-8-couchbase-build:20171106
-ceejatec/debian-9-couchbase-build:20170911
-ceejatec/ubuntu-1404-couchbase-build:20170522
-ceejatec/centos-70-couchbase-build:20170522
-ceejatec/ubuntu-1604-couchbase-cv:20170522
-ceejatec/suse-11-couchbase-build:20170522
-ceejatec/centos-65-couchbase-build:20170522"
+IMAGES="couchbasebuild/server-centos6-build:20180713
+couchbasebuild/server-centos7-build:20180810
+couchbasebuild/server-debian8-build:20180713
+couchbasebuild/server-debian9-build:20180713
+couchbasebuild/server-suse11-build:20180713
+couchbasebuild/server-ubuntu14-build:20180810
+couchbasebuild/server-ubuntu16-build:20180810"
 
 # QQQ possibly keep this list somewhere canonical per build also
-GOVERS="1.7.3 1.8.1 1.8.3 1.8.5"
+GOVERS="1.7.6 1.8.3 1.8.5 1.9.6"
 
 # QQQ parameterize?
-RELEASE=5.1.0
+VERSION=5.5.0
 PRODUCT=couchbase-server
+
+# QQQ extract from tlm/deps/packages/boost/CMakeLists.txt
+BOOST_MODULES="intrusive assert config core detail functional math move mpl
+optional preprocessor static_assert throw_exception type_index
+type_traits utility variant"
+
+# QQQ extract from asterix-opt/cmake/Modules/FindCouchbaseJava.cmake
+JDKVER=8u162
+
+# END normal per-version configuration variables
+
+# Compute list of platforms from Docker image names
+# (will need to change this algorithm if we change the
+# Docker image naming convention)
+PLATFORMS=$(
+  perl -e 'print join(" ", map { m@couchbasebuild/server-(.*)-build@ && $1} @ARGV)' $IMAGES
+)
 
 heading() {
   echo
@@ -26,7 +43,7 @@ heading() {
 
 # Top-level directory; everything to escrow goes in here.
 ROOT=`pwd`
-ESCROW=${ROOT}/${PRODUCT}-${RELEASE}
+ESCROW=${ROOT}/${PRODUCT}-${VERSION}
 mkdir -p ${ESCROW}
 
 # Save copies of all Docker build images
@@ -35,7 +52,7 @@ mkdir -p ${ESCROW}/docker_images
 cd ${ESCROW}/docker_images
 for img in ${IMAGES}
 do
-  heading "Saving Docker image ${img}"  
+  heading "Saving Docker image ${img}"
   echo "... Pulling ${img}..."
   docker pull ${img}
   echo "... Saving local copy of ${img}..."
@@ -47,87 +64,118 @@ do
 done
 
 # Get the source code
-heading "Downloading released source code for ${PRODUCT} ${RELEASE}..."
+heading "Downloading released source code for ${PRODUCT} ${VERSION}..."
 mkdir -p ${ESCROW}/src
 cd ${ESCROW}/src
 git config --global user.name "Couchbase Build Team"
 git config --global user.email "build-team@couchbase.com"
 git config --global color.ui false
-# QQQ Path to manifest is Couchbase Server-specific
-repo init -u git://github.com/couchbase/manifest -g all -m released/${RELEASE}.xml
+repo init -u git://github.com/couchbase/manifest -g all -m released/${VERSION}.xml
 repo sync --jobs=6
 
+# Ensure we have git history for 'master' branch of tlm, so we can
+# switch to the right cbdeps build steps
+( cd tlm && git fetch couchbase refs/heads/master )
+
+# Download all cbdeps source code
 mkdir -p ${ESCROW}/deps
-rm -f ${ESCROW}/deps/dep_list.txt
 
-download_cbdep() {
-  dep=$1
-  ver=$2
-  branch=$3
-  cbver=$4
-
-  # Save dep name for the build
-  [[ "${dep}" =~ ^boost_ ]] || echo ${dep} >> ${ESCROW}/deps/dep_list.txt
-
-  if [ "${dep}" = "boost" ]
-  then
-    # Boost is stored in separate repos for 5.0.x; this means copying some logic
-    # from tlm/deps/packages/boost, namely the set of repos and the git tag
-    for repo in intrusive assert config core detail functional math move mpl \
-      optional preprocessor static_assert throw_exception type_index \
-      type_traits utility variant
-    do
-      download_cbdep boost_${repo} $ver boost-1.62.0 $cbver
-    done
-    return
-  fi
-
-  heading "Downloading cbdep ${dep} ${ver}-cb$4 from branch ${branch}..."
+get_cbdep_git() {
+  local dep=$1
 
   cd ${ESCROW}/deps
   if [ ! -d ${dep} ]
   then
-    git clone git://github.com/couchbasedeps/${dep}
+    heading "Downloading cbdep ${dep} ..."
+    # This special approach ensures all remote branches are brought
+    # down as well, which ensures in-container-build.sh can also check
+    # them out. See https://stackoverflow.com/a/37346281/1425601 .
+    mkdir ${dep}
     cd ${dep}
-    git checkout ${branch}
+    git clone --bare git://github.com/couchbasedeps/${dep} .git
+    git config core.bare false
+    git checkout
   fi
 }
 
-# QQQ This algorithm assumes that deps/packages/CMakeLists.txt
-# describes the versions which were actually used in the build (and this
-# is in fact wrong for several deps already - jemalloc and v8).
-# Should verify against deps/manifest.cmake, or better, save this
-# information canonically per build.
-# QQQ Have to manually filter out deps that are not for Server 5.0.0
-# below, and also duplicate in templates/in-container-build.sh. These are:
-#   libsqlite - for earlier Server versions
-#   openssl - only for Windows/Mac
-#   libcxx, libcouchbase - for Mobile Lite Core
-add_packs=$( \
-   grep '_ADD_DEP_PACKAGE(' ${ESCROW}/src/tlm/deps/packages/CMakeLists.txt \
-   | sed 's/ *_ADD_DEP_PACKAGE(//' \
-   | sed 's/)//' \
-   | grep -v libsqlite \
-   | grep -v libcxx \
-   | grep -v libcouchbase \
-   | grep -v openssl \
-   | sed 's/\s/:/g' )
+download_cbdep() {
+  local dep=$1
+  local ver=$2
+  local dep_manifest=$3
 
-for add_pack in ${add_packs}
+  if [ "${dep}" = "boost" ]
+  then
+    # Boost is stored in separate repos; this means copying some logic
+    # from tlm/deps/packages/boost, namely the set of repos
+    for repo in ${BOOST_MODULES}
+    do
+      get_cbdep_git boost_${repo}
+    done
+  else
+    get_cbdep_git ${dep}
+  fi
+
+  # Split off the "version" and "build number"
+  version=$(echo ${ver} | perl -nle '/^(.*?)(-cb.*)?$/ && print $1')
+  cbnum=$(echo ${ver} | perl -nle '/-cb(.*)/ && print $1')
+
+  # Figure out the tlm SHA which builds this dep
+  tlmsha=$(
+    cd ${ESCROW}/src/tlm &&
+    git grep -c "_ADD_DEP_PACKAGE(${dep} ${version} .* ${cbnum})" \
+      $(git rev-list --all -- deps/packages/CMakeLists.txt) \
+      -- deps/packages/CMakeLists.txt \
+    | awk -F: '{ print $1 }' | head -1
+  )
+
+  if [ -z "${tlmsha}" ]; then
+    echo "ERROR: couldn't find tlm SHA for ${dep} ${version} @${cbnum}@"
+    exit 1
+  fi
+
+  echo "${dep}:${tlmsha}" >> ${dep_manifest}
+}
+
+# Determine set of cbdeps used by this build, per platform.
+for platform in ${PLATFORMS}
 do
-  download_cbdep $(echo ${add_pack} | sed 's/:/ /g')
+
+  add_packs=$(
+    grep ${platform} ${ESCROW}/src/tlm/deps/manifest.cmake \
+    | awk '{sub(/\(/, "", $2); print $2 ":" $4}'
+  )
+
+  # Download and keep a record of all third-party deps
+  dep_manifest=${ESCROW}/deps/dep_manifest_${platform}.txt
+  rm -f ${dep_manifest}
+  for add_pack in ${add_packs}
+  do
+    download_cbdep $(echo ${add_pack} | sed 's/:/ /g') ${dep_manifest}
+  done
+
+  # Ensure that snappy is built first (before python-snappy)
+  grep '^snappy' ${dep_manifest} > ${ESCROW}/deps/dep2.txt
+  grep -v '^snappy' ${dep_manifest} >> ${ESCROW}/deps/dep2.txt
+  mv ${ESCROW}/deps/dep2.txt ${dep_manifest}
+
 done
 
-# One unfortunate patch required for flatbuffers to be built with GCC 7
-# This should be uncommented when we go to escrow 5.5.0
-#cd ${ESCROW}/deps/flatbuffers
-#git cherry-pick bbb72f0b
-#git tag -f v1.4.0
+# Need this tool for v8 build
+get_cbdep_git depot_tools
 
-# One unfortunate tweak required to ensure jemalloc can check out the
-# correct branch (the branch is tweaked in in-container-build.sh)
-cd ${ESCROW}/deps/jemalloc
-git checkout stable-4
+# Copy in pre-packaged JDK
+jdkfile=jdk-${JDKVER}-linux-x64.tar.gz
+curl -o ${ESCROW}/deps/${jdkfile} http://nas-n.mgt.couchbase.com/builds/downloads/jdk/${jdkfile}
+
+# One unfortunate patch required for flatbuffers to be built with GCC 7
+heading "Patching flatbuffers for GCC 7"
+cd ${ESCROW}/deps/flatbuffers
+git checkout v1.4.0 > /dev/null
+if [ $(git rev-parse HEAD) = "eba6b6f7c93cab4b945f1e39d9ef413d51d3711d" ]
+then
+  git cherry-pick bbb72f0b
+  git tag -f v1.4.0
+fi
 
 heading "Downloading Go installers..."
 mkdir -p ${ESCROW}/golang
@@ -145,5 +193,11 @@ done
 heading "Copying build scripts into escrow..."
 cd ${ROOT}
 cp -a templates/* ${ESCROW}
+perl -pi -e "s/\@\@VERSION\@\@/${VERSION}/g; s/\@\@PLATFORMS\@\@/${PLATFORMS}/g" \
+  ${ESCROW}/README.md ${ESCROW}/build-couchbase-server-from-escrow.sh
+
+heading "Creating escrow tarball (will take some time)..."
+cd ${ROOT}
+tar czf ${PRODUCT}-${VERSION}.tar.gz ${PRODUCT}-${VERSION}
 
 heading "Done!"

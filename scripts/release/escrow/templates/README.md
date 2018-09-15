@@ -1,19 +1,13 @@
-# Couchbase 5.1.0 Escrow
+# Couchbase @@VERSION@@ Escrow
 
 The scripts, source, and data in this directory can be used to produce
-installer binaries of Couchbase Server 5.1.0 Enterprise Edition for any
-of the following flavors of Linux:
-
-* Centos 6
-* Centos 7
-* Debian 8
-* Debian 9
-* SuSE 11
-* Ubuntu 14.04
-* Ubuntu 16.04
+installer binaries of Couchbase Server @@VERSION@@ Enterprise Edition for any
+supported version of CentOS, Debian, or Ubuntu Linux, or SuSE 11. (SuSE 12
+or later can be made to work with the information here, but we cannot provide
+the buildslave Docker image as it contains licensed code.)
 
 NOTE: Oracle Enterprise Linux 6 (OEL 6) was also a supported platform for
-Couchbase Server 5.1.0. The installer binaries for this platform were
+Couchbase Server @@VERSION@@. The installer binaries for this platform were
 the same as for Centos 6. Therefore you should follow these instructions
 as for Centos 6 when building for OEL 6.
 
@@ -39,35 +33,38 @@ include the space used by this escrow distribution itself.
 The host machine should have at least two CPU cores (more preferred) and
 8 GB of RAM.
 
-It is not necessary that the host machine be connected to the internet;
-the escrow distribution is self-contained.
+The escrow distribution is self contained and should not even need access
+to the internet, with two exceptions:
+
+* Couchbase Analytics code is written in Java and built with Maven,
+  and Maven needs to download a number of dependencies from Maven
+  Central.
+* V8's build scripts are
+  extremely idiosyncratic and depend heavily on binaries downloaded
+  directly from Google. This unfortunately means if Google decides to
+  remove those binaries in future, that portion of the build will not
+  succeed.
 
 ## Build Instructions
 
 The escrow distribution contains a top-level directory named
-`couchbase-server-5.1.0`. cd into this directory, and then run
+`couchbase-server-@@VERSION@@`. cd into this directory, and then run
 
     ./build-couchbase-server-from-escrow.sh <platform>
 
 where <platform> is one of the following exact strings:
 
-* centos-65
-* centos-70
-* debian-8
-* debian-9
-* suse-11
-* ubuntu-1404
-* ubuntu-1604
+    @@PLATFORMS@@
 
 That is all. The build will take roughly 30 minutes depending on the
 speed of the machine.
 
 Once the build is complete, the requested installer will be located in
-the `couchbase-server-5.1.0` directory. The name of the installer binary
+the `couchbase-server-@@VERSION@@` directory. The name of the installer binary
 various from Linux flavor to flavor. For example, the Centos 6 binary is
 named:
 
-    couchbase-server-enterprise-5.1.0-centos6.x86_64.rpm
+    couchbase-server-enterprise-@@VERSION@@-centos6.x86_64.rpm
 
 There will also be a corresponding debug-symbols package. This package
 occasionally made available by Couchbase Support when debugging specific
@@ -76,7 +73,7 @@ a customer machine *in addition* to the main installer. The filename of
 this debug-symbols package again varies from flavor to flavor; on Centos
 6 it is named
 
-    couchbase-server-enterprise-debug-5.1.0-centos6.x86_64.rpm
+    couchbase-server-enterprise-debug-@@VERSION@@-centos6.x86_64.rpm
 
 ## Build Synopsis
 
@@ -155,9 +152,9 @@ The main build script driving the Couchbase Server build is
 The path reflects the fact that this package was normally built from
 a Jenkins job. This script expects to be passed several parameters,
 including the Linux flavor to build; whether to build the Enterprise or
-Community Edition of Couchbase Server; the version number; and an
-internal build number. `in-container-build.sh` invokes this script with
-the appropriate arguments to build Couchbase Server 5.1.0 Enterprise
+Community Edition of Couchbase Server; the version number; and a
+build number. `in-container-build.sh` invokes this script with
+the appropriate arguments to build Couchbase Server @@VERSION@@ Enterprise
 Edition, specifying a fake build number "9999".
 
 Couchbase Server is built using [CMake](https://cmake.org/), and

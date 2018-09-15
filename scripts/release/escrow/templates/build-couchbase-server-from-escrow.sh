@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/bin/bash -e
 
 # These platforms correspond to the available Docker buildslave images.
-PLATFORMS="centos-65 centos-70 debian-8 debian-9 suse-11 suse-12 ubuntu-1404 ubuntu-1604"
+PLATFORMS="@@PLATFORMS@@"
 
 usage() {
   echo "Usage: $0 <platform>"
@@ -16,7 +16,7 @@ then
 fi
 PLATFORM=$1
 
-sup=`echo ${PLATFORMS} | egrep "\b${PLATFORM}\b"`
+sup=$(echo ${PLATFORMS} | egrep "\b${PLATFORM}\b" || true)
 if [ -z "${sup}" ]
 then
   echo "Unknown platform $1"
@@ -43,7 +43,7 @@ ROOT=`pwd`
 
 # Load Docker buildslave image for desired platform
 cd docker_images
-IMAGE=ceejatec/$( basename -s .tar.gz $( ls ${PLATFORM}* ) )
+IMAGE=couchbasebuild/$( basename -s .tar.gz $( ls server-${PLATFORM}* ) )
 if [[ -z "`docker images -q ${IMAGE}`" ]]
 then
   heading "Loading Docker image ${IMAGE}..."
@@ -53,14 +53,21 @@ fi
 # Run Docker buildslave
 SLAVENAME="${PLATFORM}-buildslave"
 cd ${ROOT}
+set +e
 docker inspect ${SLAVENAME} > /dev/null 2>&1
 if [ $? -ne 0 ]
 then
   heading "Starting Docker buildslave container..."
-  docker run -d --name ${SLAVENAME} --network=none \
+  # We specify external DNS (Google's) to ensure we don't find
+  # things on our LAN. We also point packages.couchbase.com to
+  # a bogus IP to ensure we aren't dependent on existing packages.
+  docker run -d --name ${SLAVENAME} \
+    --add-host packages.couchbase.com:8.8.8.8 \
+    --dns 8.8.8.8 \
     -v `pwd`:/escrow \
-    ${IMAGE}
+    ${IMAGE} default
 fi
+set -e
 
 # Load local copy of escrowed source code into container
 heading "Copying escrowed sources and dependencies into container"
@@ -70,42 +77,15 @@ docker exec -it ${SLAVENAME} cp -a /escrow/in-container-build.sh \
   /escrow/deps /escrow/golang /escrow/src /home/couchbase/escrow
 docker exec -it ${SLAVENAME} chown -R couchbase:couchbase /home/couchbase
 
-# Convert Docker platform to Build platform (sorry they're different)
-if [ "${PLATFORM}" = "centos-69" ]
-then
-  PLAT=centos6
-elif [ "${PLATFORM}" = "centos-74" ]
-then
-  PLAT=centos7
-elif [ "${PLATFORM}" = "debian-7" ]
-then
-  PLAT=debian7
-elif [ "${PLATFORM}" = "debian-8" ]
-then
-  PLAT=debian8
-elif [ "${PLATFORM}" = "suse-11" ]
-then
-  PLAT=suse11
-elif [ "${PLATFORM}" = "suse-12" ]
-then
-  PLAT=suse12
-elif [ "${PLATFORM}" = "ubuntu-1404" ]
-then
-  PLAT=ubuntu14.04
-elif [ "${PLATFORM}" = "ubuntu-1604" ]
-then
-  PLAT=ubuntu16.04
-fi
-
 # Launch build process
 heading "Running full Couchbase Server build in container..."
 docker exec -it -u couchbase ${SLAVENAME} bash \
-  /home/couchbase/escrow/in-container-build.sh ${PLAT} 5.1.0
+  /home/couchbase/escrow/in-container-build.sh ${PLATFORM} @@VERSION@@
 
 # And copy the installation packages out of the container.
 heading "Copying installer binaries"
 for file in `docker exec ${SLAVENAME} bash -c \
-  "ls /home/couchbase/escrow/src/*${PLAT}*"`
+  "ls /home/couchbase/escrow/src/*${PLATFORM}*"`
 do
   docker cp ${SLAVENAME}:${file} .
   localfile=`basename ${file}`
