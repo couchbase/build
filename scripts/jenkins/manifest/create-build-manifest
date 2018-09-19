@@ -144,7 +144,10 @@ if module_projects is not None:
     # I have no idea why this call is required, but "git diff-index"
     # behaves erratically without it
     check_output(["git", "status"])
-    result = call(["git", "diff-index", "--quiet", "HEAD"])
+    # result = call(["git", "diff-index", "--quiet", "HEAD"])
+    # Effectively disable pushing manifest changes back, in preparation for
+    # retiring this script
+    result = call(["true"])
     if result != 0:
       if not NO_PUSH:
         print('Pushing updated input manifest upstream...{}'.format(result))
