@@ -87,6 +87,7 @@ EOF
 # If we've checked out a specific version of the TLM
 # then we'll need to bring our new CMakeLists.txt in manually
 echo_cmd cp -f tlm/CMakeLists.txt ./CMakeLists.txt
+echo_cmd cp -f tlm/third-party-CMakeLists.txt ./third_party/CMakeLists.txt
 
 # Can't use ccache with clang analyzer - see
 # https://llvm.org/bugs/show_bug.cgi?id=25851

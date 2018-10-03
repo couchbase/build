@@ -121,6 +121,11 @@ cat <<EOF
 ===               Build                  ===
 ============================================
 EOF
+# If we've checked out a specific version of the TLM
+# then we'll need to bring our new CMakeLists.txt in manually
+echo_cmd cp -f tlm/CMakeLists.txt ./CMakeLists.txt
+echo_cmd cp -f tlm/third-party-CMakeLists.txt ./third_party/CMakeLists.txt
+
 if [ -n "$ENABLE_CODE_COVERAGE" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_CODE_COVERAGE=ON"
 fi
