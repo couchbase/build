@@ -122,6 +122,11 @@ cat <<EOF
 ===               Build                  ===
 ============================================
 EOF
+# If we've checked out a specific version of the TLM
+# then we'll need to bring our new CMakeLists.txt in manually
+echo_cmd cp -f tlm/CMakeLists.txt ./CMakeLists.txt
+echo_cmd cp -f tlm/third-party-CMakeLists.txt ./third_party/CMakeLists.txt
+
 echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
 
 echo_cmd ccache -s
