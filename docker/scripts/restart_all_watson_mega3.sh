@@ -14,7 +14,7 @@ cd `dirname $0`
 ./restart_jenkinsdocker.py couchbasebuild/server-centos7-build:20180829 vulcan-centos7 5228 server.jenkins.couchbase.com
 ./restart_jenkinsdocker.py ceejatec/debian-8-couchbase-build:20171106 watson-debian8 5229 server.jenkins.couchbase.com
 # Vulcan Debian 8.2 builder
-./restart_jenkinsdocker.py couchbasebuild/server-debian8-build:20180829 vulcan-debian8 5230 server.jenkins.couchbase.com
+./restart_jenkinsdocker.py couchbasebuild/server-debian8-build:20181017 vulcan-debian8 5230 server.jenkins.couchbase.com
 
 # Temporary cbdeps slave based on Ubuntu 12.04 CV image
 ./restart_jenkinsdocker.py ceejatec/ubuntu-1204-couchbase-cv:20160304 watson-ubuntu12.04-cv 5233 server.jenkins.couchbase.com
