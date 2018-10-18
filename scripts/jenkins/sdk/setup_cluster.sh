@@ -46,7 +46,7 @@ services:kv,index,n1ql
 1:_1
 " > node_conf.ini
 
-install_params="version=${which_rel},product=cb,vbuckets=64"
+install_params="version=${which_rel},product=cb,vbuckets=64${INSTALL_PARAMS}"
 if [ "x$BIN_URL" != "x" ]; then
     install_params="${install_params},url=${BIN_URL}"
 fi
