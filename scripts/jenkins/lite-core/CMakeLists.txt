@@ -1,6 +1,10 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 3.1)
 CMAKE_POLICY (VERSION 3.1)
 
+# Tell CMake to use headers / frameworks from SDK inside XCode instead of
+# the ones found on the system (for weak linking).  Ignored on non-Apple
+SET(CMAKE_OSX_SYSROOT macosx)
+
 # Top-level CMakeLists for Couchbase Lite Core
 PROJECT (couchbase-lite-core-build)
 
