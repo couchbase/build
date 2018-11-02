@@ -53,7 +53,7 @@ heading "Populating JDK..."
 cd ${CACHE}
 mkdir -p exploded/x86_64
 cd exploded/x86_64
-tar xf ${ROOT}/deps/jdk-8u162-linux-x64.tar.gz
+tar xf ${ROOT}/deps/jdk-8u181-linux-x64.tar.gz
 
 # Copy of tlm for working in.
 if [ ! -d "${TLMDIR}" ]
@@ -88,6 +88,13 @@ build_cbdep() {
     ${TLMDIR}/deps/packages/*/CMakeLists.txt \
     ${TLMDIR}/deps/packages/*/*.sh
   shopt -u nullglob
+
+  # skip openjdk-rt cbdeps build
+  if [ ${dep} == 'openjdk-rt' ]
+  then
+    rm -f ${TLMDIR}/deps/packages/openjdk-rt/dl_rt_jar.cmake
+    touch ${TLMDIR}/deps/packages/openjdk-rt/dl_rt_jar.cmake
+  fi
 
   # Invoke the actual build script
   PACKAGE=${dep} deps/scripts/build-one-cbdep

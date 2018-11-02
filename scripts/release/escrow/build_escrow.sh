@@ -2,18 +2,18 @@
 
 # QQQ keep this list somewhere canonical per build
 IMAGES="couchbasebuild/server-centos6-build:20180713
-couchbasebuild/server-centos7-build:20180810
-couchbasebuild/server-debian8-build:20180713
-couchbasebuild/server-debian9-build:20180713
+couchbasebuild/server-centos7-build:20180829
+couchbasebuild/server-debian8-build:20181017
+couchbasebuild/server-debian9-build:20181017
 couchbasebuild/server-suse11-build:20180713
-couchbasebuild/server-ubuntu14-build:20180810
-couchbasebuild/server-ubuntu16-build:20180810"
+couchbasebuild/server-ubuntu14-build:20180829
+couchbasebuild/server-ubuntu16-build:20181017"
 
 # QQQ possibly keep this list somewhere canonical per build also
-GOVERS="1.7.6 1.8.3 1.8.5 1.9.6"
+GOVERS="1.7.6 1.8.3 1.8.5 1.9.6 1.10.3"
 
 # QQQ parameterize?
-VERSION=5.5.0
+VERSION=6.0.0
 PRODUCT=couchbase-server
 
 # QQQ extract from tlm/deps/packages/boost/CMakeLists.txt
@@ -22,7 +22,7 @@ optional preprocessor static_assert throw_exception type_index
 type_traits utility variant"
 
 # QQQ extract from asterix-opt/cmake/Modules/FindCouchbaseJava.cmake
-JDKVER=8u162
+JDKVER=8u181
 
 # END normal per-version configuration variables
 
@@ -111,6 +111,9 @@ download_cbdep() {
     do
       get_cbdep_git boost_${repo}
     done
+  # skip openjdk-rt cbdeps build
+  elif [[ ${dep} == 'openjdk-rt' ]]; then
+    :
   else
     get_cbdep_git ${dep}
   fi
