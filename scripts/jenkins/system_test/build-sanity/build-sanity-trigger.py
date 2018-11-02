@@ -280,14 +280,15 @@ class SanityTrigger:
         # build database
         bld_dir = os.path.join(self.ver_dir, str(bld_num))
         for plat in self.plats.keys():
-            # QQQ Assumes format of filename unique to couchbase-server
-            files = glob.glob("{}/couchbase-server-enterprise?{}*{}*".format(
-                bld_dir, self.version, plat
-            ))
-            files = [x for x in files if not (x.endswith(".md5") or x.endswith(".sha256"))]
-            if len(files) == 0:
-                print ("Platform {} is missing".format(plat))
-                return False
+            if self.plats[plat]:
+                # QQQ Assumes format of filename unique to couchbase-server
+                files = glob.glob("{}/couchbase-server-enterprise?{}*{}*".format(
+                    bld_dir, self.version, plat
+                ))
+                files = [x for x in files if not (x.endswith(".md5") or x.endswith(".sha256"))]
+                if len(files) == 0:
+                    print ("Platform {} is missing".format(plat))
+                    return False
         return True
 
     def get_latest_build(self):
