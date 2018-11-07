@@ -219,8 +219,16 @@ then
     rm -rf ${SGW_DIR}/pkg
 fi
 
+# Enable go options for enterprise build
+if [[ $EDITION =~ enterprise ]]
+then
+    GO_EDITION_OPTION = '-tags cb_sg_enterprise'
+else
+    GO_EDITION_OPTION = ''
+fi
+
 export CGO_ENABLED=1
-GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbase/sync_gateway/...
+GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install ${GO_EDITION_OPTION} github.com/couchbase/sync_gateway/...
 # build gozip
 GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbase/ns_server/deps/gocode/src/gozip
 
@@ -285,7 +293,7 @@ fi # end of  Only build enterprise version of sg_accel
 
 echo ======== full test suite ==================================== `date`
 echo ........................ running sync_gateway test.sh
-GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test github.com/couchbase/sync_gateway/...
+GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${GO_EDITION_OPTION} github.com/couchbase/sync_gateway/...
 test_result=$?
 if [ ${test_result} -ne "0" ]
 then
@@ -304,7 +312,7 @@ fi
 
 echo ======== test with race detector ============================= `date`
 echo ........................ running sync_gateway test.sh
-GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${TEST_OPTIONS} github.com/couchbase/sync_gateway/...
+GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${TEST_OPTIONS} ${GO_EDITION_OPTION} github.com/couchbase/sync_gateway/...
 test_result_race=$?
 if [ ${test_result_race} -ne "0" ]
 then
