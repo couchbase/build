@@ -222,9 +222,9 @@ fi
 # Enable go options for enterprise build
 if [[ $EDITION =~ enterprise ]]
 then
-    GO_EDITION_OPTION = '-tags cb_sg_enterprise'
+    GO_EDITION_OPTION='-tags cb_sg_enterprise'
 else
-    GO_EDITION_OPTION = ''
+    GO_EDITION_OPTION=''
 fi
 
 export CGO_ENABLED=1
