@@ -49,6 +49,10 @@ fi
 
 DISTRO=$1
 case "$DISTRO" in
+    amzn2)
+        PKG=rpm
+        FLAVOR=amzn2
+        ;;
     centos6)
         PKG=rpm
         FLAVOR=redhat6
@@ -188,7 +192,12 @@ then
 
     libgcc_s=`gcc --print-file-name=libgcc_s.so`
     libgcc_sname=`basename "$libgcc_s"`
-    cp -p "${libgcc_s}.1" "/opt/couchbase/lib"
+    if [ "${DISTRO}" = 'amzn2' ]
+    then
+        cp -p "${libgcc_s}" "/opt/couchbase/lib"
+    else
+        cp -p "${libgcc_s}.1" "/opt/couchbase/lib"
+    fi
 fi
 
 # Determine flavor of OpenSSL required
