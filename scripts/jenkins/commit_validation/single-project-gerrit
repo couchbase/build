@@ -129,6 +129,9 @@ echo_cmd cp -f tlm/third-party-CMakeLists.txt ./third_party/CMakeLists.txt
 if [ -n "$ENABLE_CODE_COVERAGE" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_CODE_COVERAGE=ON"
 fi
+if [ -n "$ENABLE_HEADER_INCLUDE_CHECK" ]; then
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_ENABLE_HEADER_INCLUDE_CHECK=ON"
+fi
 if [ -n "$ENABLE_THREADSANITIZER" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_THREADSANITIZER=ON"
 fi
