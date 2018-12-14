@@ -11,7 +11,7 @@ cd `dirname $0`
 #  up -d --force-recreate jenkins-slave
 
 # slave for server+analytics CV
-./restart_jenkinsdocker.py ceejatec/ubuntu-1604-couchbase-build:20180109 ubuntu16-analytics-01 2211 analytics.jenkins.couchbase.com
+./restart_jenkinsdocker.py couchbasebuild/server-ubuntu16-build:20181125 ubuntu16-analytics-01 2211 analytics.jenkins.couchbase.com
 
 # analytics-sample.service.couchbase.com
 #docker run -d --restart=unless-stopped --name analytics-sample -v /home/couchbase/slaves/analytics-sample:/opt/couchbase/var -p 9091-9095:8091-8095 couchbase/analytics-demo:1.0.0-DP4
