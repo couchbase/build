@@ -133,8 +133,8 @@ then
     RELEASE_DIR=${RELEASES_MOUNT}/$RELEASE_DIRNAME
 fi
 
-# Create destination directory, including "hidden" ce subdir
-mkdir -p $RELEASE_DIR/ce
+# Create destination directory
+mkdir -p $RELEASE_DIR
 
 upload()
 {
@@ -182,18 +182,16 @@ upload()
     then
         echo Uploading $build PRIVATELY...
         perm_arg=
-        ce_dir=ce/
     else
         echo Uploading $build...
         perm_arg=-P
-        ce_dir=
     fi
     s3cmd -c $S3CONFIG sync $perm_arg $build $ROOT/$target
     s3cmd -c $S3CONFIG sync $perm_arg $md5file $ROOT/$target.md5
     s3cmd -c $S3CONFIG sync $perm_arg $sha256file $ROOT/$target.sha256
 
     echo Copying $build to releases...
-    rsync -a $build $RELEASE_DIR/$ce_dir$target
+    rsync -a $build $RELEASE_DIR/$target
 }
 
 OPWD=`pwd`
