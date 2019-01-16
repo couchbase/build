@@ -170,6 +170,21 @@ VERSION_DATA = {
         },
         "testrunner_branch": "vulcan",
     },
+    "5.5.4": {
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian8": True,
+            "debian9": False,
+            "macos": False,
+            "suse11": True,
+            "suse12": False,
+            "ubuntu14": False,
+            "ubuntu16": True,
+            "windows": True,
+        },
+        "testrunner_branch": "vulcan",
+    },
     "6.0.0": {
         "platforms": {
             "centos6": False,
@@ -186,6 +201,21 @@ VERSION_DATA = {
         "testrunner_branch": "master",
     },
     "6.0.1": {
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian8": True,
+            "debian9": False,
+            "macos": False,
+            "suse11": True,
+            "suse12": False,
+            "ubuntu14": False,
+            "ubuntu16": True,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
+    },
+    "6.0.2": {
         "platforms": {
             "centos6": False,
             "centos7": True,
