@@ -272,7 +272,7 @@ then
     fi
 
 
-    GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbaselabs/sync-gateway-accel/...
+    GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install ${GO_EDITION_OPTION} github.com/couchbaselabs/sync-gateway-accel/...
 
     if [[ -e ${BIN_DIR}/sync-gateway-accel ]]
     then
