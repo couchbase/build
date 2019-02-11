@@ -181,6 +181,25 @@ then
     fi
 fi
 
+# Copy libstdc++ and libgcc_s into distribution package. Necessary
+# on all Linux platforms since we build our own GCC now.
+if [ "${PKG}" != "mac" ]
+then
+    libstdcpp=`g++ --print-file-name=libstdc++.so`
+    libstdcppname=`basename "$libstdcpp"`
+    cp -p "$libstdcpp" "/opt/couchbase/lib/$libstdcppname"
+    ln -s "$libstdcppname" "/opt/couchbase/lib/${libstdcppname}.6"
+
+    libgcc_s=`gcc --print-file-name=libgcc_s.so`
+    libgcc_sname=`basename "$libgcc_s"`
+    if [ "${DISTRO}" = 'amzn2' ]
+    then
+        cp -p "${libgcc_s}" "/opt/couchbase/lib"
+    else
+        cp -p "${libgcc_s}.1" "/opt/couchbase/lib"
+    fi
+fi
+
 # Determine flavor of OpenSSL required
 openssl098_needed="suse11"
 if [[ "$DISTRO" =~ $openssl098_needed ]]
