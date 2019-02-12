@@ -69,16 +69,29 @@ EOF
                 | awk '{split($0,a," "); print a[8]}' \
                 | sed -e 's/@/@@/')
 
-            if [ "$environ" = "" ]; then
-                echo "Warning: Failed to determine 'environ' symbol for $prog_path. Skipping core file $core"
-                continue
+            if [ "$environ" != "" ]; then
+                core_pwd=$(gdb --batch -ex "set print array on" \
+                               -ex "p/s ((char***)&'${environ}')[0][0]@100" \
+                               $prog_path --core "$core" 2>/dev/null \
+                    | grep '"PWD=' \
+                    | sed -e 's/.*"PWD=\([^"]\+\)",/\1/')
             fi
 
-            core_pwd=$(gdb --batch -ex "set print array on" \
-                           -ex "p/s ((char***)&'${environ}')[0][0]@100" \
-                           $prog_path --core "$core" 2>/dev/null \
-                | grep '"PWD=' \
-                | sed -e 's/.*"PWD=\([^"]\+\)",/\1/')
+            if [ "$core_pwd" = "" ]; then
+                # Attempt Method C - use strings on the core dump,
+                # searching for the PWD=xxx string.  This is slow and
+                # somewhat imprecise (possible the binary contains
+                # another string in the same form but given we have
+                # failed so far...
+                core_pwd=$(strings $core \
+                    | grep '^PWD=' \
+                    | head -n 1 \
+                    | cut -d '=' -f 2)
+
+                if [ "$core_pwd" != "" ]; then
+                    echo "Notice: Determined working directory '$core_pwd' via brute-force search of core dump. This path may be wrong..."
+                fi
+            fi
         fi
 
         if [ "$core_pwd" = "" ]; then
