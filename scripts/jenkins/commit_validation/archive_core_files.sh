@@ -99,11 +99,12 @@ EOF
             continue
         fi
 
-        cp --archive --parents $prog_path $archive_dir/
+        pushd $core_pwd >/dev/null
+
+        cp --archive --parents $prog_path $abs_archive_dir/
 
         # Now determine all shared libraries which were loaded, and archive them,
         # along with any seperate debuginfo files.
-        pushd $core_pwd >/dev/null
         for lib in $(gdb --batch -ex "info sharedlibrary" $prog_path --core "$core" 2>/dev/null \
             | grep -A999 'Shared Object Library' \
             | grep -v 'Shared Object Library' \
