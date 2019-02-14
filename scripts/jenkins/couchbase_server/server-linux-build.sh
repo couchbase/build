@@ -200,6 +200,21 @@ then
     fi
 fi
 
+if [ "${DISTRO}" = 'amzn2' ]
+then
+    # Unclear why this is a problem, but it is - hack around it
+    # until we retire PyInstaller
+    pushd /opt/couchbase/lib
+    for file in lib*
+    do
+        if [ -e python/$file ]
+        then
+            cp $file python
+        fi
+    done
+    popd
+fi
+
 # Determine flavor of OpenSSL required
 openssl098_needed="suse11"
 if [[ "$DISTRO" =~ $openssl098_needed ]]
