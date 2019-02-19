@@ -9,6 +9,6 @@
         /home/couchbase/check_builds:/home/couchbase/check_builds \
         /home/couchbase/repo_upload:/home/couchbase/repo_upload \
     --mount-docker \
-    couchbasebuild/docker-slave:20180323 \
+    couchbasebuild/docker-slave:20190219 \
     docker-slave-server \
     2995 server.jenkins.couchbase.com
