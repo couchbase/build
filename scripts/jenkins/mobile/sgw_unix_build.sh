@@ -155,7 +155,7 @@ echo ============================================== `date`
 
 TARGET_DIR=${WORKSPACE}/${VERSION}/${EDITION}
 BIN_DIR=${WORKSPACE}/${VERSION}/${EDITION}/godeps/bin
-LIC_DIR=${TARGET_DIR}/product-texts/mobile/license/sync_gateway
+LIC_DIR=${TARGET_DIR}/product-texts/mobile/sync_gateway/license
 
 if [[ ! -d ${TARGET_DIR} ]] ; then  mkdir -p ${TARGET_DIR} ; fi
 cd         ${TARGET_DIR}
