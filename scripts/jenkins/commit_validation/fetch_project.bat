@@ -24,18 +24,23 @@ set REFSPEC=%3
 )
 
 @IF NOT DEFINED PROJECT (
-    @echo "Error: Required environment variable 'PROJECT' not set."
+    @echo "Error: Required argument 'PROJECT' not set."
     @exit /b 4
 )
 
 @IF NOT DEFINED PROJECT_PATH (
-    @echo "Error: Required environment variable 'PROJECT_PATH' not set."
+    @echo "Error: Required argument 'PROJECT_PATH' not set."
     @exit /b 5
 )
 
 @IF NOT DEFINED REFSPEC (
-    @echo "Error: Required environment variable 'REFSPEC' not set."
+    @echo "Error: Required argument 'REFSPEC' not set."
     @exit /b 6
+)
+
+@if not exist %PROJECT_PATH% (
+    @echo "%PROJECT_PATH% doesn't exist, skipping..."
+    @exit /b 0
 )
 
 pushd %PROJECT_PATH% || exit /b 1

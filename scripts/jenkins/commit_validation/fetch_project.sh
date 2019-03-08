@@ -25,16 +25,21 @@ if [ -z "$GERRIT_SCHEME" ]; then
     exit 3
 fi
 if [ -z "$PROJECT" ]; then
-    echo "Error: Required environment variable 'PROJECT' not set."
+    echo "Error: Required argument 'PROJECT' not set."
     exit 4
 fi
 if [ -z "$PROJECT_PATH" ]; then
-    echo "Error: Required environment variable 'PROJECT_PATH' not set."
+    echo "Error: Required argument 'PROJECT_PATH' not set."
     exit 5
 fi
 if [ -z "$REFSPEC" ]; then
-    echo "Error: Required environment variable 'REFSPEC' not set."
+    echo "Error: Required argument 'REFSPEC' not set."
     exit 6
+fi
+
+if [ ! -d "$PROJECT_PATH" ];  then
+    echo "$PROJECT_PATH doesn't exist, skipping..."
+    exit 0
 fi
 
 pushd $PROJECT_PATH > /dev/null
