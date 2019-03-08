@@ -125,7 +125,6 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CB_DEVELOPER_BUILD=True \
       -D CB_PRODUCTION_BUILD=True \
       -D CB_DOWNLOAD_DEPS=1 \
-      -D SNAPPY_OPTION=Disable \
       -D CB_INVOKE_MAVEN=True \
       ${EXTRA_CMAKE_OPTIONS} \
       ..
@@ -172,9 +171,6 @@ make PRODUCT_VERSION=${PRODUCT_VERSION} BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
      TOPDIR=${WORKSPACE}/voltron build-filter overlay
 if [ -d "server-overlay-${PKG}" ]
 then
-    # common to all distros
-    cp -R server-overlay-${PKG}/common/* /opt/couchbase
-
     if [ "${PKG}" = "rpm" ]
     then
         cp -R server-overlay-${PKG}/${FLAVOR}/* /opt/couchbase
@@ -198,21 +194,6 @@ then
     else
         cp -p "${libgcc_s}.1" "/opt/couchbase/lib"
     fi
-fi
-
-if [ "${DISTRO}" = 'amzn2' ]
-then
-    # Unclear why this is a problem, but it is - hack around it
-    # until we retire PyInstaller
-    pushd /opt/couchbase/lib
-    for file in lib*
-    do
-        if [ -e python/$file ]
-        then
-            cp $file python
-        fi
-    done
-    popd
 fi
 
 # Determine flavor of OpenSSL required
