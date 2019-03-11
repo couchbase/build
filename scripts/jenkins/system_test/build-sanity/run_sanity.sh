@@ -98,6 +98,7 @@ port:8091
 
 [_3]
 ip:${NODE_3}
+services:${SERVICES}
 port:8091
 
 [_4]
