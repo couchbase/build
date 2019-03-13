@@ -37,9 +37,9 @@ RUN mkdir /tmp/deploy && \
     ln -s ccache /usr/local/bin/g++ && \
     rm -fr /tmp/deploy
 
-# * cmake
+# * CMake (from cmake.org)
 RUN mkdir /tmp/deploy && \
-    curl -L https://cmake.org/files/v3.8/cmake-3.8.1-Linux-x86_64.sh -o /tmp/deploy/cmake.sh && \
+    curl -L https://cmake.org/files/v3.13/cmake-3.13.0-Linux-x86_64.sh -o /tmp/deploy/cmake.sh && \
     (echo y ; echo n) | sh /tmp/deploy/cmake.sh --prefix=/usr/local && \
     rm /usr/local/bin/cmake-gui && \
     rm -rf /tmp/deploy

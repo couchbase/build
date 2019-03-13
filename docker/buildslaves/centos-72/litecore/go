@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # Bump this when rebuilding with changes
-TAG=20170710
-IMAGE=ceejatec/centos-72-litecore-build
+TAG=$(date +%Y%m%d)
+IMAGE=couchbasebuild/centos-72-litecore-build
 
 mkdir -p build
 cp -a ../../util/couchbuilder_start.sh build
