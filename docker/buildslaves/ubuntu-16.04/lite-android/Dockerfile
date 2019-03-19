@@ -43,33 +43,35 @@ CMD [ "default" ]
 USER couchbase
 
 # Download and untar Android SDK tools
+# https://developer.android.com/studio/index.html#downloads (under sdk-tool-linux)
+ENV SDK_TOOLS_LINUX_VERSION=4333796
 RUN mkdir -p /home/couchbase/jenkins/tools && \
     cd /home/couchbase/jenkins/tools && \
-	wget --no-check-certificate https://dl.google.com/android/repository/tools_r25.2.3-linux.zip -O android-sdk.zip && \
-	unzip android-sdk.zip -d android-sdk  && \
+    wget --no-check-certificate https://dl.google.com/android/repository/sdk-tools-linux-${SDK_TOOLS_LINUX_VERSION}.zip -O android-sdk.zip && \
+    unzip android-sdk.zip -d android-sdk  && \
     rm android-sdk.zip && \
     chown -R couchbase:couchbase android-sdk && \
     chmod 755 android-sdk
 
 # Set environment variable
 ENV ANDROID_HOME /home/couchbase/jenkins/tools/android-sdk
-ENV PATH ${ANDROID_HOME}/tools:$ANDROID_HOME/platform-tools:$PATH
+ENV PATH ${ANDROID_HOME}/tools:$ANDROID_HOME/platform-tools:${ANDROID_HOME}/tools/bin:$PATH
 
 # Android SDK License
-RUN mkdir $ANDROID_HOME/licenses && \
-	echo 8933bad161af4178b1185d1a37fbf41ea5269c55 > $ANDROID_HOME/licenses/android-sdk-license  && \
-	echo d56f5187479451eabf01fb78af6dfcb131a6481e >> $ANDROID_HOME/licenses/android-sdk-license && \
-	echo 84831b9409646a918e30573bab4c9c91346d8abd > $ANDROID_HOME/licenses/android-sdk-preview-license
+RUN yes 'y' | sdkmanager --licenses >/dev/null
 
 # Update and install using sdkmanager
 ENV SDK_CMD $ANDROID_HOME/tools/bin/sdkmanager
-RUN $SDK_CMD "tools" "platform-tools"
-RUN $SDK_CMD "build-tools;27.0.3" "build-tools;27.0.0" "build-tools;26.0.2" "build-tools;25.0.3"
-RUN $SDK_CMD "platforms;android-27" "platforms;android-26" "platforms;android-25" "platforms;android-24" "platforms;android-16"
-RUN $SDK_CMD "system-images;android-16;default;armeabi-v7a"
-RUN $SDK_CMD "system-images;android-24;default;armeabi-v7a"
-RUN $SDK_CMD "system-images;android-25;google_apis;armeabi-v7a"
-RUN $SDK_CMD "extras;android;m2repository" "extras;google;m2repository"
+RUN $SDK_CMD "tools" "platform-tools" && \
+    $SDK_CMD "build-tools;28.0.3" "build-tools;27.0.3" && \
+    $SDK_CMD "platforms;android-28" "platforms;android-27" && \
+    $SDK_CMD "system-images;android-24;default;armeabi-v7a" && \
+    $SDK_CMD "system-images;android-25;google_apis;armeabi-v7a" && \
+    $SDK_CMD "extras;android;m2repository" "extras;google;m2repository"
+
+# Forced use cmake 3.6
+RUN $SDK_CMD --uninstall "cmake;3.10.2.4988404"  &&\
+    $SDK_CMD "cmake;3.6.4111459"
 
 # Android NDK
 USER couchbase
@@ -79,6 +81,12 @@ RUN cd /home/couchbase/jenkins/tools && \
     chown -R couchbase:couchbase android-ndk-r15c && \
     chmod 755 android-ndk-r15c && \
     rm -rf android-ndk-r15c.zip
+RUN cd /home/couchbase/jenkins/tools && \
+    curl -L https://dl.google.com/android/repository/android-ndk-r19c-linux-x86_64.zip -o android-ndk-r19c.zip && \
+    unzip -qq android-ndk-r19c.zip && \
+    chown -R couchbase:couchbase android-ndk-r19c && \
+    chmod 755 android-ndk-r19c && \
+    rm -rf android-ndk-r19c.zip
 
 # Revert so CMD will run as root.
 USER root
