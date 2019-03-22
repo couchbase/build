@@ -61,6 +61,10 @@ case "$DISTRO" in
         PKG=rpm
         FLAVOR=redhat7
         ;;
+    rhel8)
+        PKG=rpm
+        FLAVOR=redhat8
+        ;;
     *suse11)
         PKG=rpm
         FLAVOR=suse11
@@ -200,7 +204,7 @@ then
 
     libgcc_s=`gcc --print-file-name=libgcc_s.so`
     libgcc_sname=`basename "$libgcc_s"`
-    if [ "${DISTRO}" = 'amzn2' ]
+    if [ "${DISTRO}" = 'amzn2' -o "${DISTRO}" = 'rhel8' ]
     then
         cp -p "${libgcc_s}" "/opt/couchbase/lib"
     else
