@@ -141,6 +141,9 @@ fi
 if [ -n "$ENABLE_UNDEFINEDSANITIZER" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_UNDEFINEDSANITIZER=1"
 fi
+if [ -n "$ENABLE_DOWNLOAD_JAVA" ]; then
+   CMAKE_ARGS="${CMAKE_ARGS} -DCB_DOWNLOAD_JAVA=1"
+fi
 if [ -n "$ENABLE_CBDEPS_TESTING" ]; then
    CMAKE_ARGS="${CMAKE_ARGS} -DCB_DOWNLOAD_DEPS_REPO=http://latestbuilds.service.couchbase.com/builds/releases/cbdeps"
    rm -rf ~/.cbdepscache
