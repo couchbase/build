@@ -97,7 +97,7 @@ fi
 # Step 0: Derived values and cleanup. (Some of these are RPM- or
 # DEB-specific, but will safely do nothing on other systems.)
 export PRODUCT_VERSION=${VERSION}-${BLD_NUM}
-rm -f *.rpm *.deb *.zip trigger*.properties *.md5 *.sha256
+rm -f *.rpm *.deb *.zip trigger*.properties
 rm -rf ~/rpmbuild
 rm -rf ${WORKSPACE}/voltron/build
 rm -rf /opt/couchbase/*
@@ -288,10 +288,6 @@ do
 
     # Back to the top
     cd ${WORKSPACE}
-
-    # Create .sha256 and .md5 checksums.
-    md5sum ${INSTALLER_FILENAME} | cut -c1-32 > ${INSTALLER_FILENAME}.md5
-    sha256sum ${INSTALLER_FILENAME} | cut -c1-64 > ${INSTALLER_FILENAME}.sha256
 
     TRIGGER_FILE=trigger.properties
     echo Creating ${TRIGGER_FILE}...
