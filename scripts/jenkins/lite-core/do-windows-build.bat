@@ -10,7 +10,7 @@ set OS=windows
 
 echo %SHA_VERSION%
 
-set REL_PKG_DIR=RelWithDebInfo
+set REL_PKG_DIR=MinSizeRel
 set DEBUG_PKG_DIR=Debug
 
 for %%A in (Win32 Win64 ARM) do (
@@ -21,9 +21,9 @@ for %%A in (Win32 Win64 ARM) do (
         set TARGET=!ARCH!_Debug
         call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! Debug || goto :error
         call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-debug-arm.zip LiteCore.dll LiteCore.pdb ARM DEBUG || goto :error
-        rem RelWithDebInfo
-        set TARGET=!ARCH!_RelWithDebInfo
-        call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo || goto :error
+        rem MinSizeRel
+        set TARGET=!ARCH!_MinSizeRel
+        call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! MinSizeRel || goto :error
         call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-arm.zip LiteCore.dll LiteCore.pdb ARM RELEASE || goto :error
         goto :EOF
     ) else (
@@ -38,10 +38,10 @@ for %%A in (Win32 Win64 ARM) do (
             call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64-winstore-debug.zip LiteCore.dll LiteCore.pdb STORE_Win64 DEBUG || goto :error
             call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64-debug.zip LiteCore.dll LiteCore.pdb Win64 DEBUG || goto :error
         )
-        rem Flavor: RelWithDebInfo
-        set TARGET=!ARCH!_RelWithDebInfo
-        call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! RelWithDebInfo || goto :error
-        call :bld %WORKSPACE%\build_!TARGET! !ARCH! RelWithDebInfo || goto :error
+        rem Flavor: MinSizeRel
+        set TARGET=!ARCH!_MinSizeRel
+        call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! MinSizeRel || goto :error
+        call :bld %WORKSPACE%\build_!TARGET! !ARCH! MinSizeRel || goto :error
         if "%EDITION%"=="enterprise" (
             call :unit-test %WORKSPACE%\build_!TARGET!\%PRODUCT%  !ARCH! || goto :error
         )
@@ -128,8 +128,8 @@ if not exist "%1\C\tests\data\names_300000.json" (
     copy %WORKSPACE%\couchbase-lite-core\C\tests\data\names_300000.json  %1\C\tests\data\names_300000.json
 )
 
-set cpp_test_path=%1\LiteCore\tests\RelWithDebInfo
-set c4_test_path=%1\C\tests\RelWithDebInfo
+set cpp_test_path=%1\LiteCore\tests\MinSizeRel
+set c4_test_path=%1\C\tests\MinSizeRel
 
 cd %cpp_test_path%
 .\CppTests.exe -r list || exit /b 1
