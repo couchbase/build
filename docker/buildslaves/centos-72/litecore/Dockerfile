@@ -6,6 +6,10 @@
 FROM couchbase/centos-72-jenkins-core:20170613
 MAINTAINER build-team@couchbase.com
 
+# FPM packaging tool.  Need this before install clang as it will override c++
+RUN yum install -y ruby-devel gcc make rpm-build rubygems && \
+    gem install fpm
+
 # Install Clang from Fedora Copr
 RUN curl -o /etc/yum.repos.d/alonid.repo \
   https://copr.fedorainfracloud.org/coprs/alonid/llvm-3.9.1/repo/epel-7/alonid-llvm-3.9.1-epel-7.repo && \
