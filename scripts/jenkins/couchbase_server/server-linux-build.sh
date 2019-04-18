@@ -233,7 +233,6 @@ do
 
     # Execute platform-specific packaging step
     cd ${WORKSPACE}/voltron
-    export LD_LIBRARY_PATH=/opt/couchbase/lib
     ./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase ${FLAVOR} ${OPENSSL_VER}
 
     if [ "${PKG}" = "mac" ]
