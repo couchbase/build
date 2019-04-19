@@ -240,7 +240,7 @@ VERSION_DATA = {
             "suse11": False,
             "suse12": True,
             "ubuntu16": True,
-            "ubuntu18": False,
+            "ubuntu18": True,
             "windows": True,
         },
         "testrunner_branch": "master",
