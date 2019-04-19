@@ -198,7 +198,7 @@ VERSION_DATA = {
             "ubuntu16": True,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "alice",
     },
     "6.0.1": {
         "platforms": {
@@ -213,7 +213,7 @@ VERSION_DATA = {
             "ubuntu18": False,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "alice",
     },
     "6.0.2": {
         "platforms": {
@@ -228,7 +228,7 @@ VERSION_DATA = {
             "ubuntu18": False,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "alice",
     },
     "6.5.0": {
         "platforms": {
