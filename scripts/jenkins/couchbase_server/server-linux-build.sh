@@ -47,6 +47,17 @@ then
     usage
 fi
 
+if [ ! -w /opt/couchbase ]
+then
+    set +x
+    echo
+    echo
+    echo /opt/couchbase must exist and be writable to the current user
+    echo
+    echo
+    exit 5
+fi
+
 DISTRO=$1
 case "$DISTRO" in
     amzn2)
@@ -113,8 +124,9 @@ echo
 echo =============== 1. Build Couchbase Server using CMake
 echo
 cd ${WORKSPACE}
-mkdir -p build
-cd build
+export SERVER_BUILD_DIR="$(pwd)/server_build"
+mkdir -p "${SERVER_BUILD_DIR}"
+cd "${SERVER_BUILD_DIR}"
 if [ "${EDITION}" = "enterprise" ]
 then
     BUILD_ENTERPRISE=TRUE
