@@ -212,15 +212,6 @@ then
     fi
 fi
 
-# Determine flavor of OpenSSL required
-openssl098_needed="suse11"
-if [[ "$DISTRO" =~ $openssl098_needed ]]
-then
-    OPENSSL_VER=0.9.8
-else
-    OPENSSL_VER=1.0.0
-fi
-
 # We briefly had a time when we produced multiple "enterprise" artifacts.
 # This is no longer used, but leaving the code structure in place in case
 # we want it again in future.
@@ -245,7 +236,7 @@ do
 
     # Execute platform-specific packaging step
     cd ${WORKSPACE}/voltron
-    ./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase ${FLAVOR} ${OPENSSL_VER}
+    ./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase ${FLAVOR}
 
     if [ "${PKG}" = "mac" ]
     then
