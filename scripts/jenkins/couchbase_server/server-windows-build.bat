@@ -95,7 +95,7 @@ ruby voltron\cleanup.rb %REPOROOT%\install
 @echo ==================== package =================
 
 cd voltron
-ruby server-win2015.rb %REPOROOT%\install 9.3.3.5 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
+ruby server-win2015.rb %REPOROOT%\install 9.3.3.9 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
 
 set "productname=Server"
 cd wix-installer
