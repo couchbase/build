@@ -33,11 +33,13 @@ OSX=${4} # macos vs elcapitan
 
 DOWNLOAD_NEW_PKG=${5}  # Get new build
 
+ARCHITECTURE='x86_64'
+
 result="rejected"
 
 PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/zz-versions/${PKG_VERSION}/${PKG_BUILD_NUM}
-PKG_NAME_US=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64-unsigned.zip
-PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_x86_64.zip
+PKG_NAME_US=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_${ARCHITECTURE}-unsigned.zip
+PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_${ARCHITECTURE}.zip
 PKG_DIR=couchbase-server-${EDITION}_${PKG_VERSION}
 
 if [[ ${DOWNLOAD_NEW_PKG} ]]
@@ -82,6 +84,25 @@ echo --------- Sign Couchbase app last --------------
 codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app
 
 popd
+
+# before we zip it up, use PKG_DIR as the source for a DMG installer
+
+DMG_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${OSX}_${ARCHITECTURE}.dmg
+rm -rf ${DMG_FILENAME}
+ln -s /Applications ${PKG_DIR}
+create-dmg --volname "Couchbase Installer ${VERSION}-${BLD_NUM}-${EDITION}" \
+           --background "${PKG_DIR}/Couchbase Server.app/Contents/Resources/InstallerBackground.jpg" \
+           --window-size 800 600 \
+           --icon "Couchbase Server.app" 150 200 \
+           --icon "Applications" 650 200 \
+           --icon "README.txt" 400 475 \
+           ${DMG_FILENAME} \
+           ${PKG_DIR}
+
+# get rid of the symlink to applications
+rm ${PKG_DIR}/Applications
+
+# zip up the signed version
 
 rm -f ${PKG_NAME}
 zip -qry ${PKG_NAME} ${PKG_DIR}
