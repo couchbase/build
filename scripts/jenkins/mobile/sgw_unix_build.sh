@@ -25,7 +25,6 @@
 #        33 = Unsupported OS
 #        44 = Unsupported GO version
 #        55 = Build sync_gateway failed
-#        56 = Build sg_accel failed
 #        66 = Unit test failed
 #
 set -e
@@ -64,11 +63,8 @@ ARCHP=${ARCH}
 PARCH=${ARCHP}
 
 SG_PRODUCT_NAME="Couchbase Sync Gateway"
-ACCEL_PRODUCT_NAME="Couchbase SG Accel"
 
 EXEC=sync_gateway
-ACCEL_EXEC=sg_accel
-ACCEL_NAME=sg-accel
 COLLECTINFO_NAME=sgcollect_info
 
 if [[ $DISTRO =~ centos  ]]
@@ -80,10 +76,6 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    TAR_PKG_NAME=couchbase-sync-gateway-centos_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
-    ACCEL_PKG_NAME=couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
-    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NAME}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    ACCEL_TAR_PKG_NAME=couchbase-${ACCEL_NAME}-centos_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 elif [[ $DISTRO =~ ubuntu  ]]
 then
     DISTRO="ubuntu"
@@ -94,17 +86,11 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    TAR_PKG_NAME=couchbase-sync-gateway-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
-    ACCEL_PKG_NAME=couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
-    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NAME}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    ACCEL_TAR_PKG_NAME=couchbase-${ACCEL_NAME}-ubuntu_${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 elif [[ $DISTRO =~ macosx  ]]
 then
     PLATFORM=${DISTRO}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
-    ACCEL_PKG_NAME=couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
-    ACCEL_NEW_PKG_NAME=couchbase-${ACCEL_NAME}-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22
@@ -168,16 +154,9 @@ SGW_DIR=${TARGET_DIR}/${SRC_DIR}
 BLD_DIR=${SGW_DIR}/build
 STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
 
-ACCEL_DIR=${TARGET_DIR}/godeps/src/github.com/couchbaselabs/sync-gateway-accel
-ACCEL_PREFIX=/opt/couchbase-sg-accel
-ACCEL_PREFIXP=./opt/couchbase-sg-accel
-ACCEL_STAGING=${BLD_DIR}/opt/couchbase-sg-accel
 
 if [[ -e ${PREFIX}  ]] ; then sudo rm -rf ${PREFIX}  ; fi
 if [[ -e ${STAGING} ]] ; then      rm -rf ${STAGING} ; fi
-
-if [[ -e ${ACCEL_PREFIX}  ]] ; then sudo rm -rf ${ACCEL_PREFIX}  ; fi
-if [[ -e ${ACCEL_STAGING}  ]] ; then     rm -rf ${ACCEL_STAGING}  ; fi
 
                                                 #  needed by ~/.rpmmacros
                                                 #  called by package-rpm.rb
@@ -247,50 +226,6 @@ for TF in ${TEMPLATE_FILES[@]}
     mv  ${TF}.orig ${TF}
 done
 
-# Only build enterprise version of sg_accel
-if [[ $EDITION =~ enterprise ]]
-then
-
-    PRODUCT_NAME=${ACCEL_PRODUCT_NAME}
-
-    echo ======== insert ${PRODUCT_NAME} build meta-data ==============
-    for TF in ${TEMPLATE_FILES[@]}
-    do
-        cat ${TF} | sed -e "s,@PRODUCT_NAME@,${PRODUCT_NAME},g" \
-                  | sed -e "s,@PRODUCT_VERSION@,${VERSION}-${BLD_NUM},g" \
-                  | sed -e "s,@COMMIT_SHA@,${REPO_SHA},g"      > ${TF}.new
-        mv  ${TF}      ${TF}.orig
-        mv  ${TF}.new  ${TF}
-    done
-
-    echo ======== build ${PRODUCT_NAME} ===============================
-
-    # clean up stale objects switching between GO version
-    if [[ -d ${SGW_DIR}/pkg ]]
-    then
-        rm -rf ${SGW_DIR}/pkg
-    fi
-
-
-    GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install ${GO_EDITION_OPTION} github.com/couchbaselabs/sync-gateway-accel/...
-
-    if [[ -e ${BIN_DIR}/sync-gateway-accel ]]
-    then
-        mv -f ${BIN_DIR}/sync-gateway-accel ${DEST_DIR}/${ACCEL_EXEC}
-        echo ".............................. ${PRODUCT_NAME} Success! Output is: ${DEST_DIR}/${ACCEL_EXEC}"
-    else
-        echo "############################# ${PRODUCT_NAME} FAIL! no such file: ${BIN_DIR}/${ACCEL_EXEC}"
-        exit 56
-    fi
-
-    echo ======== remove build meta-data ==============
-    for TF in ${TEMPLATE_FILES[@]}
-    do
-        mv  ${TF}.orig ${TF}
-    done
-
-fi # end of  Only build enterprise version of sg_accel
-
 echo ======== full test suite ==================================== `date`
 echo ........................ running sync_gateway test.sh
 GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${GO_EDITION_OPTION} github.com/couchbase/sync_gateway/...
@@ -353,7 +288,6 @@ cp    ${LIC_DIR}/LICENSE_${EDITION}.txt    ${STAGING}/LICENSE.txt
 cp -r ${SGW_DIR}/examples                  ${STAGING}
 cp    ${SGW_DIR}/service/README.md         ${STAGING}/service
 cp -r ${SGW_DIR}/service/script_templates  ${STAGING}/service
-cp -rf ${STAGING} ${ACCEL_STAGING}
 
 echo ======== sync_gateway package =============================
 cp    ${DEST_DIR}/${EXEC}                ${STAGING}/bin/
@@ -369,55 +303,14 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
   then
     cd ${STAGING}
     rm -f ${PKG_NAME}
-    tar cvfz ${TAR_PKG_NAME} *
-    cp ${TAR_PKG_NAME} ${SGW_DIR}
 fi
-
-# Only package enterprise version of sg_accel
-if [[ $EDITION =~ enterprise ]]
-then
-
-    echo ======== sg_accel package =============================
-    if [[ ${VERSION} == 1.4 ]] || [[ ${VERSION} > 1.4 ]]
-    then
-        cp -f ${ACCEL_DIR}/examples/basic_sg_accel_config.json ${ACCEL_STAGING}/examples
-    fi
-
-    cp    ${DEST_DIR}/${ACCEL_EXEC}      ${ACCEL_STAGING}/bin/
-    cp    ${SGW_DIR}/service/sg_accel_*  ${ACCEL_STAGING}/service
-
-    RPM_ROOT_DIR=${BLD_DIR}/build/rpm/couchbase-${ACCEL_NAME}_${VERSION}-${BLD_NUM}/rpmbuild/
-    export RPM_ROOT_DIR
-
-    cd ${BLD_DIR}; ./${PKGR} ${ACCEL_PREFIX} ${ACCEL_PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP} ${ACCEL_NAME} ${ACCEL_EXEC}
-
-    echo  ======= prep upload sg_accel =========
-    cp ${ACCEL_STAGING}/${ACCEL_PKG_NAME} ${SGW_DIR}/${ACCEL_NEW_PKG_NAME}
-
-    if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
-    then
-        cd ${ACCEL_STAGING}
-        rm -f ${ACCEL_PKG_NAME}
-        tar cvfz ${ACCEL_TAR_PKG_NAME} *
-        cp ${ACCEL_TAR_PKG_NAME} ${SGW_DIR}
-    fi
-
-fi # end - Only package enterprise version of sg_accel
 
 cd ${SGW_DIR}
 if [[ $DISTRO =~ macosx ]]
 then
     md5 ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
-    if [[ $EDITION =~ enterprise ]]
-    then
-        md5 ${ACCEL_NEW_PKG_NAME}  > ${ACCEL_NEW_PKG_NAME}.md5
-    fi
 else
     md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
-    if [[ $EDITION =~ enterprise ]]
-    then
-        md5sum ${ACCEL_NEW_PKG_NAME}  > ${ACCEL_NEW_PKG_NAME}.md5
-    fi
 fi
 
 
