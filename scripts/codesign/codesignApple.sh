@@ -85,23 +85,6 @@ codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase
 
 popd
 
-# before we zip it up, use PKG_DIR as the source for a DMG installer
-
-DMG_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${OSX}_${ARCHITECTURE}.dmg
-rm -rf ${DMG_FILENAME}
-ln -s /Applications ${PKG_DIR}
-create-dmg --volname "Couchbase Installer ${VERSION}-${BLD_NUM}-${EDITION}" \
-           --background "${PKG_DIR}/Couchbase Server.app/Contents/Resources/InstallerBackground.jpg" \
-           --window-size 800 600 \
-           --icon "Couchbase Server.app" 150 200 \
-           --icon "Applications" 650 200 \
-           --icon "README.txt" 400 475 \
-           ${DMG_FILENAME} \
-           ${PKG_DIR}
-
-# get rid of the symlink to applications
-rm ${PKG_DIR}/Applications
-
 # zip up the signed version
 
 rm -f ${PKG_NAME}
