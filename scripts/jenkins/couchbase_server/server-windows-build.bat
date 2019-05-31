@@ -99,8 +99,7 @@ ruby server-win2015.rb %REPOROOT%\install 9.3.3.9 %VERSION% %BLD_NUM% %LICENSE% 
 
 set "productname=Server"
 cd wix-installer
-rem Version in Windows installer is X.Y.Z.BBBB
-call create-installer.bat %REPOROOT%\install %VERSION%.%BLD_NUM% %LICENSE% "%productname%" || goto error
+call create-installer.bat %REPOROOT%\install %VERSION% %BLD_NUM% %LICENSE% "%productname%" || goto error
 
 set filebit=%LICENSE%
 move Server.msi %REPOROOT%\couchbase-server-%filebit%_%VERSION%-%BLD_NUM%-windows_amd64-unsigned.msi
