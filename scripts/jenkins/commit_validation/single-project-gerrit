@@ -82,16 +82,6 @@ trap fatal_error_handler ERR
 cat <<EOF
 
 ============================================
-===    environment                       ===
-============================================
-EOF
-ulimit -a
-echo ""
-env | grep -iv password | grep -iv passwd | sort
-
-cat <<EOF
-
-============================================
 ===    clean                             ===
 ============================================
 EOF
