@@ -230,6 +230,21 @@ VERSION_DATA = {
         },
         "testrunner_branch": "alice",
     },
+    "6.0.3": {
+        "platforms": {
+            "centos6": False,
+            "centos7": True,
+            "debian8": True,
+            "debian9": False,
+            "macos": True,
+            "suse11": True,
+            "suse12": False,
+            "ubuntu16": True,
+            "ubuntu18": False,
+            "windows": True,
+        },
+        "testrunner_branch": "alice",
+    },
     "6.0.2": {
         "platforms": {
             "centos6": False,
