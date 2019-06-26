@@ -144,13 +144,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CB_INVOKE_MAVEN=True \
       ${EXTRA_CMAKE_OPTIONS} \
       ..
-make -j8 install || (
-    echo; echo; echo -------------
-    echo make -j8 failed - re-running with no -j8 to hopefully get better debug output
-    echo -------------; echo; echo
-    make
-    exit 2
-)
+make -j8 install
 
 # couchdbx-app on MacOS depends on this:
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
