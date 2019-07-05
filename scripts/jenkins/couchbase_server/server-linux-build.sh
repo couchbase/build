@@ -14,7 +14,7 @@
 #
 
 usage() {
-    echo "Usage: $0 [ ubuntu12.04 | debian7 | centos6 | ... ] <VERSION> <EDITION> <BLD_NUM>"
+    echo "Usage: $0 [ ubuntu18.04 | debian9 | centos7 | ... ] <VERSION> <EDITION> <BLD_NUM>"
     exit 5
 }
 
@@ -64,10 +64,6 @@ case "$DISTRO" in
         PKG=rpm
         FLAVOR=amzn2
         ;;
-    centos6)
-        PKG=rpm
-        FLAVOR=redhat6
-        ;;
     centos7)
         PKG=rpm
         FLAVOR=redhat7
@@ -76,13 +72,13 @@ case "$DISTRO" in
         PKG=rpm
         FLAVOR=redhat8
         ;;
-    *suse11)
-        PKG=rpm
-        FLAVOR=suse11
-        ;;
     *suse12)
         PKG=rpm
         FLAVOR=suse12
+        ;;
+    *suse15)
+        PKG=rpm
+        FLAVOR=suse15
         ;;
     debian*|ubuntu*)
         PKG=deb
@@ -198,7 +194,7 @@ then
 
     libgcc_s=`gcc --print-file-name=libgcc_s.so`
     libgcc_sname=`basename "$libgcc_s"`
-    if [ "${DISTRO}" = 'amzn2' -o "${DISTRO}" = 'rhel8' ]
+    if [ "${DISTRO}" = 'amzn2' -o "${DISTRO}" = 'rhel8' -o "${DISTRO}" = 'suse15' ]
     then
         cp -p "${libgcc_s}" "/opt/couchbase/lib"
     else
