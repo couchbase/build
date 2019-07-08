@@ -61,7 +61,7 @@ if "%LICENSE%" == "enterprise" (
 set MAKETYPE="Ninja"
 :: Ninja requires that we explictly tell cmake to use cl (MSVC),
 :: otherwise it will auto-select gcc (MinGW) if that is installed.
-set EXTRA_CMAKE_OPTIONS=-DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl
+set EXTRA_CMAKE_OPTIONS=-DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl %EXTRA_CMAKE_OPTIONS%
 
 cmake -E touch CMakeLists.txt
 
@@ -74,7 +74,7 @@ cmake -G %MAKETYPE% ^
       -D PRODUCT_VERSION=%VERSION%-%BLD_NUM% ^
       -D BUILD_ENTERPRISE=%BUILD_ENTERPRISE% ^
       -D CB_DEVELOPER_BUILD=True ^
-      -D CB_PRODUCTION_BUILD=True ^
+      -D CB_DOWNLOAD_JAVA=True ^
       -D CMAKE_BUILD_TYPE=RelWithDebInfo ^
       -D CMAKE_ERL_LIB_INSTALL_PREFIX=lib ^
       %EXTRA_CMAKE_OPTIONS% ^
