@@ -37,6 +37,14 @@ case "${OSTYPE}" in
                 ARCH_VERSION='21'
                 PROP_FILE=${WORKSPACE}/publish_arm64-v8a.prop
                 STRIP=`dirname $(find $ANDROID_NDK_ROOT/toolchains -name strip | grep aarch64)`
+            fi
+            if [[ ${ARCH} == 'x86_64' ]]; then
+                OS="android-x86_64"
+                BUILD_REL_TARGET='build_x86_64_release'
+                BUILD_DEBUG_TARGET='build_x86_64_debug'
+                ARCH_VERSION='21'
+                PROP_FILE=${WORKSPACE}/publish_x86_64.prop
+                STRIP=`dirname $(find $ANDROID_NDK_ROOT/toolchains -name strip | grep x86_64-)`
             fi;;
         *)  echo "unknown: $OSTYPE"
             exit 1;;
