@@ -39,5 +39,31 @@ create-dmg --volname "Couchbase Installer ${VERSION}-${BLD_NUM}-${EDITION}" \
            ${DMG_FILENAME} \
            ${PKG_DIR}
 
+# force sign dmg pkg - only if CB_PRODUCTION_BUILD defined
+if [[ ${CB_PRODUCTION_BUILD} == 'true' ]]; then
+    sign_flags="--force --timestamp --options=runtime --verbose --preserve-metadata=identifier,entitlements,requirements"
+    echo ------- Unlocking keychain -----------
+    set +x
+    security unlock-keychain -p `cat ~/.ssh/security-password.txt` /Users/${USER}/Library/Keychains/login.keychain
+    set -x
+    echo --------- Sign Couchbase app last --------------
+    codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" ${DMG_FILENAME}
+    spctl -a -t open --context context:primary-signature -v ${DMG_FILENAME} > tmp_dmg.txt 2>&1
+    result=`grep "accepted" tmp_dmg.txt | awk '{ print $2 }'`
+    echo ${result}
+    if [[ ${result} =~ "accepted" ]]
+    then
+        # Ensure it's actually signed
+        if [[ -z $(grep "no usable signature" tmp_dmg.txt) ]]
+        then
+            exit 0
+        else
+            exit 1
+        fi
+    else
+        cat tmp_dmg.txt
+        exit 1
+    fi
+fi
 # get rid of the symlink to applications
 rm ${PKG_DIR}/Applications
