@@ -72,7 +72,7 @@ security unlock-keychain -p `cat ~/.ssh/security-password.txt` ${HOME}/Library/K
 set -x
 
 echo -------- Must sign Sparkle framework all versions ----------
-sign_flags="--force --verbose --preserve-metadata=identifier,entitlements,requirements"
+sign_flags="--force --timestamp --options=runtime  --verbose --preserve-metadata=identifier,entitlements,requirements"
 echo options: $sign_flags -----
 codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/A/Sparkle
 codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/A
