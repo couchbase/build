@@ -66,6 +66,16 @@ else
     pushd ${PKG_DIR}
 fi
 
+# Temporary fix the rpath issue with libprce
+install_name_tool -change /Users/jenkins/jenkins/workspace/cbdeps-platform-build-old/deps/packages/build/install/lib/libpcre.1.dylib @rpath/libpcre.1.dylib Couchbase\ Server.app/Contents/Resources/couchbase-core/lib/libpcrecpp.dylib
+install_name_tool -change /Users/jenkins/jenkins/workspace/cbdeps-platform-build-old/deps/packages/build/install/lib/libpcre.1.dylib @rpath/libpcre.1.dylib Couchbase\ Server.app/Contents/Resources/couchbase-core/lib/libpcreposix.dylib
+
+install_name_tool -change /Users/jenkins/jenkins/workspace/cbdeps-platform-build-old/deps/packages/build/install/lib/libpcre.1.dylib @rpath/libpcre.1.dylib  Couchbase\ Server.app/Contents/Resources/couchbase-core/bin/pcregrep
+install_name_tool -change /Users/jenkins/jenkins/workspace/cbdeps-platform-build-old/deps/packages/build/install/lib/libpcreposix.0.dylib  @rpath/libpcreposix.dylib Couchbase\ Server.app/Contents/Resources/couchbase-core/bin/pcregrep
+
+install_name_tool -change  /Users/jenkins/jenkins/workspace/cbdeps-platform-build-old/deps/packages/build/install/lib/libpcre.1.dylib @rpath/libpcre.1.dylib Couchbase\ Server.app/Contents/Resources/couchbase-core/bin/pcretest
+install_name_tool -change   /Users/jenkins/jenkins/workspace/cbdeps-platform-build-old/deps/packages/build/install/lib/libpcreposix.0.dylib  @rpath/libpcreposix.dylib Couchbase\ Server.app/Contents/Resources/couchbase-core/bin/pcretest
+
 echo ------- Unlocking keychain -----------
 set +x
 security unlock-keychain -p `cat ~/.ssh/security-password.txt` ${HOME}/Library/Keychains/login.keychain
