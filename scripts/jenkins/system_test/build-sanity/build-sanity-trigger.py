@@ -262,13 +262,12 @@ VERSION_DATA = {
     },
     "6.5.0": {
         "platforms": {
-            "centos6": False,
             "centos7": True,
             "debian8": True,
             "debian9": False,
             "macos": True,
-            "suse11": False,
             "suse12": True,
+            "suse15": True,
             "ubuntu16": True,
             "ubuntu18": True,
             "windows": True,
