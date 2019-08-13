@@ -39,7 +39,6 @@ result="rejected"
 
 PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/zz-versions/${PKG_VERSION}/${PKG_BUILD_NUM}
 PKG_NAME_US=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_${ARCHITECTURE}-unsigned.zip
-PKG_NAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_${ARCHITECTURE}.zip
 PKG_DIR=couchbase-server-${EDITION}_${PKG_VERSION}
 
 if [[ ${DOWNLOAD_NEW_PKG} ]]
@@ -94,12 +93,6 @@ echo --------- Sign Couchbase app last --------------
 codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app
 
 popd
-
-# zip up the signed version
-
-rm -f ${PKG_NAME}
-zip -qry ${PKG_NAME} ${PKG_DIR}
-rm -f ${PKG_NAME_US}
 
 # Verify codesigned successfully
 spctl -avvvv ${PKG_DIR}/*.app > tmp.txt 2>&1
