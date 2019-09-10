@@ -79,6 +79,7 @@ case "$DISTRO" in
     *suse15)
         PKG=rpm
         FLAVOR=suse15
+        GPG_KEY='Couchbase Release Key (RPM)'
         ;;
     debian*|ubuntu*)
         PKG=deb
@@ -260,11 +261,19 @@ do
             else
               echo "Warning: No ${PRODUCT}-{debug,debuginfo}-*.rpm package found; skipping copy."
             fi
+
+            DBG_FILENAME=couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
             if [ -n "$DEBUG" ]
             then
-              cp ${DBG_PREFIX}-${DEBUG}-*.rpm \
-                 ${WORKSPACE}/couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
+              cp ${DBG_PREFIX}-${DEBUG}-*.rpm ${WORKSPACE}/${DBG_FILENAME}
             fi
+
+            if [ -n "$GPG_KEY" ]
+            then
+                rpmsign --addsign --key-id "$GPG_KEY" ${WORKSPACE}/${INSTALLER_FILENAME}
+                rpmsign --addsign --key-id "$GPG_KEY" ${WORKSPACE}/${DBG_FILENAME}
+            fi
+
             ;;
         deb)
             ARCHITECTURE=amd64
