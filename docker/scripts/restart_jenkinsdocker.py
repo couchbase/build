@@ -61,10 +61,18 @@ if result == 0:
 
 # Create/empty slave Jenkins directory.
 slave_dir = "/home/couchbase/slaves/{0}".format(slave)
-print "Recreating local slave directory {0}...".format(slave_dir)
+print "Emptying local slave directory {0}...".format(slave_dir)
 if os.path.isdir(slave_dir):
-    shutil.rmtree(slave_dir)
-os.makedirs(slave_dir)
+    for root, dirs, files in os.walk(slave_dir, topdown=False):
+        os.chmod(root, 0o777)
+        for name in files:
+            os.remove(os.path.join(root, name))
+        for name in dirs:
+            path = os.path.join(root, name)
+            if (os.path.islink(path)):
+                os.remove(path)
+            else:
+                os.rmdir(path)
 
 # Prefer /latestbuilds etc. to /home/couchbase/latestbuilds etc.
 if os.path.isdir("/latestbuilds"):
