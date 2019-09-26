@@ -1,7 +1,0 @@
-#!/bin/sh
-
-TAG=$(date +%Y%m%d)
-
-mkdir -p build
-cp -a ../../util/couchbuilder_start.sh build
-docker build -t ceejatec/centos-70-sgw-build:$TAG .

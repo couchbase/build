@@ -1,6 +1,0 @@
-
-%_topdir  %(echo $RPM_ROOT_DIR)
-
-%_rpmdir     %_topdir/RPMS
-%_srcrpmdir  %_topdir/SRPMS
-%_sourcedir  %_topdir/SOURCES

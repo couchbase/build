@@ -1,7 +1,0 @@
-#!/bin/sh
-
-TAG=$(date +%Y%m%d)
-
-mkdir -p build
-cp -a ../../util/couchbuilder_start.sh build
-docker build -t ceejatec/ubuntu1404-sgw-build:$TAG .
