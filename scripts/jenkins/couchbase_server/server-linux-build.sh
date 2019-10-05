@@ -68,7 +68,7 @@ case "$DISTRO" in
         PKG=rpm
         FLAVOR=redhat7
         ;;
-    rhel8)
+    centos8|rhel8)
         PKG=rpm
         FLAVOR=redhat8
         ;;
