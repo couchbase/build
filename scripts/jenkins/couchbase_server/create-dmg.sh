@@ -26,18 +26,40 @@ if [[ ! -e "${PKG_DIR}/Couchbase\  Server.app" ]] && [[ ! -e ${PKG_DIR}/README.t
     exit 1
 fi
 
-# Create dmg package
+# Create dmg package based on a template DMG we pull out of the app
+echo "Creating DMG..."
 DMG_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${OSX}_${ARCHITECTURE}.dmg
+TEMPLATE_DMG_GZ=couchbase-server-macos-template_x86_64.dmg.gz
+WC_DIR=wc
+WC_DMG=wc.dmg
 rm -rf ${DMG_FILENAME}
 ln -s /Applications ${PKG_DIR}
-create-dmg --volname "Couchbase Installer ${VERSION}-${BLD_NUM}-${EDITION}" \
-           --background "${PKG_DIR}/Couchbase Server.app/Contents/Resources/InstallerBackground.jpg" \
-           --window-size 800 600 \
-           --icon "Couchbase Server.app" 150 200 \
-           --icon "Applications" 650 200 \
-           --icon "README.txt" 400 475 \
-           ${DMG_FILENAME} \
-           ${PKG_DIR}
+#
+rm -rf $WC_DMG
+echo "Copying template..."
+gzcat "$PKG_DIR/Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}" > ${WC_DMG}
+rm "$PKG_DIR/Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}"
+#
+echo "Mounting template to working image..."
+mkdir -p ${WC_DIR}
+#
+echo "Resizing image to size of ${PKG_DIR}..."
+hdiutil resize -sectors $((2*`du -s ${PKG_DIR} | awk '{print $1}'`)) $WC_DMG
+#
+hdiutil attach $WC_DMG -readwrite -noautoopen -mountpoint $WC_DIR
+echo "Updating working image files..."
+rm -rf $WC_DIR/*.app
+ditto --rsrc ${PKG_DIR}/Couchbase\ Server.app $WC_DIR/Couchbase\ Server.app
+ditto --rsrc ${PKG_DIR}/README.txt $WC_DIR/README.txt
+#
+echo "Detaching image..."
+hdiutil detach `pwd`/$WC_DIR -force
+rm -f "$MASTER_DMG"
+echo "Converting working image to new master..."
+hdiutil convert "$WC_DMG" -format UDZO -imagekey zlib-level=9 -o "${DMG_FILENAME}"
+rm -rf $WC_DIR
+rm $WC_DMG
+echo "Done with DMG."
 
 # force sign dmg pkg - only if CB_PRODUCTION_BUILD defined
 if [[ ${CB_PRODUCTION_BUILD} == 'true' ]]; then
