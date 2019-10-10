@@ -33,7 +33,7 @@ TEMPLATE_DMG_GZ=couchbase-server-macos-template_x86_64.dmg.gz
 WC_DIR=wc
 WC_DMG=wc.dmg
 rm -rf ${DMG_FILENAME}
-ln -s /Applications ${PKG_DIR}
+ln -f -s /Applications ${PKG_DIR}
 #
 rm -rf $WC_DMG
 echo "Copying template..."
@@ -44,16 +44,17 @@ echo "Mounting template to working image..."
 mkdir -p ${WC_DIR}
 #
 echo "Resizing image to size of ${PKG_DIR}..."
-hdiutil resize -sectors $((2*`du -s ${PKG_DIR} | awk '{print $1}'`)) $WC_DMG
+hdiutil resize -sectors $((`du -s ${PKG_DIR} | awk '{print $1}'`*2)) $WC_DMG
 #
 hdiutil attach $WC_DMG -readwrite -noautoopen -mountpoint $WC_DIR
 echo "Updating working image files..."
 rm -rf $WC_DIR/*.app
-ditto --rsrc ${PKG_DIR}/Couchbase\ Server.app $WC_DIR/Couchbase\ Server.app
-ditto --rsrc ${PKG_DIR}/README.txt $WC_DIR/README.txt
+cp -r ${PKG_DIR}/Couchbase\ Server.app $WC_DIR/Couchbase\ Server.app
+cp -r ${PKG_DIR}/README.txt $WC_DIR/README.txt
 #
 echo "Detaching image..."
-hdiutil detach `pwd`/$WC_DIR -force
+hdiutil detach `pwd`/$WC_DIR
+sleep 2
 rm -f "$MASTER_DMG"
 echo "Converting working image to new master..."
 hdiutil convert "$WC_DMG" -format UDZO -imagekey zlib-level=9 -o "${DMG_FILENAME}"
