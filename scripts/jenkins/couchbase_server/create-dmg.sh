@@ -43,8 +43,8 @@ rm "$PKG_DIR/Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}"
 echo "Mounting template to working image..."
 mkdir -p ${WC_DIR}
 #
-echo "Resizing image to size of ${PKG_DIR}..."
-hdiutil resize -sectors $((`du -s ${PKG_DIR} | awk '{print $1}'`*2)) $WC_DMG
+#echo "Resizing image to size of ${PKG_DIR}..."
+#hdiutil resize -sectors $((`du -s ${PKG_DIR} | awk '{print $1}'`*2)) $WC_DMG
 #
 hdiutil attach $WC_DMG -readwrite -noautoopen -mountpoint $WC_DIR
 echo "Updating working image files..."
@@ -57,7 +57,7 @@ hdiutil detach `pwd`/$WC_DIR
 sleep 2
 rm -f "$MASTER_DMG"
 echo "Converting working image to new master..."
-hdiutil convert "$WC_DMG" -format UDZO -imagekey zlib-level=9 -o "${DMG_FILENAME}"
+hdiutil convert "$WC_DMG" -format UDZO -o "${DMG_FILENAME}"
 rm -rf $WC_DIR
 rm $WC_DMG
 echo "Done with DMG."
