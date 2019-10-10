@@ -20,11 +20,11 @@ for %%A in (Win32 Win64 ARM) do (
         rem Flavor: Debug
         set TARGET=!ARCH!_Debug
         call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! Debug || goto :error
-        call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-debug-arm.zip LiteCore.dll LiteCore.pdb ARM DEBUG || goto :error
+        call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-debug-arm.zip ARM DEBUG || goto :error
         rem MinSizeRel
         set TARGET=!ARCH!_MinSizeRel
         call :bld_store %WORKSPACE%\build_!TARGET! !ARCH! MinSizeRel || goto :error
-        call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-arm.zip LiteCore.dll LiteCore.pdb ARM RELEASE || goto :error
+        call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-arm.zip ARM RELEASE || goto :error
         goto :EOF
     ) else (
         rem Flavor: Debug
@@ -32,11 +32,11 @@ for %%A in (Win32 Win64 ARM) do (
         call :bld_store %WORKSPACE%\build_cmake_store_!TARGET! !ARCH! Debug || goto :error
         call :bld %WORKSPACE%\build_!TARGET! !ARCH! Debug || goto :error
         if "!ARCH!"=="Win32" (
-            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32-winstore-debug.zip LiteCore.dll LiteCore.pdb STORE_Win32 DEBUG || goto :error
-            call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32-debug.zip LiteCore.dll LiteCore.pdb Win32 DEBUG || goto :error
+            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32-winstore-debug.zip STORE_Win32 DEBUG || goto :error
+            call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32-debug.zip Win32 DEBUG || goto :error
         ) else (
-            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64-winstore-debug.zip LiteCore.dll LiteCore.pdb STORE_Win64 DEBUG || goto :error
-            call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64-debug.zip LiteCore.dll LiteCore.pdb Win64 DEBUG || goto :error
+            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64-winstore-debug.zip STORE_Win64 DEBUG || goto :error
+            call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%DEBUG_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64-debug.zip Win64 DEBUG || goto :error
         )
         rem Flavor: MinSizeRel
         set TARGET=!ARCH!_MinSizeRel
@@ -46,11 +46,11 @@ for %%A in (Win32 Win64 ARM) do (
             call :unit-test %WORKSPACE%\build_!TARGET!\%PRODUCT%  !ARCH! || goto :error
         )
         if "!ARCH!"=="Win32" (
-            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32-winstore.zip LiteCore.dll LiteCore.pdb STORE_Win32 RELEASE || goto :error
-            call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32.zip LiteCore.dll LiteCore.pdb Win32 RELEASE || goto :error
+            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32-winstore.zip STORE_Win32 RELEASE || goto :error
+            call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win32.zip Win32 RELEASE || goto :error
         ) else (
-            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64-winstore.zip LiteCore.dll LiteCore.pdb STORE_Win64 RELEASE || goto :error
-            call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64.zip LiteCore.dll LiteCore.pdb Win64 RELEASE || goto :error
+            call :pkg %WORKSPACE%\build_cmake_store_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64-winstore.zip STORE_Win64 RELEASE || goto :error
+            call :pkg %WORKSPACE%\build_!TARGET!\%PRODUCT%\%REL_PKG_DIR% %PRODUCT%-%VERSION%-%SHA_VERSION%-%OS%-win64.zip Win64 RELEASE || goto :error
         )
     )
 )
@@ -58,15 +58,15 @@ goto :EOF
 
 rem subroutine "pkg"
 :pkg
-echo Creating pkg - pkgdir:%1, pkgname:%2, dll:%3, pdb:%4, arch:%5 flavor:%6
+echo Creating pkg - pkgdir:%1, pkgname:%2, arch:%3 flavor:%4
 cd %1
 set PKG_NAME=%2
-if "%6" == "DEBUG" (
+if "%4" == "DEBUG" (
     set FLAVOR=DEBUG
     ) else (
         set FLAVOR=RELEASE
 )
-7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME%  %3  %4 || goto :error
+7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME%  %3  LiteCore.dll LiteCore.lib LiteCore.pdb || goto :error
 set PROP_FILE=%WORKSPACE%\publish_!ARCH!.prop
 echo PRODUCT=%PRODUCT%  >> %PROP_FILE%
 echo VERSION=%SHA_VERSION% >> %PROP_FILE%
