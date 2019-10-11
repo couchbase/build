@@ -38,7 +38,7 @@ ln -f -s /Applications ${PKG_DIR}
 rm -rf $WC_DMG
 echo "Copying template..."
 gzcat "$PKG_DIR/Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}" > ${WC_DMG}
-rm "$PKG_DIR/Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}"
+#rm "$PKG_DIR/Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}"
 #
 echo "Mounting template to working image..."
 mkdir -p ${WC_DIR}
