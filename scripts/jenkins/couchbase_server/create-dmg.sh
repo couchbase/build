@@ -43,15 +43,13 @@ rm "$PKG_DIR/Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}"
 echo "Mounting template to working image..."
 mkdir -p ${WC_DIR}
 #
-#echo "Resizing image to size of ${PKG_DIR}..."
-#hdiutil resize -sectors $((`du -s ${PKG_DIR} | awk '{print $1}'`*2)) $WC_DMG
-#
 hdiutil attach $WC_DMG -readwrite -noautoopen -mountpoint $WC_DIR
 echo "Updating working image files..."
 rm -rf $WC_DIR/*.app
-cp -r ${PKG_DIR}/Couchbase\ Server.app $WC_DIR/Couchbase\ Server.app
-cp -r ${PKG_DIR}/README.txt $WC_DIR/README.txt
+ditto -rsrc ${PKG_DIR}/Couchbase\ Server.app $WC_DIR/Couchbase\ Server.app
+ditto -rsrc ${PKG_DIR}/README.txt $WC_DIR/README.txt
 #
+sleep 2
 echo "Detaching image..."
 hdiutil detach `pwd`/$WC_DIR
 sleep 2
