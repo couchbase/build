@@ -306,10 +306,10 @@ EOF
 # End of PRODUCTS loop
 done
 
-# Support for Oracle Enterprise Linux. If we're building Centos 6 or 7, make
-# an exact copy with an oel6/oel7 filename.
+# Support for Oracle Enterprise Linux. If we're building Centos X, make
+# an exact copy with an oel X filename.
 case "$DISTRO" in
-    centos6|centos7)
+    centos*)
         for rpm in *.rpm
         do
             cp ${rpm} ${rpm//centos/oel}
