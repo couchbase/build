@@ -27,7 +27,20 @@ case "${OSTYPE}" in
     linux*)   OS="linux"
               PKG_CMD='tar czf'
               PKG_TYPE='tar.gz'
-              PROP_FILE=${WORKSPACE}/publish.prop;;
+              PROP_FILE=${WORKSPACE}/publish.prop
+              OS_NAME=`lsb_release -is`
+              if [[ "$OS_NAME" != "CentOS" ]]; then
+                  echo "Error: Unsupported Linux distro $OS_NAME"
+                  exit 2
+              fi
+
+              OS_VERSION=`lsb_release -rs`
+              if [[ $OS_VERSION =~ ^6.* ]]; then
+                  OS="centos6"
+              elif [[ ! $OS_VERSION =~ ^7.* ]]; then
+                  echo "Error: Unsupported CentOS version $OS_VERSION"
+                  exit 3
+              fi;;
     *)        echo "unknown: $OSTYPE"
               exit 1;;
 esac
@@ -61,7 +74,7 @@ else
     cd ${WORKSPACE}/build_release
     cmake -DEDITION=${EDITION} -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=MinSizeRel ..
     make -j8
-    if [[ ${OS} == 'linux' ]]; then
+    if [[ ${OS} == 'linux'  ]] || [[ ${OS} == 'centos6' ]]; then
         ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${strip_dir}
     else
         pushd ${project_dir}
@@ -94,7 +107,7 @@ else
     cd ${WORKSPACE}/build_debug/
     cmake -DEDITION=${EDITION} -DCMAKE_INSTALL_PREFIX=`pwd`/install -DCMAKE_BUILD_TYPE=Debug ..
     make -j8
-    if [[ ${OS} == 'linux' ]]; then
+    if [[ ${OS} == 'linux' ]] || [[ ${OS} == 'centos6' ]]; then
         ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/strip.sh ${strip_dir}
     else
         pushd ${project_dir}
