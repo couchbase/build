@@ -67,7 +67,7 @@ if "%4" == "DEBUG" (
         set FLAVOR=RELEASE
 )
 7za a -tzip -mx9 %WORKSPACE%\%PKG_NAME% LiteCore.dll LiteCore.lib LiteCore.pdb || goto :error
-set PROP_FILE=%WORKSPACE%\publish_%3.prop
+set PROP_FILE=%WORKSPACE%\publish_!ARCH!.prop
 echo PRODUCT=%PRODUCT%  >> %PROP_FILE%
 echo VERSION=%SHA_VERSION% >> %PROP_FILE%
 echo %FLAVOR%_PKG_NAME_%5=!PKG_NAME! >> %PROP_FILE%
