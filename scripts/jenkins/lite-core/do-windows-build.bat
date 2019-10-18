@@ -70,7 +70,7 @@ if "%4" == "DEBUG" (
 set PROP_FILE=%WORKSPACE%\publish_!ARCH!.prop
 echo PRODUCT=%PRODUCT%  >> %PROP_FILE%
 echo VERSION=%SHA_VERSION% >> %PROP_FILE%
-echo %FLAVOR%_PKG_NAME_%5=!PKG_NAME! >> %PROP_FILE%
+echo %FLAVOR%_PKG_NAME_%3=!PKG_NAME! >> %PROP_FILE%
 goto :EOF
 
 rem subroutine "bld_store"
