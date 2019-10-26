@@ -125,7 +125,7 @@ if [ -n "${EXTRA_INSTALL_PARAMS}" ]; then
 fi
 
 echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
-COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS
+COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS
 echo
 
 if [ "$?" -ne 0 ]; then
