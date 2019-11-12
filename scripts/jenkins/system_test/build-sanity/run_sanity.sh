@@ -124,9 +124,15 @@ if [ -n "${EXTRA_INSTALL_PARAMS}" ]; then
     PARAMS="${PARAMS},${EXTRA_INSTALL_PARAMS}"
 fi
 
-echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
-COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS
-echo
+if [[ "$DISTRO" == "win64" ]] || [[ "$DISTRO" == "windows" ]]; then
+  echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
+  COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS
+  echo
+else
+  echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS"
+  COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS
+  echo
+fi
 
 if [ "$?" -ne 0 ]; then
   exit 1
