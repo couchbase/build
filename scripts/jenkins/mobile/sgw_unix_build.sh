@@ -67,9 +67,16 @@ SG_PRODUCT_NAME="Couchbase Sync Gateway"
 EXEC=sync_gateway
 COLLECTINFO_NAME=sgcollect_info
 
-if [[ $DISTRO =~ centos  ]]
+if [[ $DISTRO == "centos6" ]]
 then
-    DISTRO="centos"
+    PKGR=package-rpm.rb
+    PKGTYPE=rpm
+    if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
+    PLATFORM=${OS}-${ARCH}
+    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PARCH}.${PKGTYPE}
+elif [[ $DISTRO == "centos7" ]]
+then
     PKGR=package-rpm.rb
     PKGTYPE=rpm
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
@@ -78,7 +85,6 @@ then
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
 elif [[ $DISTRO == "ubuntu14" ]]
 then
-    DISTRO="ubuntu14"
     PKGR=package-deb.rb
     PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
@@ -88,7 +94,6 @@ then
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PARCH}.${PKGTYPE}
 elif [[ $DISTRO == "ubuntu16" ]]
 then
-    DISTRO="ubuntu"
     PKGR=package-deb.rb
     PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
