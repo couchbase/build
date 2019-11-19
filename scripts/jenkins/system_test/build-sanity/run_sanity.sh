@@ -128,6 +128,10 @@ if [[ "$DISTRO" == "win64" ]] || [[ "$DISTRO" == "windows" ]]; then
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS
   echo
+elif [ $VERSION \< 6.5* ]; then
+  echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
+  COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS
+  echo
 else
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS
