@@ -18,7 +18,8 @@ must be set as Gerrit plugin would:
 """
 PROJECT = os.environ["GERRIT_PROJECT"]
 BRANCH = os.environ["GERRIT_BRANCH"]
-COMMIT_MSG = base64.b64decode(os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"]).decode("utf-8")
+COMMIT_MSG = base64.b64decode(
+    os.environ["GERRIT_CHANGE_COMMIT_MESSAGE"]).decode("utf-8")
 
 # Values for outputting in HTML template (initialized with current globals)
 OUTPUT = globals().copy()
@@ -51,8 +52,20 @@ def check_branch_in_manifest(manifest_filename):
             PROJECT, project_branch, BRANCH)
         )
         return False
-
     return True
+
+
+def is_doc_change(ticket):
+    """
+    Given a Jira ticket ID, returns true/false if 'doc-change' label is present/missing
+    """
+    try:
+        jira = connect_jira()
+        jira_ticket = jira.issue(ticket)
+        return 'doc-change-only' in jira_ticket.raw['fields']['labels']
+    except:
+        failed_output_page(
+            "couldn't retrieve labels for ticket {}".format(ticket))
 
 
 def get_approved_tickets(approval_ticket):
@@ -91,7 +104,7 @@ def validate_change_in_ticket(meta):
     # all "fixed" tickets are approved.
     approved_tickets = get_approved_tickets(approval_ticket)
     for tick in fix_tickets:
-        if tick not in approved_tickets:
+        if tick not in approved_tickets and not is_doc_change(tick):
             # Ok, this fixed ticket isn't approved in approval ticket.
             # Populate the OUTPUT map for the HTML and email templates.
             OUTPUT["REASON"] = "ticket {} is not approved for {} " \
@@ -156,7 +169,6 @@ def main():
 
     # Collect all restricted manifests that reference this branch
     manifests = scan_manifests(manifest_project)
-    print (manifests)
     restricted_manifests = []
     for manifest in manifests:
         meta = manifests[manifest]
@@ -170,7 +182,6 @@ def main():
 
             # Also see if projects are specifically excluded from check for this manifest
             unrestricted_projects = meta.get("unrestricted_projects", [])
-            print ("Looking at {}".format(unrestricted_projects))
             if PROJECT in unrestricted_projects:
                 print("Project {} is unrestricted in manifest {}".format(
                     PROJECT, manifest
