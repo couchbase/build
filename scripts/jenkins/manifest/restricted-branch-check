@@ -55,14 +55,20 @@ def check_branch_in_manifest(manifest_filename):
     return True
 
 
-def is_doc_change(ticket):
+def can_bypass_restriction(ticket):
     """
-    Given a Jira ticket ID, returns true/false if 'doc-change' label is present/missing
+    Given a Jira ticket ID, returns true if 'doc-change-only' and/or
+    'test-change-only' labels are present, or false if neither are
+    found
     """
+    bypass_labels = [
+        'doc-change-only',
+        'test-change-only'
+    ]
     try:
         jira = connect_jira()
         jira_ticket = jira.issue(ticket)
-        return 'doc-change-only' in jira_ticket.raw['fields']['labels']
+        return any(label in bypass_labels for label in jira_ticket.raw['fields']['labels'])
     except:
         failed_output_page(
             "couldn't retrieve labels for ticket {}".format(ticket))
@@ -104,8 +110,9 @@ def validate_change_in_ticket(meta):
     # all "fixed" tickets are approved.
     approved_tickets = get_approved_tickets(approval_ticket)
     for tick in fix_tickets:
-        if tick not in approved_tickets and not is_doc_change(tick):
-            # Ok, this fixed ticket isn't approved in approval ticket.
+        if tick not in approved_tickets and not can_bypass_restriction(tick):
+            # Ok, this fixed ticket isn't approved in approval ticket
+            # nor does it contain a label for bypassing this check.
             # Populate the OUTPUT map for the HTML and email templates.
             OUTPUT["REASON"] = "ticket {} is not approved for {} " \
                 "(see approval ticket {})".format(
