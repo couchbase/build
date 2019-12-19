@@ -394,7 +394,23 @@ VERSION_DATA = {
             "ubuntu18": True,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "mad-hatter",
+    },
+    "6.5.1": {
+        "platforms": {
+            "centos7": True,
+            "centos8": False,
+            "debian8": False,
+            "debian9": True,
+            "debian10": False,
+            "macos": True,
+            "suse12": True,
+            "suse15": True,
+            "ubuntu16": True,
+            "ubuntu18": True,
+            "windows": True,
+        },
+        "testrunner_branch": "mad-hatter",
     },
     "7.0.0": {
         "platforms": {
