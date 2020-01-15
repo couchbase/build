@@ -134,8 +134,6 @@ RELEASE_DIR=${REL_MOUNT}/mobile/${S3_REL_DIRNAME}/${VERSION}
 # Fix the latestbuilds path for ios 1.4.x
 if [[ ${PRODUCT} == *ios ]] && [[ ${RELEASE} == 1.* ]]; then
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${REL_DIRNAME}/${BLD_NUM}
-elif [[ ${PRODUCT} == couchbase-lite-net ]]; then
-    SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}/release
 else
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}
 fi
@@ -184,10 +182,9 @@ get_s3_upload_link()
 }
 
 cd ${SRC_DIR}
-FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5|\.sha|coverage|CHANGELOG|changes\.log|unsigned|logtest|litetest|CBLTestServer')
+FILES=$(ls -Iblackduck | egrep -v 'source|\.xml|\.json|\.properties|\.md5|\.sha|coverage|CHANGELOG|changes\.log|unsigned|logtest|litetest|CBLTestServer')
 TARGET_TMP_DIR=/tmp/${RELEASE}-${BLD_NUM}
 rm -rf ${TARGET_TMP_DIR} && mkdir -p ${TARGET_TMP_DIR}
-
 cd ${TARGET_TMP_DIR}
 for fl in $FILES; do
     target_file=${fl/${RELEASE}-${BLD_NUM}/${VERSION}}
