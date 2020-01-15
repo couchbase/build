@@ -95,7 +95,11 @@ case "$PRODUCT" in
         S3_REL_DIRNAME=couchbase-lite-android-ee
         ;;
     *java)
-        S3_REL_DIRNAME=couchbase-lite/java
+        if [[ ${RELEASE} == 1.* ]]; then
+            S3_REL_DIRNAME=couchbase-lite/java
+        else
+            S3_REL_DIRNAME=couchbase-lite-java
+        fi
         ;;
     *net)
         REL_DIRNAME=couchbase-lite-net
@@ -104,6 +108,17 @@ case "$PRODUCT" in
         else
             S3_REL_DIRNAME=couchbase-lite-net
         fi
+        ;;
+    *log)
+        REL_DIRNAME=couchbase-lite-log
+        S3_REL_DIRNAME=couchbase-lite-log
+        ;;
+    *cblite)
+        REL_DIRNAME=couchbase-lite-cblite
+        S3_REL_DIRNAME=couchbase-lite-cblite
+        ;;
+    couchbase-lite-phonegap)
+        S3_REL_DIRNAME=couchbase-lite-phonegap
         ;;
     *)
         echo "Unsupported Product!"
@@ -169,7 +184,7 @@ get_s3_upload_link()
 }
 
 cd ${SRC_DIR}
-FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5*|\.sha*|test_coverage*|CHANGELOG|changes\.log|unsigned|CBLTestServer|debug')
+FILES=$(ls * | egrep -v 'source|\.xml|\.json|\.properties|\.md5|\.sha|coverage|CHANGELOG|changes\.log|unsigned|logtest|litetest|CBLTestServer')
 TARGET_TMP_DIR=/tmp/${RELEASE}-${BLD_NUM}
 rm -rf ${TARGET_TMP_DIR} && mkdir -p ${TARGET_TMP_DIR}
 
