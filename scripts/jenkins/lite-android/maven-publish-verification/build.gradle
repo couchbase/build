@@ -1,0 +1,22 @@
+apply plugin: 'java'
+
+def RELEASE_VERSION = System.getenv('RELEASE_VERSION')
+def PUBLISH_URL = System.getenv('PUBLISH_URL')
+def PRODUCT = System.getenv('PRODUCT')
+def GROUP_ID = 'com.couchbase.lite'
+
+task wrapper(type: Wrapper) {
+   gradleVersion = '4.8.1' // version required
+}
+
+repositories {
+    maven {
+            url PUBLISH_URL
+            jcenter()
+            mavenCentral()
+        }
+}
+
+dependencies {
+    implementation GROUP_ID +  ':' + PRODUCT + ':' + RELEASE_VERSION
+}
