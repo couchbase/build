@@ -1,0 +1,24 @@
+<settings>
+  <!-- the path to the local repository - defaults to ~/.m2/repository
+  -->
+  <!-- <localRepository>/path/to/local/repo</localRepository>
+  -->
+  <servers>
+    <server>
+      <id>releases</id>
+      <username>${publish.username}</username>
+      <password>${publish.password}</password>
+    </server>
+    <server>
+      <id>bintray-cb-buildteam-couchbase</id>
+      <username>${publish.username}</username>
+      <password>${publish.password}</password>
+    </server>
+  </servers>
+
+  <pluginGroups>
+    <pluginGroup>org.sonatype.plugins</pluginGroup>
+  </pluginGroups>
+
+</settings>
+

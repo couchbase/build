@@ -134,6 +134,8 @@ RELEASE_DIR=${REL_MOUNT}/mobile/${S3_REL_DIRNAME}/${VERSION}
 # Fix the latestbuilds path for ios 1.4.x
 if [[ ${PRODUCT} == *ios ]] && [[ ${RELEASE} == 1.* ]]; then
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${REL_DIRNAME}/${BLD_NUM}
+elif [[ ${PRODUCT} == couchbase-lite-net ]]; then
+    SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}/release
 else
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${BLD_NUM}
 fi

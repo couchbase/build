@@ -21,7 +21,7 @@ cd ${WORKSPACE} && git clone git@github.com:couchbaselabs/couchbase-lite-ios-ee.
 cd ${WORKSPACE}/couchbase-lite-ios-ee/Podspecs
 declare -a JSON_FILES=( $(ls) )
 for fl in "${JSON_FILES[@]}"; do
-	python3 ${WORKSPACE}/build-tools/mobile/lite-ios/cocoapods-publish.py --version ${VERSION} --file $fl || exit 1
+	python3 ${WORKSPACE}/build/scripts/jenkins/lite-ios/cocoapods-publish.py --version ${VERSION} --file $fl || exit 1
 done
 
 # deactivate virtualenv
