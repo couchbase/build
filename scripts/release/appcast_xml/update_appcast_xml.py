@@ -41,7 +41,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     macos_file = 'http://packages.couchbase.com/releases/%s/' \
-                 'couchbase-server-enterprise_%s-macos_x86_64.zip' \
+                 'couchbase-server-enterprise_%s-macos_x86_64.dmg' \
                  % (version, version)
 
     # Create file from template
