@@ -93,7 +93,7 @@ fi
 
 pushd ${GERRIT_PROJECT} 2>&1 > /dev/null
     git diff -U0 HEAD^ | ${BASEDIR}/clang-tidy-diff.py -p1 -clang-tidy-binary="$CLANG_TIDY_BIN" -fix -checks="$CLANG_TIDY_CHECKS" -path="$BUILD_PATH" -config="$CONFIG" > clang-tidy-output.log
-    if [[ -s clang-tidy-output.log ]]; then
+    if [[ ! -s clang-tidy-output.log ]]; then
         echo "clang-tidy did not suggest any changes"
         exit 0
     else
