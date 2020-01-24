@@ -43,6 +43,7 @@ fi
 PARALLELISM="${PARALLELISM:-8}"
 
 BASEDIR=$(cd "$(dirname ${BASH_SOURCE})" && pwd)
+BUILD_PATH="$(pwd)/build-kv_engine-clang-tidy"
 
 set -e
 
@@ -54,12 +55,17 @@ function echo_cmd {
 cat <<EOF
 
 ============================================
-===    environment                       ===
+===    clean                             ===
 ============================================
 EOF
-ulimit -a
-echo ""
-env | grep -iv password | grep -iv passwd | sort
+echo_cmd rm -f ${BUILD_PATH}
+
+# Zero ccache stats, so we can measure how much space this build is
+# consuming.
+echo_cmd ccache -z
+
+# Wipe out any core files left from a previous run.
+echo_cmd rm -f /tmp/core.*
 
 cat <<EOF
 
@@ -77,11 +83,15 @@ cat <<EOF
 ===            Clang Tidy                ===
 ============================================
 EOF
+# If we've checked out a specific version of the TLM
+# then we'll need to bring our new CMakeLists.txt in manually
+echo_cmd cp -f tlm/CMakeLists.txt ./CMakeLists.txt
+echo_cmd cp -f tlm/third-party-CMakeLists.txt ./third_party/CMakeLists.txt
 
-BUILD_PATH="$(pwd)/build-kv_engine-clang-tidy"
-mkdir -p $BUILD_PATH && cd $BUILD_PATH
-cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-make -j${PARALLELISM} generated_source_files
+echo_cmd mkdir -p $BUILD_PATH && cd $BUILD_PATH
+echo_cmd cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+echo_cmd make -j${PARALLELISM} generated_source_files
+echo_cmd ccache -s
 cd ..
 
 if [[ -z "$CLANG_TIDY_BIN" ]]; then
@@ -92,7 +102,7 @@ if [[ -z "$CLANG_TIDY_CONFIG" ]]; then
 fi
 
 pushd ${GERRIT_PROJECT} 2>&1 > /dev/null
-    git diff -U0 HEAD^ | ${BASEDIR}/clang-tidy-diff.py -p1 -clang-tidy-binary="$CLANG_TIDY_BIN" -fix -checks="$CLANG_TIDY_CHECKS" -path="$BUILD_PATH" -config="$CONFIG" > clang-tidy-output.log
+    echo_cmd git diff -U0 HEAD^ | ${BASEDIR}/clang-tidy-diff.py -p1 -clang-tidy-binary="$CLANG_TIDY_BIN" -fix -checks="$CLANG_TIDY_CHECKS" -path="$BUILD_PATH" -config="$CONFIG" > clang-tidy-output.log
     if [[ ! -s clang-tidy-output.log ]]; then
         echo "clang-tidy did not suggest any changes"
         exit 0
