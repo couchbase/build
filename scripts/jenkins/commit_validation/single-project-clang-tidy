@@ -58,7 +58,7 @@ cat <<EOF
 ===    clean                             ===
 ============================================
 EOF
-echo_cmd rm -f ${BUILD_PATH}
+echo_cmd rm -rf ${BUILD_PATH}
 
 # Zero ccache stats, so we can measure how much space this build is
 # consuming.
