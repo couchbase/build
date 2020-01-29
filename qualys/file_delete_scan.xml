@@ -1,0 +1,9 @@
+<ServiceRequest>
+<filters>
+    <Criteria field="name" operator="CONTAINS">API</Criteria>
+    <Criteria field="webApp.name" operator="CONTAINS">API</Criteria>
+    <Criteria field="status" operator="EQUALS">FINISHED</Criteria>
+    <Criteria field="launchedDate" operator="LESSER">2018-07-22T00:00:00Z</Criteria>
+    <Criteria field="launchedDate" operator="GREATER">2017-01-20T00:00:00Z</Criteria>
+</filters>
+</ServiceRequest>
