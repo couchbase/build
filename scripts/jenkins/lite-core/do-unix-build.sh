@@ -83,9 +83,19 @@ else
         popd
     fi
     make install
-    # package up the strip symbols
     if [[ ${OS} == 'macosx' ]]; then
+        # package up the strip symbols
         cp -rp ${project_dir}/libLiteCore.dylib.dSYM  ./install/lib
+    else
+        # copy C++ stdlib, etc to output
+         libstdcpp=`g++ --print-file-name=libstdc++.so`
+         libstdcppname=`basename "$libstdcpp"`
+         libgcc_s=`gcc --print-file-name=libgcc_s.so`
+         libgcc_sname=`basename "$libgcc_s"`
+
+         cp -p "$libstdcpp" "./install/lib/$libstdcppname"
+         ln -s "$libstdcppname" "./install/lib/${libstdcppname}.6"
+         cp -p "${libgcc_s}" "./install/lib"
     fi
     if [[ -z ${SKIP_TESTS} ]] && [[ ${EDITION} == 'enterprise' ]]; then
         chmod 777 ${WORKSPACE}/couchbase-lite-core/build_cmake/scripts/test_unix.sh
@@ -116,9 +126,19 @@ else
         popd
     fi
     make install
-    # package up the strip symbols
     if [[ ${OS} == 'macosx' ]]; then
+        # package up the strip symbols
         cp -rp ${project_dir}/libLiteCore.dylib.dSYM  ./install/lib
+    else
+        # copy C++ stdlib, etc to output
+        libstdcpp=`g++ --print-file-name=libstdc++.so`
+        libstdcppname=`basename "$libstdcpp"`
+        libgcc_s=`gcc --print-file-name=libgcc_s.so`
+        libgcc_sname=`basename "$libgcc_s"`
+
+        cp -p "$libstdcpp" "./install/lib/$libstdcppname"
+        ln -s "$libstdcppname" "./install/lib/${libstdcppname}.6"
+        cp -p "${libgcc_s}" "./install/lib"
     fi
     cd ${WORKSPACE}
 fi
