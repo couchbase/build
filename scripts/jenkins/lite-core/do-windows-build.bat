@@ -76,7 +76,7 @@ goto :EOF
 rem subroutine "bld_store"
 :bld_store
 echo Building blddir:%1, arch:%2, flavor:%3
-set CMAKE_COMMON_OPTIONS=-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION=10.0.14393.0 -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION=10.0.10240.0 -DEDITION=%EDITION%
+set CMAKE_COMMON_OPTIONS=-DCMAKE_SYSTEM_NAME=WindowsStore -DCMAKE_SYSTEM_VERSION="10.0" -DCMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION="10.0.16299.0" -DEDITION=%EDITION%
 set project_dir=couchbase-lite-core
 
 mkdir %1
@@ -91,7 +91,7 @@ if "%2"=="Win32" (
     )
 )
 
-"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  .. || goto :error
+"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 15 2017%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  .. || goto :error
 "C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 --target LiteCore || goto :error
 goto :EOF
 
@@ -111,7 +111,7 @@ if "%2"=="Win32" (
        set MS_ARCH= Win64
     )
 )
-"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 14 2015%MS_ARCH%" -DEDITION=%EDITION% .. || goto :error
+"C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 15 2017%MS_ARCH%" -DEDITION=%EDITION% .. || goto :error
 "C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 || goto :error
 goto :EOF
 
