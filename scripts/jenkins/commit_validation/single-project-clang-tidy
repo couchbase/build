@@ -102,20 +102,30 @@ if [[ -z "$CLANG_TIDY_CONFIG" ]]; then
 fi
 
 pushd ${GERRIT_PROJECT} 2>&1 > /dev/null
-    echo_cmd git diff -U0 HEAD^ | ${BASEDIR}/clang-tidy-diff.py -p1 -clang-tidy-binary="$CLANG_TIDY_BIN" -fix -checks="$CLANG_TIDY_CHECKS" -path="$BUILD_PATH" -config="$CONFIG" > clang-tidy-output.log
+    echo_cmd git diff -U0 HEAD^ \
+    | ${BASEDIR}/clang-tidy-diff.py -p1 -clang-tidy-binary="$CLANG_TIDY_BIN" \
+                                    -fix -checks="$CLANG_TIDY_CHECKS" \
+                                    -path="$BUILD_PATH" \
+                                    -config="$CONFIG" > clang-tidy-output.log \
+    | true
+
     if [[ ! -s clang-tidy-output.log ]]; then
         echo "clang-tidy did not suggest any changes"
         exit 0
     else
-        echo "clang-tidy suggested the following changes:"
+        echo "clang-tidy found the following problems:"
         cat clang-tidy-output.log
-        TIDY_DIFF="cat <<\"EOF\" | patch -p1\n$(git diff)\nEOF"
-        # Escape any HTML symbols before outputtig to log (so users can
-        # copy/paste the output from the Jenkins build status).
-        escaped_diff=$(echo -e "$TIDY_DIFF" \
-                           | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
-        echo ""
-        echo "$escaped_diff"
+        GIT_DIFF=$(git diff)
+        if [[ $GIT_DIFF ]]; then
+          echo "clang-tidy suggested the following changes:"
+          TIDY_DIFF="cat <<\"EOF\" | patch -p1\n${GIT_DIFF}\nEOF"
+          # Escape any HTML symbols before outputtig to log (so users can
+          # copy/paste the output from the Jenkins build status).
+          escaped_diff=$(echo -e "$TIDY_DIFF" \
+                             | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
+          echo ""
+          echo "$escaped_diff"
+        fi
         exit 1
     fi
 popd 2>&1 > /dev/null
