@@ -89,7 +89,7 @@ echo_cmd cp -f tlm/CMakeLists.txt ./CMakeLists.txt
 echo_cmd cp -f tlm/third-party-CMakeLists.txt ./third_party/CMakeLists.txt
 
 echo_cmd mkdir -p $BUILD_PATH && cd $BUILD_PATH
-echo_cmd cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+echo_cmd cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ${CMAKE_EXTRA_ARGS} ..
 echo_cmd make -j${PARALLELISM} generated_source_files
 echo_cmd ccache -s
 cd ..
