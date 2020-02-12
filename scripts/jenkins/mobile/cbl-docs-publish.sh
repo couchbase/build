@@ -15,7 +15,11 @@ S3_URL="http://packages.couchbase.com/releases/${PRODUCT}/${VERSION}"
 if [[ ${PRODUCT} == 'couchbase-lite-ios' ]]; then
     PACKAGE_NAME_ARRAY=("couchbase-lite-objc-documentation_enterprise_${VERSION}.zip" "couchbase-lite-swift-documentation_enterprise_${VERSION}.zip")
 elif [[ ${PRODUCT} == 'couchbase-lite-android-ee' ]]; then
-    PACKAGE_NAME_ARRAY=("${PRODUCT}-${VERSION}-javadoc.jar")
+    if [[ `echo ${VERSION} |cut -d "." -f 1-2` == "2.6" ]];then
+        PACKAGE_NAME_ARRAY=("lib-${VERSION}-javadoc.jar")
+    else
+        PACKAGE_NAME_ARRAY=("${PRODUCT}-${VERSION}-javadoc.jar")
+    fi
 elif [[ ${PRODUCT} == 'couchbase-lite-java' ]]; then
     PACKAGE_NAME_ARRAY=("${PRODUCT}-ee-${VERSION}-javadoc.jar")
 fi

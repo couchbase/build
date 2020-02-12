@@ -180,6 +180,7 @@ trap finish EXIT
 
 get_s3_upload_link()
 {
+    set +e
     s3links=`s3cmd ls -c $S3CONFIG ${S3_DIR}/  | cut -c 30- | sed -e 's/s3:/https:/'`
     ignorefiles="md5\|centos6\|centos8\|ubuntu14\|doc\|carthage\|macos\|windows"
 
@@ -187,12 +188,12 @@ get_s3_upload_link()
     celinks=`echo "${s3links}" | grep -v "${ignorefiles}" | grep -v -i "-enterprise\|-EE"`
 
     echo "${PRODUCT} ${VERSION} build #${BLD_NUM} on s3:\n"
-    if [[ "${eelinks}" ]]; then
+    if [ ! -z "${eelinks}" ]; then
         echo "enterprise:\n"
         echo "${eelinks}"
         echo "\n"
     fi
-    if [[ "${celinks}" ]]; then
+    if [ ! -z "${celinks}" ]; then
         echo "community:\n"
         echo "${celinks}"
         echo "\n"
