@@ -40,14 +40,13 @@ result="rejected"
 PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/zz-versions/${PKG_VERSION}/${PKG_BUILD_NUM}
 PKG_NAME_US=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_${ARCHITECTURE}-unsigned.zip
 PKG_DIR=couchbase-server-${EDITION}_${PKG_VERSION}
+TEMPLATE_DMG_GZ=couchbase-server-macos-template_x86_64.dmg.gz
 
-if [[ ${DOWNLOAD_NEW_PKG} ]]
-then
+if [[ ${DOWNLOAD_NEW_PKG} ]]; then
     curl -O ${PKG_URL}/${PKG_NAME_US}
 
     if [[ -d ${PKG_DIR} ]] ; then rm -rf ${PKG_DIR} ; fi
-    if [[ -e ${PKG_NAME_US} ]]
-    then
+    if [[ -e ${PKG_NAME_US} ]]; then
         unzip -qq ${PKG_NAME_US}
     else
         echo ${PKG_NAME_US} not found!
@@ -55,8 +54,14 @@ then
     fi
 fi
 
-if [[ -d ${PKG_DIR} ]]
-then
+#protoc-gen-go was generated w/ sdk older than 10.9, remove it since it doesn't need to be shipped.
+#until https://issues.couchbase.com/browse/MB-37890 is fixed, we will remove them here
+rm -f "Couchbase Server.app/Contents/Resources/couchbase-core/bin/protoc-gen-go"
+
+#move couchbase-server-macos-template_x86_64.dmg.gz out.  it will trigger notarization failure
+mv "Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}" .
+
+if [[ -d ${PKG_DIR} ]]; then
     pushd ${PKG_DIR}
 else
     mkdir ${PKG_DIR}
@@ -78,35 +83,121 @@ install_name_tool -change   /Users/jenkins/jenkins/workspace/cbdeps-platform-bui
 echo ------- Unlocking keychain -----------
 set +x
 security unlock-keychain -p `cat ~/.ssh/security-password.txt` ${HOME}/Library/Keychains/login.keychain
-set -x
+
+###define codesigning flags and cert id
+sign_flags="--force --timestamp --options=runtime  --verbose --preserve-metadata=identifier,entitlements,requirements"
+cert_name="Developer ID Application: Couchbase, Inc. (N2Q372V7W2)"
+
+echo ------- Codesign options: $sign_flags -----------
+
+echo ------- Sign binary files individually in Resources and Frameworks-------
+set +e
+find "Couchbase Server.app/Contents/Resources" "Couchbase Server.app/Contents/Frameworks" -type f > flist.tmp
+while IFS= read -r f
+do
+  ##binaries in jars have to be signed.
+  ##It seems only jars in  META-INF are impacted so far.
+  ##jars with .jnilib in other locations were not rejected
+  if [[ "$f" =~ ".jar" ]]; then
+    libs=`jar -tf "$f" | grep "META-INF" | grep ".jnilib\|.dylib"`
+    if [[ ! -z $libs ]]; then
+      for l in ${libs}; do
+        jar xf "$f" "$l"
+        codesign $sign_flags --sign "$cert_name" "$l"
+        jar uf "$f" "$l"
+      done
+      rm -rf META-INF
+    fi
+  elif [[ `file --brief "$f"` =~ "Mach-O" ]]; then
+    codesign $sign_flags --sign "$cert_name" "$f"
+  fi
+done < flist.tmp
+rm -f flist.tmp
+set -e
 
 echo -------- Must sign Sparkle framework all versions ----------
-sign_flags="--force --timestamp --options=runtime  --verbose --preserve-metadata=identifier,entitlements,requirements"
-echo options: $sign_flags -----
-codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/A/Sparkle
-codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/A
+codesign $sign_flags --sign "$cert_name" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/A/Sparkle
+codesign $sign_flags --sign "$cert_name" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/A
 
-codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/Current/Sparkle
-codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/Current
+codesign $sign_flags --sign "$cert_name" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/Current/Sparkle
+codesign $sign_flags --sign "$cert_name" Couchbase\ Server.app/Contents/Frameworks/Sparkle.framework/Versions/Current
 
-echo --------- Sign Couchbase app last --------------
-codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc" Couchbase\ Server.app
+echo --------- Sign Couchbase app --------------
+codesign $sign_flags --sign "$cert_name" Couchbase\ Server.app
 
 popd
 
 # Verify codesigned successfully
+echo --------- Check signiture of ${PKG_DIR}/*.app--------------
 spctl -avvvv ${PKG_DIR}/*.app > tmp.txt 2>&1
+cat tmp.txt
 result=`grep "accepted" tmp.txt | awk '{ print $3 }'`
-echo ${result}
-if [[ ${result} =~ "accepted" ]]
-then
+if [[ ${result} =~ "accepted" ]]; then
     # Ensure it's actually signed
-    if [[ -z $(grep "no usable signature" tmp.txt) ]]
-    then
-        exit 0
-    else
+    if [[ ! -z $(grep "no usable signature" tmp.txt) ]]; then
         exit 1
     fi
 else
     exit 1
+fi
+
+# Create dmg package based on a template DMG we pull out of the app
+echo "Creating DMG..."
+DMG_FILENAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_${ARCHITECTURE}.dmg
+WC_DIR=wc
+WC_DMG=wc.dmg
+rm -rf ${DMG_FILENAME}
+ln -f -s /Applications ${PKG_DIR}
+#
+rm -rf $WC_DMG
+echo "Copying template..."
+gzcat "${TEMPLATE_DMG_GZ}" > ${WC_DMG}
+#
+echo "Mounting template to working image..."
+mkdir -p ${WC_DIR}
+#
+hdiutil attach $WC_DMG -readwrite -noautoopen -mountpoint $WC_DIR
+echo "Updating working image files..."
+rm -rf $WC_DIR/*.app
+ditto -rsrc ${PKG_DIR}/Couchbase\ Server.app $WC_DIR/Couchbase\ Server.app
+ditto -rsrc ${PKG_DIR}/README.txt $WC_DIR/README.txt
+#
+sleep 2
+echo "Detaching image..."
+hdiutil detach `pwd`/$WC_DIR
+sleep 2
+rm -f "$MASTER_DMG"
+echo "Converting working image to new master..."
+hdiutil convert "$WC_DMG" -format UDZO -o "${DMG_FILENAME}"
+rm -rf $WC_DIR
+rm $WC_DMG
+echo "Done with DMG."
+
+
+echo "CB_PRODUCTION_BUILD is ${CB_PRODUCTION_BUILD}"
+# force sign dmg pkg - only if CB_PRODUCTION_BUILD defined
+if [[ ${CB_PRODUCTION_BUILD} == 'true' ]]; then
+    echo --------- Sign ${DMG_FILENAME} --------------
+    echo "Codesign with options: $sign_flags"
+    codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc. (N2Q372V7W2)" ${DMG_FILENAME}
+
+
+    echo --------- Check signiture of ${DMG_FILENAME}--------------
+    spctl -a -t open --context context:primary-signature -v ${DMG_FILENAME} > tmp_dmg.txt 2>&1
+
+    #Print the full output in case if any weir exception
+    cat tmp_dmg.txt
+
+    #On catalina, this check with not work. spctl will return rejected since the dmg has not been notarized
+    result=`grep "accepted" tmp_dmg.txt | awk '{ print $2 }'`
+    if [[ ${result} =~ "accepted" ]]; then
+        # Ensure it's actually signed
+        if [[ -z $(grep "no usable signature" tmp_dmg.txt) ]]; then
+            exit 0
+        else
+            exit 1
+        fi
+    else
+        exit 1
+    fi
 fi
