@@ -1,8 +1,0 @@
-Package: couchbase-release
-Version: %VERSION%
-Section: custom
-Priority: optional
-Architecture: amd64
-Essential: no
-Maintainer: Couchbase
-Description: This package contains Couchbase repository GPG key as well as configuration for apt repository
