@@ -1,6 +1,7 @@
 #!/bin/bash
 
 SERVICES="kv,index,n1ql,fts"
+CBAS_SERVICES="kv,cbas"
 if [[ $VERSION == 4.1* ]] || [[ $VERSION == 4.0* ]]; then
     SERVICES="kv,index,n1ql"
 fi
@@ -103,8 +104,12 @@ port:8091
 
 [_4]
 ip:${NODE_4}
-port:8091
+port:8091" >> node_conf.ini
+
+if [ $VERSION \> 6.0* ]; then
+echo "services:${CBAS_SERVICES}
 " >> node_conf.ini
+fi
 
 fi
 fi
