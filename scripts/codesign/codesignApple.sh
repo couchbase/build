@@ -33,6 +33,8 @@ OSX=${4} # macos vs elcapitan
 
 DOWNLOAD_NEW_PKG=${5}  # Get new build
 
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )" #find out absolute path of the script
+
 ARCHITECTURE='x86_64'
 
 result="rejected"
@@ -85,7 +87,11 @@ set +x
 security unlock-keychain -p `cat ~/.ssh/security-password.txt` ${HOME}/Library/Keychains/login.keychain
 
 ###define codesigning flags and cert id
-sign_flags="--force --timestamp --options=runtime  --verbose --preserve-metadata=identifier,entitlements,requirements"
+###use cb.entitlement.  mainly because of packaged adoptopenjdk
+###they have to be resigned due to lack of runtime hardening.  missing necessary entitlements when using --preserve-metadata
+###cb.entitlement consists of entitlements for basic java apps, which is similar to what is used by adoptopenjdk described in (https://medium.com/adoptopenjdk/bundling-adoptopenjdk-into-a-notarized-macos-application-f4d69404afc)
+###In order to have consistent entitlements, it is best to use cb.entitlement for all codesiging.
+sign_flags="--force --timestamp --options=runtime  --verbose --entitlements ${SCRIPTPATH}/cb.entitlement --preserve-metadata=identifier,requirements"
 cert_name="Developer ID Application: Couchbase, Inc. (N2Q372V7W2)"
 
 echo ------- Codesign options: $sign_flags -----------
@@ -109,7 +115,10 @@ do
       rm -rf META-INF
     fi
   elif [[ `file --brief "$f"` =~ "Mach-O" ]]; then
-    codesign $sign_flags --sign "$cert_name" "$f"
+
+    if [[ `echo "$f" |grep -v "crypto.o\|crypto_callback.o\|librocksdb.5.18.3.dylib\|otp_test_engine.o"` != ""  ]]; then
+      codesign $sign_flags --sign "$cert_name" "$f"
+    fi
   fi
 done < flist.tmp
 rm -f flist.tmp
