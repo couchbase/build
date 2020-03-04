@@ -399,7 +399,7 @@ VERSION_DATA = {
             "debian9": True,
             "debian10": False,
             "macos": True,
-            "oel7": True
+            "oel7": True,
             "suse12": True,
             "ubuntu16": True,
             "windows": True,
