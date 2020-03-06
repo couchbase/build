@@ -3,20 +3,20 @@
 function usage() {
     echo
     echo "$0 -r <release-code-name> -v <version-number> -b <build-number>"
-    echo "   [-t <product>] [-m <MP-number> [-c <community-status>]"
+    echo "   [-t <product>] [-m <MP-number> [-c <private | public | only>]"
     echo "   [-p <platforms>] [-l] [-s] [-V <upload-version-number>]"
     echo "where:"
-    echo "  -r: release code name; watson or sherlock"
-    echo "  -v: version number; eg. 4.1.1"
-    echo "  -b: build number"
+    echo "  -r: release code name; mad-hatter; cheshire-cat; etc."
+    echo "  -v: version number; eg. 7.0.0"
+    echo "  -b: build number to release"
     echo "  -t: product; defaults to couchbase-server"
     echo "  -m: MP number; eg MP-1 [optional]"
-    echo "  -c: community-status; defaults to 'private' to make it non-downloadable."
-    echo "      set it to any other string to make it public [optional]"
+    echo "  -c: private: to make it non-downloadable (default)"
+    echo "      public: CE builds are downloadable"
+    echo "      only: only upload CE (implies public) [optional]"
     echo "  -p: specific platforms to upload. By default uploads all platforms."
     echo "      Pass -p multiple times for multiple platforms [optional]"
     echo "  -l: Push it to live (production) s3. Default is to push to staging [optional]"
-    echo "  -s: strip '-enterprise' from the filename [optional]"
     echo "  -V: version number for uploads (defaults to same as -v)"
     echo
 }
@@ -28,14 +28,10 @@ LIVE=false
 # Set to "private" to keep community builds non-downloadable
 COMMUNITY=private
 
-# Set to "true" to remove -enterprise from upload filenames
-# (which will also prevent -community builds from being uploaded)
-STRIP_ENTERPRISE=false
-
 # Default product
 PRODUCT=couchbase-server
 
-while getopts "r:v:V:b:t:m:c:p:lsh?" opt; do
+while getopts "r:v:V:b:t:m:c:p:lh?" opt; do
     case $opt in
         r) RELEASE=$OPTARG;;
         v) VERSION=$OPTARG;;
@@ -46,7 +42,6 @@ while getopts "r:v:V:b:t:m:c:p:lsh?" opt; do
         c) COMMUNITY=$OPTARG;;
         p) PLATFORMS+=("$OPTARG");;
         l) LIVE=true;;
-        s) STRIP_ENTERPRISE=true;;
         h|?) usage
            exit 0;;
         *) echo "Invalid argument $opt"
@@ -101,7 +96,7 @@ fi
 
 LB_MOUNT=/latestbuilds
 if [ ! -e ${LB_MOUNT} ]; then
-    echo "'latestbuilds' directory is not mounted" 
+    echo "'latestbuilds' directory is not mounted"
     exit 4
 fi
 
@@ -151,23 +146,10 @@ upload()
     build=${1/.\//}
     target=${build/$VERSION-$BUILD/$FILENAME_VER}
 
-    if [[ "$STRIP_ENTERPRISE" = "true" ]]
+    if [[ "$COMMUNITY" == "only" && ! "$target" =~ "community" ]]
     then
-        if [[ "$target" =~ "community" ]]
-        then
-            echo "STRIP_ENTERPRISE set, skipping $target"
-            return
-        else
-            target=${target/-enterprise/}
-        fi
-    fi
-
-    md5file=$RELEASE_DIR/$target.md5
-    if [ ! -e $md5file -o $build -nt $md5file ]
-    then
-        echo Creating fresh md5sum file for $build...
-        md5sum $build | cut -c1-32 > /tmp/md5-$$.md5
-        mv /tmp/md5-$$.md5 $md5file
+        echo "COMMUNITY=only set, skipping $target"
+        return
     fi
 
     sha256file=$RELEASE_DIR/$target.sha256
@@ -178,7 +160,7 @@ upload()
         mv /tmp/sha256-$$.sha256 $sha256file
     fi
 
-    if [[ "$COMMUNITY" = "private" && "$target" =~ "community" ]]
+    if [[ "$COMMUNITY" == "private" && "$target" =~ "community" ]]
     then
         echo Uploading $build PRIVATELY...
         perm_arg=
@@ -187,7 +169,6 @@ upload()
         perm_arg=-P
     fi
     s3cmd -c $S3CONFIG sync $perm_arg $build $ROOT/$target
-    s3cmd -c $S3CONFIG sync $perm_arg $md5file $ROOT/$target.md5
     s3cmd -c $S3CONFIG sync $perm_arg $sha256file $ROOT/$target.sha256
 
     echo Copying $build to releases...
