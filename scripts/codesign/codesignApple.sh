@@ -56,10 +56,6 @@ if [[ ${DOWNLOAD_NEW_PKG} ]]; then
     fi
 fi
 
-#protoc-gen-go was generated w/ sdk older than 10.9, remove it since it doesn't need to be shipped.
-#until https://issues.couchbase.com/browse/MB-37890 is fixed, we will remove them here
-rm -f "Couchbase Server.app/Contents/Resources/couchbase-core/bin/protoc-gen-go"
-
 #move couchbase-server-macos-template_x86_64.dmg.gz out.  it will trigger notarization failure
 mv "Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}" .
 
