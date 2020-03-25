@@ -130,6 +130,7 @@ def main():
     command.append('-checks=' + quote + args.checks + quote)
   if args.quiet:
     command.append('-quiet')
+  if args.tidy_config:
     command.append('-config="%s"' % args.tidy_config)
   if args.header_filter:
     command.append('-head-filter=%s' % quote + args.header_filter + quote)
