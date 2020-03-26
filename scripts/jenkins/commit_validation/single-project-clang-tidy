@@ -34,10 +34,6 @@ if [ -z "$GERRIT_CHANGE_ID" ]; then
     echo "Error: Required environment variable 'GERRIT_CHANGE_ID' not set."
     exit 6
 fi
-if [[ -z "$CLANG_TIDY_CHECKS" ]]; then
-    echo "Error: Required environment variable 'CLANG_TIDY_CHECKS' not set."
-    exit 7
-fi
 
 # Optional env vars - how many jobs to run in parallel by default?
 PARALLELISM="${PARALLELISM:-8}"
