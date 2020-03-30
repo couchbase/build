@@ -105,7 +105,7 @@ elif [[ $DISTRO =~ macosx  ]]
 then
     PLATFORM=${DISTRO}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
-    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.tar.gz
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.zip
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22
@@ -294,22 +294,21 @@ echo cd ${BLD_DIR}' => ' ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${
 cd   ${BLD_DIR}   ;   ./${PKGR} ${PREFIX} ${PREFIXP} ${VERSION}-${BLD_NUM} ${REPO_SHA} ${PLATFORM} ${ARCHP}
 
 echo  ======= prep upload sync_gateway =========
-cp ${STAGING}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
+cd ${SGW_DIR}
+if [[ $DISTRO =~ macosx ]]
+then
+  tar -xzf ${STAGING}/${PKG_NAME}
+  zip -r -X ${NEW_PKG_NAME} couchbase-sync-gateway
+  rm -rf couchbase-sync-gateway
+else
+  cp ${STAGING}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
+fi
 
 if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
   then
     cd ${STAGING}
     rm -f ${PKG_NAME}
 fi
-
-cd ${SGW_DIR}
-if [[ $DISTRO =~ macosx ]]
-then
-    md5 ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
-else
-    md5sum ${NEW_PKG_NAME}  > ${NEW_PKG_NAME}.md5
-fi
-
 
 echo ======== D O N E   S L E E P ================= `date`
 
