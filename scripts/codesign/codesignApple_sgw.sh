@@ -43,7 +43,7 @@ fi
 
 #unlock keychain
 echo "------- Unlocking keychain -----------"
-security unlock-keychain -p "${KEYCHAIN_PASSWORD}" ${HOME}/Library/Keychains/login.keychain
+security unlock-keychain -p ${KEYCHAIN_PASSWORD} ${HOME}/Library/Keychains/login.keychain-db
 
 echo "------- Codesigning binaries within the package -------"
 sign_flags="--force --timestamp --options=runtime  --verbose --entitlements cb.entitlement --preserve-metadata=identifier,requirements"
@@ -69,7 +69,7 @@ XML_OUTPUT=$(
   xcrun altool --notarize-app -t osx \
   -f ${PKG_NAME_SIGNED} \
   --primary-bundle-id couchbase-sync-gateway \
-  -u build-team@couchbase.com -p "${AC_PASSWORD}" \
+  -u build-team@couchbase.com -p ${AC_PASSWORD} \
   --output-format xml
 )
 if [ $? != 0 ]; then
@@ -83,7 +83,7 @@ echo "Notarization request has been uploaded - request ID is ${REQUEST_ID}"
 while true; do
   OUTPUT=$(
     xcrun altool --notarization-info ${REQUEST_ID} \
-    -u build-team@couchbase.com -p "${AC_PASSWORD}" \
+    -u build-team@couchbase.com -p ${AC_PASSWORD} \
     2>&1
   )
   STATUS=$(

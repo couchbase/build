@@ -184,25 +184,10 @@ echo "CB_PRODUCTION_BUILD is ${CB_PRODUCTION_BUILD}"
 if [[ ${CB_PRODUCTION_BUILD} == 'true' ]]; then
     echo --------- Sign ${DMG_FILENAME} --------------
     echo "Codesign with options: $sign_flags"
-    codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc. (N2Q372V7W2)" ${DMG_FILENAME}
+    result=`codesign $sign_flags --sign "Developer ID Application: Couchbase, Inc. (N2Q372V7W2)" ${DMG_FILENAME}`
 
-
-    echo --------- Check signiture of ${DMG_FILENAME}--------------
-    spctl -a -t open --context context:primary-signature -v ${DMG_FILENAME} > tmp_dmg.txt 2>&1
-
-    #Print the full output in case if any weir exception
-    cat tmp_dmg.txt
-
-    #On catalina, this check with not work. spctl will return rejected since the dmg has not been notarized
-    result=`grep "accepted" tmp_dmg.txt | awk '{ print $2 }'`
-    if [[ ${result} =~ "accepted" ]]; then
-        # Ensure it's actually signed
-        if [[ -z $(grep "no usable signature" tmp_dmg.txt) ]]; then
-            exit 0
-        else
-            exit 1
-        fi
-    else
+    if [ ${result} > 0 ]; then
+        echo "codesign returned with an error"
         exit 1
     fi
 fi
