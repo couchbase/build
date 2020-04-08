@@ -55,6 +55,12 @@ if [[ ${DOWNLOAD_NEW_PKG} ]]; then
         exit 1
     fi
 fi
+#protoc-gen-go was generated w/ sdk older than 10.9, it will cause notarization failure.
+#it can be removed since it doesn't need to be shipped.
+#it is not packaged in CC anymore, but still exist in older builds
+if [[ -f "Couchbase Server.app/Contents/Resources/couchbase-core/bin/protoc-gen-go" ]]; then
+    rm -f "Couchbase Server.app/Contents/Resources/couchbase-core/bin/protoc-gen-go"
+fi
 
 #move couchbase-server-macos-template_x86_64.dmg.gz out.  it will trigger notarization failure
 mv "Couchbase Server.app/Contents/Resources/${TEMPLATE_DMG_GZ}" .
