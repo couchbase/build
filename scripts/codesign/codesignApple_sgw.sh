@@ -22,8 +22,8 @@ EDITION=${4}  # community or enterprise
 DOWNLOAD_PKG=${5}  # Get new build
 
 PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${PKG_VERSION}/${PKG_BUILD_NUM}
-PKG_NAME=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_x86_64.zip
-PKG_NAME_SIGNED=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_x86_64_signed.zip
+PKG_NAME=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_x86_64_unsigned.zip
+PKG_NAME_SIGNED=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_x86_64.zip
 
 PKG_DIR=couchbase-sync-gateway
 
