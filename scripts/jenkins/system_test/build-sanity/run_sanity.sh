@@ -120,6 +120,8 @@ cat node_conf.ini
 
 version_number=${VERSION}-${CURRENT_BUILD_NUMBER}
 echo version=${version_number}
+py_executable=python
+echo ${version_number} | grep "7\.0" && py_executable=python3
 
 PARAMS="version=${version_number},product=cb,parallel=True"
 if [ "x${BIN_URL}" != "x" ]; then
@@ -135,11 +137,11 @@ if [[ "$DISTRO" == "win64" ]] || [[ "$DISTRO" == "windows" ]]; then
   echo
 elif [ $VERSION \< 6.5* ]; then
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
-  COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS
+  COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/install.py -i node_conf.ini -p $PARAMS
   echo
 else
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS"
-  COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS
+  COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/new_install.py -i node_conf.ini -p $PARAMS
   echo
 fi
 
@@ -163,7 +165,7 @@ fi
 
 echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True"
 if [ "$DISTRO" = "macos" ]; then
-    python testrunner.py -i node_conf.ini -c $TR_CONF
+    ${py_executable} testrunner.py -i node_conf.ini -c $TR_CONF
 else
-    python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=False${EXTRA_PARAMS}
+    ${py_executable} testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=False${EXTRA_PARAMS}
 fi
