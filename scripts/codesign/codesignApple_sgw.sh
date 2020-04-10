@@ -6,7 +6,7 @@
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   product version   builld_num  edition [1 = download package]\n\n"
+    echo -e "\nUsage:  ${0}   product version   builld_num  edition [1 = download package] notarize [ yes or no ] \n\n"
     }
 
 if [[ "$#" < 2 ]] ; then usage ; exit DEAD ; fi
@@ -20,6 +20,8 @@ PKG_BUILD_NUM=${3}  # Build Number
 EDITION=${4}  # community or enterprise
 
 DOWNLOAD_PKG=${5}  # Get new build
+
+NOTARIZE=${6} #yes or no
 
 PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${PKG_VERSION}/${PKG_BUILD_NUM}
 PKG_NAME=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_x86_64_unsigned.zip
@@ -58,6 +60,12 @@ do
 done < flist.tmp
 rm -f flist.tmp
 set -e
+
+if [[ ${NOTARIZE} != "yes" ]]; then
+  echo "notarization option is set to ${NOTARIZE}"
+  echo "skip notarization..."
+  exit
+fi
 
 echo "------- Codesigning the package ${PKG_NAME_SIGNED} -------"
 zip -r -X ${PKG_NAME_SIGNED} ${PKG_DIR}
