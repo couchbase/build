@@ -66,8 +66,46 @@ fi
 
 echo ------- Unlocking keychain -----------
 set +x
-security unlock-keychain -p `cat ~/.ssh/security-password.txt` /Users/jenkins/Library/Keychains/login.keychain
+security unlock-keychain -p `cat ~/.ssh/security-password.txt` /Users/couchbase/Library/Keychains/login.keychain
 set -x
+
+###define codesigning flags and cert id
+###use cb.entitlement.  mainly because of packaged adoptopenjdk
+###they have to be resigned due to lack of runtime hardening.  missing necessary entitlements when using --preserve-metadata
+###cb.entitlement consists of entitlements for basic java apps, which is similar to what is used by adoptopenjdk described in (https://medium.com/adoptopenjdk/bundling-adoptopenjdk-into-a-notarized-macos-application-f4d69404afc)
+###In order to have consistent entitlements, it is best to use cb.entitlement for all codesiging.
+sign_flags="--force --timestamp --options=runtime  --verbose --entitlements ${SCRIPTPATH}/cb.entitlement --preserve-metadata=identifier,requirements"
+cert_name="Developer ID Application: Couchbase, Inc. (N2Q372V7W2)"
+
+echo ------- Codesign options: $sign_flags -----------
+
+echo ------- Sign binary files individually in Resources and Frameworks-------
+set +e
+find "Couchbase Server.app/Contents/Resources" "Couchbase Server.app/Contents/Frameworks" -type f > flist.tmp
+while IFS= read -r f
+do
+  ##binaries in jars have to be signed.
+  ##It seems only jars in  META-INF are impacted so far.
+  ##jars with .jnilib in other locations were not rejected
+  if [[ "$f" =~ ".jar" ]]; then
+    libs=`jar -tf "$f" | grep "META-INF" | grep ".jnilib\|.dylib"`
+    if [[ ! -z $libs ]]; then
+      for l in ${libs}; do
+        jar xf "$f" "$l"
+        codesign $sign_flags --sign "$cert_name" "$l"
+        jar uf "$f" "$l"
+      done
+      rm -rf META-INF
+    fi
+  elif [[ `file --brief "$f"` =~ "Mach-O" ]]; then
+
+    if [[ `echo "$f" |grep -v "crypto.o\|crypto_callback.o\|librocksdb.5.18.3.dylib\|otp_test_engine.o"` != ""  ]]; then
+      codesign $sign_flags --sign "$cert_name" "$f"
+    fi
+  fi
+done < flist.tmp
+rm -f flist.tmp
+set -e
 
 echo -------- Must sign Sparkle framework all versions ----------
 sign_flags="--force --verbose --preserve-metadata=identifier,entitlements,requirements"
