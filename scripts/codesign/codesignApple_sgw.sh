@@ -61,15 +61,15 @@ done < flist.tmp
 rm -f flist.tmp
 set -e
 
+echo "------- Codesigning the package ${PKG_NAME_SIGNED} -------"
+zip -r -X ${PKG_NAME_SIGNED} ${PKG_DIR}
+codesign $sign_flags --sign "$cert_name" ${PKG_NAME_SIGNED}
+
 if [[ ${NOTARIZE} != "yes" ]]; then
   echo "notarization option is set to ${NOTARIZE}"
   echo "skip notarization..."
   exit
 fi
-
-echo "------- Codesigning the package ${PKG_NAME_SIGNED} -------"
-zip -r -X ${PKG_NAME_SIGNED} ${PKG_DIR}
-codesign $sign_flags --sign "$cert_name" ${PKG_NAME_SIGNED}
 
 
 echo "-------Notarizing for ${PKG_NAME_SIGNED}-------"
