@@ -21,7 +21,7 @@ elif [[ ${PRODUCT} == 'couchbase-lite-android-ee' ]]; then
         PACKAGE_NAME_ARRAY=("${PRODUCT}-${VERSION}-javadoc.jar")
     fi
 elif [[ ${PRODUCT} == 'couchbase-lite-java' ]]; then
-    PACKAGE_NAME_ARRAY=("${PRODUCT}-ee-${VERSION}-javadoc.jar")
+    PACKAGE_NAME_ARRAY=("${PRODUCT}-${VERSION}-javadoc.jar")
 fi
 
 echo "Publish to S3 ..."

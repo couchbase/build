@@ -61,8 +61,8 @@ try {
     } else {
         $package_names = "Couchbase.Lite","Couchbase.Lite.Enterprise","Couchbase.Lite.Support.Android","Couchbase.Lite.Support.iOS","Couchbase.Lite.Support.NetDesktop","Couchbase.Lite.Support.UWP","Couchbase.Lite.Enterprise.Support.Android","Couchbase.Lite.Enterprise.Support.iOS","Couchbase.Lite.Enterprise.Support.NetDesktop","Couchbase.Lite.Enterprise.Support.UWP"
         foreach($package in $package_names) {
-            Write-Host "Downloading http://172.23.121.218/nuget/Internal/package/$package/$InVersion..."
-            Invoke-WebRequest http://172.23.121.218/nuget/Internal/package/$package/$InVersion -OutFile "${package}.${InVersion}.nupkg"
+            Write-Host "Downloading http://172.23.113.15/nuget/Internal/package/$package/$InVersion..."
+            Invoke-WebRequest http://172.23.113.15/nuget/Internal/package/$package/$InVersion -OutFile "${package}.${InVersion}.nupkg"
         }
     }
 

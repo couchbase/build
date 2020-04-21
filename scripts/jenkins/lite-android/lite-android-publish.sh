@@ -19,7 +19,7 @@ RELEASE_VERSION=${4}
 PUBLISH_URL=${5}
 REPO_ID=${6}
 
-LATEST_URL="http://172.23.120.24/builds/latestbuilds/${PRODUCT}/${RELEASE}/${BLD_NUM}/"
+LATEST_URL="http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${RELEASE}/${BLD_NUM}/"
 GROUPID='com.couchbase.lite'
 REPOSITORY_ID=${REPO_ID}
 POM_FILE='default-pom.xml'
