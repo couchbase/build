@@ -194,13 +194,13 @@ then
     ln -s "$libstdcppname" "/opt/couchbase/lib/${libstdcppname}.6"
 
     libgcc_s=`gcc --print-file-name=libgcc_s.so`
-    libgcc_sname=`basename "$libgcc_s"`
-    if [ "${DISTRO}" = 'amzn2' -o "${DISTRO}" = 'rhel8' -o "${DISTRO}" = 'suse15' ]
-    then
-        cp -p "${libgcc_s}" "/opt/couchbase/lib"
-    else
-        cp -p "${libgcc_s}.1" "/opt/couchbase/lib"
+    # On some platforms, libgcc_s.so is actually an "ld script", and the
+    # real file is libgcc_s.so.1. We assume that if the .1 file exists,
+    # that's the one we want.
+    if [ -e "${libgcc_s}.1" ]; then
+        libgcc_s="${libgcc_s}.1"
     fi
+    cp -p "${libgcc_s}" "/opt/couchbase/lib"
 fi
 
 # We briefly had a time when we produced multiple "enterprise" artifacts.
