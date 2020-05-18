@@ -38,6 +38,7 @@ if [[ -d ${PKG_DIR} ]] ; then
 fi
 if [[ -e ${PKG_NAME} ]]; then
   unzip -qq ${PKG_NAME}
+  rm -f ${PKG_NAME}
 else
   echo ${PKG_NAME} not found!
   exit 1
