@@ -169,5 +169,5 @@ fi
 echo "Running entbackup 6.6 test with master branch"
 if [[ $num_nodes -eq 4 && $VERSION == 6.6* ]]; then
     git checkout master
-    ${py_executable} testrunner.py -i node_conf.ini -t ent_backup_restore.enterprise_backup_restore_test.EnterpriseBackupRestoreTest.test_backup_restore_sanity,items=1000 -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=False${EXTRA_PARAMS}
+    python3 testrunner.py -i node_conf.ini -t ent_backup_restore.enterprise_backup_restore_test.EnterpriseBackupRestoreTest.test_backup_restore_sanity,items=1000 -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=False${EXTRA_PARAMS}
 fi
