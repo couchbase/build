@@ -66,6 +66,7 @@ def scan_report(qgc, current_time, args, scan_id):
               <WasScan>
     '''
     ServiceRequest_xml_footer = '''
+                <cancelAfterNHours>2</cancelAfterNHours>
               </WasScan>
             </data>
     </ServiceRequest>
