@@ -1,11 +1,13 @@
+rem default ARCHs to set "Win32 Win64 ARM"
+set ARCHS=Win32 Win64 ARM
 
 set PRODUCT=%1
 set VERSION=%2
 set SHA_VERSION=%3
 set EDITION=%4
+set ARCHS=%5
 
 setlocal enabledelayedexpansion
-
 set OS=windows
 
 echo %SHA_VERSION%
@@ -13,8 +15,9 @@ echo %SHA_VERSION%
 set REL_PKG_DIR=MinSizeRel
 set DEBUG_PKG_DIR=Debug
 
-for %%A in (Win32 Win64 ARM) do (
+for %%A in (%ARCHS%) do (
     set ARCH=%%A
+    echo %ARCH%
 
     if "!ARCH!"=="ARM" (
         rem Flavor: Debug
