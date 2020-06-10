@@ -1,11 +1,15 @@
-rem default ARCHs to set "Win32 Win64 ARM"
-set ARCHS=Win32 Win64 ARM
-
 set PRODUCT=%1
 set VERSION=%2
 set SHA_VERSION=%3
 set EDITION=%4
-set ARCHS=%5
+IF [%5]==[] (
+    rem default ARCHs to set "Win32 Win64 ARM"
+    set ARCHS=Win32 Win64 ARM
+) else (
+    set ARCHS=%5
+)
+
+echo %ARCHS%
 
 setlocal enabledelayedexpansion
 set OS=windows
