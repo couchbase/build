@@ -13,6 +13,7 @@
 #
 #        TEST_OPTIONS       `-race 4 -cpu`
 #        GO_REL             1.5.3 (Currently supports 1.4.1, 1.5.2, 1.5.3)
+#        MINICONDA_VER  4.16.4
 #
 #    This script supports building branches 1.3.0 and newer that uses repo manifest.
 #    It will purely perform these 2 tasks:
@@ -32,8 +33,28 @@ set -e
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ]\n\n"
+    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ] [ MINICONDA_VER ] \n\n"
     }
+
+function get_dependencies
+    {
+    #Get latest cbdep
+    curl -L ${CBDEP_URL} -o cbdep
+    chmod +x cbdep
+
+    #install dependent golang
+    ./cbdep install golang ${GO_REL} -d ${WORKSPACE}
+    export GOROOT=${WORKSPACE}/go${GO_REL}
+    export PATH=${GOROOT}/bin:$PATH
+    go version
+
+    if [[ -n $MINICONDA_VER ]]; then
+        ./cbdep install miniconda3 ${MINICONDA_VER} -d ${WORKSPACE}
+        export PATH=${WORKSPACE}/miniconda3-${MINICONDA_VER}/bin:$PATH
+        pip install PyInstaller
+    fi
+    python --version
+}
 
 if [[ "$#" < 5 ]] ; then usage ; exit 11 ; fi
 
@@ -53,6 +74,9 @@ REPO_SHA=${5}
 if [[ $6 ]] ; then  echo "setting TEST_OPTIONS to $6"   ; TEST_OPTIONS=$6   ; else TEST_OPTIONS="None"  ; fi
 if [[ $7 ]] ; then  echo "setting GO_REL to $7"         ; GO_REL=$7         ; else GO_REL=1.5.3         ; fi
 
+#if python is not defined, use system default #this is to allow SGW 2.7.x to continue use python 2.7
+if [[ $8 ]] ; then  echo "setting MINICONDA_VER to $8"         ; MINICONDA_VER=$8; fi
+
 OS=`uname -s`
 ARCH=`uname -m`
 
@@ -69,22 +93,29 @@ COLLECTINFO_NAME=sgcollect_info
 
 if [[ $DISTRO == "centos6" ]]
 then
+    GOOS=linux
     PKGR=package-rpm.rb
     PKGTYPE=rpm
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PARCH}.${PKGTYPE}
+    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.linux"
+    export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "centos7" ]]
 then
+    GOOS=linux
     PKGR=package-rpm.rb
     PKGTYPE=rpm
     if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.linux"
+    export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "ubuntu14" ]]
 then
+    GOOS=linux
     PKGR=package-deb.rb
     PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
@@ -92,8 +123,11 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PARCH}.${PKGTYPE}
+    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.linux"
+    export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "ubuntu16" ]]
 then
+    GOOS=linux
     PKGR=package-deb.rb
     PKGTYPE=deb
     if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
@@ -101,55 +135,34 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.linux"
+    export LC_ALL="en_US.utf8"
 elif [[ $DISTRO =~ macosx  ]]
 then
+    GOOS=darwin
+    PKGR=package-mac.rb
     PLATFORM=${DISTRO}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}_unsigned.zip
+    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.darwin"
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22
 fi
 
-if [[ $OS =~ Linux  ]]
-then
-    GOOS=linux
-elif [[ $OS =~ Darwin ]]
-then
-    GOOS=darwin
-    PKGR=package-mac.rb
-else
-    echo -e "\nunsupported operating system:  $OS\n"
-    exit 33
-fi
-
 export GOOS ; export EXEC
 
-if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
-                        else GOARCH=386   ; fi
+#install dependent tools, i.e. golang, python
+get_dependencies
 
 # disable nocasematch
 shopt -u nocasematch
 
+if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
+                        else GOARCH=386   ; fi
+
 if [[ $ARCHP =~ i386  ]] ; then PARCH=x86
 elif [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
-
-# Latest default GO version is 1.5.3
-GO_RELEASE=${GO_REL}
-if [ -d /usr/local/go/${GO_RELEASE} ]
-then
-    GOROOT=/usr/local/go/${GO_RELEASE}/go
-else
-    echo -e "\nNeed to specify correct GOLANG version: 1.4.1, 1.5.2, or 1.5.3\n"
-    exit 44
-fi
-
-PATH=${PATH}:${GOROOT}/bin
-
-export GO_RELEASE ; export GOROOT ; export PATH
-
-echo "Running GO version ${GO_RELEASE}"
-go version
 
 env | sort -u
 echo ============================================== `date`
