@@ -157,6 +157,17 @@ fi
 
 if [ -n "${TESTRUNNER_TAG}" ]; then
     git checkout ${TESTRUNNER_TAG}
+    if [ "${TESTRUNNER_TAG}" = "master" ]; then
+        ## Setup for java sdk client for collections
+        git submodule init
+        git submodule update --init --force --remote
+        if [ -f /etc/redhat-release ]; then
+            yum install -y maven
+        fi
+        if [ -f /etc/lsb-release ]; then
+            apt install maven
+        fi
+    fi
 fi
 
 echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True"
