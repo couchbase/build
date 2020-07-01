@@ -106,14 +106,20 @@ def scan_report(qgc, current_time, args, scan_id):
     # get scan status
     call = '/status/was/wasscan' + '/' + SCAN_ID
     sleep_time = 180
-    while True:
+    count=0
+    while count<=40:
         xml_output = qgc.request(call)
         scan_root = objectify.fromstring(xml_output)
+        count=count+1
         if scan_root.data.WasScan.status != 'FINISHED':
             time.sleep(sleep_time)
+            logger.info('Current scan status: %s', scan_root.data.WasScan.status)
             logger.info('Sleeping ... %s', sleep_time)
         else:
             break
+    if count>40:
+        logger.error('scan report never finishes successfully. abort...')
+        sys.exit(1)
 
     #logger.debug('xml_output: %s', xml_output)
 
