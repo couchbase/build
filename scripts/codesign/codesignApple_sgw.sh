@@ -91,20 +91,8 @@ REQUEST_ID=$(
 echo "Notarization request has been uploaded - request ID is ${REQUEST_ID}"
 
 # Sometime, there might be a delay for request ID to propagate to all servers
-#set a for loop to wait up to 60 seconds
-for ((i=0;i<=6;i++));
-do
-  OUTPUT=$(
-    xcrun altool --notarization-info ${REQUEST_ID} \
-    -u build-team@couchbase.com -p ${AC_PASSWORD} \
-    2>&1
-  )
-  if echo "${OUTPUT}" | grep "Could not find the RequestUUID"; then
-    sleep 10
-  else
-    break
-  fi
-done
+# sleep for 30 sec.
+sleep 30
 
 while true; do
   OUTPUT=$(
