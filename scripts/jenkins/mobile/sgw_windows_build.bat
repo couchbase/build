@@ -40,12 +40,12 @@ powershell -command "& { (New-Object Net.WebClient).DownloadFile('%CBDEP_URL%', 
 
 %WORKSPACE%\cbdep.exe install golang %GO_RELEASE% -d %WORKSPACE%
 set GOROOT=%WORKSPACE%\go%GO_VERSION%
-set PATH=%GOROOT%\bin;%PATH%
+set "PATH=%GOROOT%\bin;%PATH%"
 
 echo on
 if defined MINICONDA_VER (
     %WORKSPACE%\cbdep.exe install miniconda3 %MINICONDA_VER% -d %WORKSPACE%
-    PATH %WORKSPACE%\miniconda3-%MINICONDA_VER%;!PATH!
+    set "PATH=%WORKSPACE%\miniconda3-%MINICONDA_VER%;%PATH%"
 )
 echo %PATH%
 echo off
