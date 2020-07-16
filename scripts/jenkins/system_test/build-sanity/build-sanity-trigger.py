@@ -534,11 +534,13 @@ class SanityTrigger:
         # Retrieve last sanity-checked build number (could be 0)
         self.get_last_sanity()
 
-        # List all build numbers for this version. Note this may include
+        # * List all build numbers for this version. Note this may include
         # builds for other versions, since all versions for a given
         # release share a build directory.
+        # * Ignore builds above 50000, which are toy builds
+
         builds = [int(x) for x in os.listdir(self.ver_dir)
-            if x.isdigit() and int(x) > self.last_bld]
+            if x.isdigit() and int(x) > self.last_bld and int(x) < 50000]
         builds.sort()
 
         # Check each build after last sanity-checked build
