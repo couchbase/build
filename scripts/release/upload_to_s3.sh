@@ -11,9 +11,11 @@ function usage() {
     echo "  -b: build number to release"
     echo "  -t: product; defaults to couchbase-server"
     echo "  -m: MP number; eg MP-1 [optional]"
-    echo "  -c: private: to make it non-downloadable (default)"
-    echo "      public: CE builds are downloadable"
-    echo "      only: only upload CE (implies public) [optional]"
+    echo "  -c: how to handle CE builds [optional]. Legal values are:"
+    echo "        private: to make it non-downloadable (default)"
+    echo "        public: CE builds are downloadable"
+    echo "        only: only upload CE (implies public)"
+    echo "        none: do NOT upload CE [optional]"
     echo "  -p: specific platforms to upload. By default uploads all platforms."
     echo "      Pass -p multiple times for multiple platforms [optional]"
     echo "  -l: Push it to live (production) s3. Default is to push to staging [optional]"
@@ -149,6 +151,12 @@ upload()
     if [[ "$COMMUNITY" == "only" && ! "$target" =~ "community" ]]
     then
         echo "COMMUNITY=only set, skipping $target"
+        return
+    fi
+
+    if [[ "$COMMUNITY" == "none" && "$target" =~ "community" ]]
+    then
+        echo "COMMUNITY=none set, skipping $target"
         return
     fi
 
