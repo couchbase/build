@@ -143,18 +143,31 @@ echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
 
 echo_cmd ccache -s
 
-# Manditory steps complete, install the deferred error handler.
+# Mandatory steps complete, install the deferred error handler.
 trap deferred_error_handler ERR
 
-if [ "${GERRIT_PROJECT}" = "ns_server" ]
-then
-    BUILD_DIR="${GERRIT_PROJECT}/build"
-elif [ -n "$GOPROJECT" ]
-then
-    BUILD_DIR="build/goproj/src/github.com/couchbase/${GERRIT_PROJECT}"
-else
-    BUILD_DIR="build/${GERRIT_PROJECT}"
-fi
+function set_build_dir() {
+    TEST_PROJECT=$1
+    if [ "${TEST_PROJECT}" = "ns_server" ]
+    then
+       BUILD_DIR="${TEST_PROJECT}/build"
+    elif [ -n "$GOPROJECT" ]
+    then
+       BUILD_DIR="build/goproj/src/github.com/couchbase/${TEST_PROJECT}"
+    else
+       BUILD_DIR="build/${TEST_PROJECT}"
+    fi
+}
+
+function make_test() {
+    EXTRA_ARGS=$1
+
+    # -j${TEST_PARALLELISM} : Run tests in parallel.
+    # -T Test   : Generate XML output file of test results.
+    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test ${EXTRA_ARGS}"
+}
+
+set_build_dir $GERRIT_PROJECT
 
 if [ -n "$GOPROJECT" ] || [ -f ${BUILD_DIR}/Makefile ]
 then
@@ -171,9 +184,7 @@ EOF
         echo_cmd make ${GERRIT_PROJECT}-coverage-zero-counters || true
     fi
 
-    # -j${TEST_PARALLELISM} : Run tests in parallel.
-    # -T Test   : Generate XML output file of test results.
-    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test --exclude-regex ${TESTS_EXCLUDE}"
+    make_test "--exclude-regex ${TESTS_EXCLUDE}"
 
     # Generate code coverage report in XML format for Jenkins plugin.
     if [ -n "$ENABLE_CODE_COVERAGE" ]; then
@@ -186,7 +197,7 @@ EOF
         if [ -n "${oldfiles}" ]; then
             echo_cmd rm -f ${oldfiles}
         fi
-        echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}"
+        make_test "-D ExperimentalMemCheck --exclude-regex ${VALGRIND_TESTS_EXCLUDE}"
         # As part our test execution we run system commands which
         # unfortunately have leaks themselves
         # (e.g. /bin/sh). Therefore remove any results from such
@@ -206,6 +217,27 @@ else
 ============================================
 EOF
 fi
+
+if [ -n "$ADDITIONAL_TEST_PROJECT" ]
+then
+    set_build_dir $ADDITIONAL_TEST_PROJECT
+
+    if [ -f ${BUILD_DIR}/Makefile ]
+    then
+        cat <<EOF
+
+============================================
+===      Run additional unit tests       ===
+============================================
+EOF
+        pushd ${BUILD_DIR} 2>&1 > /dev/null
+
+        # --tests-regex ${ADDITIONAL_TESTS_INCLUDE} :  regex of tests to include
+        make_test "--tests-regex ${ADDITIONAL_TESTS_INCLUDE}"
+        popd 2>&1 > /dev/null
+    fi
+fi
+
 
 if [ -n "$RUN_SIMPLE_TEST" ]
 then
