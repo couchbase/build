@@ -66,7 +66,7 @@ def scan_report(qgc, current_time, args, scan_id):
               <WasScan>
     '''
     ServiceRequest_xml_footer = '''
-                <cancelAfterNHours>2</cancelAfterNHours>
+                <cancelAfterNHours>5</cancelAfterNHours>
               </WasScan>
             </data>
     </ServiceRequest>
@@ -107,7 +107,7 @@ def scan_report(qgc, current_time, args, scan_id):
     call = '/status/was/wasscan' + '/' + SCAN_ID
     sleep_time = 180
     count=0
-    while count<=40:
+    while count<=100:
         xml_output = qgc.request(call)
         scan_root = objectify.fromstring(xml_output)
         count=count+1
@@ -117,7 +117,7 @@ def scan_report(qgc, current_time, args, scan_id):
             logger.info('Sleeping ... %s', sleep_time)
         else:
             break
-    if count>40:
+    if count>100:
         logger.error('scan report never finishes successfully. abort...')
         sys.exit(1)
 
