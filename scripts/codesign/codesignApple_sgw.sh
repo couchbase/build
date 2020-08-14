@@ -105,8 +105,6 @@ while true; do
   )
   if [[ ${STATUS} =~ "success" ]]; then
     echo "Request ${REQUEST_ID} succeeded!"
-    echo "Stapling notarization ticket to ${PKG_NAME_SIGNED}"
-    xcrun stapler staple ${PKG_NAME_SIGNED}
     exit
   elif [[ ${STATUS} =~ "in progress" ]]; then
     echo "Request ${REQUEST_ID} still in progress..."
