@@ -154,7 +154,7 @@ fi
 
 # Create dmg package based on a template DMG we pull out of the app
 echo "Creating DMG..."
-DMG_FILENAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_${ARCHITECTURE}.dmg
+DMG_FILENAME=couchbase-server-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}-${OSX}_${ARCHITECTURE}-unnotarized.dmg
 WC_DIR=wc
 WC_DMG=wc.dmg
 rm -rf ${DMG_FILENAME}
