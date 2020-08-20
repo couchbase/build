@@ -99,26 +99,42 @@ def scan_project(project_name):
     subprocess.check_output(cmd, shell=True);
 
 def get_scan_result(project_list):
-
+    measures=['vulnerabilities','code_smells','bugs']
+    new_measures=['new_vulnerabilities','new_code_smells','new_bugs']
     f = open('scan-result.csv', 'w')
-    f.write('project,new_vulnerabilities,new_code_smells,new_bugs')
+    f.write('project,'+','.join(measures)+','+','.join(new_measures))
     # quality_gate_api_endpoint
     URL = 'http://cleancode.service.couchbase.com/api/measures/component'
     for proj in set(project_list):
-        #project name is actually component in the api request
-        PARAMS = {
-            'component': proj,
-            'metricKeys': 'new_vulnerabilities,new_code_smells,new_bugs'
-        }
-        try:
-            res = requests.get(url = URL, params = PARAMS)
-            project_measures=res.json()
-        except requests.exceptions.RequestException as e:
-            raise SystemExit(e)
-        f.write('\n'+project_measures['component']['name']\
-            +','+project_measures['component']['measures'][0]['period']['value']\
-            +','+project_measures['component']['measures'][1]['period']['value']\
-            +','+project_measures['component']['measures'][2]['period']['value'])
+        f.write('\n'+proj)
+
+        for measure in measures:
+            #project name is actually component in the api request
+            PARAMS = {
+                'component': proj,
+                'metricKeys': measure
+            }
+            try:
+                res = requests.get(url = URL, params = PARAMS)
+                project_measures=res.json()
+            except requests.exceptions.RequestException as e:
+                raise SystemExit(e)
+
+            f.write(','+project_measures['component']['measures'][0]['value'])
+
+        for measure in new_measures:
+            #project name is actually component in the api request
+            PARAMS = {
+                'component': proj,
+                'metricKeys': measure
+            }
+            try:
+                res = requests.get(url = URL, params = PARAMS)
+                project_measures=res.json()
+            except requests.exceptions.RequestException as e:
+                raise SystemExit(e)
+
+            f.write(','+project_measures['component']['measures'][0]['period']['value'])
     f.close()
     df = pandas.read_csv("scan-result.csv")
     df.to_html('scan-result.htm')
