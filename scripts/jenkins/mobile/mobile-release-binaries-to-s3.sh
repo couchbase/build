@@ -209,12 +209,10 @@ for fl in $FILES; do
     target_file=${fl/${RELEASE}-${BLD_NUM}/${VERSION}}
     echo "Copying ${SRC_DIR}/${fl} to $target_file ..."
     cp ${SRC_DIR}/${fl} ${target_file}
-    echo "Generating md5/sha256 on $target_file ..."
-    md5sum ${target_file} > ${target_file}.md5
+    echo "Generating sha256 on $target_file ..."
     sha256sum ${target_file} > ${target_file}.sha256
     echo "Uploading ${target_file} ..."
     upload ${target_file}
-    upload ${target_file}.md5
     upload ${target_file}.sha256
 done
 
