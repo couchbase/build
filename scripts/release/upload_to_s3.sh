@@ -200,7 +200,7 @@ upload ${PRODUCT}-$VERSION-$BUILD-manifest.xml
 
 for platform in ${PLATFORMS[@]}
 do
-    for file in `find . -maxdepth 1 \( -name \*{PRODUCT}\*${platform}\* -not -name \*unsigned\* -not -name \*unnotarized\* \)`
+    for file in `find . -maxdepth 1 \( -name \*${PRODUCT}\*${platform}\* -not -name \*unsigned\* -not -name \*unnotarized\* \)`
     do
         upload $file
     done
