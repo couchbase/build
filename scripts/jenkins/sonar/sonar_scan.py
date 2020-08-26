@@ -98,15 +98,15 @@ def scan_project(project_name):
     logger.info('%s', cmd)
     subprocess.check_output(cmd, shell=True);
 
-def get_scan_result(project_list):
+def get_scan_result(project_list,sonar_host_url):
     measures=['vulnerabilities','code_smells','bugs']
     new_measures=['new_vulnerabilities','new_code_smells','new_bugs']
     f = open('scan-result.csv', 'w')
     f.write('project,'+','.join(measures)+','+','.join(new_measures))
     # quality_gate_api_endpoint
-    URL = 'http://cleancode.service.couchbase.com/api/measures/component'
+    URL = sonar_host_url+'/api/measures/component'
     for proj in set(project_list):
-        f.write('\n'+proj)
+        f.write('\n'+'<a href='+sonar_host_url+'/dashboard?id='+proj+'>'+proj+'</a>')
 
         for measure in measures:
             #project name is actually component in the api request
@@ -137,9 +137,9 @@ def get_scan_result(project_list):
             f.write(','+project_measures['component']['measures'][0]['period']['value'])
     f.close()
     df = pandas.read_csv("scan-result.csv")
-    df.to_html('scan-result.htm')
+    df.to_html('scan-result.htm',escape=False)
 
-def process_manifest(xml,target,version):
+def process_manifest(xml,target,version,sonar_host_url):
     tree = etree.parse(xml)
     if target == 'all':
         projects=tree.xpath('//project[not(@name="packaging") and not(@name="build")]')
@@ -169,7 +169,7 @@ def process_manifest(xml,target,version):
             logger.info('%s is not a repo under couchbase, couchbase-priv, or couchbaselabs.  skipping...', project.get('name'))
 
     #get scan results
-    get_scan_result(project_list)
+    get_scan_result(project_list,sonar_host_url)
 
 def main(args):
 
@@ -178,7 +178,7 @@ def main(args):
     manifest_checkout()
     manifest_file='manifest/couchbase-server/'+args.branch+'.xml'
     if os.path.exists(manifest_file):
-        process_manifest(manifest_file, args.scan_target, args.version)
+        process_manifest(manifest_file, args.scan_target, args.version, args.sonar_host_url)
     else:
         sys.exit(manifest_file+' does not exist')
 
