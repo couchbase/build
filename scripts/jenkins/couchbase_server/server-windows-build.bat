@@ -94,8 +94,14 @@ ruby voltron\cleanup.rb %REPOROOT%\install
 
 @echo ==================== package =================
 
+rem Discover erts version
+for /D %%f in (%REPOROOT%\install\erts-*) do (
+    set ERTSDIR=%%~nxf
+)
+set ERTSVER=%ERTSDIR:~5%
+
 cd voltron
-ruby server-win2015.rb %REPOROOT%\install 9.3.3.9 %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
+ruby server-win2015.rb %REPOROOT%\install %ERTSVER% %VERSION% %BLD_NUM% %LICENSE% windows_msvc2015 || goto error
 
 set "productname=Server"
 cd wix-installer
