@@ -1,0 +1,6 @@
+{
+    "sonar": {
+	"sonar.exclusions" : "**/vendor/**"
+    },
+    "ignored_repositories": ["retriever", "go-couchbase", "gocb", "gocbcore", "jsonx", "gocbconnstr", "gomemcached", "clog", "goutils", "cbgt", "cbauth", "blance", "ns_server"]
+}

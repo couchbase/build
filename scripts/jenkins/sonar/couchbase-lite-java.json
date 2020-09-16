@@ -1,0 +1,6 @@
+{
+	"sonar": {
+		"sonar.exclusions": "**/vendor/**"
+	},
+	"ignored_repositories": ["couchbase-lite-core-EE", "couchbase-lite-core", "couchbase-lite-core.wiki", "fleece", "jsonsl", "sqlite3 - unicodesn"]
+}

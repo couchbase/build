@@ -28,26 +28,22 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel('INFO')
 
-def sonar_properties(project_name,version):
+def sonar_properties(product_name,project_name,version,props):
     project_dir=os.path.abspath(project_name)
-    #load custom properties if it exists
-    props_file=os.getcwd()+'/build/scripts/jenkins/sonar/'+project_name+'.json'
-    if os.path.exists(props_file):
-        logger.info('Load properties from '+props_file)
-        with open(props_file, 'r') as read_file:
-            props=json.load(read_file)
-    else:
-        logger.info('No custom properties present for '+project_name)
-        props={}
 
     #create a dummy directory to bypass java binary check
     if not os.path.exists(project_dir+'/dummy'):
         os.mkdir(project_dir+'/dummy')
     f = open(project_name+'/sonar-project.properties', 'w')
     f.write('sonar.projectKey='+project_name)
-    f.write('sonar.projectVersion='+version)
+    f.write('\nsonar.projectVersion='+version)
     f.write('\nsonar.nodejs.executable='+args.node_exec)
     f.write('\nsonar.java.binaries='+project_dir+'/dummy')
+
+    ##set default encoding
+    ##js files in particular is limited to 100kb when encoding is not detected
+    ## https://github.com/SonarSource/sonar-css/issues/251
+    f.write('\nsonar.sourceEncoding=UTF-8')
     f.write('\nsonar.host.url='+args.sonar_host_url)
     f.write('\nsonar.login='+args.sonar_api_token)
 
@@ -71,26 +67,19 @@ def sonar_properties(project_name,version):
         f.write('\n'+prop+'='+props[prop])
     f.close()
 
-def manifest_checkout():
-    cmd='git clone ssh://git@github.com/couchbase/manifest.git'
+def repo_checkout(repository,version):
+    repo_name=repository.get('name')
+    repo_url=repository.get('url')
+    cmd='git clone '+ repo_url
+    logger.info('checking out: %s', repo_name)
     subprocess.check_output(cmd, shell=True);
 
-def sonar_scan(project,repo_base,default_rev,version):
-    project_name=project.get('name')
-    cmd='git clone '+repo_base+project_name+'.git'
-    if not os.path.exists(project_name):
-        logger.info('checking out project: %s', project_name)
+    revision = repository.get('revision')
+    #check out specific rev or branch if it is defined
+    if revision != 'master':
+        logger.info('checkout revision: %s', revision)
+        cmd='cd '+repo_name+';git checkout '+revision
         subprocess.check_output(cmd, shell=True);
-        revision = project.get('revision', default=default_rev)
-        #check out specific rev or branch if it is defined
-        if revision != 'master':
-            logger.info('checkout revision: %s', revision)
-            cmd='cd '+project_name+';git checkout '+revision
-            subprocess.check_output(cmd, shell=True);
-        sonar_properties(project_name,version)
-        scan_project(project_name)
-    else:
-      logger.info('%s exist.  Possibily duplicate project listed in manifest.  Skipping', project_name)
 
 def scan_project(project_name):
     project_dir=os.path.abspath(project_name)
@@ -98,14 +87,14 @@ def scan_project(project_name):
     logger.info('%s', cmd)
     subprocess.check_output(cmd, shell=True);
 
-def get_scan_result(project_list,sonar_host_url):
+def get_scan_result(projects_list,sonar_host_url):
     measures=['vulnerabilities','code_smells','bugs']
     new_measures=['new_vulnerabilities','new_code_smells','new_bugs']
     f = open('scan-result.csv', 'w')
     f.write('project,'+','.join(measures)+','+','.join(new_measures))
-    # quality_gate_api_endpoint
+    # measures_api_endpoint
     URL = sonar_host_url+'/api/measures/component'
-    for proj in set(project_list):
+    for proj in set(projects_list):
         f.write('\n'+'<a href='+sonar_host_url+'/dashboard?id='+proj+'>'+proj+'</a>')
 
         for measure in measures:
@@ -134,15 +123,20 @@ def get_scan_result(project_list,sonar_host_url):
             except requests.exceptions.RequestException as e:
                 raise SystemExit(e)
 
-            f.write(','+project_measures['component']['measures'][0]['period']['value'])
+            if not 'measures' in project_measures['component'] or len(project_measures['component']['measures']) == 0:
+                #json returns empty for new measure if it is the initial scan
+                #no need to scan other new measures
+                break
+            else:
+                f.write(','+project_measures['component']['measures'][0]['period']['value'])
     f.close()
     df = pandas.read_csv("scan-result.csv")
     df.to_html('scan-result.htm',escape=False)
 
-def process_manifest(xml,target,version,sonar_host_url):
+def process_manifest(xml,target):
     tree = etree.parse(xml)
     if target == 'all':
-        projects=tree.xpath('//project[not(@name="packaging") and not(@name="build")]')
+        projects=tree.xpath('//project[not(@name="packaging") and not(@name="build") and not(@name="product-texts")]')
     else:
         projects=tree.xpath('//project[@name=$p or contains(@groups,$p)]', p=target)
     if not projects:
@@ -152,33 +146,85 @@ def process_manifest(xml,target,version,sonar_host_url):
     default_remote = defaults[0].get('remote') if defaults else None
     default_revision = defaults[0].get('revision') if defaults else "master"
 
-    remoteDict=dict()
-    project_list=list()
+    remotes=dict()
+    projects_to_scan=list()
     for item in tree.xpath('//remote'):
         #add urls containing couchbase & couchbaselabs to dict.
         if re.search('github.com/(couchbase|couchbaselabs)/?$',item.get('fetch')):
-            remoteDict[item.get('name')]=item.get('fetch')
+            remotes[item.get('name')]=item.get('fetch')
 
     for project in projects:
+        project_to_scan=dict()
         remote = project.get('remote', default=default_remote)
+
         #only scan projects under couchbase and couchbaselabs
-        if (remote in remoteDict):
-            project_list.append(project.get('name'))
-            sonar_scan(project,remoteDict.get(remote), default_revision, version)
+        if (remote in remotes):
+            project_to_scan['name'] = project.get('name')
+            project_to_scan['url'] = remotes.get(remote) + project_to_scan['name'] + '.git'
+            if 'revision' not in project:
+                project_to_scan['revision']=default_revision
+            else:
+                project_to_scan['revision']=project.get('revision')
+            projects_to_scan.append(project_to_scan)
         else:
             logger.info('%s is not a repo under couchbase, couchbase-priv, or couchbaselabs.  skipping...', project.get('name'))
 
+    #return a list of projects that needs to be scanned by sonar
+    return projects_to_scan
+
+def sonar_scan(projects,product_name,version,sonar_host_url):
+    #load product custom properties if it exists
+    props_file=os.path.dirname(os.path.realpath(__file__))+'/'+product_name+'.json'
+    print (props_file)
+    if os.path.exists(props_file):
+        logger.info('Load properties from '+props_file)
+        with open(props_file, 'r') as read_file:
+            custom_props=json.load(read_file)
+    else:
+        logger.info('No custom properties present for %s.', product_name)
+        custom_props={}
+
+    #keep a project list so that we can use it to pull the scan result
+    sonar_projects_list=list()
+
+    for project in projects:
+        project_name=project.get('name')
+        logger.info('getting project: ' + project_name)
+
+        #skip if project is on the ignored list
+        #some projects are intentionally ignored to avoid duplicated efforts
+        #i.e. couchbase-lite-core*, we don't want to scan these again in other CBL products
+        #     couchbase-server reposities, we don't want to scan them again in sync_gateway
+        if 'ignored_repositories' in custom_props and project_name in custom_props['ignored_repositories']:
+            logger.info('%s is listed as a project that should be ignored.', project_name)
+        elif os.path.exists(project_name):
+            logger.info('%s exists.  Possibily duplicate project in manifest.  Skipping', project_name)
+        else:
+            sonar_projects_list.append(project_name)
+            repo_checkout(project,version)
+            sonar_custom_props = custom_props['sonar'] if custom_props else {}
+            sonar_properties(product_name,project_name,version,sonar_custom_props)
+            scan_project(project_name)
+
     #get scan results
-    get_scan_result(project_list,sonar_host_url)
+    get_scan_result(sonar_projects_list,sonar_host_url)
 
 def main(args):
 
-    # Setup connection to QualysGuard API.
-    #checkout manifest repo 
-    manifest_checkout()
-    manifest_file='manifest/couchbase-server/'+args.branch+'.xml'
+    #checkout manifest repo
+    #sync_gateway has its own manifest
+    if args.product == "sync_gateway":
+        cmd='git clone ssh://git@github.com/couchbase/'+args.product
+        subprocess.check_output(cmd, shell=True);
+        manifest_file=args.product+'/manifest/'+args.branch+'.xml'
+    else:
+        cmd='git clone ssh://git@github.com/couchbase/manifest.git'
+        subprocess.check_output(cmd, shell=True);
+        manifest_file='manifest/'+args.product+'/'+args.branch+'.xml'
+
     if os.path.exists(manifest_file):
-        process_manifest(manifest_file, args.scan_target, args.version, args.sonar_host_url)
+        couchbase_projects=process_manifest(manifest_file,args.scan_target)
+        sonar_scan(couchbase_projects,args.product,args.version,args.sonar_host_url)
     else:
         sys.exit(manifest_file+' does not exist')
 
@@ -188,6 +234,7 @@ if __name__ == "__main__":
     parser.add_argument('--sonar_host_url', help='sonar host url.  i.e. http://cleancode.service.couchbase.com\n', required=True)
     parser.add_argument('--sonar_api_token', help='https://docs.sonarqube.org/latest/user-guide/user-token/ \n', required=True)
     parser.add_argument('--node_exec', help='PATH to node executable\n', required=True)
+    parser.add_argument('--product', help='product name, i.e. couchbase-server\n', required=True)
     parser.add_argument('--scan_target', help='target project or group or all\n', required=True)
     parser.add_argument('--branch', help='target branch, i.e. cheshire-cat\n', required=True)
     parser.add_argument('--version', help='version, i.e. cheshire-cat is 7.0.0\n', required=True)

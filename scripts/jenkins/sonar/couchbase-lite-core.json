@@ -1,0 +1,5 @@
+{
+    "sonar": {
+	"sonar.exclusions" : "**/vendor/**"
+    }
+}
