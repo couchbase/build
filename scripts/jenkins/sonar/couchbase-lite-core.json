@@ -1,5 +1,6 @@
 {
-    "sonar": {
-	"sonar.exclusions" : "**/vendor/**"
-    }
+        "sonar": {
+                "sonar.exclusions": "**/vendor/**"
+        },
+        "ignored_repositories": ["tlm"]
 }

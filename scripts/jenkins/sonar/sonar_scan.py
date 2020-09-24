@@ -28,7 +28,19 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel('INFO')
 
-def sonar_properties(product_name,project_name,version,props):
+def read_product_properties(product_name):
+    #load product custom properties if it exists
+    props_file=os.path.dirname(os.path.realpath(__file__))+'/'+product_name+'.json'
+    if os.path.exists(props_file):
+        logger.info('Load properties from '+props_file)
+        with open(props_file, 'r') as read_file:
+            custom_props=json.load(read_file)
+    else:
+        logger.info('No custom properties present for %s.', product_name)
+        custom_props={}
+    return custom_props
+
+def sonar_properties(project_name,version,props):
     project_dir=os.path.abspath(project_name)
 
     #create a dummy directory to bypass java binary check
@@ -67,16 +79,16 @@ def sonar_properties(product_name,project_name,version,props):
         f.write('\n'+prop+'='+props[prop])
     f.close()
 
-def repo_checkout(repository,version):
+def repo_checkout(repository):
     repo_name=repository.get('name')
     repo_url=repository.get('url')
     cmd='git clone '+ repo_url
     logger.info('checking out: %s', repo_name)
     subprocess.check_output(cmd, shell=True);
 
-    revision = repository.get('revision')
     #check out specific rev or branch if it is defined
-    if revision != 'master':
+    if 'revision' in repository and repository.get('revision') != 'master':
+        revision = repository.get('revision')
         logger.info('checkout revision: %s', revision)
         cmd='cd '+repo_name+';git checkout '+revision
         subprocess.check_output(cmd, shell=True);
@@ -161,10 +173,8 @@ def process_manifest(xml,target):
         if (remote in remotes):
             project_to_scan['name'] = project.get('name')
             project_to_scan['url'] = remotes.get(remote) + project_to_scan['name'] + '.git'
-            if 'revision' not in project:
-                project_to_scan['revision']=default_revision
-            else:
-                project_to_scan['revision']=project.get('revision')
+            project_to_scan['revision']=project.get('revision', default=default_revision)
+
             projects_to_scan.append(project_to_scan)
         else:
             logger.info('%s is not a repo under couchbase, couchbase-priv, or couchbaselabs.  skipping...', project.get('name'))
@@ -172,17 +182,7 @@ def process_manifest(xml,target):
     #return a list of projects that needs to be scanned by sonar
     return projects_to_scan
 
-def sonar_scan(projects,product_name,version,sonar_host_url):
-    #load product custom properties if it exists
-    props_file=os.path.dirname(os.path.realpath(__file__))+'/'+product_name+'.json'
-    print (props_file)
-    if os.path.exists(props_file):
-        logger.info('Load properties from '+props_file)
-        with open(props_file, 'r') as read_file:
-            custom_props=json.load(read_file)
-    else:
-        logger.info('No custom properties present for %s.', product_name)
-        custom_props={}
+def sonar_scan(projects,version,sonar_host_url,custom_props):
 
     #keep a project list so that we can use it to pull the scan result
     sonar_projects_list=list()
@@ -201,9 +201,10 @@ def sonar_scan(projects,product_name,version,sonar_host_url):
             logger.info('%s exists.  Possibily duplicate project in manifest.  Skipping', project_name)
         else:
             sonar_projects_list.append(project_name)
-            repo_checkout(project,version)
+            repo_checkout(project)
             sonar_custom_props = custom_props['sonar'] if custom_props else {}
-            sonar_properties(product_name,project_name,version,sonar_custom_props)
+            #create sonar.properties before the scan
+            sonar_properties(project_name,version,sonar_custom_props)
             scan_project(project_name)
 
     #get scan results
@@ -211,23 +212,36 @@ def sonar_scan(projects,product_name,version,sonar_host_url):
 
 def main(args):
 
-    #checkout manifest repo
-    #sync_gateway has its own manifest
-    if args.product == "sync_gateway":
-        cmd='git clone ssh://git@github.com/couchbase/'+args.product
-        subprocess.check_output(cmd, shell=True);
-        manifest_file=args.product+'/manifest/'+args.branch+'.xml'
-    else:
-        cmd='git clone ssh://git@github.com/couchbase/manifest.git'
-        subprocess.check_output(cmd, shell=True);
-        manifest_file='manifest/'+args.product+'/'+args.branch+'.xml'
+    #load product specific properties from <product>.json
+    #it contains extra sonar properties, repositories to ignore, additional repo, etc.
+    product_properties=read_product_properties(args.product)
 
-    if os.path.exists(manifest_file):
-        couchbase_projects=process_manifest(manifest_file,args.scan_target)
-        sonar_scan(couchbase_projects,args.product,args.version,args.sonar_host_url)
-    else:
-        sys.exit(manifest_file+' does not exist')
+    #checkout manifest repo, except sdk
+    if not args.product.startswith("couchbase-sdk"):
+        #sync_gateway has its own manifest
+        if args.product == "sync_gateway":
+            cmd='git clone ssh://git@github.com/couchbase/'+args.product
+            subprocess.check_output(cmd, shell=True);
+            manifest_file=args.product+'/manifest/'+args.branch+'.xml'
+        else:
+            cmd='git clone ssh://git@github.com/couchbase/manifest.git'
+            subprocess.check_output(cmd, shell=True);
+            manifest_file='manifest/'+args.product+'/'+args.branch+'.xml'
 
+        if os.path.exists(manifest_file):
+            couchbase_projects=process_manifest(manifest_file,args.scan_target)
+        else:
+            sys.exit(manifest_file+' does not exist')
+    else:
+        couchbase_projects=list()
+
+    if 'additional_repositories' in product_properties:
+        for item in product_properties['additional_repositories']:
+            repo=dict()
+            repo['name'] = item
+            repo['url'] = product_properties['additional_repositories'][item]
+            couchbase_projects.append(repo)
+    sonar_scan(couchbase_projects,args.version,args.sonar_host_url,product_properties)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='sonarqube project scan\n\n')

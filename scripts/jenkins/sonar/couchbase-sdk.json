@@ -1,0 +1,15 @@
+{
+        "sonar": {
+                "sonar.exclusions": "**/vendor/**"
+        },
+        "additional_repositories": {
+                "couchbase-java-client": "git://github.com/couchbase/couchbase-java-client.git",
+                "couchbase-jvm-clients": "git://github.com/couchbase/couchbase-jvm-clients.git",
+                "couchbase-net-client": "git://github.com/couchbase/couchbase-net-client.git",
+                "couchbase-python-client": "git://github.com/couchbase/couchbase-python-client.git",
+                "couchnode": "git://github.com/couchbase/couchnode.git",
+                "gocb": "git://github.com/couchbase/gocb.git",
+                "libcouchbase": "git://github.com/couchbase/libcouchbase.git",
+                "php-couchbase": "git://github.com/couchbase/php-couchbase.git"
+        }
+}
