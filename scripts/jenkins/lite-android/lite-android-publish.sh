@@ -1,5 +1,5 @@
 #!/bin/bash
-# Publish built packages from latestbuilds to maven repo
+# Publish built packages from internal_maven to maven repo
 
 function usage {
     echo -e "\nusage: ${0} product release bld_num release_version publish_url repo_id \n\n"
@@ -19,7 +19,8 @@ RELEASE_VERSION=${4}
 PUBLISH_URL=${5}
 REPO_ID=${6}
 
-LATEST_URL="http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${RELEASE}/${BLD_NUM}/"
+INTERNAL_MAVEN_URL="http://mobile.maven.couchbase.com/maven2/internalmaven/com/couchbase/lite/${PRODUCT}/${RELEASE}-${BLD_NUM}"
+#LATEST_URL="http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${RELEASE}/${BLD_NUM}/"
 GROUPID='com.couchbase.lite'
 REPOSITORY_ID=${REPO_ID}
 POM_FILE='default-pom.xml'
@@ -44,28 +45,27 @@ function update_version {
     diff ${POM_FILE} ${POM_FILE}.bak
 }
 
-function get_pkgs_from_latestbuilds {
-    WGET_CMD='wget -c --recursive  --no-directories --accept-regex'
+function get_pkgs_from_internal_maven {
+    #files
+    local base_fl_name="${PRODUCT}-${RELEASE}-${BLD_NUM}"
+    local aar_fl="${base_fl_name}.aar"
+    local javadoc_fl="${base_fl_name}-javadoc.jar"
+    local javasrc_fl="${base_fl_name}-sources.jar"
+    local pom_fl="${base_fl_name}.pom"
 
-    #file patterns
-    local release_fl='.*-release.aar'
-    local javadoc_fl='.*-javadoc.jar'
-    local javasrc_fl='.*-sources.jar'
-    local pom_fl='pom.xml'
-
-    $(${WGET_CMD} ${release_fl} ${LATEST_URL})
-    $(${WGET_CMD} ${javadoc_fl} ${LATEST_URL})
-    $(${WGET_CMD} ${javasrc_fl} ${LATEST_URL})
-    $(${WGET_CMD} ${pom_fl} ${LATEST_URL})
+    $(wget ${INTERNAL_MAVEN_URL}/${aar_fl})
+    $(wget ${INTERNAL_MAVEN_URL}/${javadoc_fl})
+    $(wget ${INTERNAL_MAVEN_URL}/${javasrc_fl})
+    $(wget ${INTERNAL_MAVEN_URL}/${pom_fl})
 
     # Ensure all required pkgs have been downloaded
-    if [[ ! -f ${release_fl} ]] && [[ ! -f ${javadoc_fl} ]] && [[ ! -f ${javasrc_fl} ]] && [[ ! -f ${pom_fl} ]]; then
+    if [[ ! -f ${aar_fl} ]] && [[ ! -f ${javadoc_fl} ]] && [[ ! -f ${javasrc_fl} ]] && [[ ! -f ${pom_fl} ]]; then
         echo "Cannot retrieve all the required artifacts for publish!"
         exit 1
     fi
 
     # Avoid confusion in mvn deploy command
-    mv pom.xml ${POM_FILE}
+    mv ${pom_fl} ${POM_FILE}
 }
 
 function maven_deploy {
@@ -76,7 +76,7 @@ function maven_deploy {
     local APP_VERSION=${RELEASE_VERSION}
     local MVN_CMD="mvn --settings ./settings.xml -Dpublish.username=${PUBLISH_USERNAME} -Dpublish.password=${PUBLISH_PASSWORD} -DrepositoryId=${REPOSITORY_ID}"
 
-    if [[ ${PKG_FILE} == *-release.aar ]]; then
+    if [[ ${PKG_FILE} == "${PRODUCT}-${RELEASE}-${BLD_NUM}.aar" ]]; then
         POM_OPTION='-DpomFile='${POM_FILE}
     else
         POM_OPTION='-DgeneratePom=false'
@@ -98,14 +98,15 @@ function usage {
 
 # Main
 # wget *.aar, *.jar, *.pom from lastestbuilds
-get_pkgs_from_latestbuilds
+get_pkgs_from_internal_maven
 
 # file patterns
-release_fl='*-release.aar'
-javadoc_fl='*-javadoc.jar'
-javasrc_fl='*-sources.jar'
+base_fl_name="${PRODUCT}-${RELEASE}-${BLD_NUM}"
+aar_fl="${base_fl_name}.aar"
+javadoc_fl="${base_fl_name}-javadoc.jar"
+javasrc_fl="${base_fl_name}-sources.jar"
 
-RELEASE_FILES=$(ls ${release_fl} ${javadoc_fl} ${javasrc_fl})
+RELEASE_FILES=$(ls ${aar_fl} ${javadoc_fl} ${javasrc_fl})
 echo "${RELEASE_FILES}\n\n"
 
 # Update default-pom.xml with release_version
@@ -120,7 +121,7 @@ for f in ${RELEASE_FILES}; do
     elif [[ $f == ${javasrc_fl} ]]; then
         classifer='sources'
         pkgtype='jar'
-    elif [[ $f == ${release_fl} ]]; then
+    elif [[ $f == ${aar_fl} ]]; then
         classifer=''
         pkgtype='aar'
     fi

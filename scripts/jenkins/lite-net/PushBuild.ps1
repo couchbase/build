@@ -45,7 +45,7 @@ if(-Not $Prerelease) {
 }
 
 if(-Not $(Test-Path .\nuget.exe) -and -not $DryRun) {
-    Invoke-WebRequest https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile nuget.exe
+    Invoke-WebRequest https://dist.nuget.org/win-x86-commandline/v5.5.1/nuget.exe -OutFile nuget.exe
 }
 
 foreach($file in (Get-ChildItem $pwd -Filter *.nupkg)) {
