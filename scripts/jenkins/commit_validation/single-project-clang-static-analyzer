@@ -84,7 +84,7 @@ echo_cmd cp -f tlm/third-party-CMakeLists.txt ./third_party/CMakeLists.txt
 CMAKE_ARGS="${CMAKE_ARGS} -DCOUCHBASE_DISABLE_CCACHE=1"
 
 REPORT_DIR="$(pwd)/clangScanBuildReports"
-SCAN_BUILD_ARGS="--use-analyzer=$(which $CC) -o ${REPORT_DIR}"
+SCAN_BUILD_ARGS="-o ${REPORT_DIR}"
 
 # We only want to build the Gerrit project under test,
 # as we only want issues which are related to that project,
