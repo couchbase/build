@@ -131,6 +131,12 @@ S3CONFIG=${HOME}/.ssh/live.s3cfg
 S3_DIR=s3://packages.couchbase.com/releases/${S3_REL_DIRNAME}/${VERSION}
 RELEASE_DIR=${REL_MOUNT}/mobile/${S3_REL_DIRNAME}/${VERSION}
 
+if [[ ${STAGE} == "true" ]]
+then
+    S3_DIR=s3://packages-staging.couchbase.com/releases/${S3_REL_DIRNAME}/${VERSION}
+    RELEASE_DIR=${REL_MOUNT}/mobile/staging/${S3_REL_DIRNAME}/${VERSION}
+fi
+
 # Fix the latestbuilds path for ios 1.4.x
 if [[ ${PRODUCT} == *ios ]] && [[ ${RELEASE} == 1.* ]]; then
     SRC_DIR=${LB_MOUNT}/${PRODUCT}/${RELEASE}/${REL_DIRNAME}/${BLD_NUM}
