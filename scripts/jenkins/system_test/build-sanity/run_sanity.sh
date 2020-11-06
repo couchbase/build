@@ -174,7 +174,7 @@ echo "Running python testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect
 if [ "$DISTRO" = "macos" ]; then
     ${py_executable} testrunner.py -i node_conf.ini -c $TR_CONF
 else
-    ${py_executable} testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=False${EXTRA_PARAMS}
+    ${py_executable} testrunner.py -i node_conf.ini -c $TR_CONF -p get-cbcollect-info=True,get-couch-dbinfo=True,skip_cleanup=False,skip_log_scan=False${EXTRA_PARAMS}
 fi
 
 echo "Running entbackup 6.6 test with master branch"
