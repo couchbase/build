@@ -15,15 +15,15 @@ def update_podspec_file(args):
     Replace 2 items in .podspec files: version and source
     s.version                   = '2.0.0'
     s.source                    = { :http =>
-        'https://packages.couchbase.com/releases/couchbase-lite-ios/2.0.0/
-        couchbase-lite-swift_community_2.0.0.zip' }
+        'https://packages.couchbase.com/releases/couchbase-lite-ios/2.8.0/
+        couchbase-lite-swift_community_2.8.0.zip' }
     '''
     package_dict = {'CouchbaseLite-Enterprise.podspec':
                     'couchbase-lite-objc_enterprise',
                     'CouchbaseLite-Swift-Enterprise.podspec':
-                    'couchbase-lite-swift_xc_enterprise',
+                    'couchbase-lite-swift_enterprise',
                     'CouchbaseLite-Swift.podspec':
-                    'couchbase-lite-swift_xc_community',
+                    'couchbase-lite-swift_community',
                     'CouchbaseLite.podspec': 'couchbase-lite-objc_community'
                     }
     s3_url = 'https://packages.couchbase.com/releases/couchbase-lite-ios'
