@@ -59,7 +59,10 @@ then
 fi
 
 DISTRO=$1
-case "$DISTRO" in
+# Only check the "root" of DISTRO (anything up to a hyphen) for the platform
+# information. That allows to have add-on parameters, such as "centos8-tsan"
+# for sanitized builds.
+case "${DISTRO/-*/}" in
     amzn2)
         PKG=rpm
         FLAVOR=amzn2
@@ -93,6 +96,12 @@ case "$DISTRO" in
         ;;
     *)
         usage
+        ;;
+esac
+
+case "$DISTRO" in
+    *-tsan)
+        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCB_ADDRESSSANITIZER=1 -DCB_UNDEFINEDSANITIZER=1"
         ;;
 esac
 
