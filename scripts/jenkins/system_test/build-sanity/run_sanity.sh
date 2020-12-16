@@ -1,9 +1,12 @@
 #!/bin/bash
 
-SERVICES="kv,index,n1ql,fts,backup"
+SERVICES="kv,index,n1ql,fts"
 CBAS_SERVICES="kv,cbas"
 if [[ $VERSION == 4.1* ]] || [[ $VERSION == 4.0* ]]; then
     SERVICES="kv,index,n1ql"
+fi
+if [ $VERSION \> 7.0* ]; then
+    SERVICES="kv,index,n1ql,fts,backup"
 fi
 
 install_only="no"
