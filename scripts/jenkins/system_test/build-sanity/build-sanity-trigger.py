@@ -477,7 +477,6 @@ VERSION_DATA = {
             "oel7": True,
             "suse12": True,
             "ubuntu18": True,
-            "ubuntu20": True,
             "windows": True,
         },
         "testrunner_branch": "mad-hatter",
