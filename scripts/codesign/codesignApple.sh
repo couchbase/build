@@ -167,7 +167,7 @@ gzcat "${TEMPLATE_DMG_GZ}" > ${WC_DMG}
 echo "Mounting template to working image..."
 mkdir -p ${WC_DIR}
 #
-hdiutil attach $WC_DMG -readwrite -noautoopen -mountpoint $WC_DIR
+hdiutil attach $WC_DMG -readwrite -nobrowse -mountpoint $WC_DIR
 echo "Updating working image files..."
 rm -rf $WC_DIR/*.app
 ditto -rsrc ${PKG_DIR}/Couchbase\ Server.app $WC_DIR/Couchbase\ Server.app
