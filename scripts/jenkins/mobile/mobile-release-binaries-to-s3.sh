@@ -127,7 +127,6 @@ case "$PRODUCT" in
 esac
 
 # Compute destination directories
-S3CONFIG=${HOME}/.ssh/live.s3cfg
 S3_DIR=s3://packages.couchbase.com/releases/${S3_REL_DIRNAME}/${VERSION}
 RELEASE_DIR=${REL_MOUNT}/mobile/${S3_REL_DIRNAME}/${VERSION}
 
@@ -153,28 +152,16 @@ fi
 
 upload()
 {
-    src=${1}
-    target=${1}
 
-    echo src: $src
-    echo dest: $target
-
-    # Verify build exists
-    if [ ! -e $src ]; then
-        echo "Given build doesn't exist: ${src}"
-        exit 5
-    fi
-    echo "Uploading to ${S3_DIR}/$target ..."
+    echo "Uploading to ${S3_DIR} ..."
     echo
-    CMD="s3cmd -c $S3CONFIG sync -P $src ${S3_DIR}/$target"
-    ${CMD}
+    aws s3 sync ${UPLOAD_TMP_DIR} ${S3_DIR}/ --acl public-read
 
     # Archive internal releases
-    echo "Archiving ${src} to ${RELEASE_DIR}/$target ..."
+    echo "Archiving ${UPLOAD_TMP_DIR} to ${RELEASE_DIR} ..."
     echo
     mkdir -p ${RELEASE_DIR}
-    CMD="rsync -au $src ${RELEASE_DIR}/$target"
-    ${CMD}
+    rsync -au ${UPLOAD_TMP_DIR} ${RELEASE_DIR}/
 }
 
 OPWD=`pwd`
@@ -187,7 +174,7 @@ trap finish EXIT
 get_s3_upload_link()
 {
     set +e
-    s3links=`s3cmd ls -c $S3CONFIG ${S3_DIR}/  | cut -c 30- | sed -e 's/s3:/https:/'`
+    s3links=`aws s3 ls ${S3_DIR}/ | awk -v s3dir=${S3_DIR} '{print s3dir "/" $4}' | sed -e 's/s3:/https:/'`
     ignorefiles="md5\|centos8\|ubuntu14\|doc\|carthage"
 
     eelinks=`echo "${s3links}" | grep -v "${ignorefiles}" | grep -i "-enterprise\|-EE"`
@@ -208,19 +195,20 @@ get_s3_upload_link()
 
 cd ${SRC_DIR}
 FILES=$(ls -Iblackduck | egrep -v 'source|\.xml|\.json|\.properties|\.md5|\.sha|coverage|CHANGELOG|changes\.log|unsigned|logtest|litetest')
-TARGET_TMP_DIR=/tmp/${RELEASE}-${BLD_NUM}
-rm -rf ${TARGET_TMP_DIR} && mkdir -p ${TARGET_TMP_DIR}
-cd ${TARGET_TMP_DIR}
+UPLOAD_TMP_DIR=/tmp/${RELEASE}-${BLD_NUM}
+rm -rf ${UPLOAD_TMP_DIR} && mkdir -p ${UPLOAD_TMP_DIR}
+cd ${UPLOAD_TMP_DIR}
 for fl in $FILES; do
     target_file=${fl/${RELEASE}-${BLD_NUM}/${VERSION}}
     echo "Copying ${SRC_DIR}/${fl} to $target_file ..."
     cp ${SRC_DIR}/${fl} ${target_file}
     echo "Generating sha256 on $target_file ..."
     sha256sum ${target_file} > ${target_file}.sha256
-    echo "Uploading ${target_file} ..."
-    upload ${target_file}
-    upload ${target_file}.sha256
 done
+
+echo "Uploading files from ${UPLOAD_TMP_DIR} ..."
+upload
+rm -rf ${UPLOAD_TMP_DIR}
 
 get_s3_upload_link
 

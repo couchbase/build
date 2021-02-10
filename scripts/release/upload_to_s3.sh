@@ -120,9 +120,9 @@ then
 fi
 
 # Compute destination directories
-S3CONFIG=~/.ssh/live.s3cfg  # Uses same S3 config as production
 ROOT=s3://packages-staging.couchbase.com/releases/$RELEASE_DIRNAME
 RELEASE_DIR=${RELEASES_MOUNT}/staging/$RELEASE_DIRNAME
+
 if [[ "$LIVE" = "true" ]]
 then
     S3CONFIG=~/.ssh/live.s3cfg
@@ -137,50 +137,20 @@ upload()
 {
     echo ::::::::::::::::::::::::::::::::::::::
 
-    ext=${1##*.}
-    case $ext in
-        md5|sha256|properties)
-          echo "Skipping ${1} due to extension"
-          return
-          ;;
-    esac
-
-    build=${1/.\//}
-    target=${build/$VERSION-$BUILD/$FILENAME_VER}
-
-    if [[ "$COMMUNITY" == "only" && ! "$target" =~ "community" ]]
+    if [[ "$COMMUNITY" == "private" ]]
     then
-        echo "COMMUNITY=only set, skipping $target"
-        return
-    fi
-
-    if [[ "$COMMUNITY" == "none" && "$target" =~ "community" ]]
-    then
-        echo "COMMUNITY=none set, skipping $target"
-        return
-    fi
-
-    sha256file=$RELEASE_DIR/$target.sha256
-    if [ ! -e $sha256file -o $build -nt $sha256file ]
-    then
-        echo Creating fresh sha256sum file for $build...
-        sha256sum $build | cut -c1-64 > /tmp/sha256-$$.sha256
-        mv /tmp/sha256-$$.sha256 $sha256file
-    fi
-
-    if [[ "$COMMUNITY" == "private" && "$target" =~ "community" ]]
-    then
-        echo Uploading $build PRIVATELY...
-        perm_arg=
+        echo Uploading ${RELEASE_DIRNAME} ...
+        echo CE are uploaded PRIVATELY ...
+        perm_arg="private"
+        aws s3 sync ${UPLOAD_TMP_DIR} ${ROOT}/ --acl private --exclude "*" --include "*community*"
+        aws s3 sync ${UPLOAD_TMP_DIR} ${ROOT}/ --acl public-read --exclude "*community*"
     else
-        echo Uploading $build...
-        perm_arg=-P
+        echo Uploading ${RELEASE_DIRNAME} ...
+        aws s3 sync ${UPLOAD_TMP_DIR} ${ROOT}/ --acl public-read
     fi
-    s3cmd -c $S3CONFIG sync $perm_arg $build $ROOT/$target
-    s3cmd -c $S3CONFIG sync $perm_arg $sha256file $ROOT/$target.sha256
 
-    echo Copying $build to releases...
-    rsync -a $build $RELEASE_DIR/$target
+    echo Copying ${UPLOAD_TMP_DIR} to ${RELEASE_DIR} ...
+    rsync -a ${UPLOAD_TMP_DIR} ${RELEASE_DIR}
 }
 
 OPWD=`pwd`
@@ -195,13 +165,36 @@ if [ ! -e ${LB_MOUNT}/${PRODUCT}/$RELEASE/$BUILD ]; then
     exit 5
 fi
 
+#prepare files to be uploaded
+UPLOAD_TMP_DIR=/tmp/${PRODUCT}-${RELEASE}-${BLD_NUM}
+rm -rf ${UPLOAD_TMP_DIR} && mkdir -p ${UPLOAD_TMP_DIR}
+
 cd ${LB_MOUNT}/${PRODUCT}/$RELEASE/$BUILD
-upload ${PRODUCT}-$VERSION-$BUILD-manifest.xml
+cp ${PRODUCT}-${VERSION}-${BUILD}-manifest.xml ${UPLOAD_TMP_DIR}/${PRODUCT}-${VERSION}-manifest.xml
 
 for platform in ${PLATFORMS[@]}
 do
-    for file in `find . -maxdepth 1 \( -name \*${PRODUCT}\*${platform}\* -not -name \*unsigned\* -not -name \*unnotarized\* \)`
+    for file in `find . -maxdepth 1 \( -name \*${PRODUCT}\*${platform}\* -not -name \*unsigned\* -not -name \*unnotarized\* -not -name \*.md5 -not -name \*.sha256 -not -name \*.properties \)`
     do
-        upload $file
+        echo $file
+        file=${file/.\//}
+        echo $file
+        build=${file/$VERSION-$BUILD/$FILENAME_VER}
+        if [[ "$COMMUNITY" == "none" && "$build" =~ "community" ]]
+        then
+            echo "COMMUNITY=none set, skipping $build"
+            continue
+        fi
+        if [[ "$COMMUNITY" == "only" && ! "$build" =~ "community" ]]
+        then
+            echo "COMMUNITY=only set, skipping $build"
+            continue
+        fi
+        cp $file ${UPLOAD_TMP_DIR}/$build
+        echo Creating fresh sha256sum file for $build...
+        sha256sum ${UPLOAD_TMP_DIR}/$build | cut -c1-64 > ${UPLOAD_TMP_DIR}/$build.sha256
     done
 done
+
+upload
+rm -rf ${UPLOAD_TMP_DIR}
