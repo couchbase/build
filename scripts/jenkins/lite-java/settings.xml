@@ -10,7 +10,7 @@
       <password>${publish.password}</password>
     </server>
     <server>
-      <id>bintray-cb-buildteam-couchbase</id>
+      <id>ossrh</id>
       <username>${publish.username}</username>
       <password>${publish.password}</password>
     </server>

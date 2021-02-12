@@ -6,7 +6,7 @@ function usage {
     exit 0
 }
 
-if [ "$#" -ne 6 ]; then
+if [ "$#" -ne 5 ]; then
     usage
     exit 1
 fi
@@ -16,14 +16,31 @@ PRODUCT=${1}
 RELEASE=${2}
 BLD_NUM=${3}
 RELEASE_VERSION=${4}
-PUBLISH_URL=${5}
-REPO_ID=${6}
+PUBLISH_TARGET=${5}
 
 INTERNAL_MAVEN_URL="http://proget.build.couchbase.com/maven2/internalmaven/com/couchbase/lite/${PRODUCT}/${RELEASE}-${BLD_NUM}"
 #LATEST_URL="http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${RELEASE}/${BLD_NUM}/"
 GROUPID='com.couchbase.lite'
-REPOSITORY_ID=${REPO_ID}
 POM_FILE='default-pom.xml'
+
+case ${PUBLISH_TARGET} in
+
+  "mobile-maven")
+    PUBLISH_URL="https://mobile.maven.couchbase.com/maven2/dev"
+    REPOSITORY_ID="releases"
+    ;;
+  "internal-nexus")
+    PUBLISH_URL="http://nexus.build.couchbase.com:8081/nexus/content/repositories/releases"
+    REPOSITORY_ID="releases"
+    ;;
+  "sonatype")
+    PUBLISH_URL="https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    REPOSITORY_ID="ossrh"
+    ;;
+  "*")
+    echo "Unknown PUBLISH_TARGET: ${PUBLISH_TARGET}"
+    exit
+esac
 
 if [[ ! ${PUBLISH_USERNAME} ]] || [[ ! ${PUBLISH_PASSWORD} ]]; then
     echo "Missing required environment vars: PUBLISH_PASSWORD, PUBLISH_PASSWORD"
