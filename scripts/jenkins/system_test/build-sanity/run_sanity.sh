@@ -141,14 +141,13 @@ fi
 if [ $VERSION \< 6.5* ]; then
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/install.py -i node_conf.ini -p $PARAMS
-  echo
 else
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/new_install.py -i node_conf.ini -p $PARAMS
-  echo
 fi
 
 if [ "$?" -ne 0 ]; then
+  echo "Exiting because install failed" 
   exit 1
 fi
 
@@ -156,6 +155,7 @@ if [ "$install_only" = "yes" ]; then
   exit 0
 fi
 
+echo
 EXTRA_PARAMS=""
 
 if [ -n "${EXTRA_TEST_PARAMS}" ]; then
