@@ -404,7 +404,7 @@ VERSION_DATA = {
             "ubuntu18": True,
             "windows": True,
         },
-        "testrunner_branch": "mad-hatter",
+        "testrunner_branch": "6.5.x",
     },
     "6.5.1": {
         "platforms": {
@@ -419,7 +419,7 @@ VERSION_DATA = {
             "ubuntu18": True,
             "windows": True,
         },
-        "testrunner_branch": "mad-hatter",
+        "testrunner_branch": "6.5.x",
     },
     "6.5.2": {
         "platforms": {
@@ -434,7 +434,7 @@ VERSION_DATA = {
             "ubuntu18": True,
             "windows": True,
         },
-        "testrunner_branch": "mad-hatter",
+        "testrunner_branch": "6.5.x",
     },
     "6.6.0": {
         "platforms": {
