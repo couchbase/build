@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Simple program to update the membasex.xml file for appcast.couchbase.com
@@ -12,7 +12,7 @@ import os.path
 import string
 import subprocess
 import sys
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from datetime import datetime
 
@@ -27,9 +27,9 @@ def get_length(macos_file):
     """Get size of latest macOS file to be retrieved"""
 
     try:
-        return urllib.urlopen(macos_file).info()['Content-Length']
+        return urllib.request.urlopen(macos_file).info()['Content-Length']
     except KeyError:   # Generated if file not found on server
-        print 'Unable to access URL "%s", aborting...' % (macos_file,)
+        print('Unable to access URL "%s", aborting...' % (macos_file,))
         sys.exit(1)
 
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     try:
         version = sys.argv[1]
     except IndexError:
-        print 'Usage: %s <version>' % (sys.argv[0],)
+        print('Usage: %s <version>' % (sys.argv[0],))
         sys.exit(1)
 
     macos_file = 'http://packages.couchbase.com/releases/%s/' \
@@ -62,5 +62,5 @@ if __name__ == '__main__':
              's3://appcast.couchbase.com/membasex.xml']
         )
     except subprocess.CalledProcessError as exc:
-        print 's3cmd unsuccessful: %s' % (exc.output,)
+        print('s3cmd unsuccessful: %s' % (exc.output,))
         sys.exit(1)
