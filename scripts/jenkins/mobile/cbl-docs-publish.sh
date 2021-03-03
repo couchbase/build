@@ -14,7 +14,8 @@ S3CONFIG=${HOME}/.ssh/live.s3cfg
 S3_URL="http://packages.couchbase.com/releases/${PRODUCT}/${VERSION}"
 if [[ ${PRODUCT} == 'couchbase-lite-ios' ]]; then
     PACKAGE_NAME_ARRAY=("couchbase-lite-objc-documentation_enterprise_${VERSION}.zip" "couchbase-lite-swift-documentation_enterprise_${VERSION}.zip")
-elif [[ ${PRODUCT} == 'couchbase-lite-android-ee' ]]; then
+elif [[ ${PRODUCT} == 'couchbase-lite-android-ee' || ${PRODUCT} == 'couchbase-lite-android' ]]; then
+    S3_URL="http://packages.couchbase.com/releases/couchbase-lite-android/${VERSION}"
     if [[ `echo ${VERSION} |cut -d "." -f 1-2` == "2.6" ]];then
         PACKAGE_NAME_ARRAY=("lib-${VERSION}-javadoc.jar")
     else
@@ -30,8 +31,8 @@ for PKG in ${PACKAGE_NAME_ARRAY[@]}; do
     echo "Publish ${PKG} to S3 ..."
     PKG_NAME=${PKG%.*} # remove file extentions as directory name
     #S3_URL_couchbase_lite_java="s3://docs.couchbase.com/mobile/${VERSION}/couchbase-lite-java"
-    if [[ ${PRODUCT} == 'couchbase-lite-android-ee' ]]; then
-        S3_URL_couchbase_lite_android="s3://docs.couchbase.com/mobile/${VERSION}/couchbase-lite-android"
+    if [[ ${PRODUCT} == 'couchbase-lite-android-ee' || ${PRODUCT} == 'couchbase-lite-android' ]]; then
+        S3_URL_couchbase_lite_android="s3://docs.couchbase.com/mobile/${VERSION}/${PRODUCT}"
         curl ${S3_URL}/${PKG} -o CouchbaseLite-${VERSION}-javadoc.zip || exit 1
         unzip CouchbaseLite-${VERSION}-javadoc.zip -d CouchbaseLite-${VERSION}-javadoc || exit 1
         #Android:
