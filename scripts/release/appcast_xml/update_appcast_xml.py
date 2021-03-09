@@ -4,7 +4,7 @@
 Simple program to update the membasex.xml file for appcast.couchbase.com
 (used for macOS installs)
 
-Note that s3cmd needs to be installed on the system this is run from, along
+Note that awscli needs to be installed on the system this is run from, along
 with a proper config file available for it (for authentication)
 """
 
@@ -57,10 +57,10 @@ if __name__ == '__main__':
     # Upload file to S3
     try:
         subprocess.check_call(
-            ['s3cmd', '-c', os.path.expanduser('~/.ssh/live.s3cfg'),
-             'put', '--acl-public', 'membasex.xml',
-             's3://appcast.couchbase.com/membasex.xml']
+            ['aws', 's3', 'cp', 'membasex.xml',
+             's3://appcast.couchbase.com/membasex.xml',
+             '--acl', 'public-read']
         )
     except subprocess.CalledProcessError as exc:
-        print('s3cmd unsuccessful: %s' % (exc.output,))
+        print('aws upload  unsuccessful: %s' % (exc.output,))
         sys.exit(1)
