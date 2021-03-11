@@ -40,7 +40,7 @@ case ${PRODUCT} in
     "couchbase-lite-ios")
         declare -A PACKAGE_ARRAY
         PACKAGE_ARRAY["couchbase-lite-objc-documentation_enterprise_${VERSION}"]=couchbase-lite-objc
-        PACKAGE_ARRAY+=(["couchbase-lite-swift-documentation_enterprise_${VERSION}"]=couchbase-lite-swift)
+        PACKAGE_ARRAY=["couchbase-lite-swift-documentation_enterprise_${VERSION}"]=couchbase-lite-swift
         EXT="zip"
         for PKG in ${!PACKAGE_ARRAY[@]}; do
             S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PACKAGE_ARRAY[${PKG}]}"
@@ -49,10 +49,12 @@ case ${PRODUCT} in
         done
         ;;
     "couchbase-lite-android" | "couchbase-lite-java")
-        PACKAGE_ARRAY=("${PRODUCT}-ee-${VERSION}-javadoc" "${PRODUCT}-${VERSION}-javadoc")
+        declare -A PACKAGE_ARRAY
+        PACKAGE_ARRAY["${PRODUCT}-ee-${VERSION}-javadoc"]=${PRODUCT}-ee
+        PACKAGE_ARRAY["${PRODUCT}-${VERSION}-javadoc"]=${PRODUCT}
         EXT="jar"
-        for PKG in ${PACKAGE_ARRAY[@]}; do
-            S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PRODUCT}"
+        for PKG in ${!PACKAGE_ARRAY[@]}; do
+            S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PACKAGE_ARRAY[${PKG}]}"
             echo $PKG $S3_URL_DOC
             publish
         done
