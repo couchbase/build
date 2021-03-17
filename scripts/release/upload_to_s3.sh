@@ -3,14 +3,14 @@
 function usage() {
     echo
     echo "$0 -r <release-code-name> -v <version-number> -b <build-number>"
-    echo "   [-t <product>] [-m <MP-number> [-c <private | public | only>]"
-    echo "   [-p <platforms>] [-l] [-s] [-V <upload-version-number>]"
+    echo "   [-t <product>] [-s <suffix> ] [-c <private | public | only>]"
+    echo "   [-p <platforms>] [-l]"
     echo "where:"
     echo "  -r: release code name; mad-hatter; cheshire-cat; etc."
     echo "  -v: version number; eg. 7.0.0"
     echo "  -b: build number to release"
     echo "  -t: product; defaults to couchbase-server"
-    echo "  -m: MP number; eg MP-1 [optional]"
+    echo "  -s: version suffix, eg. 'MP1' or 'beta' [optional]"
     echo "  -c: how to handle CE builds [optional]. Legal values are:"
     echo "        private: to make it non-downloadable (default)"
     echo "        public: CE builds are downloadable"
@@ -19,7 +19,6 @@ function usage() {
     echo "  -p: specific platforms to upload. By default uploads all platforms."
     echo "      Pass -p multiple times for multiple platforms [optional]"
     echo "  -l: Push it to live (production) s3. Default is to push to staging [optional]"
-    echo "  -V: version number for uploads (defaults to same as -v)"
     echo
 }
 
@@ -33,14 +32,13 @@ COMMUNITY=private
 # Default product
 PRODUCT=couchbase-server
 
-while getopts "r:v:V:b:t:m:c:p:lh?" opt; do
+while getopts "r:v:V:b:t:s:c:p:lh?" opt; do
     case $opt in
         r) RELEASE=$OPTARG;;
         v) VERSION=$OPTARG;;
-        V) UPLOADVERSION=$OPTARG;;
         b) BUILD=$OPTARG;;
         t) PRODUCT=$OPTARG;;
-        m) MP=$OPTARG;;
+        s) SUFFIX=$OPTARG;;
         c) COMMUNITY=$OPTARG;;
         p) PLATFORMS+=("$OPTARG");;
         l) LIVE=true;;
@@ -86,10 +84,6 @@ then
     exit 3
 fi
 
-if [ "x${UPLOADVERSION}" = "x" ]; then
-    UPLOADVERSION=${VERSION}
-fi
-
 RELEASES_MOUNT=/releases
 if [ ! -e ${RELEASES_MOUNT} ]; then
     echo "'releases' directory is not mounted"
@@ -104,13 +98,13 @@ fi
 
 
 # Compute target filename component
-if [ -z "$MP" ]
+if [ -z "$SUFFIX" ]
 then
-    RELEASE_DIRNAME=$UPLOADVERSION
-    FILENAME_VER=$UPLOADVERSION
+    RELEASE_DIRNAME=$VERSION
+    FILENAME_VER=$VERSION
 else
-    RELEASE_DIRNAME=$UPLOADVERSION-$MP
-    FILENAME_VER=$UPLOADVERSION-$MP
+    RELEASE_DIRNAME=$VERSION-$SUFFIX
+    FILENAME_VER=$VERSION-$SUFFIX
 fi
 
 # Add product super-directory, if not couchbase-server
