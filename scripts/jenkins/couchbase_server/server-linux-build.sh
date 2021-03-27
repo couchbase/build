@@ -13,6 +13,10 @@
 # (At some point these will instead be read from the manifest.)
 #
 
+# CBD-2748: Here are mappings for Single Linux Build.
+declare -A ALIAS
+ALIAS[centos7]="centos8 oel7 oel8 rhel8"
+
 usage() {
     echo "Usage: $0 [ ubuntu18.04 | debian9 | centos7 | ... ] <VERSION> <EDITION> <BLD_NUM>"
     exit 5
@@ -315,16 +319,15 @@ EOF
 # End of PRODUCTS loop
 done
 
-# Support for Oracle Enterprise Linux. If we're building Centos X, make
-# an exact copy with an oel X filename.
-case "$DISTRO" in
-    centos*)
-        for rpm in *.rpm
-        do
-            cp ${rpm} ${rpm//centos/oel}
-        done
-        ;;
-esac
+# Support for aliased releases. If DISTRO is in the ALIAS array,
+# make all copies.
+shopt -s nullglob
+for alias in ${ALIAS[$DISTRO]}; do
+    echo "Copying $DISTRO files to $alias"
+    for installer in *$DISTRO*.rpm *$DISTRO*.deb; do
+        cp ${installer} ${installer//$DISTRO/$alias}
+    done
+done
 
 echo
 echo =============== DONE!
