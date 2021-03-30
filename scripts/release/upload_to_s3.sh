@@ -144,7 +144,7 @@ upload()
     fi
 
     echo Copying ${UPLOAD_TMP_DIR} to ${RELEASE_DIR} ...
-    rsync -a ${UPLOAD_TMP_DIR} ${RELEASE_DIR}
+    rsync -a ${UPLOAD_TMP_DIR}/* ${RELEASE_DIR}/
 }
 
 OPWD=`pwd`
