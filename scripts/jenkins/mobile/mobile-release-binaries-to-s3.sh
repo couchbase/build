@@ -161,7 +161,7 @@ upload()
     echo "Archiving ${UPLOAD_TMP_DIR} to ${RELEASE_DIR} ..."
     echo
     mkdir -p ${RELEASE_DIR}
-    rsync -au ${UPLOAD_TMP_DIR} ${RELEASE_DIR}/
+    rsync -au ${UPLOAD_TMP_DIR}/* ${RELEASE_DIR}/
 }
 
 OPWD=`pwd`
