@@ -27,10 +27,8 @@ if [ $num_nodes -gt 1 ]; then
     NODE_2=${node_list[1]}
     NODE_3=${node_list[2]}
     NODE_4=${node_list[3]}
-    if [ "$TYPE" = "4node_1" ]; then
-       TR_CONF="conf/py-multi-node-sanity-1.conf"
-    elif [ "$TYPE" = "4node_2" ]; then
-       TR_CONF="conf/py-multi-node-sanity-2.conf"
+    if [[ "$TYPE" == "4node_"* ]]; then
+       TR_CONF="conf/py-multi-node-sanity-${TYPE: -1}.conf"
    fi
 fi
 if [[ "$DISTRO" == "macos" ]]; then
