@@ -38,7 +38,7 @@ if not defined GO_RELEASE (
 set CBDEP_URL=http://downloads.build.couchbase.com/cbdep/cbdep.windows.exe
 powershell -command "& { (New-Object Net.WebClient).DownloadFile('%CBDEP_URL%', 'cbdep.exe') }" || goto Err
 
-%WORKSPACE%\cbdep.exe install golang %GO_RELEASE% -d %WORKSPACE%
+%WORKSPACE%\cbdep.exe -a amd64 install golang %GO_RELEASE% -d %WORKSPACE%
 set GOROOT=%WORKSPACE%\go%GO_VERSION%
 set "PATH=%GOROOT%\bin;%PATH%"
 
