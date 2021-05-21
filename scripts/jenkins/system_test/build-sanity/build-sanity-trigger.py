@@ -481,6 +481,21 @@ VERSION_DATA = {
         },
         "testrunner_branch": "mad-hatter",
     },
+    "6.6.3": {
+        "platforms": {
+            "centos7": True,
+            "centos8": False,
+            "debian8": False,
+            "debian9": True,
+            "debian10": False,
+            "macos": True,
+            "oel7": True,
+            "suse12": True,
+            "ubuntu18": True,
+            "windows": True,
+        },
+        "testrunner_branch": "mad-hatter",
+    },
     "7.0.0": {
         "platforms": {
             "centos7": True,
