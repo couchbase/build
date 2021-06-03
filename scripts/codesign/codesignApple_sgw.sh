@@ -49,7 +49,7 @@ echo "------- Unlocking keychain -----------"
 security unlock-keychain -p ${KEYCHAIN_PASSWORD} ${HOME}/Library/Keychains/login.keychain-db
 
 echo "------- Codesigning binaries within the package -------"
-sign_flags="--force --timestamp --options=runtime  --verbose --entitlements cb.entitlement --preserve-metadata=identifier,requirements"
+sign_flags="--force --timestamp --options=runtime  --verbose --entitlements sgw.entitlement --preserve-metadata=identifier,requirements"
 cert_name="Developer ID Application: Couchbase, Inc. (N2Q372V7W2)"
 set +e
 find "${PKG_DIR}" -type f > flist.tmp
