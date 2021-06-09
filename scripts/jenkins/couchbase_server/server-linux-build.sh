@@ -156,7 +156,10 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CB_INVOKE_MAVEN=True \
       ${EXTRA_CMAKE_OPTIONS} \
       ..
-make -j8 install
+
+# Default to 4 build threads, but allow override
+NUM_THREADS=${CB_BUILD_PARALLELISM-4}
+make -j${NUM_THREADS} install
 
 # couchdbx-app on MacOS depends on this:
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
