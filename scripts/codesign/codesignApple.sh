@@ -117,10 +117,7 @@ do
       rm -rf META-INF
     fi
   elif [[ `file --brief "$f"` =~ "Mach-O" ]]; then
-
-    if [[ `echo "$f" |grep -v "crypto.o\|crypto_callback.o\|librocksdb.5.18.3.dylib\|otp_test_engine.o"` != ""  ]]; then
-      codesign $sign_flags --sign "$cert_name" "$f"
-    fi
+    codesign $sign_flags --sign "$cert_name" "$f"
   fi
 done < flist.tmp
 rm -f flist.tmp
