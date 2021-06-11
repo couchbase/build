@@ -510,6 +510,34 @@ VERSION_DATA = {
         },
         "testrunner_branch": "master",
     },
+     "7.0.1": {
+        "platforms": {
+            "centos7": True,
+            "centos8": False,
+            "debian9": True,
+            "debian10": False,
+            "macos": True,
+            "oel7": True,
+            "suse12": True,
+            "ubuntu18": True,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
+    },
+    "7.1.0": {
+        "platforms": {
+            "centos7": True,
+            "centos8": False,
+            "debian9": True,
+            "debian10": False,
+            "macos": True,
+            "oel7": True,
+            "suse12": True,
+            "ubuntu18": True,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
+    },
 }
 
 LAST_SANITY_FILENAME="/latestbuilds/last-sanity.json"
