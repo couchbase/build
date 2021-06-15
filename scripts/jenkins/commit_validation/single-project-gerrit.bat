@@ -46,6 +46,12 @@
     set TEST_PARALLELISM=4
 )
 
+:: Set default BUILD_TARGET to 'everything' - which builds all shipping
+:: and non-shipping binaries (unit tests, etc)
+@IF NOT DEFINED BUILD_TARGET (
+    set BUILD_TARGET=everything
+)
+
 :: Set default CMake generator
 @IF NOT DEFINED CMAKE_GENERATOR (
     set CMAKE_GENERATOR=NMake Makefiles
@@ -113,6 +119,7 @@ if "%ENABLE_CBDEPS_TESTING%"=="true" (
 if not exist build mkdir build
 pushd build
 cmake -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% %EXTRA_CMAKE_OPTIONS% .. || goto :error
+cmake --build . --target %BUILD_TARGET% || goto :error
 cmake --build . --target install || goto :error
 popd
 

@@ -43,6 +43,10 @@ PARALLELISM="${PARALLELISM:-8}"
 # and cause test timeouts.
 TEST_PARALLELISM="${TEST_PARALLELISM:-4}"
 
+# Set default BUILD_TARGET to 'everything' - which builds all shipping
+# and non-shipping binaries (unit tests, etc)
+BUILD_TARGET="${BUILD_TARGET:-everything}"
+
 BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
 
 source ~jenkins/.bash_profile
@@ -139,7 +143,7 @@ if [ -n "$ENABLE_CBDEPS_TESTING" ]; then
    rm -rf ~/.cbdepscache
    rm -rf build/tlm/deps
 fi
-echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}"
+echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}" ${BUILD_TARGET}
 
 echo_cmd ccache -s
 
