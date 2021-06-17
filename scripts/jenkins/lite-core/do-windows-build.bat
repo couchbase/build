@@ -9,7 +9,12 @@ IF [%5]==[] (
     set ARCHS=%5
 )
 
+if not defined PARALLEL (
+    set PARALLEL=8
+)
+
 echo %ARCHS%
+echo Using %PARALLEL% parallel jobs...
 
 setlocal enabledelayedexpansion
 set OS=windows
@@ -99,7 +104,7 @@ if "%2"=="Win32" (
 )
 
 "C:\Program Files\CMake\bin\cmake.exe" -G "Visual Studio 15 2017%MS_ARCH_STORE%" %CMAKE_COMMON_OPTIONS%  .. || goto :error
-"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 --target LiteCore --parallel 12 || goto :error
+"C:\Program Files\CMake\bin\cmake.exe" --build . --config %3 --target LiteCore --parallel %PARALLEL% || goto :error
 goto :EOF
 
 rem subroutine "bld"
