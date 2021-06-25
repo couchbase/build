@@ -111,6 +111,12 @@ case "$DISTRO" in
         ;;
 esac
 
+# Add code-coverage intrumentation if CODE_COVERAGE=true.
+if [ "${CODE_COVERAGE}" = "true" ]
+then
+    CODE_COVERAGE_OPTIONS="-DCMAKE_CXX_FLAGS=-fprofile-arcs -ftest-coverage -pthread -std=c++11 -O0"
+fi
+
 export VERSION=$2
 export EDITION=$3
 export BLD_NUM=$4
@@ -155,6 +161,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CB_DOWNLOAD_DEPS=1 \
       -D CB_INVOKE_MAVEN=True \
       ${EXTRA_CMAKE_OPTIONS} \
+      "${CODE_COVERAGE_OPTIONS}" \
       ..
 
 # Default to 4 build threads, but allow override
