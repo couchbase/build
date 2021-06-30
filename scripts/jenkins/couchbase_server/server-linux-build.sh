@@ -166,7 +166,12 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
 
 # Default to 4 build threads, but allow override
 NUM_THREADS=${CB_BUILD_PARALLELISM-4}
-make -j${NUM_THREADS} install
+
+# Add BUILD_TARGET variable so that make target can be overwritten if necessary
+# Set default 'install'
+BUILD_TARGET="${BUILD_TARGET:-install}"
+
+make -j${NUM_THREADS} ${BUILD_TARGET}
 
 # couchdbx-app on MacOS depends on this:
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
