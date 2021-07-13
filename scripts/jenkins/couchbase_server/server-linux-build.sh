@@ -224,6 +224,18 @@ else
     EDITIONS=community
 fi
 
+# For the packaging portions of this script, ${ARCH} is the return value
+# of `uname -m` (either x86_64 or aarch64), while ${PKGNAME_ARCH} is
+# the string used in the final package names (which is generally the
+# same as ${ARCH}, except that .deb-style packages use amd64 rather than
+# x86_64).
+ARCH=$(uname -m)
+if [ "${PKG}" = "deb" -a "${ARCH}" = "x86_64" ]; then
+    PKGNAME_ARCH=amd64
+else
+    PKGNAME_ARCH=${ARCH}
+fi
+
 for EDITION in ${EDITIONS}
 do
     # The "product name" (passed to voltron) is couchbase-server for Enterprise
@@ -254,14 +266,13 @@ do
     # trigger.properties for downstream jobs
     case "$PKG" in
         rpm)
-            ARCHITECTURE=x86_64
-            INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
-            cp ~/rpmbuild/RPMS/x86_64/${PRODUCT}-[0-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
+            INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${PKGNAME_ARCH}.rpm
+            cp ~/rpmbuild/RPMS/${ARCH}/${PRODUCT}-[0-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
 
             # Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
             # newer ones and SuSE use "-debuginfo-*.rpm".
             # Scan for both and move to correct final name.
-            DBG_PREFIX="${HOME}/rpmbuild/RPMS/x86_64/${PRODUCT}"
+            DBG_PREFIX="${HOME}/rpmbuild/RPMS/${ARCH}/${PRODUCT}"
             DEBUG=""
             if ls ${DBG_PREFIX}-debug-*.rpm > /dev/null 2>&1;
             then
@@ -273,7 +284,7 @@ do
               echo "Warning: No ${PRODUCT}-{debug,debuginfo}-*.rpm package found; skipping copy."
             fi
 
-            DBG_FILENAME=couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${ARCHITECTURE}.rpm
+            DBG_FILENAME=couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${PKGNAME_ARCH}.rpm
             if [ -n "$DEBUG" ]
             then
               cp ${DBG_PREFIX}-${DEBUG}-*.rpm ${WORKSPACE}/${DBG_FILENAME}
@@ -287,17 +298,17 @@ do
 
             ;;
         deb)
-            ARCHITECTURE=amd64
-            INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
-            DBG_FILENAME=couchbase-server-${EDITION}-dbg_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}.deb
+            INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PKGNAME_ARCH}.deb
+            DBG_FILENAME=couchbase-server-${EDITION}-dbg_${VERSION}-${BLD_NUM}-${DISTRO}_${PKGNAME_ARCH}.deb
             cp build/deb/${PRODUCT}_*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
             cp build/deb/${PRODUCT}-dbg_*.deb ${WORKSPACE}/${DBG_FILENAME}
             compress_deb ${WORKSPACE}/${INSTALLER_FILENAME}
             compress_deb ${WORKSPACE}/${DBG_FILENAME}
             ;;
         mac)
-            ARCHITECTURE=x86_64
-            INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCHITECTURE}-unsigned.zip
+            # QQQ Soon we'll need to devise a different package naming
+            # convention here, to account for separate x86_64 / M1 packages
+            INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PKGNAME_ARCH}-unsigned.zip
             cp couchdbx-app/build/Release/*.zip ${WORKSPACE}/${INSTALLER_FILENAME}
             ;;
     esac
@@ -308,7 +319,7 @@ do
     TRIGGER_FILE=trigger.properties
     echo Creating ${TRIGGER_FILE}...
     cat <<EOF > ${TRIGGER_FILE}
-ARCHITECTURE=${ARCHITECTURE}
+ARCHITECTURE=${PKGNAME_ARCH}
 PLATFORM=${DISTRO}
 INSTALLER_FILENAME=${INSTALLER_FILENAME}
 EDITION=${EDITION}
