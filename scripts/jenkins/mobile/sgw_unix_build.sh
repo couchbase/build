@@ -238,6 +238,7 @@ fi
 
 export CGO_ENABLED=1
 GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install ${GO_EDITION_OPTION} github.com/couchbase/sync_gateway/...
+export GO111MODULE=off
 # build gozip
 #### gozip is deprecated in 3.0 
 if [[ "${VERSION}" == "2."* ]]; then

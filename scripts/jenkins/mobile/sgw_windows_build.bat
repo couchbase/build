@@ -155,6 +155,7 @@ mkdir %DEST_DIR%
 set CGO_ENABLED=1
 set GOPATH=%cd%\godeps
 echo GOOS=%GOOS% GOARCH=%GOARCH% GOPATH=%GOPATH%
+set GO111MODULE=off
 
 :: Clean up stale objects before switching GO version
 if EXIST %SGW_DIR%\pkg           rmdir /s/q %SGW_DIR%\pkg
