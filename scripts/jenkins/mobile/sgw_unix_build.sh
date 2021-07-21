@@ -49,11 +49,16 @@ function get_dependencies
     go version
 
     if [[ -n $MINICONDA_VER ]]; then
-        ./cbdep install miniconda3 ${MINICONDA_VER} -d ${WORKSPACE}
-        export PATH=${WORKSPACE}/miniconda3-${MINICONDA_VER}/bin:$PATH
-        #PyInstaller 4.4 was broken on Centos7.  Pin to 4.3 for now.
-        #We should switch to latest once it is fixed.
-        pip install PyInstaller==4.3
+        if [[ ${DISTRO} == "macosx" && ${ARCH} == "arm64" ]]; then
+            echo "miniconda is not supported on ${DISTRO} ${ARCH}."
+            echo "use default python on the system."
+        else
+            ./cbdep install miniconda3 ${MINICONDA_VER} -d ${WORKSPACE}
+            export PATH=${WORKSPACE}/miniconda3-${MINICONDA_VER}/bin:$PATH
+            #PyInstaller 4.4 was broken on Centos7.  Pin to 4.3 for now.
+            #We should switch to latest once it is fixed.
+            pip install PyInstaller==4.3
+        fi
     fi
     python --version
 }

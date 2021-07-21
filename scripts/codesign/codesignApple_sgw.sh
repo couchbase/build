@@ -19,13 +19,15 @@ PKG_BUILD_NUM=${3}  # Build Number
 
 EDITION=${4}  # community or enterprise
 
-DOWNLOAD_PKG=${5}  # Get new build
+ARCH=${5}  # x86_64 or arm64
 
-NOTARIZE=${6} #yes or no
+DOWNLOAD_PKG=${6}  # Get new build
+
+NOTARIZE=${7} #yes or no
 
 PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${PKG_VERSION}/${PKG_BUILD_NUM}
-PKG_NAME=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_x86_64_unsigned.zip
-PKG_NAME_SIGNED=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_x86_64.zip
+PKG_NAME=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_${ARCH}_unsigned.zip
+PKG_NAME_SIGNED=couchbase-sync-gateway-${EDITION}_${PKG_VERSION}-${PKG_BUILD_NUM}_${ARCH}.zip
 
 PKG_DIR=couchbase-sync-gateway
 
