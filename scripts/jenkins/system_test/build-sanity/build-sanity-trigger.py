@@ -508,7 +508,7 @@ VERSION_DATA = {
             "ubuntu18": True,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "cheshire-cat",
     },
      "7.0.1": {
         "platforms": {
@@ -522,7 +522,7 @@ VERSION_DATA = {
             "ubuntu18": True,
             "windows": True,
         },
-        "testrunner_branch": "master",
+        "testrunner_branch": "cheshire-cat",
     },
     "7.1.0": {
         "platforms": {
