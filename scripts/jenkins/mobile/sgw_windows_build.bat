@@ -44,7 +44,7 @@ set "PATH=%GOROOT%\bin;%PATH%"
 
 echo on
 if defined MINICONDA_VER (
-    %WORKSPACE%\cbdep.exe install miniconda3 %MINICONDA_VER% -d %WORKSPACE%
+    %WORKSPACE%\cbdep.exe install miniconda3-py39 %MINICONDA_VER% -d %WORKSPACE%
     set "PATH=%WORKSPACE%\miniconda3-%MINICONDA_VER%;%WORKSPACE%\miniconda3-%MINICONDA_VER%\condabin;%WORKSPACE%\miniconda3-%MINICONDA_VER%\Scripts;%PATH%"
     call conda install -y pyinstaller
 )

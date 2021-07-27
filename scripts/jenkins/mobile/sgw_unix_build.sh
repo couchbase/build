@@ -53,7 +53,7 @@ function get_dependencies
             echo "miniconda is not supported on ${DISTRO} ${ARCH}."
             echo "use default python on the system."
         else
-            ./cbdep install miniconda3 ${MINICONDA_VER} -d ${WORKSPACE}
+            ./cbdep install miniconda3-py39 ${MINICONDA_VER} -d ${WORKSPACE}
             export PATH=${WORKSPACE}/miniconda3-${MINICONDA_VER}/bin:$PATH
             #PyInstaller 4.4 was broken on Centos7.  Pin to 4.3 for now.
             #We should switch to latest once it is fixed.
