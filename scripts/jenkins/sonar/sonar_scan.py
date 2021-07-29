@@ -217,7 +217,7 @@ def main(args):
     product_properties=read_product_properties(args.product)
 
     #checkout manifest repo, except sdk
-    if not args.product.startswith("couchbase-sdk"):
+    if args.product != "couchbase-sdk":
         #sync_gateway has its own manifest
         if args.product == "sync_gateway":
             cmd='git clone ssh://git@github.com/couchbase/'+args.product

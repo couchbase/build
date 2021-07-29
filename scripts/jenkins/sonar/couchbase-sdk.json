@@ -1,8 +1,8 @@
 {
-        "sonar": {
-                "sonar.exclusions": "**/vendor/**"
-        },
-        "additional_repositories": {
+	"sonar": {
+		"sonar.exclusions": "**/vendor/**"
+	},
+	"additional_repositories": {
                 "couchbase-java-client": "git://github.com/couchbase/couchbase-java-client.git",
                 "couchbase-jvm-clients": "git://github.com/couchbase/couchbase-jvm-clients.git",
                 "couchbase-net-client": "git://github.com/couchbase/couchbase-net-client.git",
