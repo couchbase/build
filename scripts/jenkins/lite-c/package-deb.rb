@@ -77,8 +77,13 @@ end
     end
 end
 
-sh %{cp -R "#{PREFIX}/lib" "#{STAGE_DIR}/usr"}
-sh %{cp -R "#{PREFIX}/include" "#{STAGE_DIR}/usr"}
+if PRODUCT.eql?("libcblite")
+    FileUtils.mkdir_p "#{STAGE_DIR}/usr/lib"
+    system("cp -p #{PREFIX}/lib/* #{STAGE_DIR}/usr/lib")
+else
+    system("cp -rp #{PREFIX}/lib #{STAGE_DIR}/usr")
+    system("cp -rp #{PREFIX}/include #{STAGE_DIR}/usr")
+end
 
 Dir.chdir STAGE_DIR do
     debian_revision = 1
