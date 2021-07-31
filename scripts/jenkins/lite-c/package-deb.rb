@@ -78,8 +78,10 @@ end
 end
 
 if PRODUCT.eql?("libcblite")
-    FileUtils.mkdir_p "#{STAGE_DIR}/usr/lib"
-    system("cp -p #{PREFIX}/lib/* #{STAGE_DIR}/usr/lib")
+    system("cp -rp #{PREFIX}/lib #{STAGE_DIR}/usr")
+    #remove libcblite.so and unnecessary subdirectories
+    system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so")
+    system("rm -rf #{STAGE_DIR}/usr/lib/*/*/")
 else
     system("cp -rp #{PREFIX}/lib #{STAGE_DIR}/usr")
     system("cp -rp #{PREFIX}/include #{STAGE_DIR}/usr")
