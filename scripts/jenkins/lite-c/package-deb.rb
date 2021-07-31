@@ -8,7 +8,7 @@ require 'rake'
 require 'open3'
 
 def get_dependencies()
-    command = "objdump -p #{PREFIX}/lib/*so* | grep NEEDED |awk \'{print $2}\' |sort |uniq"
+    command = "objdump -p #{PREFIX}/lib/*/*so* | grep NEEDED |awk \'{print $2}\' |sort |uniq"
     dependencies=Array.new
 
     stdout, stderr, status= Open3.capture3(command)
@@ -83,8 +83,9 @@ if PRODUCT.eql?("libcblite")
     system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so")
     system("rm -rf #{STAGE_DIR}/usr/lib/*/*/")
 else
-    system("cp -rp #{PREFIX}/lib #{STAGE_DIR}/usr")
     system("cp -rp #{PREFIX}/include #{STAGE_DIR}/usr")
+    system("cp -rp #{PREFIX}/lib #{STAGE_DIR}/usr")
+    system("cd #{PREFIX}/lib/*/; cp --remove-destination $(readlink libcblite.so) libcblite.so; rm -f libcblite.so.*")
 end
 
 Dir.chdir STAGE_DIR do
