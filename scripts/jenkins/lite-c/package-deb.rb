@@ -56,12 +56,27 @@ FileUtils.rm_rf STAGE_DIR
 FileUtils.mkdir_p "#{STAGE_DIR}/usr"
 FileUtils.mkdir_p "#{STAGE_DIR}/debian"
 
-CUSTOM_DEPENDENCIES=get_dependencies()
+# Prune or otherwise tweak the payload, depending on whether this
+# is the -dev or base package, and compute the required dependencies
+if PRODUCT.eql?("libcblite")
+    system("cp -rPp #{PREFIX}/lib #{STAGE_DIR}/usr")
+    #remove libcblite.so and unnecessary subdirectories
+    system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so")
+    system("rm -rf #{STAGE_DIR}/usr/lib/*/*/")
+    CUSTOM_DEPENDENCIES=get_dependencies()
+else
+    system("cp -rPp #{PREFIX}/include #{STAGE_DIR}/usr")
+    system("cp -rPp #{PREFIX}/lib #{STAGE_DIR}/usr")
+    system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so.*")
+    CUSTOM_DEPENDENCIES="libcblite (= #{PRODUCT_VERSION}),libc6-dev"
+end
+
 puts "dependencies: " + CUSTOM_DEPENDENCIES
 
-Dir.chdir STAGE_DIR do
-# sh %{dh_make -e #{DEBEMAIL} --native --single --packagename #{PKGNAME}}
-end
+
+# Dir.chdir STAGE_DIR do
+#   sh %{dh_make -e #{DEBEMAIL} --native --single --packagename #{PKGNAME}}
+# end
 
 [["#{STARTDIR}/deb_templates", "#{STAGE_DIR}/debian"]].each do |src_dst|
     Dir.chdir(src_dst[0]) do
@@ -70,22 +85,11 @@ end
             sh %{sed -e s\/@@VERSION@@\/#{PRODUCT_VERSION}\/g #{x}                  |
                 sed -e s\/@@RELEASE@@\/#{RELEASE}\/g                       |
                 sed -e s\/@@PRODUCT@@\/#{PRODUCT}\/g                   |
-                sed -e s\/@@CUSTOM_DEPENDENCIES@@\/#{CUSTOM_DEPENDENCIES}\/g                   |
+                sed -e 's\/@@CUSTOM_DEPENDENCIES@@\/#{CUSTOM_DEPENDENCIES}\/g'                   |
                 sed -e s\/@@ARCHITECTURE@@\/#{ARCHITECTURE}\/g         > #{target}}
             sh %{chmod a+x #{target}}
         end
     end
-end
-
-if PRODUCT.eql?("libcblite")
-    system("cp -rp #{PREFIX}/lib #{STAGE_DIR}/usr")
-    #remove libcblite.so and unnecessary subdirectories
-    system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so")
-    system("rm -rf #{STAGE_DIR}/usr/lib/*/*/")
-else
-    system("cp -rp #{PREFIX}/include #{STAGE_DIR}/usr")
-    system("cp -rp #{PREFIX}/lib #{STAGE_DIR}/usr")
-    system("cd #{PREFIX}/lib/*/; cp --remove-destination $(readlink libcblite.so) libcblite.so; rm -f libcblite.so.*")
 end
 
 Dir.chdir STAGE_DIR do
