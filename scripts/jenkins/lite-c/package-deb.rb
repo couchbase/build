@@ -41,12 +41,7 @@ PREFIX       = ARGV[0] || "./opt/couchbase-lite-c"
 PRODUCT      = ARGV[1] || "couchbase-lite-c"
 PRODUCT_VERSION = ARGV[2] || "1.0-1234"
 ARCHITECTURE = ARGV[3] || `uname -m`.chomp
-if ARGV[4].nil?
-    puts "No dependency is specified. Exit now..."
-    exit
-else
-    DEPENDENCIES = ARGV[4]
-end
+DEPENDENCIES = ARGV[4]
 
 RELEASE         = PRODUCT_VERSION.split('-')[0]    # e.g., 1.0
 BLDNUM          = PRODUCT_VERSION.split('-')[1]    # e.g., 1234
@@ -69,7 +64,7 @@ if PRODUCT.eql?("libcblite")
     #remove libcblite.so and unnecessary subdirectories
     system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so")
     system("rm -rf #{STAGE_DIR}/usr/lib/*/*/")
-    CUSTOM_DEPENDENCIES=#{DEPENDENCIES}
+    CUSTOM_DEPENDENCIES="#{DEPENDENCIES}"
 else
     system("cp -rPp #{PREFIX}/include #{STAGE_DIR}/usr")
     system("cp -rPp #{PREFIX}/lib #{STAGE_DIR}/usr")
