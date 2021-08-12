@@ -37,17 +37,29 @@ def get_dependencies()
 end
 
 # Input arguments
-PREFIX       = ARGV[0] || "./opt/couchbase-lite-c"
-PRODUCT      = ARGV[1] || "couchbase-lite-c"
-PRODUCT_VERSION = ARGV[2] || "1.0-1234"
-ARCHITECTURE = ARGV[3] || `uname -m`.chomp
-DEPENDENCIES = ARGV[4]
+PREFIX            = ARGV[0] || "./build_release/install"
+PRODUCT_BASE      = ARGV[1] || "libcblite"
+EDITION           = ARGV[2] || "enterprise"
+PRODUCT_VERSION   = ARGV[3] || "1.0-1234"
+ARCHITECTURE      = ARGV[4] || `uname -m`.chomp
+DEPENDENCIES      = ARGV[5]
 
-RELEASE         = PRODUCT_VERSION.split('-')[0]    # e.g., 1.0
-BLDNUM          = PRODUCT_VERSION.split('-')[1]    # e.g., 1234
+RELEASE           = PRODUCT_VERSION.split('-')[0]    # e.g., 1.0
+BLDNUM            = PRODUCT_VERSION.split('-')[1]    # e.g., 1234
 
-sh %{echo "PLATFORM is #{ARCHITECTURE}"}
+if EDITION.eql?("community")
+    #PRODUCT is libcblite-community
+    #libcblite or libcblite-dev should not be installed
+    PRODUCT       = "#{PRODUCT_BASE}-#{EDITION}"
+    OTHER_PRODUCTS = "#{PRODUCT_BASE}"
+else
+    #PRODUCT is libcblite or libcblite-dev for EE
+    #libcblite-community or libcblite-dev community should not be installed
+    PRODUCT       = "#{PRODUCT_BASE}"
+    OTHER_PRODUCTS = "#{PRODUCT_BASE}-community"
+end
 
+sh %{echo "Packaging #{PRODUCT} for #{ARCHITECTURE}"}
 
 STARTDIR  = Dir.getwd()
 STAGE_DIR = "#{STARTDIR}/build/deb/#{PRODUCT}_#{RELEASE}"
@@ -59,7 +71,7 @@ FileUtils.mkdir_p "#{STAGE_DIR}/debian"
 
 # Prune or otherwise tweak the payload, depending on whether this
 # is the -dev or base package, and compute the required dependencies
-if PRODUCT.eql?("libcblite")
+if PRODUCT_BASE.eql?("libcblite")
     system("cp -rPp #{PREFIX}/lib #{STAGE_DIR}/usr")
     #remove libcblite.so and unnecessary subdirectories
     system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so")
@@ -69,7 +81,7 @@ else
     system("cp -rPp #{PREFIX}/include #{STAGE_DIR}/usr")
     system("cp -rPp #{PREFIX}/lib #{STAGE_DIR}/usr")
     system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so.*")
-    CUSTOM_DEPENDENCIES="libcblite (= #{PRODUCT_VERSION}),libc6-dev"
+    CUSTOM_DEPENDENCIES="libcblite-#{EDITION} (= #{PRODUCT_VERSION}),libc6-dev"
 end
 
 puts "dependencies: " + CUSTOM_DEPENDENCIES
@@ -86,6 +98,7 @@ puts "dependencies: " + CUSTOM_DEPENDENCIES
             sh %{sed -e s\/@@VERSION@@\/#{PRODUCT_VERSION}\/g #{x}                  |
                 sed -e s\/@@RELEASE@@\/#{RELEASE}\/g                       |
                 sed -e s\/@@PRODUCT@@\/#{PRODUCT}\/g                   |
+                sed -e s\/@@OTHER_PRODUCTS@@\/#{OTHER_PRODUCTS}\/g                   |
                 sed -e 's\/@@CUSTOM_DEPENDENCIES@@\/#{CUSTOM_DEPENDENCIES}\/g'                   |
                 sed -e s\/@@ARCHITECTURE@@\/#{ARCHITECTURE}\/g         > #{target}}
             sh %{chmod a+x #{target}}
