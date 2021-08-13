@@ -662,11 +662,11 @@ class SanityTrigger:
             prop.write("DISTROS={}\n".format(" ".join(sanity_plats)))
             prop.write("TESTRUNNER_BRANCH={}".format(self.testrunner_branch))
             if self.use_magma:
-                prop.write("EXTRA_TEST_PARAMS={}").format("bucket_storage=magma,"
+                prop.write("EXTRA_TEST_PARAMS={}".format("bucket_storage=magma,"
                                                           "active_resident_threshold=50,"
                                                           "dgm_run=1,"
                                                           "java_sdk_client=True,"
-                                                          "value_size=1024")
+                                                          "value_size=1024"))
 
 def main():
     """
