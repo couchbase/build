@@ -550,7 +550,12 @@ class SanityTrigger:
     """
 
     def __init__(self, product, version):
-        self.version = version
+        self.use_magma = False
+        if "MAGMA" in version:
+            self.use_magma = True
+            self.version = version.split('-')[0]
+        else:
+            self.version = version
         self.product = product
         self.ver_dir = os.path.join("/latestbuilds", product, "zz-versions", version)
         self.plats = VERSION_DATA[version]["platforms"]
@@ -656,6 +661,12 @@ class SanityTrigger:
             prop.write("VERSION={}\n".format(self.version))
             prop.write("DISTROS={}\n".format(" ".join(sanity_plats)))
             prop.write("TESTRUNNER_BRANCH={}".format(self.testrunner_branch))
+            if self.use_magma:
+                prop.write("EXTRA_TEST_PARAMS={}").format("bucket_storage=magma,"
+                                                          "active_resident_threshold=50,"
+                                                          "dgm_run=1,"
+                                                          "java_sdk_client=True,"
+                                                          "value_size=1024")
 
 def main():
     """
