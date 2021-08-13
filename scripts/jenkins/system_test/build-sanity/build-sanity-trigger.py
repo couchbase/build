@@ -557,9 +557,9 @@ class SanityTrigger:
         else:
             self.version = version
         self.product = product
-        self.ver_dir = os.path.join("/latestbuilds", product, "zz-versions", version)
-        self.plats = VERSION_DATA[version]["platforms"]
-        self.testrunner_branch = VERSION_DATA[version]["testrunner_branch"]
+        self.ver_dir = os.path.join("/latestbuilds", product, "zz-versions", self.version)
+        self.plats = VERSION_DATA[self.version]["platforms"]
+        self.testrunner_branch = VERSION_DATA[self.version]["testrunner_branch"]
         self.bld_num = 0
         self.last_bld = 0
 
