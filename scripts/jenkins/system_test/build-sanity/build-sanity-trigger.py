@@ -660,9 +660,9 @@ class SanityTrigger:
             prop.write("CURRENT_BUILD_NUMBER={}\n".format(self.bld_num))
             prop.write("VERSION={}\n".format(self.version))
             prop.write("DISTROS={}\n".format(" ".join(sanity_plats)))
-            prop.write("TESTRUNNER_BRANCH={}".format(self.testrunner_branch))
+            prop.write("TESTRUNNER_BRANCH={}\n".format(self.testrunner_branch))
             if self.use_magma:
-                prop.write("EXTRA_TEST_PARAMS={}".format("bucket_storage=magma,"
+                prop.write("EXTRA_TEST_PARAMS={}\n".format("bucket_storage=magma,"
                                                           "active_resident_threshold=50,"
                                                           "dgm_run=1,"
                                                           "java_sdk_client=True,"
