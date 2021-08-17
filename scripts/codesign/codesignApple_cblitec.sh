@@ -19,16 +19,16 @@ PKG_BUILD_NUM=${3}  # Build Number
 
 EDITION=${4}  # community or enterprise
 
-ARCH=${5}  # x86_64 or arm64
+OS=${5}  # macosx-x86_64 or macosx-arm64
 
 DOWNLOAD_PKG=${6}  # Get new build
 
 NOTARIZE=${7} #yes or no
 
 #PKG_URL=http://latestbuilds.service.couchbase.com/builds/latestbuilds/${PRODUCT}/${PKG_VERSION}/${PKG_BUILD_NUM}
-PKG_DIR=${PRODUCT}-${ARCH}-${PKG_VERSION}-${PKG_BUILD_NUM}-${EDITION}
-PKG_NAME=${PRODUCT}-${ARCH}-${PKG_VERSION}-${PKG_BUILD_NUM}-${EDITION}_unsigned.zip
-PKG_NAME_SIGNED=${PRODUCT}-${ARCH}-${PKG_VERSION}-${PKG_BUILD_NUM}-${EDITION}.zip
+PKG_DIR=${PRODUCT}-${EDITION}-${PKG_VERSION}-${PKG_BUILD_NUM}-${OS}
+PKG_NAME=${PRODUCT}-${EDITION}-${PKG_VERSION}-${PKG_BUILD_NUM}-${OS}_unsigned.zip
+PKG_NAME_SIGNED=${PRODUCT}-${EDITION}-${PKG_VERSION}-${PKG_BUILD_NUM}-${OS}.zip
 
 if [[ ${DOWNLOAD_PKG} == 1 ]]; then
   curl -O ${PKG_URL}/${PKG_NAME}
@@ -65,7 +65,9 @@ rm -f flist.tmp
 set -e
 
 echo "------- Codesigning the package ${PKG_NAME_SIGNED} -------"
-zip -r -X ${PKG_NAME_SIGNED} ${PKG_DIR}/*
+pushd ${PKG_DIR}
+zip -r -X ../${PKG_NAME_SIGNED} *
+popd
 codesign $sign_flags --sign "$cert_name" ${PKG_NAME_SIGNED}
 
 if [[ ${NOTARIZE} != "yes" ]]; then
