@@ -102,7 +102,7 @@ esac
 
 # Disable this KV speed optimization - for now at least it takes too much
 # RAM on our build agents
-EXTRA_CMAKE_OPTIONS="-DCB_UNITY_BUILD=OFF"
+EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCB_UNITY_BUILD=OFF"
 
 # Handle special build arguments for ASAN build
 case "$DISTRO" in
