@@ -50,13 +50,15 @@ BLDNUM            = PRODUCT_VERSION.split('-')[1]    # e.g., 1234
 if EDITION.eql?("community")
     #PRODUCT is libcblite-community
     #libcblite or libcblite-dev should not be installed
-    PRODUCT       = "#{PRODUCT_BASE}-#{EDITION}"
-    OTHER_PRODUCTS = "#{PRODUCT_BASE}"
+    PRODUCT                = "#{PRODUCT_BASE}-#{EDITION}"
+    DEV_DEPENDENCIES       = "libcblite-#{EDITION} (= #{PRODUCT_VERSION}),libc6-dev"
+    OTHER_PRODUCTS         = "#{PRODUCT_BASE}"
 else
     #PRODUCT is libcblite or libcblite-dev for EE
     #libcblite-community or libcblite-dev community should not be installed
-    PRODUCT       = "#{PRODUCT_BASE}"
-    OTHER_PRODUCTS = "#{PRODUCT_BASE}-community"
+    PRODUCT                = "#{PRODUCT_BASE}"
+    DEV_DEPENDENCIES       = "libcblite (= #{PRODUCT_VERSION}),libc6-dev"
+    OTHER_PRODUCTS         = "#{PRODUCT_BASE}-community"
 end
 
 sh %{echo "Packaging #{PRODUCT} for #{ARCHITECTURE}"}
@@ -68,6 +70,7 @@ FileUtils.rm_rf STAGE_DIR
 
 FileUtils.mkdir_p "#{STAGE_DIR}/usr"
 FileUtils.mkdir_p "#{STAGE_DIR}/debian"
+FileUtils.mkdir_p "#{STAGE_DIR}/usr/share/doc/#{PRODUCT}"
 
 # Prune or otherwise tweak the payload, depending on whether this
 # is the -dev or base package, and compute the required dependencies
@@ -81,8 +84,10 @@ else
     system("cp -rPp #{PREFIX}/include #{STAGE_DIR}/usr")
     system("cp -rPp #{PREFIX}/lib #{STAGE_DIR}/usr")
     system("rm -f #{STAGE_DIR}/usr/lib/*/libcblite.so.*")
-    CUSTOM_DEPENDENCIES="libcblite-#{EDITION} (= #{PRODUCT_VERSION}),libc6-dev"
+    CUSTOM_DEPENDENCIES="#{DEV_DEPENDENCIES}"
 end
+
+system("cp -rPp #{PREFIX}/LICENSE.txt #{STAGE_DIR}/usr/share/doc/#{PRODUCT}/.")
 
 puts "dependencies: " + CUSTOM_DEPENDENCIES
 

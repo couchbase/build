@@ -68,7 +68,7 @@ binary-common:
 	dh_installman
 	dh_link
 	#dh_strip
-	dh_compress
+	dh_compress -Xcopyright -XLICENSE.txt -Xchangelog*
 	dh_fixperms
 	dh_installdeb
 	#dh_shlibdeps
