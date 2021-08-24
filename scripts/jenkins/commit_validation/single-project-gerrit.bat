@@ -73,6 +73,7 @@ del /F/Q/S install 1>nul
 del /F/Q/S godeps\pkg goproj\pkg goproj\bin 1>nul
 del /F/Q/S build\CMakeCache.txt 1>nul
 
+
 @echo.
 @echo ============================================
 @echo ===       update all projects with       ===
@@ -80,7 +81,8 @@ del /F/Q/S build\CMakeCache.txt 1>nul
 @echo ============================================
 
 SET "CURDIR=%~dp0"
-python "%CURDIR%\checkout_dependencies.py" %GERRIT_PATCHSET_REVISION% %GERRIT_CHANGE_ID% %GERRIT_PROJECT% %GERRIT_REFSPEC% || goto :error
+curl -o patch_via_gerrit.exe http://packages.couchbase.com/patch_via_gerrit/patch_via_gerrit-windows.exe
+patch_via_gerrit.exe -d -c %HOMEPATH%/.ssh/patch_via_gerrit.ini -g %GERRIT_CHANGE_ID% -s %WORKSPACE% -C || goto :error
 
 @echo.
 @echo ============================================
