@@ -72,19 +72,6 @@ case "${DISTRO/-*/}" in
         PKG=rpm
         FLAVOR=redhat7
         ;;
-    centos8|rhel8)
-        PKG=rpm
-        FLAVOR=redhat8
-        ;;
-    *suse12)
-        PKG=rpm
-        FLAVOR=suse12
-        ;;
-    *suse15)
-        PKG=rpm
-        FLAVOR=suse15
-        GPG_KEY='Couchbase Release Key (RPM)'
-        ;;
     debian*|ubuntu*)
         PKG=deb
         FLAVOR=systemd
@@ -289,13 +276,6 @@ do
             then
               cp ${DBG_PREFIX}-${DEBUG}-*.rpm ${WORKSPACE}/${DBG_FILENAME}
             fi
-
-            if [ -n "$GPG_KEY" ]
-            then
-                rpmsign --addsign --key-id "$GPG_KEY" ${WORKSPACE}/${INSTALLER_FILENAME}
-                rpmsign --addsign --key-id "$GPG_KEY" ${WORKSPACE}/${DBG_FILENAME}
-            fi
-
             ;;
         deb)
             INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PKGNAME_ARCH}.deb
@@ -336,14 +316,24 @@ if [ "${DISTRO}" != "macos" ]; then
 
     # CBD-4238: Here are mappings for Single Linux Build.
     declare -A ALIAS
-    ALIAS[centos7]="oel7 oel8 rhel8"
+    ALIAS[centos7]="amzn2 oel7 oel8 rhel8 suse12 suse15"
     ALIAS[debian9]="debian10 ubuntu18.04 ubuntu20.04"
 
     shopt -s nullglob
     for alias in ${ALIAS[$DISTRO]}; do
         echo "Copying $DISTRO files to $alias"
         for installer in *$DISTRO*.rpm *$DISTRO*.deb; do
-            cp ${installer} ${installer//$DISTRO/$alias}
+            target_installer=${installer//$DISTRO/$alias}
+            cp ${installer} ${target_installer}
+
+            # Support for signed RPMs. This is only enabled for suse
+            # so far. If we just created a "suse" package, sign it.
+            # NOTE: this assumes that suse is an alias build!
+            if [[ "${alias}" =~ suse* ]]; then
+                rpmsign --addsign \
+                    --key-id 'Couchbase Release Key (RPM)' \
+                    ${target_installer}
+            fi
         done
     done
 fi
