@@ -99,6 +99,13 @@ echo_cmd ccache -z
 # Wipe out any core files left from a previous run.
 echo_cmd rm -f /tmp/core.*
 
+# Get patch_via_gerrit
+
+PLATFORM=`uname | tr '[:upper:]' '[:lower:]'`
+ARCH=`uname -m`
+curl -o ${BASEDIR}/patch_via_gerrit http://packages.couchbase.com/patch_via_gerrit/patch_via_gerrit-${PLATFORM}-${ARCH}
+chmod +x ${BASEDIR}/patch_via_gerrit
+
 cat <<EOF
 
 ============================================
@@ -106,7 +113,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-${BASEDIR}/checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_CHANGE_ID $GERRIT_PROJECT $GERRIT_REFSPEC
+${BASEDIR}/patch_via_gerrit -d -c ${HOME}/.ssh/patch_via_gerrit.ini -g $GERRIT_CHANGE_ID -s $WORKSPACE -C
 
 cat <<EOF
 ============================================
