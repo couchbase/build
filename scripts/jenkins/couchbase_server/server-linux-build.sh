@@ -66,15 +66,12 @@ DISTRO=$1
 case "${DISTRO/-*/}" in
     amzn2)
         PKG=rpm
-        FLAVOR=amzn2
         ;;
     centos7)
         PKG=rpm
-        FLAVOR=redhat7
         ;;
     debian*|ubuntu*)
         PKG=deb
-        FLAVOR=systemd
         ;;
     macos)
         PKG=mac
@@ -195,10 +192,7 @@ make PRODUCT_VERSION=${PRODUCT_VERSION} BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
      TOPDIR=${WORKSPACE}/voltron build-filter overlay
 if [ -d "server-overlay-${PKG}" ]
 then
-    if [ "${PKG}" = "rpm" ]
-    then
-        cp -R server-overlay-${PKG}/${FLAVOR}/* /opt/couchbase
-    fi
+    cp -R server-overlay-${PKG}/* /opt/couchbase
 fi
 
 # We briefly had a time when we produced multiple "enterprise" artifacts.
@@ -237,7 +231,7 @@ do
 
     # Execute platform-specific packaging step
     cd ${WORKSPACE}/voltron
-    ./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase ${FLAVOR}
+    ./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase
 
     if [ "${PKG}" = "mac" ]
     then
