@@ -55,6 +55,8 @@ ulimit -a
 echo ""
 env | grep -iv password | grep -iv passwd | sort
 
+cat <<EOF
+
 ============================================
 ===  Check ${GERRIT_PROJECT} under Clang Format   ===
 ============================================
