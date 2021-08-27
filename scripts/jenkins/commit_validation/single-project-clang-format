@@ -55,24 +55,6 @@ ulimit -a
 echo ""
 env | grep -iv password | grep -iv passwd | sort
 
-# Get patch_via_gerrit
-
-PLATFORM=`uname | tr '[:upper:]' '[:lower:]'`
-ARCH=`uname -m`
-curl -o ${BASEDIR}/patch_via_gerrit http://packages.couchbase.com/patch_via_gerrit/patch_via_gerrit-${PLATFORM}-${ARCH}
-chmod +x ${BASEDIR}/patch_via_gerrit
-
-cat <<EOF
-
-============================================
-===       update all projects with       ===
-===          the same Change-Id          ===
-============================================
-EOF
-${BASEDIR}/patch_via_gerrit -d -c ${HOME}/.ssh/patch_via_gerrit.ini -g $GERRIT_CHANGE_ID -s $WORKSPACE -C
-
-cat <<EOF
-
 ============================================
 ===  Check ${GERRIT_PROJECT} under Clang Format   ===
 ============================================
