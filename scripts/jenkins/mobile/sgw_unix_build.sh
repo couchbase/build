@@ -151,7 +151,7 @@ then
     PLATFORM=${DISTRO}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}_unsigned.zip
-    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.darwin"
+    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.darwin-${ARCH}"
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22
@@ -165,8 +165,13 @@ get_dependencies
 # disable nocasematch
 shopt -u nocasematch
 
-if [[ $ARCH =~ 64  ]] ; then GOARCH=amd64
-                        else GOARCH=386   ; fi
+if [[ "$ARCH" == "arm64" ]]; then
+  GOARCH=arm64
+elif [[ $ARCH =~ 64  ]];
+  then GOARCH=amd64
+else
+  GOARCH=386
+fi
 
 if [[ $ARCHP =~ i386  ]] ; then PARCH=x86
 elif [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
