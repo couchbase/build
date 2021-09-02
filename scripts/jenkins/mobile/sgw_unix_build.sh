@@ -46,18 +46,17 @@ function get_dependencies
     ./cbdep install golang ${GO_REL} -d ${WORKSPACE}
     export GOROOT=${WORKSPACE}/go${GO_REL}
     export PATH=${GOROOT}/bin:$PATH
+
     go version
 
     if [[ -n $MINICONDA_VER ]]; then
-        if [[ ${DISTRO} == "macosx" && ${ARCH} == "arm64" ]]; then
-            echo "miniconda is not supported on ${DISTRO} ${ARCH}."
+        if [[ "${ARCH}" == "arm64" ]]; then
+            echo "miniconda is not supported on ${ARCH}."
             echo "use default python on the system."
         else
             ./cbdep install miniconda3-py39 ${MINICONDA_VER} -d ${WORKSPACE}
             export PATH=${WORKSPACE}/miniconda3-${MINICONDA_VER}/bin:$PATH
-            #PyInstaller 4.4 was broken on Centos7.  Pin to 4.3 for now.
-            #We should switch to latest once it is fixed.
-            pip install PyInstaller==4.3
+            pip3 install PyInstaller==4.5.1
         fi
     fi
     python --version
@@ -98,18 +97,7 @@ SG_PRODUCT_NAME="Couchbase Sync Gateway"
 EXEC=sync_gateway
 COLLECTINFO_NAME=sgcollect_info
 
-if [[ $DISTRO == "centos6" ]]
-then
-    GOOS=linux
-    PKGR=package-rpm.rb
-    PKGTYPE=rpm
-    if [[ $ARCHP =~ i686 ]] ; then ARCHP=i386  ; fi
-    PLATFORM=${OS}-${ARCH}
-    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
-    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.linux"
-    export LC_ALL="en_US.utf8"
-elif [[ $DISTRO == "centos7" ]]
+if [[ $DISTRO == "centos7" ]]
 then
     GOOS=linux
     PKGR=package-rpm.rb
@@ -118,7 +106,17 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.linux"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-linux-${ARCH}"
+    export LC_ALL="en_US.utf8"
+elif [[ $DISTRO == "amzn2" ]]
+then
+    GOOS=linux
+    PKGR=package-rpm.rb
+    PKGTYPE=rpm
+    PLATFORM=${OS}-${ARCH}
+    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "ubuntu14" ]]
 then
@@ -130,7 +128,7 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.linux"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "ubuntu16" ]]
 then
@@ -142,7 +140,7 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.linux"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO =~ macosx  ]]
 then
@@ -151,7 +149,7 @@ then
     PLATFORM=${DISTRO}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}_unsigned.zip
-    CBDEP_URL="http://downloads.build.couchbase.com/cbdep/cbdep.darwin-${ARCH}"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-darwin-${ARCH}"
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22
@@ -165,7 +163,7 @@ get_dependencies
 # disable nocasematch
 shopt -u nocasematch
 
-if [[ "$ARCH" == "arm64" ]]; then
+if [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
   GOARCH=arm64
 elif [[ $ARCH =~ 64  ]];
   then GOARCH=amd64
