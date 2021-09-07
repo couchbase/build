@@ -58,6 +58,15 @@ env | grep -iv password | grep -iv passwd | sort
 cat <<EOF
 
 ============================================
+===       update all projects with       ===
+===          the same Change-Id          ===
+============================================
+EOF
+${BASEDIR}/checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_CHANGE_ID $GERRIT_PROJECT $GERRIT_REFSPEC
+
+cat <<EOF
+
+============================================
 ===  Check ${GERRIT_PROJECT} under Clang Format   ===
 ============================================
 EOF
