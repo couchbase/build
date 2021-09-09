@@ -43,14 +43,20 @@ KEYPAIR_NAME="jenkins-workers"
 
 prep_env() {
   # Install required tools for testrunner
-  sudo yum install -y git
-  curl --fail -LO  http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-x86_64.rpm || exit
-  sudo yum install -y couchbase-release-1.0-x86_64.rpm
+  # Newer couchbase-release doesn't seem to work for testrunner.  Pin to couchbase-release-1.0-6 for now
+  curl --fail -LO  http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-6-x86_64.rpm || exit
+  sudo yum install -y couchbase-release-1.0-6-x86_64.rpm
+
+  curl --fail -LO http://${NAS_UID}:${NAS_PW}@nas.service.couchbase.com/builds/latestbuilds/couchbase-server/zz-versions/${VERSION}/${CURRENT_BUILD_NUMBER}/couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm || exit
+  mkdir -p ~/opt
+  sudo yum install -y ./couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm
+  ln -s /opt/couchbase ~/opt/couchbase
 
   sudo yum install -y libcouchbase-devel libcouchbase2-bin libcouchbase2-libevent gcc gcc-c++
   sudo yum install -y python3-devel python3-pip jq
   yes | pip3 install git+git://github.com/couchbase/couchbase-python-client.git@2.5.11
   yes | pip3 install sgmllib3k paramiko httplib2 pyyaml beautifulsoup4 Geohash python-geohash deepdiff pyes pytz requests jsonpickle docker decorator
+  export PATH=/home/ec2-user/.local/bin:$PATH
 
   mkdir ~/.aws
   echo "[${AWS_PROFILE}]" > ~/.aws/credentials
@@ -230,7 +236,7 @@ for ip in ${INSTANCE_IPS}; do
   ###Instances might be left running when jenkins job is aborted.
   ###This ensure the instances are terminated.
   ###Instances are provisioned to be terminated when shutdown.
-  ssh -i ${SSHKEY} ec2-user@$ip "sudo shutdown -P +180"
+  ssh -i ${SSHKEY} ec2-user@$ip "sudo shutdown -P +270"
 
   ssh -i ${SSHKEY} ec2-user@$ip 'sudo bash -c "cp -rp /home/ec2-user/.ssh /root/.; chown -R root:root /root/.ssh"'
 

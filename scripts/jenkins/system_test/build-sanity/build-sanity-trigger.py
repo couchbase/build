@@ -540,6 +540,7 @@ VERSION_DATA = {
     },
     "7.1.0": {
         "platforms": {
+            "amzn2": True,
             "centos7": True,
             "centos8": False,
             "debian9": True,
