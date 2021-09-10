@@ -115,7 +115,9 @@ fi
 # DEB-specific, but will safely do nothing on other systems.)
 export PRODUCT_VERSION=${VERSION}-${BLD_NUM}
 rm -f *.rpm *.deb *.zip trigger*.properties
-rm -rf ~/rpmbuild
+# We need to ensure we remove the contents rather than the directory so we
+# don't error out if ~/rpmbuild is a bind mount
+[ -d ~/rpmbuild ] && rm -rf ~/rpmbuild/*
 rm -rf ${WORKSPACE}/voltron/build
 rm -rf /opt/couchbase/*
 find goproj godeps -name \*.a -print0 | xargs -0 rm -f
