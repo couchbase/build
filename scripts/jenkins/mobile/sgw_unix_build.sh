@@ -96,6 +96,7 @@ SG_PRODUCT_NAME="Couchbase Sync Gateway"
 
 EXEC=sync_gateway
 COLLECTINFO_NAME=sgcollect_info
+CBDEP_VERSION=1.0.4
 
 if [[ $DISTRO == "centos7" ]]
 then
@@ -106,7 +107,7 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-linux-${ARCH}"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "amzn2" ]]
 then
@@ -116,7 +117,7 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-linux-${ARCH}"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "ubuntu14" ]]
 then
@@ -128,7 +129,7 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-linux-${ARCH}"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "ubuntu16" ]]
 then
@@ -140,7 +141,7 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-linux-${ARCH}"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO =~ macosx  ]]
 then
@@ -149,7 +150,7 @@ then
     PLATFORM=${DISTRO}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}_unsigned.zip
-    CBDEP_URL="https://packages.couchbase.com/cbdep/cbdep-darwin-${ARCH}"
+    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-darwin-${ARCH}"
 else
    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22

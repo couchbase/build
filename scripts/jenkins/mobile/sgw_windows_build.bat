@@ -34,8 +34,8 @@ set  MINICONDA_VER=%8
 if not defined GO_RELEASE (
     set GO_RELEASE=1.9.2
 )
-
-set CBDEP_URL=http://downloads.build.couchbase.com/cbdep/cbdep.windows.exe
+set CBDEP_VERSION=1.0.4
+set CBDEP_URL=http://packages.couchbase.com/cbdep/%CBDEP_VERSION%/cbdep-%CBDEP_VERSION%-windows.exe
 powershell -command "& { (New-Object Net.WebClient).DownloadFile('%CBDEP_URL%', 'cbdep.exe') }" || goto Err
 
 %WORKSPACE%\cbdep.exe -a amd64 install golang %GO_RELEASE% -d %WORKSPACE%
