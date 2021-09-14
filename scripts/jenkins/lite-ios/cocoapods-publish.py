@@ -19,12 +19,13 @@ def update_podspec_file(args):
         couchbase-lite-swift_community_2.8.0.zip' }
     '''
     package_dict = {'CouchbaseLite-Enterprise.podspec':
-                    'couchbase-lite-objc_enterprise',
+                    'couchbase-lite-objc_xc_enterprise',
                     'CouchbaseLite-Swift-Enterprise.podspec':
-                    'couchbase-lite-swift_enterprise',
+                    'couchbase-lite-swift_xc_enterprise',
                     'CouchbaseLite-Swift.podspec':
-                    'couchbase-lite-swift_community',
-                    'CouchbaseLite.podspec': 'couchbase-lite-objc_community'
+                    'couchbase-lite-swift_xc_community',
+                    'CouchbaseLite.podspec':
+                    'couchbase-lite-objc_xc_community'
                     }
     s3_url = 'https://packages.couchbase.com/releases/couchbase-lite-ios'
     if args.file in package_dict:
