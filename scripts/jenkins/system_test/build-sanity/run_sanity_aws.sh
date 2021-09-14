@@ -55,7 +55,7 @@ prep_env() {
   sudo yum install -y libcouchbase-devel libcouchbase2-bin libcouchbase2-libevent gcc gcc-c++
   sudo yum install -y python3-devel python3-pip jq
   yes | pip3 install git+git://github.com/couchbase/couchbase-python-client.git@2.5.11
-  yes | pip3 install sgmllib3k paramiko httplib2 pyyaml beautifulsoup4 Geohash python-geohash deepdiff pyes pytz requests jsonpickle docker decorator
+  yes | pip3 install sgmllib3k paramiko httplib2 pyyaml beautifulsoup4 Geohash python-geohash deepdiff pyes pytz requests jsonpickle docker decorator boto3
   export PATH=/home/ec2-user/.local/bin:$PATH
 
   mkdir ~/.aws
