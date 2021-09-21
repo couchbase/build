@@ -313,7 +313,7 @@ if [ "${DISTRO}" != "macos" ]; then
 
     # CBD-2748: Here are mappings for Single Linux Build.
     declare -A ALIAS
-    ALIAS[centos7]="oel7 oel8 rhel8"
+    ALIAS[centos7]="centos8 oel7 oel8 rhel8"
 
     shopt -s nullglob
     for alias in ${ALIAS[$DISTRO]}; do
