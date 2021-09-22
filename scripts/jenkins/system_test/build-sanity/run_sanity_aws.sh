@@ -44,10 +44,10 @@ KEYPAIR_NAME="jenkins-workers"
 prep_env() {
   # Install required tools for testrunner
   # Newer couchbase-release doesn't seem to work for testrunner.  Pin to couchbase-release-1.0-6 for now
-  curl --fail -LO  http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-6-x86_64.rpm || exit
+  curl --fail -LO  http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-6-x86_64.rpm || { echo "Unable to download couchbase-release-1.0-6-x86_64.rpm"; exit;}
   sudo yum install -y couchbase-release-1.0-6-x86_64.rpm
 
-  curl --fail -LO http://${NAS_UID}:${NAS_PW}@nas.service.couchbase.com/builds/latestbuilds/couchbase-server/zz-versions/${VERSION}/${CURRENT_BUILD_NUMBER}/couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm || exit
+  curl --fail -LO http://${NAS_UID}:${NAS_PW}@nas.service.couchbase.com/builds/latestbuilds/couchbase-server/zz-versions/${VERSION}/${CURRENT_BUILD_NUMBER}/couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm || { echo "Unable to download couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm from nas"; exit;}
   mkdir -p ~/opt
   sudo yum install -y ./couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm
   ln -s /opt/couchbase ~/opt/couchbase
@@ -74,10 +74,19 @@ prep_env() {
 
 create_pg() {
   # Create placement group
-  aws ec2 create-placement-group \
-      --group-name ${PG_NAME} \
-      --strategy cluster \
-      --profile ${AWS_PROFILE}
+  result=`aws ec2 describe-placement-groups \
+              --group-name ${PG_NAME} \
+              --region ${REGION}`
+  echo $result
+  if [[ ${result} == *"${PG_NAME}"* ]]; then
+    echo "${PG_NAME} already exist.  No need to recreate it."
+  else
+    aws ec2 create-placement-group \
+        --group-name ${PG_NAME} \
+        --strategy cluster \
+        --profile ${AWS_PROFILE} \
+        --region ${REGION}`
+  fi
 }
 create_sg() {
   # Create security group if it doesn't exist
@@ -164,14 +173,16 @@ teardown() {
   aws ec2 terminate-instances \
       --instance-ids ${INSTANCE_IDS} \
       --profile ${AWS_PROFILE}
-  sleep 15
+  ##ensure ec2 instances are in terminated state before deleting security group
+  sleep 60
   echo "Deleting security group..."
   aws ec2 delete-security-group \
       --group-id ${SG_ID} \
       --profile ${AWS_PROFILE}
   echo "Deleting placement group..."
   aws ec2 delete-placement-group \
-      --group-name ${PG_NAME}
+      --group-name ${PG_NAME} \
+      --region ${REGION}
 }
 usage() {
   echo "USAGE:"
@@ -226,8 +237,10 @@ create_pg
 create_sg
 create_ec2 ${NUM_NODE}
 
+trap teardown EXIT
+
 PKG_NAME=couchbase-server-enterprise-${VERSION}-${BLD_NUM}-amzn2.aarch64.rpm
-curl --fail -LO http://${NAS_UID}:${NAS_PW}@nas.service.couchbase.com/builds/latestbuilds/couchbase-server/zz-versions/${VERSION}/${BLD_NUM}/${PKG_NAME} || exit
+curl --fail -LO http://${NAS_UID}:${NAS_PW}@nas.service.couchbase.com/builds/latestbuilds/couchbase-server/zz-versions/${VERSION}/${BLD_NUM}/${PKG_NAME} || { echo "Unable to download ${PKG_NAME} from nas"; exit;}
 
 for ip in ${INSTANCE_IPS}; do
   scp -i ${SSHKEY} ${PKG_NAME} ec2-user@$ip:/tmp/.
@@ -236,7 +249,7 @@ for ip in ${INSTANCE_IPS}; do
   ###Instances might be left running when jenkins job is aborted.
   ###This ensure the instances are terminated.
   ###Instances are provisioned to be terminated when shutdown.
-  ssh -i ${SSHKEY} ec2-user@$ip "sudo shutdown -P +270"
+  ssh -i ${SSHKEY} ec2-user@$ip "sudo shutdown -P +180"
 
   ssh -i ${SSHKEY} ec2-user@$ip 'sudo bash -c "cp -rp /home/ec2-user/.ssh /root/.; chown -R root:root /root/.ssh"'
 
@@ -301,8 +314,6 @@ port:8091" >> node_conf.ini
     echo -n "unknown"
     ;;
 esac
-
-trap teardown EXIT
 
 #${EXTRA_INSTALL_PARAMS} and ${EXTRA_TEST_PARAMS} could be passed in from jenkins job
 PARAMS="version=${VERSION}-${BLD_NUMBER},product=cb,parallel=True,install_tasks=init,${EXTRA_INSTALL_PARAMS}"
