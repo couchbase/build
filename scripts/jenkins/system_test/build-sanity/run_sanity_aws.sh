@@ -85,7 +85,7 @@ create_pg() {
         --group-name ${PG_NAME} \
         --strategy cluster \
         --profile ${AWS_PROFILE} \
-        --region ${REGION}`
+        --region ${REGION}
   fi
 }
 create_sg() {
