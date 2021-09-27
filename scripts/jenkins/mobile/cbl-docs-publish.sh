@@ -51,7 +51,9 @@ case ${PRODUCT} in
     "couchbase-lite-android" | "couchbase-lite-java")
         declare -A PACKAGE_ARRAY
         PACKAGE_ARRAY["${PRODUCT}-ee-${VERSION}-javadoc"]=${PRODUCT}-ee
+        PACKAGE_ARRAY["${PRODUCT}-ee-ktx-${VERSION}-javadoc"]=${PRODUCT}-ktx-ee
         PACKAGE_ARRAY["${PRODUCT}-${VERSION}-javadoc"]=${PRODUCT}
+        PACKAGE_ARRAY["${PRODUCT}-ktx-${VERSION}-javadoc"]=${PRODUCT}-ktx
         EXT="jar"
         for PKG in ${!PACKAGE_ARRAY[@]}; do
             S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PACKAGE_ARRAY[${PKG}]}"

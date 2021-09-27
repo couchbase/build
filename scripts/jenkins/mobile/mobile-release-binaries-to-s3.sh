@@ -8,15 +8,22 @@ function usage() {
     echo "  -r: release branch: master, 1.5.0, etc."
     echo "  -v: version number: 1.5.0, 2.0DB15, etc."
     echo "  -b: build number: 128, etc."
+    echo "  -c: how to handle community builds [optional]:"
+    echo "        public: publicly accessible [default]"
+    echo "        private: uploaded but not downloadable"
+    echo "        none: do NOT upload to s3"
     echo
 }
 
-while getopts "p:r:v:b:h" opt; do
+COMMUNITY=public
+
+while getopts "p:r:v:b:c:h" opt; do
     case $opt in
         p) PRODUCT=$OPTARG;;
         r) RELEASE=$OPTARG;;
         v) VERSION=$OPTARG;;
         b) BLD_NUM=$OPTARG;;
+        c) COMMUNITY=$OPTARG;;
         h|?) usage
            exit 0;;
         *) echo "Invalid argument $opt"
@@ -73,6 +80,9 @@ case "$PRODUCT" in
         else
             S3_REL_DIRNAME=couchbase-lite-ios
         fi
+        ;;
+    couchbase-lite-c)
+        S3_REL_DIRNAME=couchbase-lite-c
         ;;
     *tvos)
         PRODUCT=couchbase-lite-ios
@@ -153,9 +163,25 @@ fi
 upload()
 {
 
-    echo "Uploading to ${S3_DIR} ..."
+    echo "Uploading ${RELEASE_DIRNAME} to ${S3_DIR} ..."
     echo
-    aws s3 sync ${UPLOAD_TMP_DIR} ${S3_DIR}/ --acl public-read
+
+    # Upload EE first
+    aws s3 sync ${UPLOAD_TMP_DIR} ${S3_DIR}/ --acl public-read --exclude "*" --include "*enterprise*" --include "*Enterprise*" --include "*ee*" --exclude "CBLTestServer*" --exclude "test-reports*" --exclude "analysis-reports*" --exclude "testserver*"
+
+    # Upload CE files
+    case ${COMMUNITY} in
+        "private") ACL="private";;
+        "none") ACL="";;  #don't need to set ACL since we are not going to upload CE files
+        *) ACL="public-read";;
+    esac
+
+    if [[ ! -z $ACL ]]; then
+        echo "Community builds are uploaded in $ACL mode ..."
+        aws s3 sync ${UPLOAD_TMP_DIR} ${S3_DIR}/ --acl $ACL --exclude "*enterprise*" --exclude "*Enterprise*" --exclude "*ee*" --exclude "CBLTestServer*" --exclude "test-reports*" --exclude "analysis-reports*" --exclude "testserver*"
+    else
+        echo "Community builds are not uploaded..."
+    fi
 
     # Archive internal releases
     echo "Archiving ${UPLOAD_TMP_DIR} to ${RELEASE_DIR} ..."
@@ -194,7 +220,7 @@ get_s3_upload_link()
 }
 
 cd ${SRC_DIR}
-FILES=$(ls -Iblackduck | egrep -v 'source|\.xml|\.json|\.properties|\.md5|\.sha|coverage|CHANGELOG|changes\.log|unsigned|logtest|litetest')
+FILES=$(ls -Iblackduck | egrep -v 'source|\.xml|\.json|\.properties|\.md5|\.sha|coverage|CHANGELOG|changes\.log|unsigned|logtest|litetest|symbols|Package.swift')
 UPLOAD_TMP_DIR=/tmp/${RELEASE}-${BLD_NUM}
 rm -rf ${UPLOAD_TMP_DIR} && mkdir -p ${UPLOAD_TMP_DIR}
 cd ${UPLOAD_TMP_DIR}
