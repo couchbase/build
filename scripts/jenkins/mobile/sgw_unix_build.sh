@@ -56,8 +56,8 @@ function get_dependencies
         else
             ./cbdep install miniconda3-py39 ${MINICONDA_VER} -d ${WORKSPACE}
             export PATH=${WORKSPACE}/miniconda3-${MINICONDA_VER}/bin:$PATH
-            pip3 install PyInstaller==4.5.1
         fi
+        pip3 install PyInstaller==4.5.1
     fi
     python --version
 }
