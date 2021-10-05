@@ -21,6 +21,10 @@ USER=root
 PASSWORD=couchbase
 
 TR_CONF="conf/py-1node-sanity.conf"
+if [[ "$EXTRA_TEST_PARAMS" == *"bucket_storage=magma"* ]]; then
+    TR_CONF="conf/magma-py-1node-sanity.conf"
+fi
+
 NODE_1=${node_list[0]}
 if [ $num_nodes -gt 1 ]; then
     TR_CONF="conf/py-multi-node-sanity.conf"
@@ -29,12 +33,18 @@ if [ $num_nodes -gt 1 ]; then
     NODE_4=${node_list[3]}
     if [[ "$TYPE" == "4node_"* ]]; then
        TR_CONF="conf/py-multi-node-sanity-${TYPE: -1}.conf"
-   fi
+       if [[ "$EXTRA_TEST_PARAMS" == *"bucket_storage=magma"* ]]; then
+          TR_CONF="conf/magma-py-multi-node-sanity-${TYPE: -1}.conf"
+       fi
+    fi
 fi
 if [[ "$DISTRO" == "macos" ]]; then
     USER=couchbase
     if [ $num_nodes -gt 1 ]; then
         TR_CONF="conf/py-mac-sanity.conf"
+        if [[ "$EXTRA_TEST_PARAMS" == *"bucket_storage=magma"* ]]; then
+          TR_CONF="conf/magma-py-mac-sanity.conf"
+       fi
     fi
 elif [[ "$DISTRO" == "win64" ]] || [[ "$DISTRO" == "windows" ]]; then
     USER=Administrator
