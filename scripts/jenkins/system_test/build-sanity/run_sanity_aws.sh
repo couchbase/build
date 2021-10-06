@@ -277,12 +277,18 @@ services:kv,index,n1ql,backup,fts
 case $NUM_NODE in
   1)
     TR_CONF="conf/py-1node-sanity.conf"
+    if [[ "$EXTRA_TEST_PARAMS" == *"bucket_storage=magma"* ]]; then
+        TR_CONF="conf/magma-py-1node-sanity.conf"
+    fi
     echo "[servers]
 1:_1" >> node_conf.ini
     ;;
   4)
     conf_type=`echo ${TYPE} |awk -F 'node_' '{print $2}'`
     TR_CONF="conf/py-multi-node-sanity-$conf_type.conf"
+    if [[ "$EXTRA_TEST_PARAMS" == *"bucket_storage=magma"* ]]; then
+        TR_CONF="conf/magma-py-multi-node-sanity-$conf_type.conf"
+    fi
     echo "[cluster1]
 1:_1
 2:_2
