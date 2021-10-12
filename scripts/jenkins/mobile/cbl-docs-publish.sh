@@ -44,7 +44,7 @@ case ${PRODUCT} in
         EXT="zip"
         for PKG in ${!PACKAGE_ARRAY[@]}; do
             S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PACKAGE_ARRAY[${PKG}]}"
-            echo $PKG $S3_URL_DOC
+            echo "Publishing $PKG to $S3_URL_DOC"
             publish
         done
         ;;
@@ -57,9 +57,23 @@ case ${PRODUCT} in
         EXT="jar"
         for PKG in ${!PACKAGE_ARRAY[@]}; do
             S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PACKAGE_ARRAY[${PKG}]}"
-            echo $PKG $S3_URL_DOC
+            echo "Publishing $PKG to $S3_URL_DOC"
             publish
         done
+        ;;
+    "couchbase-lite-net")
+        EXT="zip"
+        PKG="${PRODUCT}-${VERSION}-doc"
+        S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PRODUCT}"
+        echo "Publishing $PKG to $S3_URL_DOC"
+        publish
+        ;;
+    "couchbase-lite-c")
+        EXT="zip"
+        PKG="${PRODUCT}-${VERSION}-doc"
+        S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PRODUCT}"
+        echo "Publishing $PKG to $S3_URL_DOC"
+        publish
         ;;
 esac
 
