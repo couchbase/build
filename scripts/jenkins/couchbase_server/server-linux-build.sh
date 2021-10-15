@@ -19,30 +19,6 @@ usage() {
     exit 5
 }
 
-# Utility function to compress an uncompressed .deb. Skips operation
-# if environment variable SKIP_COMPRESS is set to any non-empty value;
-# useful for debugging.
-compress_deb() {
-    DEB=$1
-    if [ ! -z "${SKIP_COMPRESS}" ]
-    then
-        return
-    fi
-
-    # This file always contains these three exact files: debian-binary,
-    # control.tar[.gz], and data.tar or data.tar.xz, in that order. We want to
-    # replace data.tar with data.tar.xz when necessary.
-    rm -f debian-binary control.tar* data.tar data.tar.xz
-    ar x ${DEB}
-    if [ -e data.tar ]
-    then
-        pixz data.tar data.tar.xz
-        rm ${DEB}
-        ar rc ${DEB} debian-binary control.tar* data.tar.xz
-    fi
-    rm -f debian-binary control.tar* data.tar data.tar.xz
-}
-
 if [ "$#" -ne 4 ]
 then
     usage
@@ -64,6 +40,9 @@ DISTRO=$1
 # information. That allows to have add-on parameters, such as "centos8-asan"
 # for sanitized builds.
 case "${DISTRO/-*/}" in
+    linux)
+        PKG=linux
+        ;;
     amzn2)
         PKG=rpm
         ;;
@@ -77,6 +56,7 @@ case "${DISTRO/-*/}" in
         PKG=mac
         ;;
     nopkg)
+        PKG=nopkg
         echo "Skipping packaging step"
         ;;
     *)
@@ -118,7 +98,6 @@ rm -f *.rpm *.deb *.zip trigger*.properties
 # We need to ensure we remove the contents rather than the directory so we
 # don't error out if ~/rpmbuild is a bind mount
 [ -d ~/rpmbuild ] && rm -rf ~/rpmbuild/*
-rm -rf ${WORKSPACE}/voltron/build
 rm -rf /opt/couchbase/*
 find goproj godeps -name \*.a -print0 | xargs -0 rm -f
 
@@ -153,8 +132,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
 # Default to 4 build threads, but allow override
 NUM_THREADS=${CB_BUILD_PARALLELISM-4}
 
-# Add BUILD_TARGET variable so that make target can be overwritten if necessary
-# Set default 'install'
+# Add BUILD_TARGET variable so that make target can be overwritten if necessary.
 BUILD_TARGET="${BUILD_TARGET:-install}"
 
 make -j${NUM_THREADS} ${BUILD_TARGET}
@@ -162,7 +140,7 @@ make -j${NUM_THREADS} ${BUILD_TARGET}
 # couchdbx-app on MacOS depends on this:
 rm -f ${WORKSPACE}/install && ln -s /opt/couchbase ${WORKSPACE}/install
 
-if [ "${DISTRO}" = "nopkg" ]
+if [ "${PKG}" = "nopkg" ]
 then
     echo "Skipping packaging as requested; all done!"
     exit 0
@@ -192,147 +170,53 @@ cd ${WORKSPACE}/voltron
 make PRODUCT_VERSION=${PRODUCT_VERSION} BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
      BUILD_DIR=${WORKSPACE} DISTRO=${DISTRO} \
      TOPDIR=${WORKSPACE}/voltron build-filter overlay
-if [ -d "server-overlay-${PKG}" ]
-then
-    cp -R server-overlay-${PKG}/* /opt/couchbase
+if [ "${PKG}" != "mac" ]; then
+    cp -r ${WORKSPACE}/voltron/server-overlay-linux/* /opt/couchbase
 fi
 
-# We briefly had a time when we produced multiple "enterprise" artifacts.
-# This is no longer used, but leaving the code structure in place in case
-# we want it again in future.
-if [ "${EDITION}" = "enterprise" ]
-then
-    EDITIONS=enterprise
-else
-    EDITIONS=community
-fi
-
-# For the packaging portions of this script, ${ARCH} is the return value
-# of `uname -m` (either x86_64 or aarch64), while ${PKGNAME_ARCH} is
-# the string used in the final package names (which is generally the
-# same as ${ARCH}, except that .deb-style packages use amd64 rather than
-# x86_64).
 ARCH=$(uname -m)
-if [ "${PKG}" = "deb" -a "${ARCH}" = "x86_64" ]; then
-    PKGNAME_ARCH=amd64
-else
-    PKGNAME_ARCH=${ARCH}
-fi
 
-for EDITION in ${EDITIONS}
-do
-    # The "product name" (passed to voltron) is couchbase-server for Enterprise
-    # and couchbase-server-community for Community, to keep them distinguished
-    # in deb/rpm repositories.
-    if [ "${EDITION}" = "enterprise" ]
-    then
-        PRODUCT=couchbase-server
-    else
-        PRODUCT=couchbase-server-${EDITION}
-    fi
+# Execute platform-specific packaging step
+cd ${SERVER_BUILD_DIR}
+make -j2 package-${PKG}
 
-    # Execute platform-specific packaging step
-    cd ${WORKSPACE}/voltron
-    ./server-${PKG}.rb /opt/couchbase ${PRODUCT} couchbase
+if [ "${PKG}" = "mac" ]
+then
+    # Xcode leaves stale precompiled headers and expects us to clean them up
+    find /var/folders -type d -name SharedPrecompiledHeaders | xargs rm -rf
 
-    if [ "${PKG}" = "mac" ]
-    then
-        # Xcode leaves stale precompiled headers and expects us to clean them up
-        find /var/folders -type d -name SharedPrecompiledHeaders | xargs rm -rf
-
-        cd ${WORKSPACE}/couchdbx-app
-        BUILD_ENTERPRISE=${BUILD_ENTERPRISE} make couchbase-server-zip
-        cd ${WORKSPACE}
-    fi
-
-    # Move final installation package to top of workspace, and set up
-    # trigger.properties for downstream jobs
-    case "$PKG" in
-        rpm)
-            INSTALLER_FILENAME=couchbase-server-${EDITION}-${VERSION}-${BLD_NUM}-${DISTRO}.${PKGNAME_ARCH}.rpm
-            cp ~/rpmbuild/RPMS/${ARCH}/${PRODUCT}-[0-9]*.rpm ${WORKSPACE}/${INSTALLER_FILENAME}
-
-            # Debuginfo package. Older versions of RHEL name the it "*-debug-*.rpm";
-            # newer ones and SuSE use "-debuginfo-*.rpm".
-            # Scan for both and move to correct final name.
-            DBG_PREFIX="${HOME}/rpmbuild/RPMS/${ARCH}/${PRODUCT}"
-            DEBUG=""
-            if ls ${DBG_PREFIX}-debug-*.rpm > /dev/null 2>&1;
-            then
-              DEBUG=debug
-            elif ls ${DBG_PREFIX}-debuginfo-*.rpm > /dev/null 2>&1;
-            then
-              DEBUG=debuginfo
-            else
-              echo "Warning: No ${PRODUCT}-{debug,debuginfo}-*.rpm package found; skipping copy."
-            fi
-
-            DBG_FILENAME=couchbase-server-${EDITION}-${DEBUG}-${VERSION}-${BLD_NUM}-${DISTRO}.${PKGNAME_ARCH}.rpm
-            if [ -n "$DEBUG" ]
-            then
-              cp ${DBG_PREFIX}-${DEBUG}-*.rpm ${WORKSPACE}/${DBG_FILENAME}
-            fi
-            ;;
-        deb)
-            INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PKGNAME_ARCH}.deb
-            DBG_FILENAME=couchbase-server-${EDITION}-dbg_${VERSION}-${BLD_NUM}-${DISTRO}_${PKGNAME_ARCH}.deb
-            cp build/deb/${PRODUCT}_*.deb ${WORKSPACE}/${INSTALLER_FILENAME}
-            cp build/deb/${PRODUCT}-dbg_*.deb ${WORKSPACE}/${DBG_FILENAME}
-            compress_deb ${WORKSPACE}/${INSTALLER_FILENAME}
-            compress_deb ${WORKSPACE}/${DBG_FILENAME}
-            ;;
-        mac)
-            # QQQ Soon we'll need to devise a different package naming
-            # convention here, to account for separate x86_64 / M1 packages
-            INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PKGNAME_ARCH}-unsigned.zip
-            cp couchdbx-app/build/Release/*.zip ${WORKSPACE}/${INSTALLER_FILENAME}
-            ;;
-    esac
-
-    # Back to the top
+    # QQQ maybe ADD_SUBDIRECTORY(couchdbx-app), move the package-mac
+    # target there, and have it do this?
+    cd ${WORKSPACE}/couchdbx-app
+    BUILD_ENTERPRISE=${BUILD_ENTERPRISE} make couchbase-server-zip
     cd ${WORKSPACE}
 
-    TRIGGER_FILE=trigger.properties
-    echo Creating ${TRIGGER_FILE}...
-    cat <<EOF > ${TRIGGER_FILE}
-ARCHITECTURE=${PKGNAME_ARCH}
+    # Move final installation package to top of workspace
+    # QQQ Soon we'll need to devise a different package naming
+    # convention here, to account for separate x86_64 / M1 packages
+    INSTALLER_FILENAME=couchbase-server-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${ARCH}-unsigned.zip
+    cp couchdbx-app/build/Release/*.zip ${WORKSPACE}/${INSTALLER_FILENAME}
+fi
+
+# Back to the top
+cd ${WORKSPACE}
+
+# ALL DONE!!
+
+# Set up trigger.properties for downstream jobs - for now, when doing a
+# "single linux" build, use centos7 x86_64 as our prototype build.
+if [ "${DISTRO}" = "linux" ]; then
+    DISTRO=centos7
+    ARCH=x86_64
+fi
+
+TRIGGER_FILE=trigger.properties
+echo Creating ${TRIGGER_FILE}...
+cat <<EOF > ${TRIGGER_FILE}
+ARCHITECTURE=${ARCH}
 PLATFORM=${DISTRO}
-INSTALLER_FILENAME=${INSTALLER_FILENAME}
 EDITION=${EDITION}
 EOF
-
-# End of PRODUCTS loop
-done
-
-# Support for aliased releases. If DISTRO is in the ALIAS array,
-# make all copies. This is irrelevant for Mac builds, but we
-# have to skip it because "bash" on the Macs doesn't support
-# declare -A.
-if [ "${DISTRO}" != "macos" ]; then
-
-    # CBD-4238: Here are mappings for Single Linux Build.
-    declare -A ALIAS
-    ALIAS[centos7]="amzn2 oel7 oel8 rhel8 suse12 suse15"
-    ALIAS[debian9]="debian10 debian11 ubuntu18.04 ubuntu20.04"
-
-    shopt -s nullglob
-    for alias in ${ALIAS[$DISTRO]}; do
-        echo "Copying $DISTRO files to $alias"
-        for installer in *$DISTRO*.rpm *$DISTRO*.deb; do
-            target_installer=${installer//$DISTRO/$alias}
-            cp ${installer} ${target_installer}
-
-            # Support for signed RPMs. This is only enabled for suse
-            # so far. If we just created a "suse" package, sign it.
-            # NOTE: this assumes that suse is an alias build!
-            if [[ "${alias}" =~ suse* ]]; then
-                rpmsign --addsign \
-                    --key-id 'Couchbase Release Key (RPM)' \
-                    ${target_installer}
-            fi
-        done
-    done
-fi
 
 echo
 echo =============== DONE!
