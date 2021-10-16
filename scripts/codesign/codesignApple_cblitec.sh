@@ -66,7 +66,7 @@ set -e
 
 echo "------- Codesigning the package ${PKG_NAME_SIGNED} -------"
 pushd ${PKG_DIR}
-zip -r -X ../${PKG_NAME_SIGNED} *
+zip --symlinks -r -X ../${PKG_NAME_SIGNED} *
 popd
 codesign $sign_flags --sign "$cert_name" ${PKG_NAME_SIGNED}
 
