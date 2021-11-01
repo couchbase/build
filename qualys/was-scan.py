@@ -46,8 +46,8 @@ def update_scan_url(qgc, current_time, args):
     logger.info('id: %s', parameters)
 
     xml_output = qgc.request(call, parameters)
-    logger.info('xml_output: %s', xml_output)
-    root = objectify.fromstring(xml_output)
+    logger.debug('Updated scan_url:  %s', xml_output)
+    root = objectify.fromstring(xml_output.encode('utf-8'))
 
     # Need to check update results
     if root.responseCode != 'SUCCESS':
@@ -55,7 +55,6 @@ def update_scan_url(qgc, current_time, args):
     else:
         logger.info('Successfully updated webapp: %s', root.data.WebApp.id.text)
         return root.data.WebApp.id.text
-
 
 def scan_report(qgc, current_time, args, scan_id):
     call = '/launch/was/wasscan'
@@ -89,59 +88,70 @@ def scan_report(qgc, current_time, args, scan_id):
     profile_id = '<id>' + args.profile_id + '</id> </profile>'
 
     parameters = ServiceRequest_xml_header + web_scan_name + scan_type + scan_id_content + content + profile_id + '\n' + ServiceRequest_xml_footer
-    logger.debug('parameters: %s', parameters)
+    logger.debug('Scan parameters: %s', parameters)
 
     xml_output = qgc.request(call, parameters)
-    root = objectify.fromstring(xml_output)
-    logger.debug('xml_output: %s', xml_output)
+    root = objectify.fromstring(xml_output.encode('utf-8'))
+    logger.debug('Xml output from launching scan: %s', xml_output.encode('utf-8'))
 
     # Need to check update results
     if root.responseCode != 'SUCCESS':
-        logger.error('Error Found: %s', root.responseErrorDetails.errorMessage.text)
+        logger.error('Error found when launching scan: %s', root.responseErrorDetails.errorMessage.text)
         sys.exit(1)
     else:
         SCAN_ID = root.data.WasScan.id.text
-        logger.info('id: %s', xml_output)
+        logger.debug('Scan launch result: %s', xml_output.encode('utf-8'))
 
     # get scan status
     call = '/status/was/wasscan' + '/' + SCAN_ID
     sleep_time = 180
     count=0
     while count<=100:
-        xml_output = qgc.request(call)
-        scan_root = objectify.fromstring(xml_output)
+        xml_output = qgc.request(call, http_method='get')
+        scan_root = objectify.fromstring(xml_output.encode('utf-8'))
         count=count+1
-        if scan_root.data.WasScan.status != 'FINISHED':
-            time.sleep(sleep_time)
-            logger.info('Current scan status: %s', scan_root.data.WasScan.status)
-            logger.info('Sleeping ... %s', sleep_time)
-        else:
-            break
+        try:
+            if scan_root.data.WasScan.status != 'FINISHED':
+                time.sleep(sleep_time)
+                logger.info('Current scan status: %s', scan_root.data.WasScan.status)
+                logger.info('Sleeping ... %s', sleep_time)
+            else:
+                break
+        except AttributeError as error:
+            logger.error('Error found when looking up scan_root.data.WasScan.status: %s',error)
+            sys.exit(1)
     if count>100:
-        logger.error('scan report never finishes successfully. abort...')
+        logger.error('Scan report never finishes successfully. abort...')
+        logger.info('Scan result: %s', xml_output.encode('utf-8'))
         sys.exit(1)
-
-    #logger.debug('xml_output: %s', xml_output)
 
     # Need to check update results
     if scan_root.responseCode != 'SUCCESS':
-        logger.error('Error Found: %s', scan_root.responseErrorDetails.errorMessage.text)
+        logger.error('Error found when finishing scan: %s', scan_root.responseErrorDetails.errorMessage.text)
+        logger.debug('Scan result: %s', xml_output.encode('utf-8'))
         sys.exit(1)
     # elif scan_root.responseCode == 'SUCCESS' and scan_root.data.WasScan.summary is not None:
     #    print("Error Found: {}".format(scan_root.data.WasScan.summary.resultsStatus.text))
     #    sys.exit(1)
     else:
-        logger.info('Scan finished successfully!')
-        logger.info('Scan id: %s', scan_root.data.WasScan.id.text)
-        return scan_root.data.WasScan.id.text
-
+        try:
+            logger.info('Scan finished successfully!')
+            logger.info('Scan id: %s', scan_root.data.WasScan.id.text)
+            return scan_root.data.WasScan.id.text
+        except AttributeError as error:
+            logger.error('Error found when looking up scan_root.data.WasScan.id.text: %s',error)
+            sys.exit(1)
 
 def get_report_status(qgc, report_id):
     call = '/status/was/report/' + report_id
-    xml_output = qgc.request(call)
-    root = objectify.fromstring(xml_output)
-    return root.data.Report.status
-
+    xml_output = qgc.request(call, http_method='get')
+    root = objectify.fromstring(xml_output.encode('utf-8'))
+    logger.debug('Report status: %s', xml_output.encode('utf-8'))
+    try:
+        return root.data.Report.status
+    except AttributeError as error:
+        logger.error('Error found when returning root.data.Report.status: %s',error)
+        sys.exit(1)
 
 def generate_report(qgc, args, WAS_SCAN_ID):
     ''' Generate scan report from scan_id '''
@@ -208,15 +218,15 @@ def generate_report(qgc, args, WAS_SCAN_ID):
     parameters = ServiceRequest_xml_header + scan_id_content + ServiceRequest_xml_footer
 
     xml_output = qgc.request(call, parameters)
-    root = objectify.fromstring(xml_output)
-    logger.debug('xml_output: %s', xml_output)
+    root = objectify.fromstring(xml_output.encode('utf-8'))
+    logger.debug('Output from generating report: %s', xml_output.encode('utf-8'))
 
     if root.responseCode != 'SUCCESS':
-        logger.error('Error Found: %s', root.responseErrorDetails.errorMessage.text)
+        logger.error('Error found when generating report: %s', root.responseErrorDetails.errorMessage.text)
         sys.exit(1)
     else:
         REPORT_ID = root.data.Report.id.text
-        logger.debug('Report id: %s', REPORT_ID)
+        logger.info('Report id: %s', REPORT_ID)
 
     # Download report
     if REPORT_ID:
@@ -231,7 +241,7 @@ def generate_report(qgc, args, WAS_SCAN_ID):
             else:
                 break
 
-        output = qgc.request(call)
+        output = qgc.request(call, http_method='get')
         pdf_report_name = "Scan_Report_" + args.web_name + '_' + args.bld_num + '_' + args.scan_type_name + '_' + REPORT_ID + ".pdf"
         with open(pdf_report_name, "wb") as report:
             report.write(output)
@@ -244,11 +254,10 @@ def main(args):
     qgc = qualysapi.connect(args.qualys_config)
     current_time = datetime.datetime.now().strftime("%Y%m%d%H%M")
     logger.debug('Current Time: %s', current_time)
-    webapp_id = update_scan_url(qgc, current_time, args)
 
+    webapp_id = update_scan_url(qgc, current_time, args)
     scan_id = scan_report(qgc, current_time, args, webapp_id)
     generate_report(qgc, args, scan_id)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Couchbase WAS Scan Automation\n\n", formatter_class=RawTextHelpFormatter)
