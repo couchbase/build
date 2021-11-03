@@ -166,7 +166,7 @@ def main():
     # Command-line args
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--manifest-project", type=str,
-                        default="git://github.com/couchbase/manifest",
+                        default="ssh://git@github.com/couchbase/manifest",
                         help="Alternate Git project for manifest")
     args = parser.parse_args()
     manifest_project = args.manifest_project
