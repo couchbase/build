@@ -48,18 +48,26 @@ case ${PRODUCT} in
             publish
         done
         ;;
-    "couchbase-lite-android" | "couchbase-lite-java")
+    "couchbase-lite-android")
+        #only publish EE version of doc
         declare -A PACKAGE_ARRAY
-        PACKAGE_ARRAY["${PRODUCT}-ee-${VERSION}-javadoc"]=${PRODUCT}-ee
-        PACKAGE_ARRAY["${PRODUCT}-ee-ktx-${VERSION}-javadoc"]=${PRODUCT}-ktx-ee
-        PACKAGE_ARRAY["${PRODUCT}-${VERSION}-javadoc"]=${PRODUCT}
-        PACKAGE_ARRAY["${PRODUCT}-ktx-${VERSION}-javadoc"]=${PRODUCT}-ktx
+        PACKAGE_ARRAY["${PRODUCT}-ee-${VERSION}-javadoc"]=${PRODUCT}
+        PACKAGE_ARRAY["${PRODUCT}-ee-ktx-${VERSION}-javadoc"]=${PRODUCT}-ktx
         EXT="jar"
         for PKG in ${!PACKAGE_ARRAY[@]}; do
             S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PACKAGE_ARRAY[${PKG}]}"
             echo "Publishing $PKG to $S3_URL_DOC"
             publish
         done
+        ;;
+    "couchbase-lite-java")
+        #only publish EE version of do
+        declare -A PACKAGE_ARRAY
+        PKG="${PRODUCT}-ee-${VERSION}-javadoc"
+        EXT="jar"
+        S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PRODUCT}"
+        echo "Publishing $PKG to $S3_URL_DOC"
+        publish
         ;;
     "couchbase-lite-net")
         EXT="zip"

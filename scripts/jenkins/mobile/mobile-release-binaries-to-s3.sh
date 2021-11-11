@@ -206,21 +206,21 @@ get_s3_upload_link()
     eelinks=`echo "${s3links}" | grep -v "${ignorefiles}" | grep -i "-enterprise\|-EE"`
     celinks=`echo "${s3links}" | grep -v "${ignorefiles}" | grep -v -i "-enterprise\|-EE"`
 
-    echo "${PRODUCT} ${VERSION} build #${BLD_NUM} on s3:\n"
+    echo "${PRODUCT} ${VERSION} build #${BLD_NUM} on s3:"
     if [ ! -z "${eelinks}" ]; then
-        echo "enterprise:\n"
+        echo "enterprise:"
         echo "${eelinks}"
-        echo "\n"
+        echo ""
     fi
     if [ ! -z "${celinks}" ]; then
-        echo "community:\n"
+        echo "community:"
         echo "${celinks}"
-        echo "\n"
+        echo ""
     fi
 }
 
 cd ${SRC_DIR}
-FILES=$(ls -Iblackduck | egrep -v 'source|\.xml|\.json|\.properties|\.md5|\.sha|coverage|CHANGELOG|changes\.log|unsigned|logtest|litetest|symbols|Package.swift')
+FILES=$(ls -Iblackduck | egrep -v 'source|\.xml|\.json|\.properties|\.md5|\.sha|coverage|CHANGELOG|changes\.log|unsigned|logtest|litetest|Package.swift')
 UPLOAD_TMP_DIR=/tmp/${RELEASE}-${BLD_NUM}
 rm -rf ${UPLOAD_TMP_DIR} && mkdir -p ${UPLOAD_TMP_DIR}
 cd ${UPLOAD_TMP_DIR}
