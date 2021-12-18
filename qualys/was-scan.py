@@ -59,13 +59,16 @@ def update_scan_url(qgc, current_time, args):
 def scan_report(qgc, current_time, args, scan_id):
     call = '/launch/was/wasscan'
 
+    # The scan typically takes less than 10 minutes.
+    # One hour is more than sufficient.
+    # Don't wait too long as scan might get stuck at various stages
     ServiceRequest_xml_header = '''
     <ServiceRequest>
             <data>
               <WasScan>
     '''
     ServiceRequest_xml_footer = '''
-                <cancelAfterNHours>5</cancelAfterNHours>
+                <cancelAfterNHours>1</cancelAfterNHours>
               </WasScan>
             </data>
     </ServiceRequest>
@@ -102,45 +105,41 @@ def scan_report(qgc, current_time, args, scan_id):
         SCAN_ID = root.data.WasScan.id.text
         logger.debug('Scan launch result: %s', xml_output.encode('utf-8'))
 
-    # get scan status
+    # Get scan status
+    # Exit the loop after one hour based on cancelAfterNHours value above.
+    # Sometime, scan may get stuck in various states even when it is cancelled.
     call = '/status/was/wasscan' + '/' + SCAN_ID
-    sleep_time = 180
+    sleep_time = 60
     count=0
-    while count<=100:
+
+    while True:
+        count=count+1
         xml_output = qgc.request(call, http_method='get')
         scan_root = objectify.fromstring(xml_output.encode('utf-8'))
-        count=count+1
-        try:
+        if scan_root.responseCode != 'SUCCESS':
+            # Unable to obtain scan status if SCAN_ID is invalid or scan is deleted.
+            logger.error('Error found when getting scan result: %s', scan_root.responseErrorDetails.errorMessage.text)
+            logger.error('Scan result response code: %s', scan_root.responseCode)
+            sys.exit(1)
+
+        if count<=60:
             if scan_root.data.WasScan.status != 'FINISHED':
                 time.sleep(sleep_time)
-                logger.info('Current scan status: %s', scan_root.data.WasScan.status)
-                logger.info('Sleeping ... %s', sleep_time)
+                logger.info('Wait for scan to finish.  Current scan status: %s', scan_root.data.WasScan.status)
+                logger.info('Sleep for 60 seconds... %s', sleep_time)
             else:
                 break
-        except AttributeError as error:
-            logger.error('Error found when looking up scan_root.data.WasScan.status: %s',error)
+        else:
+            logger.error('Scan did not finish in expected time frame. aborting...')
+            logger.error('Scan result: %s', xml_output.encode('utf-8'))
             sys.exit(1)
-    if count>100:
-        logger.error('Scan report never finishes successfully. abort...')
-        logger.info('Scan result: %s', xml_output.encode('utf-8'))
-        sys.exit(1)
 
-    # Need to check update results
-    if scan_root.responseCode != 'SUCCESS':
-        logger.error('Error found when finishing scan: %s', scan_root.responseErrorDetails.errorMessage.text)
-        logger.debug('Scan result: %s', xml_output.encode('utf-8'))
+    try:
+        logger.info('Scan finished successfully! Scan id: %s', scan_root.data.WasScan.id.text)
+        return scan_root.data.WasScan.id.text
+    except AttributeError as error:
+        logger.error('Error found when looking up scan_root.data.WasScan.id.text: %s',error)
         sys.exit(1)
-    # elif scan_root.responseCode == 'SUCCESS' and scan_root.data.WasScan.summary is not None:
-    #    print("Error Found: {}".format(scan_root.data.WasScan.summary.resultsStatus.text))
-    #    sys.exit(1)
-    else:
-        try:
-            logger.info('Scan finished successfully!')
-            logger.info('Scan id: %s', scan_root.data.WasScan.id.text)
-            return scan_root.data.WasScan.id.text
-        except AttributeError as error:
-            logger.error('Error found when looking up scan_root.data.WasScan.id.text: %s',error)
-            sys.exit(1)
 
 def get_report_status(qgc, report_id):
     call = '/status/was/report/' + report_id
@@ -153,6 +152,7 @@ def get_report_status(qgc, report_id):
         logger.error('Error found when returning root.data.Report.status: %s',error)
         sys.exit(1)
 
+# template id 68837, is the default Scan Report template under our account.
 def generate_report(qgc, args, WAS_SCAN_ID):
     ''' Generate scan report from scan_id '''
 
@@ -165,49 +165,15 @@ def generate_report(qgc, args, WAS_SCAN_ID):
     <description><![CDATA[A simple scan report]]></description>
     <format>PDF</format>
     <type>WAS_SCAN_REPORT</type>
+    <template>
+    <id>68837</id>
+    </template>
     <config>
     <scanReport>
       <target>
     '''
     ServiceRequest_xml_footer = '''
       </target>
-      <display>
-    <contents> <ScanReportContent>DESCRIPTION</ScanReportContent>
-    <ScanReportContent>SUMMARY</ScanReportContent>
-    <ScanReportContent>GRAPHS</ScanReportContent>
-    <ScanReportContent>RESULTS</ScanReportContent>
-    <ScanReportContent>INDIVIDUAL_RECORDS</ScanReportContent>
-    <ScanReportContent>RECORD_DETAILS</ScanReportContent>
-    <ScanReportContent>ALL_RESULTS</ScanReportContent>
-    <ScanReportContent>APPENDIX</ScanReportContent>
-    </contents>
-    <graphs>
-    <ScanReportGraph>VULNERABILITIES_BY_SEVERITY</ScanReportGraph>
-    <ScanReportGraph>VULNERABILITIES_BY_GROUP</ScanReportGraph>
-    <ScanReportGraph>VULNERABILITIES_BY_OWASP</ScanReportGraph>
-    <ScanReportGraph>VULNERABILITIES_BY_WASC</ScanReportGraph>
-    <ScanReportGraph>SENSITIVE_CONTENTS_BY_GROUP</ScanReportGraph>
-    </graphs>
-    <groups> <ScanReportGroup>URL</ScanReportGroup>
-    <ScanReportGroup>GROUP</ScanReportGroup>
-    <ScanReportGroup>OWASP</ScanReportGroup>
-    <ScanReportGroup>WASC</ScanReportGroup>
-    <ScanReportGroup>STATUS</ScanReportGroup>
-    <ScanReportGroup>CATEGORY</ScanReportGroup>
-    <ScanReportGroup>QID</ScanReportGroup>
-        </groups>
-        <options>
-          <rawLevels>true</rawLevels>
-        </options>
-      </display>
-      <filters>
-        <status>
-            <ScanFindingStatus>NEW</ScanFindingStatus>
-            <ScanFindingStatus>ACTIVE</ScanFindingStatus>
-            <ScanFindingStatus>REOPENED</ScanFindingStatus>
-            <ScanFindingStatus>FIXED</ScanFindingStatus>
-        </status>
-      </filters>
       </scanReport>
       </config>
         </Report>
