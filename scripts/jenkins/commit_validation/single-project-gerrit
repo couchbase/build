@@ -103,7 +103,7 @@ cat <<EOF
 ===          the same Change-Id          ===
 ============================================
 EOF
-${BASEDIR}/patch_via_gerrit -d -c ${HOME}/.ssh/patch_via_gerrit.ini -g $GERRIT_CHANGE_ID -s $WORKSPACE -C
+${BASEDIR}/checkout_dependencies.py $GERRIT_PATCHSET_REVISION $GERRIT_CHANGE_ID $GERRIT_PROJECT $GERRIT_REFSPEC
 
 cat <<EOF
 
