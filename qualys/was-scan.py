@@ -68,7 +68,7 @@ def scan_report(qgc, current_time, args, scan_id):
               <WasScan>
     '''
     ServiceRequest_xml_footer = '''
-                <cancelAfterNHours>1</cancelAfterNHours>
+                <cancelAfterNHours>5</cancelAfterNHours>
               </WasScan>
             </data>
     </ServiceRequest>
@@ -122,7 +122,7 @@ def scan_report(qgc, current_time, args, scan_id):
             logger.error('Scan result response code: %s', scan_root.responseCode)
             sys.exit(1)
 
-        if count<=60:
+        if count<=310:
             if scan_root.data.WasScan.status != 'FINISHED':
                 time.sleep(sleep_time)
                 logger.info('Wait for scan to finish.  Current scan status: %s', scan_root.data.WasScan.status)
