@@ -138,7 +138,7 @@ create_ec2() {
               --key-name "${KEYPAIR_NAME}" \
               --security-group-ids "${SG_ID}" \
               --subnet-id "${SUBNET_ID}" \
-              --tag-specifications "ResourceType=instance,Tags=[{Key=Owner,Value=QE}}, {Key=placement,Value=${PG_NAME}},{Key=Name,Value=sanity_test${PG_NAME}}]" \
+              --tag-specifications "ResourceType=instance,Tags=[{Key=Owner,Value=QE}, {Key=placement,Value=${PG_NAME}},{Key=Name,Value=sanity_test${PG_NAME}}]" \
               --instance-initiated-shutdown-behavior terminate \
               --count $ec2_count \
               --profile "${AWS_PROFILE}"`
