@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+
+"""
+Update the given JIRA approval ticket with a list of the binaries
+for the given product and release.  The list is generated from
+accessing the S3 bucket packages.couchbase.com (via boto) and excluding
+undesired entries.
+"""
+
+import argparse
+import json
+import os
+import re
+import boto3
+
+from collections import defaultdict
+from jira import JIRA
+
+
+def connect_jira():
+    """
+    Uses private files in ~/.ssh to create a connection to Couchbase JIRA.
+
+    Expected files:
+      build_jira.pem - Private key registered with Jira Application
+      build_jira.json - JSON block with "access_token", "access_token_secret",
+          and "consumer_key" fields as generated per above URL
+    """
+
+    home_dir = os.environ['HOME']
+
+    with open('{}/.ssh/build_jira.pem'.format(home_dir)) as key_cert_file:
+        key_cert_data = key_cert_file.read()
+
+    with open('{}/.ssh/build_jira.json'.format(home_dir)) as oauth_file:
+        oauth_dict = json.load(oauth_file)
+
+    oauth_dict['key_cert'] = key_cert_data
+
+    return JIRA({'server': 'https://issues.couchbase.com'}, oauth=oauth_dict)
+
+
+def get_url_list(product, version):
+    """
+    Extract list of s3 files for the given product and version,
+    """
+    # Exclude files that do not need to show up on the jira ticket
+    excl_list  = ['.jar', '.aar', '.md5', 'doc', 'carthage']
+    if product == 'sync_gateway':
+        s3_dir = 'couchbase-sync-gateway'
+    else:
+        s3_dir = product
+
+    if product == 'couchbase-lite-java':
+        excl_list.extend(['macos.zip', 'windows.zip'])
+
+    s3_rel_bucket = 'packages.couchbase.com'
+    s3_rel_prefix = 'releases/{}/{}/'.format(s3_dir, version)
+
+    # Generate list of files from s3 for given release
+    os.environ['AWS_SHARED_CREDENTIALS_FILE'] = \
+        '{}/.ssh/aws-credentials'.format(os.environ['HOME'])
+    s3 = boto3.resource('s3')
+    packages = s3.Bucket(s3_rel_bucket)
+    releases = packages.objects.filter(Prefix=s3_rel_prefix)
+    rel_files = [f.key.split('/')[-1] for f in releases.all()]
+
+    enterprise_urls = defaultdict(list)
+    community_urls = defaultdict(list)
+    url_list = list()
+
+    for rfile in rel_files:
+        file_url = 'https://{}/{}{}'.format(
+                s3_rel_bucket, s3_rel_prefix, rfile
+        )
+
+        if not any(x in rfile.lower() for x in excl_list):
+            if any(y in rfile.lower() for y in ["ee", "enterprise"]):
+                enterprise_urls['url_list'].append(file_url)
+            else:
+                community_urls['url_list'].append(file_url)
+
+    return {
+        'community_urls': community_urls,
+        'enterprise_urls': enterprise_urls
+    }
+
+
+def update_jira_ticket(issue, urls, product, version, bldnum):
+    """Update the JIRA approval ticket with the list of files"""
+
+    content = product + " " + version + "-" + bldnum + " on s3.\n"
+
+    if bool(urls['enterprise_urls']):
+      content += """Enterprise:
+      {}""".format('\n'.join(urls['enterprise_urls']['url_list']))
+
+    if bool(urls['community_urls']):
+      content += """\n\nCommunity:
+
+      {}""".format('\n'.join(urls['community_urls']['url_list']))
+
+    jira = connect_jira()
+    jira.add_comment(issue, content,
+                     visibility={'type': 'group', 'value': 'Membase Inc'})
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Update JIRA approval ticket for product uploads'
+    )
+    parser.add_argument('product', type=str, help='Product to check')
+    parser.add_argument('version', type=str, help='Version of product')
+    parser.add_argument('bldnum', type=str, help='Build number')
+    parser.add_argument('issue', type=str, help='Approval ticket for version')
+
+    args = parser.parse_args()
+
+    urls = get_url_list(args.product, args.version)
+    update_jira_ticket(args.issue, urls, args.product, args.version, args.bldnum)
