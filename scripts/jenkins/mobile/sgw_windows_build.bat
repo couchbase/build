@@ -100,8 +100,15 @@ if NOT EXIST %TARGET_DIR% (
 )
 cd %TARGET_DIR%
 
-set SRC_DIR=godeps\src\github.com\couchbase\sync_gateway
-set SGW_DIR=%TARGET_DIR%\%SRC_DIR%
+:: older sgw manifest maps sgw repo to godeps\src\github.com\couchbase\sync_gateway
+if EXIST %TARGET_DIR%\sync_gateway (
+    set SGW_DIR=%TARGET_DIR%\sync_gateway
+    set GO_MOD_BUILD=true
+) else (
+    set SGW_DIR=%TARGET_DIR%\godeps\src\github.com\couchbase\sync_gateway
+    set GO_MOD_BUILD=false
+)
+
 set BLD_DIR=%SGW_DIR%\build
 
 set SGW_INSTALL_DIR=%TARGET_DIR%\sgw_install
@@ -152,11 +159,6 @@ set    DEST_DIR=%SGW_DIR%\bin
 if EXIST %DEST_DIR%     del /s/f/q %DEST_DIR%
 mkdir %DEST_DIR%
 
-set CGO_ENABLED=1
-set GOPATH=%cd%\godeps
-echo GOOS=%GOOS% GOARCH=%GOARCH% GOPATH=%GOPATH%
-set GO111MODULE=off
-
 :: Clean up stale objects before switching GO version
 if EXIST %SGW_DIR%\pkg           rmdir /s/q %SGW_DIR%\pkg
 
@@ -166,8 +168,18 @@ if "%EDITION%" == "enterprise" (
     set GO_EDITION_OPTION=
 )
 
-echo go install %GO_EDITION_OPTION% github.com\couchbase\sync_gateway\...
-go install %GO_EDITION_OPTION% github.com\couchbase\sync_gateway\...
+set CGO_ENABLED=1
+set GOPATH=%cd%\godeps
+echo GOOS=%GOOS% GOARCH=%GOARCH% GOPATH=%GOPATH%
+
+if "%GO_MOD_BUILD%" == "false" (
+    set GO111MODULE=off
+)
+set GOPROXY=http://goproxy.build.couchbase.com
+set GOPRIVATE=github.com/couchbaselabs/go-fleecedelta
+pushd %SGW_DIR%
+go install %GO_EDITION_OPTION% .\...
+popd
 
 IF "%VERSION:~0,2%"=="2." (
     echo go install github.com\couchbase\ns_server\deps\gocode\src\gozip
@@ -187,13 +199,9 @@ move  %TEMPLATE_FILE%.orig  %TEMPLATE_FILE%
 echo ======== test ================================
 echo ................... running unit tests
 echo ................... test options: %TEST_OPTIONS%
-if %TEST_OPTIONS% == "None" (
-    echo go test %GO_EDITION_OPTION% github.com\couchbase\sync_gateway\...
-    go test github.com\couchbase\sync_gateway\...
-) else (
-    echo go test %TEST_OPTIONS:"=% %GO_EDITION_OPTION% github.com\couchbase\sync_gateway\...
-    go test %TEST_OPTIONS:"=% github.com\couchbase\sync_gateway\...
-)
+pushd %SGW_DIR%
+go test %TEST_OPTIONS:"=% .\...
+popd
 
 if %ERRORLEVEL% NEQ 0 (
     echo "########################### FAIL! Unit test results = %ERRORLEVEL%"

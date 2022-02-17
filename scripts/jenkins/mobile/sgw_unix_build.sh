@@ -62,6 +62,40 @@ function get_dependencies
     python --version
 }
 
+function go_test
+{
+    echo ======== full test suite ==================================== `date`
+    echo ........................ running sync_gateway test.sh
+
+    pushd ${SGW_DIR}
+    go test ${GO_EDITION_OPTION} ./...
+    test_result=$?
+    if [ ${test_result} -ne "0" ]; then
+        echo "########################### FAIL! sync-gateway Unit test results = ${test_result}"
+        exit 66
+    fi
+
+    echo ======== test with race detector ============================= `date`
+    echo ........................ running sync_gateway test.sh
+    go test ${TEST_OPTIONS} ${GO_EDITION_OPTION} ./...
+    test_result_race=$?
+    if [ ${test_result_race} -ne "0" ]; then
+        echo "########################### FAIL! sync_gateway Unit test with -race  = ${test_result_race}"
+        exit 66
+    fi
+}
+
+function go_build
+{
+    echo ======== building ${PRODUCT_NAME} ===============================
+    pushd ${SGW_DIR}
+
+    go install ${GO_EDITION_OPTION} ./...
+
+    popd
+
+}
+
 if [[ "$#" < 5 ]] ; then usage ; exit 11 ; fi
 
 # enable nocasematch
@@ -188,8 +222,14 @@ cd         ${TARGET_DIR}
 PREFIX=/opt/couchbase-sync-gateway
 PREFIXP=./opt/couchbase-sync-gateway
 
-SRC_DIR=godeps/src/github.com/couchbase/sync_gateway
-SGW_DIR=${TARGET_DIR}/${SRC_DIR}
+# older sgw manifest maps sgw repo to godeps/src/github.com/couchbase/sync_gateway
+if [[ -d ${TARGET_DIR}/sync_gateway ]]; then
+    GO_MOD_BUILD="true"
+    SGW_DIR=${TARGET_DIR}/sync_gateway
+else
+   GO_MOD_BUILD="false"
+   SGW_DIR=${TARGET_DIR}/godeps/src/github.com/couchbase/sync_gateway
+fi
 BLD_DIR=${SGW_DIR}/build
 STAGING=${BLD_DIR}/opt/couchbase-sync-gateway
 
@@ -245,9 +285,18 @@ else
     GO_EDITION_OPTION=''
 fi
 
+if [[ ${GO_MOD_BUILD} == "false" ]]; then
+    export GO111MODULE=off
+fi
+
 export CGO_ENABLED=1
-export GO111MODULE=off
-GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install ${GO_EDITION_OPTION} github.com/couchbase/sync_gateway/...
+
+export GOPATH=`pwd`/godeps \
+GOPROXY=http://goproxy.build.couchbase.com \
+GOPRIVATE=github.com/couchbaselabs/go-fleecedelta \
+
+go_build
+
 # build gozip
 #### gozip is deprecated in 3.0 
 if [[ "${VERSION}" == "2."* ]]; then
@@ -269,25 +318,7 @@ for TF in ${TEMPLATE_FILES[@]}
     mv  ${TF}.orig ${TF}
 done
 
-echo ======== full test suite ==================================== `date`
-echo ........................ running sync_gateway test.sh
-GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${GO_EDITION_OPTION} github.com/couchbase/sync_gateway/...
-test_result=$?
-if [ ${test_result} -ne "0" ]
-then
-    echo "########################### FAIL! sync-gateway Unit test results = ${test_result}"
-    exit 66
-fi
-
-echo ======== test with race detector ============================= `date`
-echo ........................ running sync_gateway test.sh
-GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go test ${TEST_OPTIONS} ${GO_EDITION_OPTION} github.com/couchbase/sync_gateway/...
-test_result_race=$?
-if [ ${test_result_race} -ne "0" ]
-then
-    echo "########################### FAIL! sync_gateway Unit test with -race  = ${test_result_race}"
-    exit 66
-fi
+go_test
 
 echo ======== build sgcollect_info ===============================
 COLLECTINFO_DIR=${SGW_DIR}/tools
@@ -333,8 +364,9 @@ then
   tar -xzf ${STAGING}/${PKG_NAME}
   zip -r -X ${NEW_PKG_NAME} couchbase-sync-gateway
   rm -rf couchbase-sync-gateway
+  mv ${NEW_PKG_NAME} ${WORKSPACE}/${NEW_PKG_NAME}
 else
-  cp ${STAGING}/${PKG_NAME} ${SGW_DIR}/${NEW_PKG_NAME}
+  cp ${STAGING}/${PKG_NAME} ${WORKSPACE}/${NEW_PKG_NAME}
 fi
 
 if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
