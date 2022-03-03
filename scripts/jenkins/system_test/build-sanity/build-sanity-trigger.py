@@ -597,6 +597,21 @@ VERSION_DATA = {
         },
         "testrunner_branch": "master",
     },
+    "7.2.0": {
+        "platforms": {
+            "amzn2": True,
+            "centos7": True,
+            "centos8": False,
+            "debian9": False,
+            "debian10": True,
+            "macos": True,
+            "oel7": True,
+            "suse12": True,
+            "ubuntu18": True,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
+    },
 }
 
 LAST_SANITY_FILENAME="/latestbuilds/last-sanity.json"
