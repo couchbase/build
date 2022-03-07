@@ -56,7 +56,7 @@ rm -rf *
 git config --global user.name "Couchbase Build Team"
 git config --global user.email "build-team@couchbase.com"
 git config --global color.ui false
-repo init -u git://github.com/couchbase/build-team-manifests -g all -m couchbase-server/spock.xml
+repo init -u https://github.com/couchbase/build-team-manifests -g all -m couchbase-server/spock.xml
 repo sync --jobs=6
 BLD_NUM=`repo forall build -c 'echo $REPO__BLD_NUM'`
 VERSION=`repo forall build -c 'echo $REPO__VERSION'`

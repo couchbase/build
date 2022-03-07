@@ -18,7 +18,7 @@ def remember_cwd():
         os.chdir(curdir)
 
 
-def scan_manifests(manifest_repo="git://github.com/couchbase/manifest"):
+def scan_manifests(manifest_repo="https://github.com/couchbase/manifest"):
     """
     Syncs to the "manifest" project from the given repository, and
     returns a list of metadata about all discovered manifests
@@ -93,7 +93,7 @@ def scan_manifests(manifest_repo="git://github.com/couchbase/manifest"):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--manifest-project", type=str,
-                        default="git://github.com/couchbase/manifest",
+                        default="https://github.com/couchbase/manifest",
                         help="Alternate git URL for manifest repository")
     args = parser.parse_args()
     pp = pprint.PrettyPrinter(indent=2)

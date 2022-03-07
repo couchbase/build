@@ -59,7 +59,7 @@ mkdir -p ~/reporef
 cd ~/reporef
 if [ ! -d .repo ]
 then
-  repo init -u git://github.com/couchbase/manifest -g all -m watson.xml --mirror
+  repo init -u https://github.com/couchbase/manifest -g all -m watson.xml --mirror
 fi
 repo sync --jobs=6
 

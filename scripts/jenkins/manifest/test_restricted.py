@@ -16,7 +16,7 @@ parser.add_argument("-c", "--change", type=str, default="55555",
 parser.add_argument("--patchset", type=str, default="1",
   help="Gerrit patchset ID (affects output only; required for checking manifest project)")
 parser.add_argument("-p", "--manifest-project", type=str,
-  default="git://github.com/couchbase/manifest",
+  default="https://github.com/couchbase/manifest",
   help="Alternate Git project for manifest")
 args = parser.parse_args()
 
