@@ -5,7 +5,7 @@ version="5.10.4.0.0.1"
 release="R16B03-1"
 
 ## get the source code
-git clone git://github.com/couchbasedeps/erlang otp_src_${release}
+git clone https://github.com/couchbasedeps/erlang otp_src_${release}
 cd otp_src_${release}
 git checkout couchbase-watson
 
