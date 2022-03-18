@@ -582,6 +582,20 @@ VERSION_DATA = {
         },
         "testrunner_branch": "cheshire-cat",
     },
+    "7.0.4": {
+        "platforms": {
+            "centos7": True,
+            "centos8": False,
+            "debian9": True,
+            "debian10": False,
+            "macos": True,
+            "oel7": True,
+            "suse12": True,
+            "ubuntu18": True,
+            "windows": True,
+        },
+        "testrunner_branch": "cheshire-cat",
+    },
     "7.1.0": {
         "platforms": {
             "amzn2": True,
