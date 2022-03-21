@@ -59,7 +59,8 @@ cat <<EOF
 EOF
 # Build with Debug to disable compiler optimizations and get more
 # accurate line coverage stats.
-echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="-DCB_CODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug" ${BUILD_TARGET}
+CMAKE_ARGS="${CMAKE_ARGS} -DCB_CODE_COVERAGE=ON -DCMAKE_BUILD_TYPE=Debug"
+echo_cmd make -j${PARALLELISM} EXTRA_CMAKE_OPTIONS="${CMAKE_ARGS}" ${BUILD_TARGET}
 
 cat <<EOF
 
