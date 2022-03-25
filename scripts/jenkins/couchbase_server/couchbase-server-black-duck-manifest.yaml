@@ -1,5 +1,0 @@
-components:
-
-    # On Linux we copy these into the installer
-    libgcc: [ 7.3.1 ]
-    libstdc++: [ 7.3.1 ]
