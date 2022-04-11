@@ -5,7 +5,7 @@ CBAS_SERVICES="kv,cbas"
 if [[ $VERSION == 4.1* ]] || [[ $VERSION == 4.0* ]]; then
     SERVICES="kv,index,n1ql"
 fi
-if [ $VERSION \> 7.0* ]; then
+if [[ $VERSION \> 7.0* ]] || [[ $VERSION == 0.0* ]]; then
     SERVICES="kv,index,n1ql,fts,backup"
 fi
 
@@ -121,7 +121,7 @@ port:8091
 ip:${NODE_4}
 port:8091" >> node_conf.ini
 
-if [ $VERSION \> 6.0* ]; then
+if [[ $VERSION \> 6.0* ]] || [[ $VERSION == 0.0* ]]; then
 echo "services:${CBAS_SERVICES}
 " >> node_conf.ini
 fi
@@ -137,6 +137,7 @@ version_number=${VERSION}-${CURRENT_BUILD_NUMBER}
 echo version=${version_number}
 py_executable=python
 echo ${version_number} | grep "7\." && py_executable=python3
+echo ${version_number} | grep "0\." && py_executable=python3
 
 PARAMS="version=${version_number},product=cb,parallel=True"
 if [ "x${BIN_URL}" != "x" ]; then
@@ -146,7 +147,7 @@ if [ -n "${EXTRA_INSTALL_PARAMS}" ]; then
     PARAMS="${PARAMS},${EXTRA_INSTALL_PARAMS}"
 fi
 
-if [ $VERSION \< 6.5* ]; then
+if [[ $VERSION \< 6.5* ]] && [[ $VERSION != 0.0* ]]; then
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/install.py -i node_conf.ini -p $PARAMS
 else
