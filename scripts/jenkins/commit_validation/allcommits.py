@@ -56,13 +56,6 @@ def all_commits(change_id, curr_project, curr_ref):
     commits = []
     manifest = ET.ElementTree(file='.repo/manifest.xml')
 
-    # If the manifest contains an include, follow it
-    try:
-        included_manifest = manifest.find('include').attrib.get('name')
-        manifest = ET.ElementTree(file='.repo/manifests/' + included_manifest)
-    except:
-        pass
-
     # If the local manifest exists, add in its projects to the main manifest.
     try:
         local = ET.ElementTree(file='.repo/local_manifest.xml')
