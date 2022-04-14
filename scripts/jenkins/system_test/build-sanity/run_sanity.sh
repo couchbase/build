@@ -8,6 +8,9 @@ fi
 if [ $VERSION \> 7.0* ]; then
     SERVICES="kv,index,n1ql,fts,backup"
 fi
+if [ $VERSION == 0.0* ]; then
+    SERVICES="kv,index,n1ql,fts,backup"
+fi
 
 install_only="no"
 if [ "$1" = "-i" ]; then
@@ -125,10 +128,13 @@ if [ $VERSION \> 6.0* ]; then
 echo "services:${CBAS_SERVICES}
 " >> node_conf.ini
 fi
+if [ $VERSION == 0.0* ]; then
+echo "services:${CBAS_SERVICES}
+" >> node_conf.ini
+fi
 
 fi
 fi
-
 
 echo "NODE CONFIGURATION:"
 cat node_conf.ini
@@ -137,6 +143,7 @@ version_number=${VERSION}-${CURRENT_BUILD_NUMBER}
 echo version=${version_number}
 py_executable=python
 echo ${version_number} | grep "7\." && py_executable=python3
+echo ${version_number} | grep "0\." && py_executable=python3
 
 PARAMS="version=${version_number},product=cb,parallel=True"
 if [ "x${BIN_URL}" != "x" ]; then
@@ -149,6 +156,9 @@ fi
 if [ $VERSION \< 6.5* ]; then
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/install.py -i node_conf.ini -p $PARAMS
+elif [ $VERSION == 0.0* ]; then
+  echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS"
+  COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/new_install.py -i node_conf.ini -p $PARAMS
 else
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/new_install.py -i node_conf.ini -p $PARAMS
