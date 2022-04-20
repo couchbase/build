@@ -611,6 +611,21 @@ VERSION_DATA = {
         },
         "testrunner_branch": "neo",
     },
+     "7.1.1": {
+        "platforms": {
+            "amzn2": True,
+            "centos7": True,
+            "centos8": False,
+            "debian9": False,
+            "debian10": True,
+            "macos": True,
+            "oel8": True,
+            "suse12": True,
+            "ubuntu18": True,
+            "windows": True,
+        },
+        "testrunner_branch": "neo",
+    },
     "7.2.0": {
         "platforms": {
             "amzn2": True,
