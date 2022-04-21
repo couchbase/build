@@ -8,7 +8,7 @@ fi
 if [ $VERSION \> 7.0* ]; then
     SERVICES="kv,index,n1ql,fts,backup"
 fi
-if [ $VERSION == 0.0* ]; then
+if [[ $VERSION == 0.0* ]]; then
     SERVICES="kv,index,n1ql,fts,backup"
 fi
 
@@ -128,7 +128,7 @@ if [ $VERSION \> 6.0* ]; then
 echo "services:${CBAS_SERVICES}
 " >> node_conf.ini
 fi
-if [ $VERSION == 0.0* ]; then
+if [[ $VERSION == 0.0* ]]; then
 echo "services:${CBAS_SERVICES}
 " >> node_conf.ini
 fi
@@ -156,7 +156,7 @@ fi
 if [ $VERSION \< 6.5* ]; then
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/install.py -i node_conf.ini -p $PARAMS
-elif [ $VERSION == 0.0* ]; then
+elif [[ $VERSION == 0.0* ]]; then
   echo "Running: COUCHBASE_NUM_VBUCKETS=64 python scripts/new_install.py -i node_conf.ini -p $PARAMS"
   COUCHBASE_NUM_VBUCKETS=64 ${py_executable} scripts/new_install.py -i node_conf.ini -p $PARAMS
 else
