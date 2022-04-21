@@ -9,8 +9,24 @@ EDITION=${5}
 
 PKG_TYPE='zip'
 PKG_CMD='zip -r'
-if [[ -z "${ANDROID_NDK_ROOT}" ]]; then
-    ANDROID_NDK_ROOT='/opt/android-ndk-r15b'
+
+ANDROID_NDK_VERSION=android-ndk-r15c
+ANDROID_NDK_ROOT=~/android-ndk-r15c
+CMAKE_VERSION="3.10.2.4988404"
+SDK_HOME=~/jenkins/tools/android-sdk
+SDK_MGR="${SDK_HOME}/cmdline-tools/latest/bin/sdkmanager"
+CMAKE_PATH="${SDK_HOME}/cmake/${CMAKE_VERSION}/bin"
+export PATH=${CMAKE_PATH}:${PATH}
+
+if [ ! -d ${CMAKE_PATH} ]; then
+    yes | ${SDK_MGR} --licenses > /dev/null 2>&1
+    ${SDK_MGR} --install "cmake;${CMAKE_VERSION}"
+fi
+
+if [ ! -d ${ANDROID_NDK_ROOT} ]; then
+    curl -LO https://dl.google.com/android/repository/${ANDROID_NDK_VERSION}-linux-x86_64.zip
+    unzip -q -o ${ANDROID_NDK_VERSION}-linux-x86_64.zip -d ~/.
+    rm -f ${ANDROID_NDK_VERSION}-linux-x86_64.zip
 fi
 
 case "${OSTYPE}" in
