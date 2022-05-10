@@ -147,8 +147,10 @@ then
 fi
 
 # Make Standalone Tools package.
-make tools-package
-cp "${SERVER_BUILD_DIR}"/couchbase-server-tools_${PRODUCT_VERSION}*.tar.gz ${WORKSPACE}
+if [ "${EDITION}" = "enterprise" ]; then
+    make tools-package
+    cp "${SERVER_BUILD_DIR}"/couchbase-server-tools_${PRODUCT_VERSION}*.tar.gz ${WORKSPACE}
+fi
 
 # Step 2: Create installer, using Voltron.  Goal is to incorporate the
 # "build-filter" and "overlay" steps here or into server-rpm/deb.rb, so

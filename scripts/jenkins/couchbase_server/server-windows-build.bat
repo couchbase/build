@@ -83,8 +83,11 @@ cmake -G %MAKETYPE% ^
 cmake --build . --target install || goto error
 
 rem Standalone Tools package
-cmake --build . --target tools-package || goto error
-move couchbase-server-tools_%VERSION%-%BLD_NUM%-windows_amd64.zip %REPOROOT%
+if "%LICENSE%" == "enterprise" (
+    cmake --build . --target tools-package || goto error
+    move couchbase-server-tools_%VERSION%-%BLD_NUM%-windows_amd64.zip %REPOROOT%
+)
+
 popd
 
 rem Archive all Windows debug files for future reference.
