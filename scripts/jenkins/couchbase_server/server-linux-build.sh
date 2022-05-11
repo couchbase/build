@@ -35,6 +35,8 @@ then
     exit 5
 fi
 
+ARCH=$(uname -m)
+
 DISTRO=$1
 # Only check the "root" of DISTRO (anything up to a hyphen) for the platform
 # information. That allows to have add-on parameters, such as "centos8-asan"
@@ -146,11 +148,13 @@ then
     exit 0
 fi
 
-# Make Standalone Tools package.
-if [ "${EDITION}" = "enterprise" ]; then
-    make tools-package
-    cp "${SERVER_BUILD_DIR}"/couchbase-server-tools_${PRODUCT_VERSION}*.tar.gz ${WORKSPACE}
-fi
+# Make Standalone Tools package - only for shipping EE builds.
+case "${DISTRO}-${ARCH}-${EDITION}" in
+    linux-x86_64-enterprise|amzn2-aarch64-enterprise|macos-x86_64-enterprise)
+        make tools-package
+        cp "${SERVER_BUILD_DIR}"/couchbase-server-tools_${PRODUCT_VERSION}*.tar.gz ${WORKSPACE}
+        ;;
+esac
 
 # Step 2: Create installer, using Voltron.  Goal is to incorporate the
 # "build-filter" and "overlay" steps here or into server-rpm/deb.rb, so
@@ -179,8 +183,6 @@ make PRODUCT_VERSION=${PRODUCT_VERSION} BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
 if [ "${PKG}" != "mac" ]; then
     cp -r ${WORKSPACE}/voltron/server-overlay-linux/* /opt/couchbase
 fi
-
-ARCH=$(uname -m)
 
 # Execute platform-specific packaging step
 cd ${SERVER_BUILD_DIR}
