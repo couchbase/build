@@ -641,9 +641,24 @@ VERSION_DATA = {
         },
         "testrunner_branch": "master",
     },
-    "0.0.0": {
+    "8.0.0": {
         "platforms": {
             "amzn2": True,
+            "centos7": True,
+            "centos8": False,
+            "debian9": False,
+            "debian10": True,
+            "macos": True,
+            "oel8": True,
+            "suse12": True,
+            "ubuntu18": False,
+            "windows": True,
+        },
+        "testrunner_branch": "master",
+    },
+    "0.0.0": {
+        "platforms": {
+            "amzn2": False,
             "centos7": True,
             "centos8": False,
             "debian9": False,
