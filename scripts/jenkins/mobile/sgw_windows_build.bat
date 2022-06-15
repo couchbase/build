@@ -29,27 +29,34 @@ if "%PLATFRM%" == "" call :usage 55
 set  TEST_OPTIONS=%5
 set  REPO_SHA=%6
 set  GO_RELEASE=%7
-set  MINICONDA_VER=%8
+set  MINIFORGE_VERSION=%8
 
 if not defined GO_RELEASE (
     set GO_RELEASE=1.9.2
 )
-set CBDEP_VERSION=1.0.4
+
+set CBDEP_VERSION=1.1.2
 set CBDEP_URL=http://packages.couchbase.com/cbdep/%CBDEP_VERSION%/cbdep-%CBDEP_VERSION%-windows.exe
 powershell -command "& { (New-Object Net.WebClient).DownloadFile('%CBDEP_URL%', 'cbdep.exe') }" || goto Err
 
-%WORKSPACE%\cbdep.exe -a amd64 install golang %GO_RELEASE% -d %WORKSPACE%
-set GOROOT=%WORKSPACE%\go%GO_VERSION%
-set "PATH=%GOROOT%\bin;%PATH%"
+set CBDEPS_DIR=%HOMEDRIVE%%HOMEPATH%\cbdeps
 
-echo on
-if defined MINICONDA_VER (
-    %WORKSPACE%\cbdep.exe install miniconda3-py39 %MINICONDA_VER% -d %WORKSPACE%
-    set "PATH=%WORKSPACE%\miniconda3-%MINICONDA_VER%;%WORKSPACE%\miniconda3-%MINICONDA_VER%\condabin;%WORKSPACE%\miniconda3-%MINICONDA_VER%\Scripts;%PATH%"
+if not exist %HOMEDRIVE%%HOMEPATH%\cbdeps\go%GO_VERSION%\ (
+    %WORKSPACE%\cbdep.exe -a amd64 install golang %GO_RELEASE% -d %CBDEPS_DIR%
+)
+
+set GOROOT=%CBDEPS_DIR%\go%GO_VERSION%
+set "PATH=%GOROOT%\bin;%PATH%"
+echo %PATH%
+
+if defined MINIFORGE_VERSION if not exist %CBDEPS_DIR%\miniforge3-%MINIFORGE_VERSION%\ (
+    %WORKSPACE%\cbdep.exe install miniforge3 %MINIFORGE_VERSION% -d %CBDEPS_DIR%
     call conda install -y pyinstaller
 )
+
+set "PATH=%CBDEPS_DIR%\miniforge3-%MINIFORGE_VERSION%;%CBDEPS_DIR%\miniforge3-%MINIFORGE_VERSION%\condabin;%CBDEPS_DIR%\miniforge3-%MINIFORGE_VERSION%\Scripts;%PATH%"
 echo %PATH%
-echo off
+
 set VERSION=%REL_VER%-%BLD_NUM%
 
 for /f "tokens=1-2 delims=-" %%A in ("%PLATFRM%") do (

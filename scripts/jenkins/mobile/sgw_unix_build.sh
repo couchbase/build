@@ -13,7 +13,7 @@
 #
 #        TEST_OPTIONS       `-race 4 -cpu`
 #        GO_REL             1.5.3 (Currently supports 1.4.1, 1.5.2, 1.5.3)
-#        MINICONDA_VER  4.16.4
+#        MINIFORGE_VERSION  4.12.0-2
 #
 #    This script supports building branches 1.3.0 and newer that uses repo manifest.
 #    It will purely perform these 2 tasks:
@@ -33,7 +33,7 @@ set -e
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ] [ MINICONDA_VER ] \n\n"
+    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ] [ MINIFORGE_VERSION ] \n\n"
     }
 
 function get_dependencies
@@ -42,20 +42,25 @@ function get_dependencies
     curl -L ${CBDEP_URL} -o cbdep
     chmod +x cbdep
 
+    CBDEPS_DIR=${HOME}/cbdeps
+    mkdir -p ${CBDEPS_DIR}
+
     #install dependent golang
-    ./cbdep install golang ${GO_REL} -d ${WORKSPACE}
-    export GOROOT=${WORKSPACE}/go${GO_REL}
+    if [[ ! -d ${CBDEPS_DIR}/go${GO_REL} ]]; then
+        ./cbdep install golang ${GO_REL} -d ${CBDEPS_DIR}
+    fi
+    export GOROOT=${CBDEPS_DIR}/go${GO_REL}
     export PATH=${GOROOT}/bin:$PATH
 
     go version
 
-    if [[ -n $MINICONDA_VER ]]; then
+    if [[ -n ${MINIFORGE_VERSION} && ! -d ${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION} ]]; then
         if [[ "${ARCH}" == "arm64" ]]; then
             echo "miniconda is not supported on ${ARCH}."
             echo "use default python on the system."
         else
-            ./cbdep install miniconda3-py39 ${MINICONDA_VER} -d ${WORKSPACE}
-            export PATH=${WORKSPACE}/miniconda3-${MINICONDA_VER}/bin:$PATH
+            ./cbdep install miniforge3 ${MINIFORGE_VERSION} -d ${CBDEPS_DIR}
+            export PATH=${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION}/bin:$PATH
         fi
         pip3 install PyInstaller==4.5.1
     fi
@@ -115,7 +120,7 @@ if [[ $6 ]] ; then  echo "setting TEST_OPTIONS to $6"   ; TEST_OPTIONS=$6   ; el
 if [[ $7 ]] ; then  echo "setting GO_REL to $7"         ; GO_REL=$7         ; else GO_REL=1.5.3         ; fi
 
 #if python is not defined, use system default #this is to allow SGW 2.7.x to continue use python 2.7
-if [[ $8 ]] ; then  echo "setting MINICONDA_VER to $8"         ; MINICONDA_VER=$8; fi
+if [[ $8 ]] ; then  echo "setting MINIFORGE_VERSION to $8"         ; MINIFORGE_VERSION=$8; fi
 
 OS=`uname -s`
 ARCH=`uname -m`
