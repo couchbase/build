@@ -54,13 +54,17 @@ function get_dependencies
 
     go version
 
-    if [[ -n ${MINIFORGE_VERSION} && ! -d ${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION} ]]; then
+    if [ -n ${MINIFORGE_VERSION} ]; then
         if [[ "${ARCH}" == "arm64" ]]; then
             echo "miniconda is not supported on ${ARCH}."
-            echo "use default python on the system."
+            echo "using default python on the system."
         else
-            ./cbdep install miniforge3 ${MINIFORGE_VERSION} -d ${CBDEPS_DIR}
-            export PATH=${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION}/bin:$PATH
+            if [ ! -d ${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION} ]; then
+                ./cbdep install miniforge3 ${MINIFORGE_VERSION} -d ${CBDEPS_DIR}
+                export PATH=${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION}/bin:$PATH
+            else
+                export PATH=${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION}/bin:$PATH
+            fi
         fi
         pip3 install PyInstaller==4.5.1
     fi
