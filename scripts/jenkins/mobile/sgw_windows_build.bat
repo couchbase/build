@@ -258,6 +258,9 @@ copy  %COLLECTINFO_DIST%                %SGW_INSTALL_DIR%\tools\
 IF "%VERSION:~0,2%"=="2." (
     copy  %BIN_DIR%\gozip.exe               %SGW_INSTALL_DIR%\tools\
 )
+IF exist %BLD_DIR%\notices.txt (
+    copy  %BLD_DIR%\notices.txt              %SGW_INSTALL_DIR%\notices.txt
+)
 copy  %BLD_DIR%\README.txt              %SGW_INSTALL_DIR%\README.txt
 echo  %VERSION%                       > %SGW_INSTALL_DIR%\VERSION.txt
 copy  %LIC_DIR%\LICENSE_%EDITION%.txt   %SGW_INSTALL_DIR%\LICENSE.txt

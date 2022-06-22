@@ -351,7 +351,9 @@ cp    ${COLLECTINFO_DIST}                  ${STAGING}/tools/
 if [[ "${VERSION}" == "2."* ]]; then
     cp    ${BIN_DIR}/gozip                     ${STAGING}/tools/
 fi
-
+if [[ -f ${BLD_DIR}/notices.txt ]]; then
+    cp    ${BLD_DIR}/notices.txt               ${STAGING}
+fi
 cp    ${BLD_DIR}/README.txt                ${STAGING}
 echo  ${VERSION}-${BLD_NUM}            >   ${STAGING}/VERSION.txt
 cp    ${LIC_DIR}/LICENSE_${EDITION}.txt    ${STAGING}/LICENSE.txt
