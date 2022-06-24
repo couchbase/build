@@ -88,6 +88,7 @@ else
 end
 
 system("cp -rPp #{PREFIX}/LICENSE.txt #{STAGE_DIR}/usr/share/doc/#{PRODUCT}/.")
+system("cp -rPp #{PREFIX}/notices.txt #{STAGE_DIR}/usr/share/doc/#{PRODUCT}/.")
 
 puts "dependencies: " + CUSTOM_DEPENDENCIES
 
