@@ -32,33 +32,16 @@
 ### AWS_ACCESS_KEY_ID: AWS key id.  The key needs to be able to create/delete placement group, security group, and EC2
 ### AWS_SECRET_ACCESS_KEY: AWS access key
 
-AWS_AMI="ami-0806cc3ac66515671"
-VPC_ID="vpc-00291041ad30ebce5"
-AWS_PROFILE="cb-build"
-REGION="us-east-2"
-SUBNET_ID="subnet-0040bcb6e1894c053"
-INTERNAL_CIDR="10.0.0.0/16"
+AWS_AMI="ami-06cf15d6d096df5d2"
+VPC_ID="vpc-04a4bc60"
+AWS_PROFILE="cb-qe"
+REGION="us-east-1"
+SUBNET_ID="subnet-d0d9bab5"
+INTERNAL_CIDR="172.0.0.0/8"
 EC2_TYPE="c6g.xlarge"
-KEYPAIR_NAME="jenkins-workers"
+KEYPAIR_NAME="build_sanity_test"
 
 prep_env() {
-  # Install required tools for testrunner
-  # Newer couchbase-release doesn't seem to work for testrunner.  Pin to couchbase-release-1.0-6 for now
-  curl --fail -LO  http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-6-x86_64.rpm || { echo "Unable to download couchbase-release-1.0-6-x86_64.rpm"; exit;}
-  sudo yum install -y couchbase-release-1.0-6-x86_64.rpm
-
-  curl --fail -LO http://${NAS_UID}:${NAS_PW}@nas.service.couchbase.com/builds/latestbuilds/couchbase-server/zz-versions/${VERSION}/${CURRENT_BUILD_NUMBER}/couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm || { echo "Unable to download couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm from nas"; exit;}
-  mkdir -p ~/opt
-  sudo yum install -y ./couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm
-  ln -s /opt/couchbase ~/opt/couchbase
-
-  sudo yum install -y libcouchbase-devel libcouchbase2-bin libcouchbase2-libevent gcc gcc-c++
-  sudo yum install -y python3-devel python3-pip jq
-  yes | pip3 install git+https://github.com/couchbase/couchbase-python-client.git@2.5.11
-  yes | pip3 install sgmllib3k paramiko httplib2 pyyaml beautifulsoup4 Geohash python-geohash deepdiff pyes pytz requests jsonpickle docker decorator boto3
-  yes | pip3 install google-cloud-storage
-  export PATH=/home/ec2-user/.local/bin:$PATH
-
   mkdir ~/.aws
   echo "[${AWS_PROFILE}]" > ~/.aws/credentials
   echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
@@ -71,6 +54,26 @@ prep_env() {
   echo "Host *
   StrictHostKeyChecking no" >> ~/.ssh/config
   chmod 400 ~/.ssh/config
+
+  # Install required tools for testrunner
+  # Newer couchbase-release doesn't seem to work for testrunner.  Pin to couchbase-release-1.0-6 for now
+  curl --fail -LO  http://packages.couchbase.com/releases/couchbase-release/couchbase-release-1.0-6-x86_64.rpm || { echo "Unable to download couchbase-release-1.0-6-x86_64.rpm"; exit;}
+  sudo yum install -y couchbase-release-1.0-6-x86_64.rpm
+
+  #nas.service.couchbase.com is no longer available outside of vpn
+  #build-sanity-trigger job uploads the rpm to s3 bucket now
+  #sanity test downloads it from there.
+  aws s3 cp s3://build-sanity/couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm .
+  mkdir -p ~/opt
+  sudo yum install -y ./couchbase-server-enterprise-${VERSION}-${CURRENT_BUILD_NUMBER}-amzn2.x86_64.rpm
+  ln -s /opt/couchbase ~/opt/couchbase
+
+  sudo yum install -y libcouchbase-devel libcouchbase2-bin libcouchbase2-libevent gcc gcc-c++
+  sudo yum install -y python3-devel python3-pip jq
+  yes | pip3 install git+https://github.com/couchbase/couchbase-python-client.git@2.5.11
+  yes | pip3 install sgmllib3k paramiko httplib2 pyyaml beautifulsoup4 Geohash python-geohash deepdiff pyes pytz requests jsonpickle docker decorator boto3
+  yes | pip3 install google-cloud-storage
+  export PATH=/home/ec2-user/.local/bin:$PATH
 }
 
 create_pg() {
@@ -241,7 +244,7 @@ create_ec2 ${NUM_NODE}
 trap teardown EXIT
 
 PKG_NAME=couchbase-server-enterprise-${VERSION}-${BLD_NUM}-amzn2.aarch64.rpm
-curl --fail -LO http://${NAS_UID}:${NAS_PW}@nas.service.couchbase.com/builds/latestbuilds/couchbase-server/zz-versions/${VERSION}/${BLD_NUM}/${PKG_NAME} || { echo "Unable to download ${PKG_NAME} from nas"; exit;}
+aws s3 cp s3://build-sanity/${PKG_NAME} .
 
 for ip in ${INSTANCE_IPS}; do
   scp -i ${SSHKEY} ${PKG_NAME} ec2-user@$ip:/tmp/.
