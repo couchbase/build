@@ -70,9 +70,13 @@ prep_env() {
 
   sudo yum install -y libcouchbase-devel libcouchbase2-bin libcouchbase2-libevent gcc gcc-c++
   sudo yum install -y python3-devel python3-pip jq
+  #When using requirements.txt, some of packages (azure* and a couple of other ones) could not get installed via script.
+  #It worked via commandline.
+  #Until it is sorted out, use pip3 commands below.
   yes | pip3 install git+https://github.com/couchbase/couchbase-python-client.git@2.5.11
   yes | pip3 install sgmllib3k paramiko httplib2 pyyaml beautifulsoup4 Geohash python-geohash deepdiff pyes pytz requests jsonpickle docker decorator boto3
   yes | pip3 install google-cloud-storage
+  yes | pip3 install azure.identity azure.mgmt.storage azure.mgmt.resource azure.storage.blob
   export PATH=/home/ec2-user/.local/bin:$PATH
 }
 
