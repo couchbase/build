@@ -89,7 +89,7 @@ function notarize_pkg
         else
             echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             echo "Request ${request_id} failed notarization!"
-            echo "${xml_output}"
+            echo "${output}"
             echo @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             exit 1
         fi
@@ -157,8 +157,8 @@ sync_gateway)
 couchbase-lite-c)
     PKGS[${PRODUCT}]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos_unsigned.zip
     PKGS_SIGNED[${PRODUCT}]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos.zip
-    PKGS[${PRODUCT}-symbols]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos_unsigned.zip
-    PKGS_SIGNED[${PRODUCT}-symbols]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos.zip
+    PKGS[${PRODUCT}-symbols]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos-symbols_unsigned.zip
+    PKGS_SIGNED[${PRODUCT}-symbols]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos-symbols.zip
     ;;
 couchbase-server)
     PKGS[${PRODUCT}]=${PRODUCT}-tools_${VERSION}-${BUILD_NUM}-macos_${ARCH}_unsigned.zip
@@ -183,7 +183,6 @@ for pkg pkg_name in ${(@kv)PKGS}; do
     if [[ ${NOTARIZE} != "true" ]]; then
         echo "notarization option is set to ${NOTARIZE}"
         echo "skip notarization..."
-        exit
     else
         notarize_pkg ${PKGS_SIGNED[${pkg}]}
     fi
