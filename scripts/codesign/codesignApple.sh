@@ -84,14 +84,16 @@ security unlock-keychain -p `cat ~/.ssh/security-password.txt` ${HOME}/Library/K
 ###cb.entitlement consists of entitlements for basic java apps, which is similar to what is used by adoptopenjdk described in (https://medium.com/adoptopenjdk/bundling-adoptopenjdk-into-a-notarized-macos-application-f4d69404afc)
 ###In order to have consistent entitlements, it is best to use cb.entitlement for all codesiging.
 sign_flags="--force --timestamp --options=runtime  --verbose --entitlements ${SCRIPTPATH}/cb.entitlement --preserve-metadata=identifier,requirements"
+python_sign_flags="--force --timestamp --options=runtime  --verbose --entitlements ${SCRIPTPATH}/python.entitlement --preserve-metadata=identifier,requirements"
 cert_name="Developer ID Application: Couchbase, Inc. (N2Q372V7W2)"
 
 echo ------- Codesign options: $sign_flags -----------
 
 echo ------- Sign binary files individually in Resources and Frameworks-------
 set +e
-find "Couchbase Server.app/Contents/Resources" "Couchbase Server.app/Contents/Frameworks" -type f > flist.tmp
-while IFS= read -r f
+
+find "Couchbase Server.app/Contents/Resources" "Couchbase Server.app/Contents/Frameworks" -type f \
+| while IFS= read -r f
 do
   ##binaries in jars have to be signed.
   ##It seems only jars in  META-INF are impacted so far.
@@ -107,10 +109,13 @@ do
       rm -rf META-INF
     fi
   elif [[ `file --brief "$f"` =~ "Mach-O" ]]; then
-    codesign $sign_flags --sign "$cert_name" "$f"
+    if [[ `echo $f | grep "couchbase-core/lib/python/interp"` ]]; then
+        codesign $python_sign_flags --sign "$cert_name" "$f"
+    else
+        codesign $sign_flags --sign "$cert_name" "$f"
+    fi
   fi
-done < flist.tmp
-rm -f flist.tmp
+done
 set -e
 
 echo -------- Must sign Sparkle framework all versions ----------
