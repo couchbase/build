@@ -644,7 +644,7 @@ VERSION_DATA = {
     "7.2.0": {
         "platforms": {
             "amzn2": True,
-            "centos7": True,
+            "centos7": False,
             "centos8": False,
             "debian9": False,
             "debian10": True,
@@ -659,7 +659,7 @@ VERSION_DATA = {
     "8.0.0": {
         "platforms": {
             "amzn2": True,
-            "centos7": True,
+            "centos7": False,
             "centos8": False,
             "debian9": False,
             "debian10": True,
@@ -674,7 +674,7 @@ VERSION_DATA = {
     "0.0.0": {
         "platforms": {
             "amzn2": False,
-            "centos7": True,
+            "centos7": False,
             "centos8": False,
             "debian9": False,
             "debian10": True,
