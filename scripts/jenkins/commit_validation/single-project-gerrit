@@ -34,6 +34,22 @@ if [ -z "$GERRIT_CHANGE_ID" ]; then
     exit 6
 fi
 
+TESTPROJECT=testrunner
+TARGET_TEST=simple-test
+while getopts :t:r: opt; do
+    case ${opt} in
+        t) TESTPROJECT="$OPTARG"
+           ;;
+        r) TARGET_TEST="$OPTARG"
+           ;;
+        \?) # Unrecognized option, show help
+            echo -e \\n"Invalid option: ${OPTARG}" 1>&2
+            exit 1
+            ;;
+    esac
+done
+
+
 # Optional env vars - how many jobs to run in parallel by default?
 PARALLELISM="${PARALLELISM:-8}"
 
@@ -82,6 +98,27 @@ function deferred_error_handler() {
 
 # Initially install the fatal handler.
 trap fatal_error_handler ERR
+
+
+# If using TAF, clone it, and apply the change from Gerrit if it's for TAF
+if [ "${TESTPROJECT}" = "TAF" ]; then
+    cat <<EOF
+
+============================================
+===    Clone and update TAF              ===
+============================================
+EOF
+    rm -rf TAF
+    git clone https://github.com/couchbaselabs/TAF.git
+    cd TAF
+    if [ "${GERRIT_PROJECT}" = "TAF" ]; then
+        git fetch ssh://${GERRIT_HOST}/TAF ${GERRIT_REFSPEC} && git checkout FETCH_HEAD
+    fi
+    chmod +x scripts/jython_install.sh
+    rm -rf ${WORKSPACE}/jython_for_taf
+    ./scripts/jython_install.sh --path ${WORKSPACE}/jython_for_taf
+    cd ..
+fi
 
 cat <<EOF
 
@@ -258,7 +295,7 @@ then
 ===          Run simple test             ===
 ============================================
 EOF
-    echo_cmd make -C testrunner simple-test VERBOSE=1
+    echo_cmd make -C ${TESTPROJECT} ${TARGET_TEST} VERBOSE=1
 fi
 
 # Check for core files - if present then archive them and the
