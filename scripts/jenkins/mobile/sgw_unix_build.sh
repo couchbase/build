@@ -186,6 +186,21 @@ then
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
     CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
+elif [[ $DISTRO == "ubuntu18" ]]
+then
+    GOOS=linux
+    PKGR=package-deb.rb
+    PKGTYPE=deb
+    if [[ $ARCHP = x86_64  ]] ; then
+        ARCHP=amd64
+    elif [[ $ARCHP = aarch64 ]] ; then
+        ARCHP=arm64
+    fi
+    PLATFORM=${OS}-${ARCH}
+    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
+    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
+    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
+    export LC_ALL="en_US.utf8"
 elif [[ $DISTRO =~ macosx  ]]
 then
     GOOS=darwin
@@ -195,7 +210,7 @@ then
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}_unsigned.zip
     CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-darwin-${ARCH}"
 else
-   echo -e "\nunsupported DISTRO:  $DISTRO\n"
+    echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22
 fi
 
@@ -216,7 +231,8 @@ else
 fi
 
 if [[ $ARCHP =~ i386  ]] ; then PARCH=x86
-elif [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64 ; fi
+elif [[ $ARCHP =~ amd64 ]] ; then PARCH=x86_64
+elif [[ $ARCHP = arm64 ]] ; then PARCH=aarch64 ; fi
 
 env | sort -u
 echo ============================================== `date`
