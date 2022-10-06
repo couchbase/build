@@ -641,7 +641,7 @@ VERSION_DATA = {
         },
         "testrunner_branch": "neo",
     },
-    "7.2.0": {
+    "7.5.0": {
         "platforms": {
             "amzn2": True,
             "centos7": False,
