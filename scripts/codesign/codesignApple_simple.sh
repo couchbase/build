@@ -61,7 +61,7 @@ function notarize_pkg
     echo "-------Notarizing for ${pkg_signed}-------"
     xml_output=$(xcrun altool --notarize-app -t osx \
         -f ${pkg_signed} \
-        --primary-bundle-id couchbase-sync-gateway \
+        --primary-bundle-id ${PRIMARY_BUNDLE_ID} \
         -u build-team@couchbase.com -p ${AC_PASSWORD} \
         --output-format xml
     )
@@ -153,16 +153,19 @@ case ${PRODUCT} in
 sync_gateway)
     PKGS[couchbase-sync-gateway]=couchbase-sync-gateway-${EDITION}_${VERSION}-${BUILD_NUM}_${ARCH}_unsigned.zip
     PKGS_SIGNED[couchbase-sync-gateway]=couchbase-sync-gateway-${EDITION}_${VERSION}-${BUILD_NUM}_${ARCH}.zip
+    PRIMARY_BUNDLE_ID=com.couchbase.couchbase-sync-gateway
     ;;
 couchbase-lite-c)
     PKGS[${PRODUCT}]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos_unsigned.zip
     PKGS_SIGNED[${PRODUCT}]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos.zip
     PKGS[${PRODUCT}-symbols]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos-symbols_unsigned.zip
     PKGS_SIGNED[${PRODUCT}-symbols]=${PRODUCT}-${EDITION}-${VERSION}-${BUILD_NUM}-macos-symbols.zip
+    PRIMARY_BUNDLE_ID=com.couchbase.couchbase-lite-c
     ;;
 couchbase-server)
     PKGS[${PRODUCT}]=${PRODUCT}-tools_${VERSION}-${BUILD_NUM}-macos_${ARCH}_unsigned.zip
     PKGS_SIGNED[${PRODUCT}]=${PRODUCT}-tools_${VERSION}-${BUILD_NUM}-macos_${ARCH}.zip
+    PRIMARY_BUNDLE_ID=com.couchbase.couchbase-server-tools
     ;;
 *)
     echo "Unsupported product ${PRODUCT}, exit now..."
