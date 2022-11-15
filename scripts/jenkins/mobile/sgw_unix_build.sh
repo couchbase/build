@@ -28,7 +28,6 @@
 #        55 = Build sync_gateway failed
 #        66 = Unit test failed
 #
-set -e
 
 function usage
     {
@@ -102,7 +101,6 @@ function go_build
     go install ${GO_EDITION_OPTION} ./...
 
     popd
-
 }
 
 if [[ "$#" < 5 ]] ; then usage ; exit 11 ; fi
@@ -343,8 +341,6 @@ for TF in ${TEMPLATE_FILES[@]}
     mv  ${TF}.orig ${TF}
 done
 
-go_test
-
 echo ======== build sgcollect_info ===============================
 COLLECTINFO_DIR=${SGW_DIR}/tools
 COLLECTINFO_DIST=${COLLECTINFO_DIR}/dist/${COLLECTINFO_NAME}
@@ -356,7 +352,7 @@ if [[ -e ${COLLECTINFO_DIST} ]]
     echo "..............................SGCOLLECT_INFO Success! Output is: ${COLLECTINFO_DIST}"
   else
     echo "############################# SGCOLLECT-INFO FAIL! no such file: ${COLLECTINFO_DIST}"
-    exit 77
+    exit 55
 fi
 popd
 
@@ -402,8 +398,5 @@ if [[ $DISTRO =~ centos  ]] || [[ $DISTRO =~ ubuntu  ]]
     rm -f ${PKG_NAME}
 fi
 
-echo ======== D O N E   S L E E P ================= `date`
-
-echo -------........................... uploading internally to ${LATESTBUILDS_SGW}/${NEW_PKG_NAME}
-
-echo ============================================== `date`
+set +e
+go_test

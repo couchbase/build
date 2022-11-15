@@ -1,4 +1,4 @@
-@echo off
+@echo on
 ::
 ::    run by Jenkins Windows build jobs:
 ::
@@ -11,19 +11,23 @@
 ::    e.g.: master         123456   0.0.0 0000   community    windows-x64
 ::          release/1.0.0  123456   1.1.0 1234   enterprise   windows-x64
 ::
+::    ErrorCode:
+::        11 = Incorrect input parameters
+::        55 = Build sync_gateway failed
+::        66 = Unit test failed
 set THIS_SCRIPT=%0
 
 set  REL_VER=%1
-if "%REL_VER%" == "" call :usage 22
+if "%REL_VER%" == "" call :usage 11
 
 set  BLD_NUM=%2
-if "%BLD_NUM%" == "" call :usage 33
+if "%BLD_NUM%" == "" call :usage 11
 
 set  EDITION=%3
-if "%EDITION%" == "" call :usage 44
+if "%EDITION%" == "" call :usage 11
 
 set  PLATFRM=%4
-if "%PLATFRM%" == "" call :usage 55
+if "%PLATFRM%" == "" call :usage 11
 
 :: Sample TEST_OPTIONS "-cpu 4 -race"
 set  TEST_OPTIONS=%5
@@ -195,25 +199,13 @@ IF "%VERSION:~0,2%"=="2." (
 
 if NOT EXIST %BIN_DIR%\%SGW_EXEC% (
     echo "############################# Sync-Gateway FAIL! no such file: %BIN_DIR%\%SGW_EXEC%"
-    exit 1
+    exit 55
 )
 move   %BIN_DIR%\%SGW_EXEC% %DEST_DIR%
 echo "..................................Sync-Gateway Success! Output is: %DEST_DIR%\%SGW_EXEC%"
 
 echo ======== remove build meta-data ==============
 move  %TEMPLATE_FILE%.orig  %TEMPLATE_FILE%
-
-echo ======== test ================================
-echo ................... running unit tests
-echo ................... test options: %TEST_OPTIONS%
-pushd %SGW_DIR%
-go test %TEST_OPTIONS:"=% .\...
-popd
-
-if %ERRORLEVEL% NEQ 0 (
-    echo "########################### FAIL! Unit test results = %ERRORLEVEL%"
-    exit 1
-)
 
 echo ======== build service wrappers ==============
 set SG_SERVICED=%SGW_DIR%\service\sg-windows
@@ -227,12 +219,12 @@ GOTO build_service_wrapper
         call build.cmd
     ) else (
         echo "############################# WINDOWS SERVICE WRAPPER build FAIL! no such file: %SG_SERVICED%\build.cmd"
-        exit 1
+        exit 55
     )
 
     if NOT EXIST %SG_SERVICE% (
         echo "############################# SG-SERVICE FAIL! no such file: %SG_SERVICE%"
-        exit 1
+        exit 55
     )
 
 echo ======== build sgcollect_info ===============================
@@ -246,7 +238,7 @@ if EXIST %COLLECTINFO_DIST% (
     echo "..............................SGCOLLECT_INFO Success! Output is: %COLLECTINFO_DIST%"
 ) else (
     echo "############################# SGCOLLECT-INFO FAIL! no such file: %COLLECTINFO_DIST%"
-    exit 1
+    exit 55
 )
 cd %CWD%
 
@@ -286,6 +278,20 @@ if %ERRORLEVEL% NEQ 0 (
 
 echo  ======= prep sync-gateway msi package file: %WORKSPACE%\%SGW_PKG_NAME%  ========================
 move %SGW_NAME%.msi %WORKSPACE%\%SGW_PKG_NAME%
+
+@echo off
+echo ======== test ================================
+echo ................... running unit tests
+echo ................... test options: %TEST_OPTIONS%
+pushd %SGW_DIR%
+rem go test %TEST_OPTIONS:"=% .\...
+go build %WORKSPACE%\cbbuild\scripts\jenkins\mobile\test.go
+if %ERRORLEVEL% NEQ 0 (
+    echo "########################### FAIL! Unit test results = %ERRORLEVEL%"
+    echo "exit due to test failure"
+    exit 66
+)
+popd
 
 echo ============================================== %DATE%
 
