@@ -284,8 +284,7 @@ echo ======== test ================================
 echo ................... running unit tests
 echo ................... test options: %TEST_OPTIONS%
 pushd %SGW_DIR%
-rem go test %TEST_OPTIONS:"=% .\...
-go build %WORKSPACE%\cbbuild\scripts\jenkins\mobile\test.go
+go test %TEST_OPTIONS:"=% .\...
 if %ERRORLEVEL% NEQ 0 (
     echo "########################### FAIL! Unit test results = %ERRORLEVEL%"
     echo "exit due to test failure"
