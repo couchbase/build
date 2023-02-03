@@ -121,8 +121,7 @@ if "%ENABLE_CBDEPS_TESTING%"=="true" (
 if not exist build mkdir build
 pushd build
 cmake -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% %EXTRA_CMAKE_OPTIONS% .. || goto :error
-cmake --build . --parallel %PARALLELISM% --target %BUILD_TARGET% || goto :error
-cmake --build . --parallel %PARALLELISM% --target install || goto :error
+cmake --build . --parallel %PARALLELISM% --target %BUILD_TARGET% install || goto :error
 popd
 
 @echo.
