@@ -23,6 +23,9 @@ if [[ "$#" < 2 ]] ; then usage ; exit DEAD ; fi
 # enable nocasematch
 shopt -s nocasematch
 
+# default ARCHITECTURE t0 x86_64
+ARCHITECTURE='x86_64'
+
 PKG_VERSION=${1}  # Product Version
 
 PKG_BUILD_NUM=${2}  # Build Number
@@ -33,9 +36,9 @@ OSX=${4} # macos vs elcapitan
 
 DOWNLOAD_NEW_PKG=${5}  # Get new build
 
-SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )" #find out absolute path of the script
+ARCHITECTURE=${6}  # optional arch, x86_64 or arm64
 
-ARCHITECTURE='x86_64'
+SCRIPTPATH="$( cd "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )" #find out absolute path of the script
 
 result="rejected"
 
