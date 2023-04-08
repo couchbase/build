@@ -150,7 +150,7 @@ fi
 
 # Make Standalone Tools package - only for shipping EE builds.
 case "${DISTRO}-${ARCH}-${EDITION}" in
-    linux-x86_64-enterprise|linux-aarch64-enterprise|macos-x86_64-enterprise)
+    linux-x86_64-enterprise|linux-aarch64-enterprise|macos-x86_64-enterprise|macos-arm64-enterprise)
         make tools-package
         cp "${SERVER_BUILD_DIR}"/couchbase-server-tools_${PRODUCT_VERSION}* ${WORKSPACE}
         ;;
