@@ -156,6 +156,25 @@ case "${DISTRO}-${ARCH}-${EDITION}" in
         ;;
 esac
 
+# Make metrics-metadata deliverable - should be identical on all platforms
+# and arches, so just do it once.
+case "${DISTRO}-${ARCH}-${EDITION}" in
+    linux-x86_64-enterprise)
+        echo "Creating metrics_metadata deliverable"
+        METRICS_DIR="${SERVER_BUILD_DIR}/metrics"
+        mkdir -p "${METRICS_DIR}"
+        pushd /opt/couchbase/etc/couchbase
+        for json in */metrics_metadata.json; do
+            component=$(dirname ${json})
+            cp ${json} "${METRICS_DIR}/${component}_metrics_metadata.json"
+        done
+        popd
+        pushd "${METRICS_DIR}"
+        tar czf "${WORKSPACE}/metrics_metadata_${PRODUCT_VERSION}.tar.gz" *
+        popd
+        ;;
+esac
+
 # Step 2: Create installer, using Voltron.  Goal is to incorporate the
 # "build-filter" and "overlay" steps here or into server-rpm/deb.rb, so
 # we can completely drop voltron's Makefile.
