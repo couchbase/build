@@ -34,12 +34,14 @@ function codesign_pkg
     do
         ##binaries in jars have to be signed.
         if [[ "${file}" =~ ".jar" ]]; then
-            libs=$(jar -tf "${file}" | grep "META-INF" | grep ".jnilib\|.dylib")
+            libs=$(jar -tf "${file}" | grep ".jnilib\|.dylib")
             if [[ ! -z ${libs} ]]; then
                 for lib in ${libs}; do
+                    dir=$(echo ${l} |awk -F '/' '{print $1}')
                     jar xf "${file}" "${lib}"
                     codesign ${(z)SIGN_FLAGS} --sign ${CERT_NAME} "${lib}"
                     jar uf "${file}" "${lib}"
+                    rm -rf ${dir}
                 done
                 rm -rf META-INF
             fi

@@ -102,14 +102,15 @@ do
   ##It seems only jars in  META-INF are impacted so far.
   ##jars with .jnilib in other locations were not rejected
   if [[ "$f" =~ ".jar" ]]; then
-    libs=`jar -tf "$f" | grep "META-INF" | grep ".jnilib\|.dylib"`
+    libs=`jar -tf "$f" | grep ".jnilib\|.dylib"`
     if [[ ! -z $libs ]]; then
       for l in ${libs}; do
+        dir=$(echo ${l} |awk -F '/' '{print $1}')
         jar xf "$f" "$l"
         codesign $sign_flags --sign "$cert_name" "$l"
         jar uf "$f" "$l"
+        rm -rf ${dir}
       done
-      rm -rf META-INF
     fi
   elif [[ `file --brief "$f"` =~ "Mach-O" ]]; then
     if [[ `echo $f | grep "couchbase-core/lib/python/interp"` ]]; then
