@@ -61,10 +61,14 @@ try {
         }
     } elseif ($Version31Up) {
         $package_names = "Couchbase.Lite","Couchbase.Lite.Enterprise","Couchbase.Lite.Support.Android","Couchbase.Lite.Support.iOS","Couchbase.Lite.Support.NetDesktop","Couchbase.Lite.Support.UWP","Couchbase.Lite.Support.WinUI","Couchbase.Lite.Enterprise.Support.Android","Couchbase.Lite.Enterprise.Support.iOS","Couchbase.Lite.Enterprise.Support.NetDesktop","Couchbase.Lite.Enterprise.Support.UWP","Couchbase.Lite.Enterprise.Support.WinUI"
+        $snupkg_names = "Couchbase.Lite","Couchbase.Lite.Enterprise"
         foreach($package in $package_names) {
             Write-Host "Downloading https://proget.sc.couchbase.com/nuget/CI/package/$package/$InVersion..."
             Invoke-WebRequest https://proget.sc.couchbase.com/nuget/CI/package/$package/$InVersion -OutFile "${package}.${InVersion}.nupkg"
-            Invoke-WebRequest http://latestbuilds.service.couchbase.com/builds/latestbuilds/couchbase-lite-net/${buildlessVersion}/${numericBuildNumber}/${package}.${InVersion}.snupkg -OutFile "${package}.${InVersion}.snupkg"
+        }
+        foreach($snupkg in $snupkg_names) {
+            Write-Host "Downloading http://latestbuilds.service.couchbase.com/builds/latestbuilds/couchbase-lite-net/${buildlessVersion}/${numericBuildNumber}/${snupkg}.${InVersion}.snupkg"
+            Invoke-WebRequest http://latestbuilds.service.couchbase.com/builds/latestbuilds/couchbase-lite-net/${buildlessVersion}/${numericBuildNumber}/${snupkg}.${InVersion}.snupkg -OutFile "${snupkg}.${InVersion}.snupkg"
         }
     } else {
         $package_names = "Couchbase.Lite","Couchbase.Lite.Enterprise","Couchbase.Lite.Support.Android","Couchbase.Lite.Support.iOS","Couchbase.Lite.Support.NetDesktop","Couchbase.Lite.Support.UWP","Couchbase.Lite.Enterprise.Support.Android","Couchbase.Lite.Enterprise.Support.iOS","Couchbase.Lite.Enterprise.Support.NetDesktop","Couchbase.Lite.Enterprise.Support.UWP"
