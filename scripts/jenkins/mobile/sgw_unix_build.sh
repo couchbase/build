@@ -103,6 +103,22 @@ function go_build
     popd
 }
 
+function make_metrics_metadata
+{
+    if [ ! -d ${SGW_DIR}/tools/stats-definition-exporter ]
+      then
+        return
+    fi
+
+    echo ======== creating metrics_metadata deliverable ==================
+    pushd ${SGW_DIR}
+
+    go run ./tools/stats-definition-exporter --output metrics_metadata.json
+    tar czf ${WORKSPACE}/metrics_metadata_${VERSION}-${BLD_NUM}.tar.gz metrics_metadata.json
+    rm metrics_metadata.json
+    popd
+}
+
 if [[ "$#" < 5 ]] ; then usage ; exit 11 ; fi
 
 # enable nocasematch
@@ -320,8 +336,17 @@ GOPRIVATE=github.com/couchbaselabs/go-fleecedelta \
 
 go_build
 
+# Only need to build this once per overall build. Choose 'macosx' as
+# the distro since we'll always build that; don't want to pick 'centos7'
+# and then wonder why this doesn't get built anymore when we updated
+# our platforms.
+if [ "${DISTRO}-${ARCH}-${EDITION}" = "macosx-arm64-enterprise" ]
+  then
+    make_metrics_metadata
+fi
+
 # build gozip
-#### gozip is deprecated in 3.0 
+#### gozip is deprecated in 3.0
 if [[ "${VERSION}" == "2."* ]]; then
     GOOS=${GOOS} GOARCH=${GOARCH} GOPATH=`pwd`/godeps go install github.com/couchbase/ns_server/deps/gocode/src/gozip
 fi
