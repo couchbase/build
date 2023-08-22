@@ -4,18 +4,15 @@
 # ${WORKSPACE}/cbbuild and voltron as ${WORKSPACE}/voltron.
 #
 # Required job parameters (expected to be in environment):
-# DISTRO  - Distribution name (eg., "ubuntu12.04", "debian7", "centos6", "macos")
+# DISTRO  - Distribution name (eg., "linux", "macos")
 #     This will be used to determine the pacakging format (.deb, .rpm, or .zip).
 # VERSION - in the form x.x.x
 # EDITION - "enterprise" or "community"
 # BLD_NUM - xxxx
 #
-# (At some point these will instead be read from the manifest.)
-#
-
 
 usage() {
-    echo "Usage: $0 [ ubuntu18.04 | debian9 | centos7 | ... ] <VERSION> <EDITION> <BLD_NUM>"
+    echo "Usage: $0 [ linux | macos | nopkg ] <VERSION> <EDITION> <BLD_NUM>"
     exit 5
 }
 
@@ -175,9 +172,7 @@ case "${DISTRO}-${ARCH}-${EDITION}" in
         ;;
 esac
 
-# Step 2: Create installer, using Voltron.  Goal is to incorporate the
-# "build-filter" and "overlay" steps here or into server-rpm/deb.rb, so
-# we can completely drop voltron's Makefile.
+# Step 2: Create installer.
 
 echo
 echo =============== 2. Building installation package
@@ -187,18 +182,7 @@ echo
 cd ${WORKSPACE}
 ruby voltron/cleanup.rb /opt/couchbase
 
-# We still need to create this for voltron's "overlay" step, if it's not
-# already there.
-if [ ! -e "manifest.xml" ]
-then
-    repo manifest -r > manifest.xml
-fi
-
-# Tweak install directory in Voltron-magic fashion
-cd ${WORKSPACE}/voltron
-make PRODUCT_VERSION=${PRODUCT_VERSION} BUILD_ENTERPRISE=${BUILD_ENTERPRISE} \
-     BUILD_DIR=${WORKSPACE} DISTRO=${DISTRO} \
-     TOPDIR=${WORKSPACE}/voltron build-filter overlay
+# Add voltron-specific overlays
 if [ "${PKG}" != "mac" ]; then
     cp -r ${WORKSPACE}/voltron/server-overlay-linux/* /opt/couchbase
 fi
