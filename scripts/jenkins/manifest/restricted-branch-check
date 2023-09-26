@@ -63,7 +63,8 @@ def can_bypass_restriction(ticket):
     """
     bypass_labels = [
         'doc-change-only',
-        'test-change-only'
+        'test-change-only',
+        'analytics-jars-cves'
     ]
     try:
         jira = connect_jira()
