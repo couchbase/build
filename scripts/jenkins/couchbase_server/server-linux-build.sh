@@ -166,7 +166,7 @@ case "${DISTRO}-${ARCH}-${EDITION}" in
         pushd /opt/couchbase/etc/couchbase
         for json in */metrics_metadata.json; do
             component=$(dirname ${json})
-            cp ${json} "${METRICS_DIR}/${component}_metrics_metadata.json"
+            jq . --sort-keys ${json} > "${METRICS_DIR}/${component}_metrics_metadata.json"
         done
         popd
         pushd "${METRICS_DIR}"
