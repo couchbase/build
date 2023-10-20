@@ -26,5 +26,10 @@ def get_tickets(message):
   """
   Returns a list of ticket IDs mentioned in a string.
   """
-  return re.findall("[A-Z]{2,5}-[0-9]{1,6}", message)
 
+  # This regex means "Between 2 and 5 uppercase letters, followed by a dash,
+  # followed by 1 to 6 numbers, and NOT followed by a dash or a number". The
+  # last bit is to prevent it from matching CVEs, eg. CVE-2023-12345. I could
+  # have just skipped any matches that started with "CVE", but then if we ever
+  # had a "CVE" Jira project it wouldn't match those.
+  return re.findall("[A-Z]{2,5}-[0-9]{1,6}(?![-0-9])", message)
