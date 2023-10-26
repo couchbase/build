@@ -19,6 +19,7 @@ shift
 
 # Wipe out any previously existing archive directory (so any old
 # archive doesn't get detected as an artifact by Jenkins).
+chmod -R +w $archive_dir
 rm -fr $archive_dir
 
 if [ "$#" -ne 0 ]; then
