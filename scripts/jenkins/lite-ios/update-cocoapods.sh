@@ -1,16 +1,5 @@
 #!/bin/bash
 
-#Pickup newer ruby which was installed via rvm
-source /etc/profile.d/rvm.sh
-
-# Install required cocoapods
-cocoapods_version=1.9.3
-rvmsudo gem uninstall --all cocoapods
-rvmsudo gem install cocoapods -v ${cocoapods_version}
-mkdir $HOME/.gem
-export GEM_HOME=$HOME/.gem
-gem which cocoapods
-
 # virtualenv stuff
 export LC_ALL=C
 export LANG=en_US.UTF-8
