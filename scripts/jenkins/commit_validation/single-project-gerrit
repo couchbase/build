@@ -232,7 +232,7 @@ EOF
         echo_cmd make ${GERRIT_PROJECT}-coverage-zero-counters || true
     fi
 
-    make_test "--exclude-regex ${TESTS_EXCLUDE:-a^} --tests-regex ${TESTS_INCLUDE:-.*}"
+    make_test "--exclude-regex ${TESTS_EXCLUDE}"
 
     # Generate code coverage report in XML format for Jenkins plugin.
     if [ -n "$ENABLE_CODE_COVERAGE" ]; then

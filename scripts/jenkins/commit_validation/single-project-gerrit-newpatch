@@ -168,7 +168,7 @@ EOF
 
     # -j${TEST_PARALLELISM} : Run tests in parallel.
     # -T Test   : Generate XML output file of test results.
-    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test --exclude-regex ${TESTS_EXCLUDE:-a^} --tests-regex ${TESTS_INCLUDE:-.*}"
+    echo_cmd make test ARGS="-j${TEST_PARALLELISM} --output-on-failure --no-compress-output -T Test --exclude-regex ${TESTS_EXCLUDE}"
 
     # Generate code coverage report in XML format for Jenkins plugin.
     if [ -n "$ENABLE_CODE_COVERAGE" ]; then

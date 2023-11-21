@@ -39,14 +39,6 @@
     set TEST_PARALLELISM=4
 )
 
-@IF NOT DEFINED TESTS_EXCLUDE (
-    set TESTS_EXCLUDE=a^^
-)
-
-@IF NOT DEFINED TESTS_INCLUDE (
-    set TESTS_INCLUDE=.*
-)
-
 :: Set default CMake generator
 @IF NOT DEFINED CMAKE_GENERATOR (
     set CMAKE_GENERATOR=NMake Makefiles
@@ -132,7 +124,7 @@ IF "%GERRIT_PROJECT%"=="ns_server" (
         pushd %BUILD_DIR%
         @REM  -j%PARALLELISM% : Run tests in parallel.
         @REM  -T Test   : Generate XML output file of test results.
-        ctest -j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test --exclude-regex %TESTS_EXCLUDE% --tests-regex %TESTS_INCLUDE% || goto :error
+        ctest -j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test  --exclude-regex %TESTS_EXCLUDE% || goto :error
         popd
     ) ELSE (
         @echo ============================================
