@@ -12,7 +12,9 @@ paths to the projects).
 """
 
 import json
+import os
 import urllib2 as request
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 
@@ -54,7 +56,18 @@ def all_commits(change_id, curr_project, curr_ref):
     path and the Git ref for the checkout.
     """
     commits = []
-    manifest = ET.ElementTree(file='.repo/manifest.xml')
+    # Read the manifest
+    with open(os.devnull, "w") as devnull:
+        try:
+            proc = subprocess.Popen(
+                ['repo', 'manifest'],
+                stdout=subprocess.PIPE,
+                stderr=devnull
+            )
+            raw_manifest, _ = proc.communicate()
+            manifest = ET.fromstring(raw_manifest.decode('utf-8'))
+        except:
+            raise
 
     # If the local manifest exists, add in its projects to the main manifest.
     try:
