@@ -113,7 +113,7 @@ function make_metrics_metadata
     echo ======== creating metrics_metadata deliverable ==================
     pushd ${SGW_DIR}
 
-    go run ./tools/stats-definition-exporter --output metrics_metadata.json
+    go run ./tools/stats-definition-exporter --no-file | jq . --sort-keys > metrics_metadata.json
     tar czf ${WORKSPACE}/metrics_metadata_${VERSION}-${BLD_NUM}.tar.gz metrics_metadata.json
     rm metrics_metadata.json
     popd
