@@ -731,47 +731,34 @@ VERSION_DATA = {
         },
         "testrunner_branch": "neo",
     },
+    "7.2.3": {
+        "platforms": {
+            "debian12": True
+        },
+        "testrunner_branch": "neo",
+    },
+    "7.2.4": {
+        "platforms": {
+            "debian12": True
+        },
+        "testrunner_branch": "neo",
+    },
     "7.5.0": {
         "platforms": {
-            "amzn2": True,
-            "centos7": False,
-            "centos8": False,
-            "debian9": False,
-            "debian10": True,
-            "macos": True,
-            "oel8": True,
-            "suse12": True,
-            "ubuntu18": False,
-            "windows": True,
+            "debian12": True
         },
         "testrunner_branch": "master",
     },
     "7.6.0": {
         "platforms": {
-            "amzn2": True,
-            "centos7": False,
-            "centos8": False,
-            "debian9": False,
-            "debian10": True,
-            "macos": True,
-            "oel8": True,
-            "suse12": True,
-            "ubuntu18": False,
-            "windows": True,
+            "debian12": True
         },
         "testrunner_branch": "master",
     },
     "8.0.0": {
         "platforms": {
-            "amzn2": True,
-            "centos7": False,
-            "centos8": False,
-            "debian9": False,
-            "debian10": True,
+            "centos7": True,
             "macos": True,
-            "oel8": True,
-            "suse12": True,
-            "ubuntu18": False,
             "windows": True,
         },
         "testrunner_branch": "master",
