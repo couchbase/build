@@ -36,7 +36,6 @@ if [ -z "$GERRIT_CHANGE_ID" ]; then
 fi
 
 BASEDIR=$(cd $(dirname $BASH_SOURCE) && pwd)
-PATH=$PATH:/usr/lib/llvm-3.8/bin/
 
 set -e
 
