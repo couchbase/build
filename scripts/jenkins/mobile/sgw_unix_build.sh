@@ -176,31 +176,7 @@ then
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
     CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
-elif [[ $DISTRO == "ubuntu14" ]]
-then
-    GOOS=linux
-    PKGR=package-deb.rb
-    PKGTYPE=deb
-    if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
-                              else ARCHP=i386 ; fi
-    PLATFORM=${OS}-${ARCH}
-    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
-    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}-${DISTRO}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
-    export LC_ALL="en_US.utf8"
-elif [[ $DISTRO == "ubuntu16" ]]
-then
-    GOOS=linux
-    PKGR=package-deb.rb
-    PKGTYPE=deb
-    if [[ $ARCHP =~ 64   ]] ; then ARCHP=amd64
-                              else ARCHP=i386 ; fi
-    PLATFORM=${OS}-${ARCH}
-    PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
-    NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
-    export LC_ALL="en_US.utf8"
-elif [[ $DISTRO == "ubuntu18" ]]
+elif [[ $DISTRO =~ ubuntu ]]
 then
     GOOS=linux
     PKGR=package-deb.rb
