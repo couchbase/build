@@ -34,6 +34,7 @@ EOF
     echo ""
     abs_archive_dir=$(pwd)/${archive_dir}
     mkdir -p $archive_dir
+    mkdir -p $archive_dir/lib64
 
     for core; do
         cp --archive "$core" $archive_dir/
