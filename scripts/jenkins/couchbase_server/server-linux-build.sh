@@ -36,20 +36,11 @@ ARCH=$(uname -m)
 
 DISTRO=$1
 # Only check the "root" of DISTRO (anything up to a hyphen) for the platform
-# information. That allows to have add-on parameters, such as "centos8-asan"
+# information. That allows to have add-on parameters, such as "linux-asan"
 # for sanitized builds.
 case "${DISTRO/-*/}" in
     linux)
         PKG=linux
-        ;;
-    amzn2)
-        PKG=rpm
-        ;;
-    centos7)
-        PKG=rpm
-        ;;
-    debian*|ubuntu*)
-        PKG=deb
         ;;
     macos)
         PKG=mac
@@ -214,13 +205,7 @@ cd ${WORKSPACE}
 
 # ALL DONE!!
 
-# Set up trigger.properties for downstream jobs - for now, when doing a
-# "single linux" build, use centos7 x86_64 as our prototype build.
-if [ "${DISTRO}" = "linux" ]; then
-    DISTRO=centos7
-    ARCH=x86_64
-fi
-
+# Set up trigger.properties for downstream jobs.
 TRIGGER_FILE=trigger.properties
 echo Creating ${TRIGGER_FILE}...
 cat <<EOF > ${TRIGGER_FILE}
