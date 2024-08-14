@@ -307,7 +307,7 @@ fi
 export CGO_ENABLED=1
 
 export GOPATH=`pwd`/godeps \
-GOPROXY=http://goproxy.build.couchbase.com \
+GOPROXY=http://goproxy.build.couchbase.com,https://proxy.golang.org \
 GOPRIVATE=github.com/couchbaselabs/go-fleecedelta \
 
 go_build

@@ -186,7 +186,7 @@ echo GOOS=%GOOS% GOARCH=%GOARCH% GOPATH=%GOPATH%
 if "%GO_MOD_BUILD%" == "false" (
     set GO111MODULE=off
 )
-set GOPROXY=http://goproxy.build.couchbase.com
+set GOPROXY=http://goproxy.build.couchbase.com,https://proxy.golang.org
 set GOPRIVATE=github.com/couchbaselabs/go-fleecedelta
 pushd %SGW_DIR%
 go install %GO_EDITION_OPTION% .\...
