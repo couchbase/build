@@ -82,10 +82,10 @@ cmake -G %MAKETYPE% ^
 
 cmake --build . --target install || goto error
 
-rem Standalone Tools package
+rem Standalone Tools packages
 if "%LICENSE%" == "enterprise" (
-    cmake --build . --target tools-package || goto error
-    move couchbase-server-tools_%VERSION%-%BLD_NUM%-windows_amd64.zip %REPOROOT%
+    cmake --build . --target standalone-packages || goto error
+    move couchbase-server-*-%VERSION%-%BLD_NUM%-windows_amd64.zip %REPOROOT%
 )
 
 popd
