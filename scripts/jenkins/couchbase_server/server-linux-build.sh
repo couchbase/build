@@ -136,11 +136,11 @@ then
     exit 0
 fi
 
-# Make Standalone Tools package - only for shipping EE builds.
+# Make Standalone Tools packages - only for shipping EE builds.
 case "${DISTRO}-${ARCH}-${EDITION}" in
     linux-x86_64-enterprise|linux-aarch64-enterprise|macos-x86_64-enterprise|macos-arm64-enterprise)
-        make tools-package
-        cp "${SERVER_BUILD_DIR}"/couchbase-server-tools_${PRODUCT_VERSION}* ${WORKSPACE}
+        make -j2 standalone-packages
+        cp "${SERVER_BUILD_DIR}"/couchbase-server-*-${PRODUCT_VERSION}* ${WORKSPACE}
         ;;
 esac
 
