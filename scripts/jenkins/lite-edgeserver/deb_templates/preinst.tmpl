@@ -1,0 +1,28 @@
+#!/bin/sh -e
+# preinst script for @@PRODUCT_BASE@@ software
+#
+# see: dh_installdeb(1)
+
+: ${COUCHBASE_USER:=@@PRODUCT_BASE@@}
+: ${COUCHBASE_GROUP:=@@PRODUCT_BASE@@}
+CB_USR=`echo $COUCHBASE_USER`
+CB_GRP=`echo $COUCHBASE_GROUP`
+
+case "${1}" in
+    install|upgrade)
+    getent group $CB_GRP >/dev/null || \
+        groupadd -r $CB_GRP || exit 1
+    getent passwd $CB_USR >/dev/null || \
+        useradd -r -g $CB_GRP -d @@PREFIX@@ -s /usr/sbin/nologin \
+            -c "$CB_USR system user" $CB_USR || exit 1
+    exit 0
+    ;;
+
+    abort-upgrade)
+    ;;
+
+    *)
+    echo "preinst called with unknown argument ${1}" >&2
+    exit 1
+    ;;
+esac

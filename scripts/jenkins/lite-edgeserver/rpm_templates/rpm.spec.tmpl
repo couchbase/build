@@ -1,0 +1,107 @@
+# Spec file for building @@PRODUCT_BASE@@ software (batteries included)
+# on RedHat Enterprise Linux
+#
+# For questions please contact support@couchbase.com
+#
+# Copyright 2024-Present Couchbase, Inc.
+#
+# Use of this software is governed by the Business Source License included in
+# the file licenses/BSL-Couchbase.txt.  As of the Change Date specified in that
+# file, in accordance with the Business Source License, use of this software
+# will be governed by the Apache License, Version 2.0, included in the file
+# licenses/APL2.txt.
+# All rights reserved.
+#
+Name:           @@PRODUCT@@
+Version:        @@VERSION@@
+Release:        @@RELEASE@@
+Summary:        @@PRODUCT@@
+Group:          Applications/Internet
+License:        Apache
+URL:            http://www.couchbase.com
+Source0:        %{_topdir}/SOURCES/%{name}_%{version}.tar.gz
+Prefix:         @@PREFIX@@
+
+%description
+Couchbase Lite Edge Server
+
+# Some of the lib files we redistribute don't have build IDs
+%undefine _missing_build_ids_terminate_build
+
+%undefine __check_files
+
+%prep
+
+%setup -q -n @@PRODUCT@@
+
+%build
+
+%check
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}@@PREFIX@@
+gtar cf - * | (cd %{buildroot}@@PREFIX@@ ; gtar xf -)
+
+%clean
+
+rm -rf %{buildroot}
+
+%pre
+
+if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
+  RPM_INSTALL_PREFIX0=@@PREFIX@@
+fi
+
+getent group @@PRODUCT_BASE@@ >/dev/null || \
+   groupadd -r @@PRODUCT_BASE@@ || exit 1
+getent passwd @@PRODUCT_BASE@@ >/dev/null || \
+   useradd -r -g @@PRODUCT_BASE@@ -d $RPM_INSTALL_PREFIX0 -s /bin/sh \
+           -c "@@PRODUCT_BASE@@ system user" @@PRODUCT_BASE@@ || exit 1
+
+if [ -d @@PREFIX@@ ]
+then
+  find @@PREFIX@@ -maxdepth 1 -type l | xargs rm -f || true
+fi
+
+exit 0
+
+%post
+
+if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
+  RPM_INSTALL_PREFIX0=@@PREFIX@@
+fi
+
+exit 0
+
+%preun
+
+if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
+  RPM_INSTALL_PREFIX0=@@PREFIX@@
+fi
+
+exit 0
+
+%postun
+
+if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
+  RPM_INSTALL_PREFIX0=@@PREFIX@@
+fi
+
+exit 0
+
+%posttrans
+
+if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
+  RPM_INSTALL_PREFIX0=@@PREFIX@@
+fi
+
+exit 0
+
+%files
+%defattr(-,@@PRODUCT_BASE@@,@@PRODUCT_BASE@@,-)
+@@PREFIX@@
+
+%changelog
+* Mon Dec 16 2024 Ming Ho <ming.ho@couchbase.com> - 1.0-1
+- Initial
