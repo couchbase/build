@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-# This script is used by couchbase-lite-edgeserver-linux on Mobile Jenkins
+# This script is used by couchbase-edge-server-linux on Mobile Jenkins
 # PRODUCT, VERSION, and BLD_NUM are set by the job.
 
 # Prepare staging area for packaging
@@ -13,7 +13,7 @@ cp -rp ${WORKSPACE}/edge-server/install $PRODUCT
 NODE_NAME=$(uname -n)
 
 # build rpm and deb
-ruby package-rpm.rb couchbase-lite-edgeserver ${PRODUCT} ${VERSION}-${BLD_NUM} x86_64
+ruby package-rpm.rb couchbase-edge-server ${PRODUCT} ${VERSION}-${BLD_NUM} x86_64
 docker run --rm --pull=always --volumes-from ${NODE_NAME} --workdir `pwd` --user 1000:1000 \
     couchbasebuild/server-deb-sidecar:latest ruby package-deb.rb ${PRODUCT} \
     ${PRODUCT} ${VERSION}-${BLD_NUM} amd64

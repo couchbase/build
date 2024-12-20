@@ -10,8 +10,8 @@ PRODUCT_BASE    = "couchbase"
 
 STARTDIR  = Dir.getwd()
 
-SOURCE          = ARGV[0] || "#{STARTDIR}/couchbase-lite-edgeserver"
-PRODUCT         = ARGV[1] || "#{PRODUCT_BASE}-lite-edgeserver"
+SOURCE          = ARGV[0] || "#{STARTDIR}/couchbase-edge-server"
+PRODUCT         = ARGV[1] || "#{PRODUCT_BASE}-edge-server"
 PRODUCT_VERSION = ARGV[2] || "1.0.0-1234"
 ARCH            = ARGV[3] || `uname -m`.chomp
 

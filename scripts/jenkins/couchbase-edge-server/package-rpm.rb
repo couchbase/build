@@ -9,8 +9,8 @@ require 'rake'
 PRODUCT_BASE    = "couchbase"
 START_DIR  = Dir.getwd()
 
-SOURCE          = ARGV[0] || "#{STARTDIR}/couchbase-lite-edgeserver"
-PRODUCT         = ARGV[1] || "couchbase-lite-edgeserver"
+SOURCE          = ARGV[0] || "#{STARTDIR}/couchbase-edge-server"
+PRODUCT         = ARGV[1] || "couchbase-edge-server"
 PRODUCT_VERSION = ARGV[2] || "1.0-1234"
 ARCH            = ARGV[5] || `uname -m`.chomp
 
