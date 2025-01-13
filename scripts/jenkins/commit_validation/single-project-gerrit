@@ -268,22 +268,26 @@ fi
 
 if [ -n "$ADDITIONAL_TEST_PROJECT" ]
 then
-    set_build_dir $ADDITIONAL_TEST_PROJECT
+    IFS=',' read -ra ADDITIONAL_PROJECTS <<< "$ADDITIONAL_TEST_PROJECT"
+    for PROJECT in "${ADDITIONAL_PROJECTS[@]}"
+    do
+        set_build_dir $PROJECT
 
-    if [ -f ${BUILD_DIR}/Makefile ]
-    then
-        cat <<EOF
+        if [ -f ${BUILD_DIR}/Makefile ]
+        then
+            cat <<EOF
 
 ============================================
-===      Run additional unit tests       ===
+===      Run additional unit tests for ${PROJECT}
 ============================================
 EOF
-        pushd ${BUILD_DIR} 2>&1 > /dev/null
+            pushd ${BUILD_DIR} 2>&1 > /dev/null
 
-        # --tests-regex ${ADDITIONAL_TESTS_INCLUDE} :  regex of tests to include
-        make_test "--tests-regex ${ADDITIONAL_TESTS_INCLUDE}"
-        popd 2>&1 > /dev/null
-    fi
+            # --tests-regex ${ADDITIONAL_TESTS_INCLUDE} :  regex of tests to include
+            make_test "--tests-regex ${ADDITIONAL_TESTS_INCLUDE}"
+            popd 2>&1 > /dev/null
+        fi
+    done
 fi
 
 
