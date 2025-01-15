@@ -95,6 +95,8 @@ echo_cmd ${BASEDIR}/remove_irrelevant_memcheck_results.py memcheck.*.xml
 
 # Check for core files - if present then archive them and the
 # executable they are from (for post-mortem) and fail the build.
+echo "Checking for core dumps in /tmp/core.*"
+echo_cmd cat /proc/sys/kernel/core_pattern
 shopt -s nullglob
 echo_cmd ${BASEDIR}/archive_core_files.sh archived_core_dumps /tmp/core.*
 rm -f /tmp/core.*
