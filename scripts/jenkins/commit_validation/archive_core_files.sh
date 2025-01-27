@@ -131,10 +131,10 @@ EOF
         echo -e "    gdb ${prog_path#/} --core '$(basename "$core")' -ex 'set debug-file-directory usr/lib/debug' -ex 'set sysroot .'"
         echo ""
 
-        # Finally, give people a "sneak peak" of where the crash was
-        # by dumping a backtrace.
-        echo "Backtrace of crashing thread:"
-        gdb --batch -ex "backtrace" $prog_path --core "$core" 2>/dev/null
+        # Finally dump all threads with backtrace full - the owner may have a
+        # good chance of solving most issues from this.
+        echo "Backtrace of threads:"
+        gdb --batch -ex "thread apply all backtrace full" $prog_path --core "$core" 2>/dev/null
         echo
         echo
         popd >/dev/null
