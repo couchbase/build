@@ -1,0 +1,20 @@
+[Unit]
+Description=Couchbase Edge Server
+After=network.target
+
+[Service]
+Type=simple
+User=couchbase
+WorkingDirectory=/opt/couchbase-edge-server/etc
+ExecStart=/usr/bin/bash -c 'PATH=/opt/couchbase-edge-server/bin:$PATH couchbase-edge-server config.json'
+Restart=on-failure
+
+# Give a reasonable amount of time for the server to start up/shut down
+TimeoutSec=60
+
+# log with journald
+StandardError=journal
+StandardOutput=journal
+
+[Install]
+WantedBy=multi-user.target

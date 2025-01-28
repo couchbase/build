@@ -20,6 +20,7 @@ PKGNAME="#{PRODUCT}_#{VERSION}-#{BLDNUM}"
 PREFIX          ="/opt/#{PRODUCT}"
 
 STAGE_DIR = "#{START_DIR}/build/rpm/#{PKGNAME}"
+FileUtils.rm_rf "#{STAGE_DIR}/rpmbuild"
 FileUtils.mkdir_p "#{STAGE_DIR}/rpmbuild/SOURCES"
 FileUtils.mkdir_p "#{STAGE_DIR}/rpmbuild/BUILD"
 FileUtils.mkdir_p "#{STAGE_DIR}/rpmbuild/BUILDROOT"
@@ -40,6 +41,7 @@ FileUtils.mkdir_p "#{STAGE_DIR}/rpmbuild/RPMS/#{ARCH}"
     end
 end
 
+sh %{cp -R "#{START_DIR}/service/#{PRODUCT}.service" "#{STAGE_DIR}/rpmbuild/SOURCES"}
 Dir.chdir("#{START_DIR}") do
     sh %{tar --directory #{File.dirname(SOURCE)} -czf "#{STAGE_DIR}/rpmbuild/SOURCES/#{PRODUCT}_#{VERSION}.tar.gz" #{File.basename(SOURCE)}}
 end

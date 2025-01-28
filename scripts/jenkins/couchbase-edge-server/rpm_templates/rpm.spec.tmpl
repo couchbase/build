@@ -21,6 +21,7 @@ Group:          Applications/Internet
 License:        Apache
 URL:            http://www.couchbase.com
 Source0:        %{_topdir}/SOURCES/%{name}_%{version}.tar.gz
+Source1:        %{_topdir}/SOURCES/%{name}.service
 Prefix:         @@PREFIX@@
 
 %description
@@ -42,7 +43,9 @@ Couchbase Lite Edge Server
 %install
 rm -rf %{buildroot}
 mkdir -p %{buildroot}@@PREFIX@@
-gtar cf - * | (cd %{buildroot}@@PREFIX@@ ; gtar xf -)
+mkdir -p %{buildroot}/usr/lib/systemd/system
+install -p  %{SOURCE1} %{buildroot}/usr/lib/systemd/system
+cd %{buildroot}@@PREFIX@@ ; gtar -xf %{SOURCE0} --strip-components=1
 
 %clean
 
@@ -72,6 +75,7 @@ exit 0
 if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
   RPM_INSTALL_PREFIX0=@@PREFIX@@
 fi
+%systemd_post %{name}.service
 
 exit 0
 
@@ -80,6 +84,7 @@ exit 0
 if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
   RPM_INSTALL_PREFIX0=@@PREFIX@@
 fi
+%systemd_preun %{name}.service
 
 exit 0
 
@@ -88,6 +93,7 @@ exit 0
 if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
   RPM_INSTALL_PREFIX0=@@PREFIX@@
 fi
+%systemd_postun %{name}.service
 
 exit 0
 
@@ -96,12 +102,17 @@ exit 0
 if test X"$RPM_INSTALL_PREFIX0" = X"" ; then
   RPM_INSTALL_PREFIX0=@@PREFIX@@
 fi
+systemctl enable %{name}
+systemctl daemon-reload
+systemctl start %{name}
 
 exit 0
 
 %files
 %defattr(-,@@PRODUCT_BASE@@,@@PRODUCT_BASE@@,-)
+%attr(644,root,root) /usr/lib/systemd/system/%{name}.service
 @@PREFIX@@
+/usr/lib/systemd/system/%{name}.service
 
 %changelog
 * Mon Dec 16 2024 Ming Ho <ming.ho@couchbase.com> - 1.0-1

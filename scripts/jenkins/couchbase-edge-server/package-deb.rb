@@ -41,6 +41,7 @@ FileUtils.mkdir_p "#{STAGE_DIR}/opt"
 end
 
 sh %{cp -R "#{SOURCE}" "#{STAGE_DIR}/opt/"}
+sh %{cp -R "#{STARTDIR}/service/#{PRODUCT}.service" "#{STAGE_DIR}/debian/"}
 
 Dir.chdir STAGE_DIR do
   sh %{dpkg-buildpackage -b -uc}

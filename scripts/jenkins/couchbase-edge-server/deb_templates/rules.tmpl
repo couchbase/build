@@ -63,8 +63,10 @@ binary-common:
 	dh_testroot
 	cp -a opt $(CURDIR)/debian/@@PRODUCT@@
 	dh_installchangelogs
-	dh_installinit --no-start
+	dh_systemd_enable --name=@@PRODUCT@@
+	dh_installinit
 	dh_installdocs
+	dh_systemd_start
 	dh_installman
 	dh_link
 	#dh_strip

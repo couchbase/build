@@ -6,7 +6,7 @@
 if [[ -d ${PRODUCT} ]]; then
     rm -rf ${PRODUCT}
 fi
-cp -rp ${WORKSPACE}/edge-server/install $PRODUCT
+cp -rp ${WORKSPACE}/edge-server/install ${PRODUCT}
 
 # Get build agent's docker id
 # sidecar needs to know where to mount the volume.
