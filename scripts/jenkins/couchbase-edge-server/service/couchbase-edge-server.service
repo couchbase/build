@@ -1,6 +1,7 @@
 [Unit]
 Description=Couchbase Edge Server
 After=network.target
+StartLimitIntervalSec=60
 
 [Service]
 Type=simple
@@ -8,9 +9,8 @@ User=couchbase
 WorkingDirectory=/opt/couchbase-edge-server/etc
 ExecStart=/usr/bin/bash -c 'PATH=/opt/couchbase-edge-server/bin:$PATH couchbase-edge-server config.json'
 Restart=on-failure
-
-# Give a reasonable amount of time for the server to start up/shut down
-TimeoutSec=60
+# Give a reasonable amount of time before the service tries to restart
+RestartSec=10
 
 # log with journald
 StandardError=journal
