@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 
 # We assume "repo" has already run, placing the build git as
-# ${WORKSPACE}/cbbuild and voltron as ${WORKSPACE}/voltron.
+# ${WORKSPACE}/cbbuild.
 #
 # Required job parameters (expected to be in environment):
 # DISTRO  - Distribution name (eg., "linux", "macos")
@@ -169,13 +169,12 @@ echo
 echo =============== 2. Building installation package
 echo
 
-# Pre-clean all unnecessary files
+# Pre-clean all unnecessary files - this step is going away soon, so
+# ensure the script doesn't fail if the script is not present.
 cd ${WORKSPACE}
-ruby voltron/cleanup.rb /opt/couchbase
-
-# Add voltron-specific overlays
-if [ "${PKG}" != "mac" ]; then
-    cp -r ${WORKSPACE}/voltron/server-overlay-linux/* /opt/couchbase
+if [ -f "voltron/cleanup.rb" ]
+then
+    ruby voltron/cleanup.rb /opt/couchbase
 fi
 
 # Execute platform-specific packaging step
