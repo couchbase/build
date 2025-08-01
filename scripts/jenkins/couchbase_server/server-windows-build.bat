@@ -88,16 +88,15 @@ if "%LICENSE%" == "enterprise" (
     move couchbase-server-*-%VERSION%-%BLD_NUM%-windows_amd64.zip %REPOROOT%
 )
 
+rem Pre-packaging cleanup
+cmake --build . --target pre-package-cleanup || goto error
+
 popd
 
 rem Archive all Windows debug files for future reference.
 if not "%JENKINS_HOME%" == "" (
     7za a -tzip -mx9 -ir^^!*.pdb couchbase-server-%LICENSE%_%VERSION%-%BLD_NUM%-windows_%ARCHITECTURE%-PDB.zip
 )
-
-
-rem Pre-clean all unnecessary files
-ruby voltron\cleanup.rb %REPOROOT%\install
 
 @echo ==================== package =================
 

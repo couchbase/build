@@ -169,14 +169,6 @@ echo
 echo =============== 2. Building installation package
 echo
 
-# Pre-clean all unnecessary files - this step is going away soon, so
-# ensure the script doesn't fail if the script is not present.
-cd ${WORKSPACE}
-if [ -f "voltron/cleanup.rb" ]
-then
-    ruby voltron/cleanup.rb /opt/couchbase
-fi
-
 # Execute platform-specific packaging step
 cd ${SERVER_BUILD_DIR}
 make -j2 package-${PKG}
