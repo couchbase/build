@@ -69,6 +69,14 @@ case ${PRODUCT} in
         echo "Publishing $PKG to $S3_URL_DOC"
         publish
         ;;
+    "couchbase-lite-js")
+        declare -A PACKAGE_ARRAY
+        PKG="${PRODUCT}-${VERSION}-docs"
+        EXT="zip"
+        S3_URL_DOC="s3://docs.couchbase.com/mobile/${VERSION}/${PRODUCT}"
+        echo "Publishing $PKG to $S3_URL_DOC"
+        publish
+        ;;
     "couchbase-lite-net")
         EXT="zip"
         PKG="${PRODUCT}-${VERSION}-doc"
