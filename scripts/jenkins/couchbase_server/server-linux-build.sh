@@ -54,6 +54,9 @@ case "${DISTRO/-*/}" in
         ;;
 esac
 
+# Set the umask to 022 to ensure that the build dirs get correct ACL
+umask 022
+
 # Disable this KV speed optimization - for now at least it takes too much
 # RAM on our build agents
 EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCB_UNITY_BUILD=OFF"
