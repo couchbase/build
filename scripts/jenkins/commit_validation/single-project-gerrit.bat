@@ -38,10 +38,7 @@
     @echo Notice: environment variable 'target_arch' not set. Defaulting to 'amd64'.
 )
 
-@REM How many jobs to run in parallel by default?
-@IF NOT DEFINED PARALLELISM (
-    set PARALLELISM=8
-)
+@REM How many tests to run in parallel by default?
 @IF NOT DEFINED TEST_PARALLELISM (
     set TEST_PARALLELISM=4
 )
@@ -129,7 +126,7 @@ if "%ENABLE_CBDEPS_TESTING%"=="true" (
 if not exist build mkdir build
 pushd build
 cmake -G "%CMAKE_GENERATOR%" %CMAKE_ARGS% %EXTRA_CMAKE_OPTIONS% .. || goto :error
-cmake --build . --parallel %PARALLELISM% --target %BUILD_TARGET% install || goto :error
+cmake --build . --target %BUILD_TARGET% install || goto :error
 popd
 
 @echo.
@@ -145,7 +142,7 @@ IF "%GERRIT_PROJECT%"=="ns_server" (
         @echo ============================================
 
         pushd %BUILD_DIR%
-        @REM  -j%PARALLELISM% : Run tests in parallel.
+        @REM  -j%TEST_PARALLELISM% : Run tests in parallel.
         @REM  -T Test   : Generate XML output file of test results.
         ctest -j%TEST_PARALLELISM% --output-on-failure --no-compress-output -T Test --exclude-regex %TESTS_EXCLUDE% --tests-regex %TESTS_INCLUDE% || goto :error
         popd
