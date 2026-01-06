@@ -13,7 +13,6 @@
 #
 #        TEST_OPTIONS       `-race 4 -cpu`
 #        GO_REL             1.5.3 (Currently supports 1.4.1, 1.5.2, 1.5.3)
-#        MINIFORGE_VERSION  4.12.0-2
 #
 #    This script supports building branches 1.3.0 and newer that uses repo manifest.
 #    It will purely perform these 2 tasks:
@@ -32,13 +31,14 @@
 function usage
     {
     echo "Incorrect parameters..."
-    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ] [ MINIFORGE_VERSION ] \n\n"
+    echo -e "\nUsage:  ${0}   branch_name  distro  version  bld_num  edition  commit_sha  [ GO_REL ] \n\n"
     }
 
-function get_dependencies
+function install_dependencies
     {
     #Get latest cbdep
-    curl -L ${CBDEP_URL} -o cbdep
+    os_lower=$(echo "$OS" | tr '[:upper:]' '[:lower:]')
+    curl -Lf https://packages.couchbase.com/cbdep/cbdep-${os_lower}-${ARCH} -o cbdep
     chmod +x cbdep
 
     CBDEPS_DIR=${HOME}/cbdeps
@@ -51,23 +51,9 @@ function get_dependencies
     export GOROOT=${CBDEPS_DIR}/go${GO_REL}
     export PATH=${GOROOT}/bin:$PATH
 
-    go version
-
-    if [ -n ${MINIFORGE_VERSION} ]; then
-        if [[ "${ARCH}" == "arm64" ]]; then
-            echo "miniconda is not supported on ${ARCH}."
-            echo "using default python on the system."
-        else
-            if [ ! -d ${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION} ]; then
-                ./cbdep install miniforge3 ${MINIFORGE_VERSION} -d ${CBDEPS_DIR}
-                export PATH=${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION}/bin:$PATH
-            else
-                export PATH=${CBDEPS_DIR}/miniforge3-${MINIFORGE_VERSION}/bin:$PATH
-            fi
-        fi
-        pip3 install PyInstaller==4.5.1
-    fi
-    python --version
+    uv venv --seed --python ${PYTHON_VERSION}
+    source .venv/bin/activate
+    pip3 install pyinstaller==${PYINSTALLER_VERSION}
 }
 
 function go_test
@@ -137,9 +123,6 @@ REPO_SHA=${5}
 if [[ $6 ]] ; then  echo "setting TEST_OPTIONS to $6"   ; TEST_OPTIONS=$6   ; else TEST_OPTIONS="None"  ; fi
 if [[ $7 ]] ; then  echo "setting GO_REL to $7"         ; GO_REL=$7         ; else GO_REL=1.5.3         ; fi
 
-#if python is not defined, use system default #this is to allow SGW 2.7.x to continue use python 2.7
-if [[ $8 ]] ; then  echo "setting MINIFORGE_VERSION to $8"         ; MINIFORGE_VERSION=$8; fi
-
 OS=`uname -s`
 ARCH=`uname -m`
 
@@ -153,7 +136,8 @@ SG_PRODUCT_NAME="Couchbase Sync Gateway"
 
 EXEC=sync_gateway
 COLLECTINFO_NAME=sgcollect_info
-CBDEP_VERSION=1.0.4
+PYTHON_VERSION=3.13.5
+PYINSTALLER_VERSION=6.17.0
 
 if [[ $DISTRO == "centos7" ]]
 then
@@ -164,7 +148,6 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO == "amzn2" ]]
 then
@@ -174,7 +157,6 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO =~ ubuntu ]]
 then
@@ -189,7 +171,6 @@ then
     PLATFORM=${OS}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${ARCHP}.${PKGTYPE}
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}.${PKGTYPE}
-    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-linux-${ARCH}"
     export LC_ALL="en_US.utf8"
 elif [[ $DISTRO =~ macosx  ]]
 then
@@ -198,7 +179,6 @@ then
     PLATFORM=${DISTRO}-${ARCH}
     PKG_NAME=couchbase-sync-gateway_${VERSION}-${BLD_NUM}_${DISTRO}-${ARCH}.tar.gz
     NEW_PKG_NAME=couchbase-sync-gateway-${EDITION}_${VERSION}-${BLD_NUM}_${PARCH}_unsigned.zip
-    CBDEP_URL="https://packages.couchbase.com/cbdep/${CBDEP_VERSION}/cbdep-${CBDEP_VERSION}-darwin-${ARCH}"
 else
     echo -e "\nunsupported DISTRO:  $DISTRO\n"
     exit 22
@@ -207,7 +187,7 @@ fi
 export GOOS ; export EXEC
 
 #install dependent tools, i.e. golang, python
-get_dependencies
+install_dependencies
 
 # disable nocasematch
 shopt -u nocasematch
