@@ -24,11 +24,14 @@ Source0:        %{_topdir}/SOURCES/%{name}_%{version}.tar.gz
 Source1:        %{_topdir}/SOURCES/%{name}.service
 Prefix:         @@PREFIX@@
 
+# Some libs (i.e. libicuuc.so) don't have build IDs - don't care
+%undefine _missing_build_ids_terminate_build
+
+# Since we have no actual "source", don't expect any debug source files
+%undefine _debugsource_packages
+
 %description
 Couchbase Lite Edge Server
-
-# Some of the lib files we redistribute don't have build IDs
-%undefine _missing_build_ids_terminate_build
 
 %undefine __check_files
 
