@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 import sys
 import socket
 import time
@@ -52,9 +52,9 @@ for inst in instances:
     boto_ec2_obj.create_tags(Resources=[inst.instance_id], Tags=[{'Key': 'use', 'Value': job}])
 
 with open('ec2.ips', 'w') as F:
-    print >>F, 'PUB_DNS=' + ' '.join(pub_dns)
-    print >>F, 'NODE_IPS=' + ' '.join(pub_ips)
-    print >>F, 'PRIV_IPS=' + ' '.join(priv_ips)
-    print >>F, 'CLUSTER_INST_IDS=' + ' '.join(iids)
-    print >>F, 'SERVER_PUB_IP0=' + pub_ips[0]
-    print >>F, 'SERVER_PRIV_IP0=' + priv_ips[0]
+    print('PUB_DNS=' + ' '.join(pub_dns), file=F)
+    print('NODE_IPS=' + ' '.join(pub_ips), file=F)
+    print('PRIV_IPS=' + ' '.join(priv_ips), file=F)
+    print('CLUSTER_INST_IDS=' + ' '.join(iids), file=F)
+    print('SERVER_PUB_IP0=' + pub_ips[0], file=F)
+    print('SERVER_PRIV_IP0=' + priv_ips[0], file=F)

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 import sys
 import socket
 import time
@@ -33,7 +33,7 @@ class awssdk_instance():
             return
 
         if self.inst_state.lower() == 'pending':
-            print 'It has been started by another job'
+            print('It has been started by another job')
             return
 
         if self.inst_state.lower() == 'stopping':
@@ -47,7 +47,7 @@ class awssdk_instance():
             ip = self.boto_inst_obj.public_ip_address
             #self._wait_for_ssh(ip, self.post_start_wait)
             time.sleep(self.post_start_wait)
-            print ip
+            print(ip)
             return
 
     def done(self, jenk_job):
@@ -76,14 +76,14 @@ class awssdk_instance():
     def status(self):
         self._get_current_state()
         if self.inst_state.lower() == 'stopped' or self.inst_state.lower() == 'stopping':
-            print 'Instance stopped/stopping'
+            print('Instance stopped/stopping')
             return
 
         job_name = self._get_job_name()
         if job_name == 'none':
-            print 'Instance running for %d hours; but not used by any job currently' %self.up_since
+            print('Instance running for %d hours; but not used by any job currently' % self.up_since)
         else:
-            print 'Instance running for %d hours; but currently in use by %s' %(up_since, job_name)
+            print('Instance running for %d hours; but currently in use by %s' % (self.up_since, job_name))
 
 
     def monitor(self, idle_wait_time=900):
@@ -99,10 +99,10 @@ class awssdk_instance():
             job_name = self._get_job_name()
 
             if job_name == 'none':
-                print 'Stopping instance %s is running and not used by any sdk build jobs' %self.iid
+                print('Stopping instance %s is running and not used by any sdk build jobs' % self.iid)
                 self.stop()
         else:
-                print 'Instance running, but currently in use'
+                print('Instance running, but currently in use')
 
         return True
 
@@ -140,13 +140,12 @@ class awssdk_instance():
             self.up_since = (utc_now_int - launch_time_int) / 3600
             #print self.inst_state
             #print self.inst_tags
-        except botocore.exceptions.ClientError, e:
-            if e.message.find('InvalidInstanceID') > 0:
-                print 'There is no such instance [%s] on AWS, perhaps we are given a wrong argument?' %self.iid
+        except botocore.exceptions.ClientError as e:
+            if str(e).find('InvalidInstanceID') > 0:
+                print('There is no such instance [%s] on AWS, perhaps we are given a wrong argument?' % self.iid)
                 sys.exit(1)
 
-            print 'Exception:',
-            print e
+            print('Exception:', e)
             sys.exit(2)
 
 if __name__ == '__main__':

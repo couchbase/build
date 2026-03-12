@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Prints all projects that have a commit with the same Change-Id.
@@ -13,7 +13,7 @@ paths to the projects).
 
 import json
 import os
-import urllib2 as request
+import urllib.request as request
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -87,7 +87,7 @@ def all_commits(change_id, curr_project, curr_ref):
         fetch = change['revisions'][change['current_revision']]['fetch']
         # The `ref` is the same for every download scheme, hence we can use
         # the first one that is there
-        ref = fetch.values()[0]['ref']
+        ref = next(iter(fetch.values()))['ref']
         path = project_path(manifest, project, change['branch'])
         if path and project != curr_project:
             commits.append((project, path, ref))
@@ -97,7 +97,7 @@ def all_commits(change_id, curr_project, curr_ref):
 
 def main():
     if len(sys.argv) != 4:
-        print 'usage: ./allcommits.py change-id project refspec'
+        print('usage: ./allcommits.py change-id project refspec')
         exit(1)
 
     commits = all_commits(*sys.argv[1:])
@@ -105,7 +105,7 @@ def main():
         sys.stderr.write('No commits found for change-id\n')
         exit(1)
     for project, path, ref in commits:
-        print '{} {} {}'.format(project, path, ref)
+        print('{} {} {}'.format(project, path, ref))
 
 
 if __name__ == '__main__':

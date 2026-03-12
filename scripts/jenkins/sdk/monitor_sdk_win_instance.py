@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 import sys
 import os
 import boto3
@@ -13,29 +13,29 @@ def check(inst, num_hours, itype):
        state.lower() == 'stopped' or \
        state.lower() == 'shutting-down' or \
        state.lower() == 'terminated':
-        print 'Instance is not running'
+        print('Instance is not running')
         return 0
 
     launch_time = inst['LaunchTime']
     launch_time_int = int(time.mktime(launch_time.timetuple()))
     utc_now_int = int(time.mktime(datetime.datetime.utcnow().timetuple()))
     up_since = (utc_now_int - launch_time_int) / 3600 + 1
-    print 'The %s instance %s has been running for %d hours.' %(itype, inst['InstanceId'], up_since)
+    print('The %s instance %s has been running for %d hours.' % (itype, inst['InstanceId'], up_since))
     if up_since > num_hours:
-        print 'The SDK build/test instance %s on AWS has been' %(inst['InstanceId'])
-        print 'running for more than %d hours. Please shut it down' %num_hours
+        print('The SDK build/test instance %s on AWS has been' % (inst['InstanceId']))
+        print('running for more than %d hours. Please shut it down' % num_hours)
         return 1
 
 
 if len(sys.argv) < 3:
-    print 'The script takes at least 2 arguments'
-    print
-    print 'Usage: %s <instance_id> <instance_name> [number of hours]'
-    print 'where:'
-    print '    instance_id   -- instance id to monitor. It should have the name/tag windows-sdkbb'
-    print '    instance_name -- the instance should be tagged with this name'
-    print '    num_hours     -- if the instance has been up for more than this number of hours'
-    print '                     the script will flag it. Default 24'
+    print('The script takes at least 2 arguments')
+    print()
+    print('Usage: %s <instance_id> <instance_name> [number of hours]')
+    print('where:')
+    print('    instance_id   -- instance id to monitor. It should have the name/tag windows-sdkbb')
+    print('    instance_name -- the instance should be tagged with this name')
+    print('    num_hours     -- if the instance has been up for more than this number of hours')
+    print('                     the script will flag it. Default 24')
     sys.exit(1)
 
 iid = sys.argv[1]
@@ -71,16 +71,16 @@ for resp in responses:
             processed.append(inst['InstanceId'])
 
 if gotinstance:
-    print
-    print
-    print '===================================================================================='
-    print 'Following instance likely needs be stopped/terminated (check if they are being used)'
-    print 'AWS_PROFILE: %s' %(os.environ.get('AWS_PROFILE', 'Unknown'))
+    print()
+    print()
+    print('====================================================================================')
+    print('Following instance likely needs be stopped/terminated (check if they are being used)')
+    print('AWS_PROFILE: %s' % (os.environ.get('AWS_PROFILE', 'Unknown')))
     for i in gotinstance:
         action = 'stop'
         if i[1] == 'test':
             action = 'terminate'
-        print 'InstanceId: %s (please %s)' %(i[0], action)
+        print('InstanceId: %s (please %s)' % (i[0], action))
     sys.exit(1)
 else:
     sys.exit(0)

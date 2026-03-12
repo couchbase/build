@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Prints all projects that have a not yet merged commit with a Change-Id
@@ -59,7 +59,7 @@ def ref_to_url(ref):
 
 def main():
     if len(sys.argv) != 5:
-        print 'usage: ./alldependencies.py sha changeid project refspec'
+        print('usage: ./alldependencies.py sha changeid project refspec')
         exit(1)
 
     dependencies, transitive = all_dependencies(*sys.argv[1:])
@@ -67,7 +67,7 @@ def main():
         sys.stderr.write('No dependencies found for sha\n')
         exit(1)
     for project, path, ref in dependencies.values():
-        print '{} {} {}'.format(project, path, ref)
+        print('{} {} {}'.format(project, path, ref))
 
     # Error for any transitive dependencies
     disjoint = [transitive[x] for x in transitive if x not in dependencies]

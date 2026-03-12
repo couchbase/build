@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Simple script for taking the output of alldependencies.py and running it
 on the corresponding `fetch_project` script.
@@ -27,7 +27,7 @@ def main():
 
     p = subprocess.Popen(
         [sys.executable, os.path.join(script_dir, 'alldependencies.py')] + sys.argv[1:],
-        stdout=subprocess.PIPE)
+        stdout=subprocess.PIPE, text=True)
     p.wait()
     if p.returncode:
         return p.returncode

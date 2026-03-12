@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import copy
 import os
@@ -33,7 +33,7 @@ def init_last_manifest(last_manifest_file, good_manifest):
 
 def main():
     if len(sys.argv) <= 2:
-        print 'usage: ./single-repo-change.py manifest-path manifest-id'
+        print('usage: ./single-repo-change.py manifest-path manifest-id')
         return 1
 
     mani_dir = sys.argv[1]
@@ -47,7 +47,7 @@ def main():
     # there's a buildbot build "in flight" and we should abort
     lock_file = os.path.join(mani_dir, "{}-lock.txt".format(release))
     if os.path.isfile(lock_file):
-        print "Lock file {} exists - halting this run! BUILD UNSTABLE".format(release)
+        print("Lock file {} exists - halting this run! BUILD UNSTABLE".format(release))
         return 0
 
     # Request current fixed-revision manifest from repo
@@ -81,14 +81,14 @@ def main():
             break
     else:
         # Didn't find a change - all done for this pass
-        print "Did not find a changed project in manifest - nothing to do! BUILD UNSTABLE"
+        print("Did not find a changed project in manifest - nothing to do! BUILD UNSTABLE")
         return 0
 
     # QQQ handle project deletion as well
  
     # Copy changed project element into last_manifest, overwriting if
     # necessary, and save back to disk
-    print "Found changed project {}!".format(changed_proj)
+    print("Found changed project {}!".format(changed_proj))
     last_root = last_manifest.getroot()
     if last_proj != None:
         last_root.remove(last_proj)
@@ -114,18 +114,18 @@ def main():
         f = open(lock_file, "w")
         f.write(os.environ["BUILD_URL"])
     except:
-        print "Failed to write lock file {}!".format(lock_file)
+        print("Failed to write lock file {}!".format(lock_file))
         return 2
 
     # Update github
     orig_dir = os.getcwd()
     os.chdir(mani_dir)
-    print check_output(["git", "add", "-A"])
-    print check_output(["git", "commit", "-m",
-                        "{}".format(os.environ["BUILD_TAG"])])
-    print check_output(["git", "push", "origin"])
-    mani_sha = check_output(["git", "rev-parse", "HEAD"])
-    print "Commited candidate manifest at revision {}".format(mani_sha)
+    print(check_output(["git", "add", "-A"]).decode())
+    print(check_output(["git", "commit", "-m",
+                        "{}".format(os.environ["BUILD_TAG"])]).decode())
+    print(check_output(["git", "push", "origin"]).decode())
+    mani_sha = check_output(["git", "rev-parse", "HEAD"]).decode().strip()
+    print("Commited candidate manifest at revision {}".format(mani_sha))
 
     # Update status HTML
     os.chdir(orig_dir)

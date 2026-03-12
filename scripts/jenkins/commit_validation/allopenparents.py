@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Prints Change-Ids of not yet merged parent commits.
@@ -13,7 +13,7 @@ The output format is one Change-Id per line.
 """
 
 import json
-import urllib2 as request
+import urllib.request as request
 import sys
 
 GERRIT_ROOT = 'http://review.couchbase.org/'
@@ -89,7 +89,7 @@ def all_parent_change_ids(sha1, curr_change_id):
 
 def main():
     if len(sys.argv) != 3:
-        print 'usage: ./allopenparents.py commit-sha-1 change-id'.format()
+        print('usage: ./allopenparents.py commit-sha-1 change-id')
         exit(1)
 
     commit_sha1 = sys.argv[1]
