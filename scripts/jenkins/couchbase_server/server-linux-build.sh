@@ -106,6 +106,21 @@ then
 else
     BUILD_ENTERPRISE=FALSE
 fi
+# Split EXTRA_CMAKE_OPTIONS the way a shell would, so an option whose value
+# contains spaces -- eg. -DCMAKE_CXX_FLAGS_RELWITHDEBINFO="-O2 -DNDEBUG" --
+# reaches cmake as one argument. Unquoted ${EXTRA_CMAKE_OPTIONS} is subject to
+# word splitting, which would deliver that as two broken arguments. Plain
+# space-separated options are unaffected. Avoids mapfile, which is bash 4+ and
+# so unavailable on the macOS builders.
+_extra_cmake_options=()
+if [ -n "${EXTRA_CMAKE_OPTIONS}" ]
+then
+    while IFS= read -r _opt
+    do
+        _extra_cmake_options+=("${_opt}")
+    done < <(xargs -n1 printf '%s\n' <<< "${EXTRA_CMAKE_OPTIONS}")
+fi
+
 cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CMAKE_PREFIX_PATH=/opt/couchbase \
       -D CMAKE_BUILD_TYPE=RelWithDebInfo \
@@ -115,7 +130,7 @@ cmake -D CMAKE_INSTALL_PREFIX=/opt/couchbase \
       -D CB_DOWNLOAD_JAVA=True \
       -D CB_DOWNLOAD_DEPS=1 \
       -D CB_INVOKE_MAVEN=True \
-      ${EXTRA_CMAKE_OPTIONS} \
+      "${_extra_cmake_options[@]}" \
       "${CODE_COVERAGE_OPTIONS}" \
       ..
 
